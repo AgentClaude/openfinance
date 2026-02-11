@@ -35,8 +35,8 @@ FactoryBot.define do
     association :household
     
     name { Faker::Bank.name + " " + %w[Checking Savings Credit].sample }
-    account_type { 'depository' }
-    account_subtype { 'checking' }
+    account_type { 'checking' }
+    account_subtype { nil }
     current_balance_cents { rand(100000..1000000) }
     available_balance_cents { current_balance_cents }
     currency { 'USD' }
@@ -49,8 +49,8 @@ FactoryBot.define do
     end
 
     trait :credit do
-      account_type { 'credit' }
-      account_subtype { 'credit_card' }
+      account_type { 'credit_card' }
+      account_subtype { nil }
       current_balance_cents { -rand(10000..100000) }
       credit_limit_cents { 500000 }
       available_balance_cents { credit_limit_cents + current_balance_cents }
@@ -73,6 +73,39 @@ FactoryBot.define do
 
     trait :system do
       is_system { true }
+    end
+  end
+
+  factory :institution do
+    name { Faker::Bank.name }
+    plaid_institution_id { "ins_#{rand(100000)}" }
+    primary_color { '#1f77b4' }
+  end
+
+  factory :account_connection do
+    association :household
+    association :created_by, factory: :user
+    provider { 'plaid' }
+    status { 'active' }
+    provider_connection_id { "item_#{SecureRandom.hex(16)}" }
+    provider_access_token { "access-sandbox-#{SecureRandom.hex(16)}" }
+    association :institution
+
+    trait :manual do
+      provider { 'manual' }
+      provider_connection_id { nil }
+      provider_access_token { nil }
+      institution { nil }
+    end
+
+    trait :error do
+      status { 'error' }
+      error_code { 'ITEM_LOGIN_REQUIRED' }
+      error_message { 'Please reconnect your account' }
+    end
+
+    trait :disconnected do
+      status { 'disconnected' }
     end
   end
 

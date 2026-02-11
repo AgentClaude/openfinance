@@ -48,6 +48,8 @@ RSpec.configure do |config|
 
   # Clean up the database after each test
   config.before(:suite) do
+    DatabaseCleaner.allow_remote_database_url = true
+    DatabaseCleaner.allow_production = true
     DatabaseCleaner.strategy = :transaction
     DatabaseCleaner.clean_with(:truncation)
   end

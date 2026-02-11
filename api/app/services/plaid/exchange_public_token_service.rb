@@ -117,10 +117,7 @@ class Plaid::ExchangePublicTokenService < ApplicationService
   def schedule_initial_sync!
     # Schedule an immediate sync of transactions
     # Gracefully handle Sidekiq being unavailable
-    SyncTransactionsJob.set(wait: 10.seconds).perform_later(@connection)
-  rescue => e
-    Rails.logger.warn "Failed to schedule initial sync for connection #{@connection.id}: #{e.message}"
-    # Don't fail the entire token exchange if job scheduling fails
+    SyncTransactionsJob.safe_perform_later(@connection, set_options: { wait: 10.seconds })
   end
 
   def find_or_create_institution(institution_id)

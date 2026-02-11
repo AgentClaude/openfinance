@@ -97,10 +97,7 @@ class AccountConnection < ApplicationRecord
   def schedule_sync(priority: 'default')
     return unless active? && !manual_provider?
     
-    SyncAccountsJob.set(queue: priority).perform_later(self)
-  rescue => e
-    Rails.logger.warn "Failed to schedule sync for account connection #{id}: #{e.message}"
-    # Continue execution if job scheduling fails
+    SyncAccountsJob.safe_perform_later(self, set_options: { queue: priority })
   end
 
   def sync_in_progress?
@@ -247,10 +244,7 @@ class AccountConnection < ApplicationRecord
     
     # Schedule initial sync with a slight delay to allow transaction to complete
     # Gracefully handle Sidekiq being unavailable
-    SyncAccountsJob.set(wait: 30.seconds, queue: 'high').perform_later(self)
-  rescue => e
-    Rails.logger.warn "Failed to schedule initial sync for account connection #{id}: #{e.message}"
-    # Don't fail the entire connection creation if job scheduling fails
+    SyncAccountsJob.safe_perform_later(self, set_options: { wait: 30.seconds, queue: 'high' })
   end
 
   def handle_status_changes

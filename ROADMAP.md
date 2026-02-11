@@ -26,9 +26,11 @@ _See MONARCH_FEATURES.md for detailed feature spec and data fields_
 ## Phase 2: Bugs & Stability
 - ✅ Transaction filtering fixed
 - 🔧 Plaid token exchange (Institution model fixed — needs end-to-end retest)
-- 🐛 Sidekiq container keeps restarting (gem issue)
-- 🐛 Leftover E2E test accounts/data polluting DB
-- 🔧 Web container port mapping (compose says 3002:3000, docker ps shows 3000:3000)
+- ✅ Sidekiq container keeps restarting (gem issue) — stable now
+- ✅ Leftover E2E test accounts/data polluting DB — E2E uses demo account, no leftover data
+- ✅ Web container port mapping (compose says 3002:3000, docker ps shows 3000:3000) — fixed
+- ✅ Auth token lost on page reload (duplicate Apollo client using wrong localStorage key; AuthProvider clearing token on network errors)
+- ✅ GraphQL requests now proxied through nginx instead of direct CORS calls
 
 ## Phase 3: Testing
 - ✅ Playwright E2E tests (22 passing)
@@ -44,7 +46,7 @@ _See MONARCH_FEATURES.md for detailed feature spec and data fields_
 - ✅ Link token creation + exchange services + mutations
 - ✅ Transaction sync service
 - ✅ Fix Institution model
-- 🐛 Make job scheduling graceful when Sidekiq unavailable
+- ✅ Make job scheduling graceful when Sidekiq unavailable (all jobs use safe_perform_later)
 - ⬚ Webhook endpoint for real-time transaction updates (TRANSACTIONS.SYNC_UPDATES_AVAILABLE, ITEM.ERROR)
 - ⬚ Connection management UI (reconnect, disconnect, status, error banners)
 - ⬚ Plaid category → OpenFinance category mapping

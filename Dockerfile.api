@@ -29,8 +29,7 @@ RUN gem install bundler
 COPY api/Gemfile ./
 
 # Install Ruby dependencies
-RUN bundle config set --local without 'development test' && \
-    bundle install --jobs 4 --retry 3
+RUN bundle install --jobs 4 --retry 3
 
 # Copy application code
 COPY api/ .

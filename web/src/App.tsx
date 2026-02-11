@@ -1,8 +1,8 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { ApolloProvider, ApolloClient, InMemoryCache, createHttpLink } from '@apollo/client';
-import { setContext } from '@apollo/client/link/context';
+import { ApolloProvider } from '@apollo/client';
 
+import { apolloClient } from '@/lib/apollo';
 import { AuthProvider } from '@/components/AuthProvider';
 import { ToastProvider } from '@/components/ui/Toast';
 import ProtectedRoute from '@/components/ProtectedRoute';
@@ -20,38 +20,9 @@ import CategoriesPage from '@/pages/CategoriesPage';
 // Temporary placeholder page
 const SettingsPage: React.FC = () => <div>Settings Page (Coming Soon)</div>;
 
-// Create HTTP Link
-const httpLink = createHttpLink({
-  uri: '/graphql',
-});
-
-// Create Auth Link
-const authLink = setContext((_, { headers }) => {
-  const token = localStorage.getItem('auth-token');
-  const parsedToken = token ? JSON.parse(token) : null;
-
-  return {
-    headers: {
-      ...headers,
-      authorization: parsedToken ? `Bearer ${parsedToken}` : '',
-    },
-  };
-});
-
-// Create Apollo Client
-const client = new ApolloClient({
-  link: authLink.concat(httpLink),
-  cache: new InMemoryCache(),
-  defaultOptions: {
-    watchQuery: {
-      errorPolicy: 'all',
-    },
-  },
-});
-
 function App() {
   return (
-    <ApolloProvider client={client}>
+    <ApolloProvider client={apolloClient}>
       <ToastProvider>
         <AuthProvider>
           <Router>

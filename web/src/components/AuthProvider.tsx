@@ -27,10 +27,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
       }
       setLoading(false)
     },
-    onError: () => {
-      // Clear invalid tokens
-      updateAuthToken(null)
-      setUser(null)
+    onError: (error) => {
+      // Only clear tokens for authentication errors, not network errors
+      const isAuthError = error.graphQLErrors?.some(
+        e => e.message.includes('Authentication') || e.message.includes('Unauthorized')
+      ) || error.networkError && 'statusCode' in error.networkError && error.networkError.statusCode === 401
+      
+      if (isAuthError) {
+        updateAuthToken(null)
+        setUser(null)
+      }
       setLoading(false)
     },
   })

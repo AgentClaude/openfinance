@@ -5,7 +5,7 @@ import toast from 'react-hot-toast'
 
 // HTTP link for GraphQL API
 const httpLink = new HttpLink({
-  uri: import.meta.env.VITE_GRAPHQL_URL || 'http://localhost:3001/graphql',
+  uri: import.meta.env.VITE_GRAPHQL_URL || '/graphql',
   credentials: 'include', // Include cookies for CSRF protection
 })
 
@@ -56,12 +56,9 @@ const errorLink = onError(({ graphQLErrors, networkError, operation }) => {
         window.location.href = '/login'
       } else if (networkError.statusCode >= 500) {
         toast.error('Server error. Please try again later.')
-      } else {
-        toast.error('Network error. Check your connection.')
       }
-    } else {
-      toast.error('Network error. Check your connection.')
     }
+    // Don't show toast for transient network errors (e.g., during page reload)
   }
 })
 
@@ -71,10 +68,8 @@ const cache = new InMemoryCache({
     Query: {
       fields: {
         transactions: {
-          // Merge policies for pagination
-          merge(existing = [], incoming) {
-            return [...existing, ...incoming]
-          },
+          // Replace on each fetch — pagination handled by fetchMore
+          merge: false,
         },
       },
     },
@@ -109,7 +104,7 @@ export const apolloClient = new ApolloClient({
     },
     query: {
       errorPolicy: 'all',
-      fetchPolicy: 'cache-first',
+      fetchPolicy: 'network-only',
     },
     mutate: {
       errorPolicy: 'all',

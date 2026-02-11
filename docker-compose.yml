@@ -72,6 +72,7 @@ services:
     volumes:
       - rails_storage:/app/storage
       - rails_logs:/app/log
+      - ./api:/app
     command: >
       sh -c "
         echo 'Waiting for database...' &&
@@ -133,7 +134,7 @@ services:
     environment:
       - NODE_ENV=production
       - VITE_API_URL=${API_URL:-http://localhost:3001}
-      - VITE_GRAPHQL_URL=${API_URL:-http://localhost:3001}/graphql
+      - VITE_GRAPHQL_URL=/graphql
       - VITE_PLAID_ENVIRONMENT=${PLAID_ENVIRONMENT:-sandbox}
     ports:
       - "${WEB_PORT:-3002}:3000"
