@@ -1,0 +1,66 @@
+# PostgreSQL configuration for OpenFinance
+# For detailed configuration options, see:
+# https://guides.rubyonrails.org/configuring.html#configuring-a-database
+
+default: &default
+  adapter: postgresql
+  encoding: unicode
+  # For details on connection pooling, see Rails configuration guide
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  timeout: 30_000
+  
+  # Enable UUID extension by default
+  schema_search_path: "public,extensions"
+  
+  # Connection settings
+  connect_timeout: 10
+  checkout_timeout: 5
+  reaping_frequency: 10
+  
+  # Performance settings
+  prepared_statements: true
+  advisory_locks: true
+
+development:
+  <<: *default
+  host: <%= ENV.fetch('DB_HOST', 'localhost') %>
+  port: <%= ENV.fetch('DB_PORT', 5432) %>
+  database: <%= ENV.fetch('DB_NAME', 'openfinance_development') %>
+  username: <%= ENV.fetch('DB_USERNAME', 'openfinance') %>
+  password: <%= ENV.fetch('DB_PASSWORD', 'password') %>
+  
+  # Development-specific settings
+  min_messages: WARNING
+  
+test:
+  <<: *default
+  host: <%= ENV.fetch('DB_HOST', 'localhost') %>
+  port: <%= ENV.fetch('DB_PORT', 5432) %>
+  database: <%= ENV.fetch('DB_TEST_NAME', 'openfinance_test') %>
+  username: <%= ENV.fetch('DB_USERNAME', 'openfinance') %>
+  password: <%= ENV.fetch('DB_PASSWORD', 'password') %>
+  
+  # Test-specific settings
+  min_messages: ERROR
+
+production:
+  <<: *default
+  # Use DATABASE_URL environment variable
+  url: <%= ENV.fetch('DATABASE_URL') %>
+  
+  # Production-specific pool size
+  pool: <%= ENV.fetch("DB_POOL", 10) %>
+  
+  # Connection settings for production
+  connect_timeout: 15
+  checkout_timeout: 10
+  
+  # SSL settings for cloud databases
+  sslmode: <%= ENV.fetch('DB_SSL_MODE', 'prefer') %>
+  
+  # Statement timeout for long-running queries
+  variables:
+    statement_timeout: 60000
+    
+  # Production logging
+  min_messages: ERROR

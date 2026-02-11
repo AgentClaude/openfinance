@@ -1,0 +1,162 @@
+export interface User {
+  id: string;
+  email: string;
+  name: string;
+  householdId: string;
+  household?: Household;
+}
+
+export interface Household {
+  id: string;
+  name: string;
+  currency: string;
+}
+
+export interface Account {
+  id: string;
+  name: string;
+  type: AccountType;
+  subtype?: string;
+  balance: number;
+  balanceDate: string;
+  mask?: string;
+  officialName?: string;
+  isActive: boolean;
+  plaidAccountId?: string;
+  householdId: string;
+}
+
+export enum AccountType {
+  DEPOSITORY = 'DEPOSITORY',
+  CREDIT = 'CREDIT',
+  LOAN = 'LOAN',
+  INVESTMENT = 'INVESTMENT',
+  OTHER = 'OTHER'
+}
+
+export interface Transaction {
+  id: string;
+  amount: number;
+  description: string;
+  date: string;
+  pending: boolean;
+  needsReview: boolean;
+  accountId: string;
+  categoryId?: string;
+  subcategoryId?: string;
+  merchantName?: string;
+  plaidTransactionId?: string;
+  account: Account;
+  category?: Category;
+  subcategory?: Category;
+  tags: Tag[];
+}
+
+export interface Category {
+  id: string;
+  name: string;
+  icon?: string;
+  color?: string;
+  groupName: string;
+  isSystem: boolean;
+  householdId: string;
+  parentId?: string;
+  children?: Category[];
+}
+
+export interface Tag {
+  id: string;
+  name: string;
+  color?: string;
+  householdId: string;
+}
+
+export interface BudgetItem {
+  id: string;
+  categoryId: string;
+  budgeted: number;
+  spent: number;
+  month: string;
+  category: Category;
+}
+
+export interface DashboardSummary {
+  netWorth: number;
+  netWorthChange: number;
+  monthlyIncome: number;
+  monthlyExpenses: number;
+  cashFlow: number;
+  spendingByCategory: CategorySpending[];
+  recentTransactions: Transaction[];
+  accountBalances: AccountBalance[];
+  needsReviewCount: number;
+}
+
+export interface CategorySpending {
+  categoryId: string;
+  categoryName: string;
+  amount: number;
+  percentage: number;
+  color?: string;
+}
+
+export interface AccountBalance {
+  accountId: string;
+  accountName: string;
+  accountType: AccountType;
+  balance: number;
+}
+
+export interface TransactionFilters {
+  search?: string;
+  categoryId?: string;
+  accountId?: string;
+  minAmount?: number;
+  maxAmount?: number;
+  dateFrom?: string;
+  dateTo?: string;
+  needsReview?: boolean;
+  page?: number;
+  limit?: number;
+}
+
+export interface PaginatedTransactions {
+  transactions: Transaction[];
+  totalCount: number;
+  hasMore: boolean;
+}
+
+export interface AuthContextType {
+  user: User | null;
+  isAuthenticated: boolean;
+  login: (email: string, password: string) => Promise<void>;
+  register: (name: string, email: string, password: string) => Promise<void>;
+  logout: () => void;
+  loading: boolean;
+}
+
+export interface ToastType {
+  id: string;
+  type: 'success' | 'error' | 'info' | 'warning';
+  title: string;
+  message?: string;
+}
+
+export interface ButtonProps {
+  variant?: 'primary' | 'secondary' | 'danger' | 'ghost';
+  size?: 'sm' | 'md' | 'lg';
+  loading?: boolean;
+  disabled?: boolean;
+  type?: 'button' | 'submit' | 'reset';
+  className?: string;
+  children: React.ReactNode;
+  onClick?: () => void;
+}
+
+export interface ColumnConfig<T> {
+  key: string;
+  label: string;
+  render?: (item: T) => React.ReactNode;
+  sortable?: boolean;
+  width?: string;
+}

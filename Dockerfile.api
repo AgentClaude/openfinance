@@ -1,0 +1,56 @@
+# Use Ruby 3.3 on Alpine for smaller image size
+FROM ruby:3.3-alpine AS base
+
+# Install system dependencies
+RUN apk add --no-cache \
+    build-base \
+    postgresql-dev \
+    curl \
+    git \
+    nodejs \
+    yarn \
+    tzdata \
+    libffi-dev \
+    gcompat \
+    yaml-dev \
+    vips-dev
+
+# Set working directory
+WORKDIR /app
+
+# Create app user for security
+RUN addgroup -g 1000 -S app && \
+    adduser -u 1000 -S app -G app
+
+# Install bundler
+RUN gem install bundler
+
+# Copy Gemfile and Gemfile.lock
+COPY api/Gemfile ./
+
+# Install Ruby dependencies
+RUN bundle config set --local without 'development test' && \
+    bundle install --jobs 4 --retry 3
+
+# Copy application code
+COPY api/ .
+
+# Create necessary directories and set permissions
+RUN mkdir -p tmp/pids tmp/sockets log storage && \
+    chown -R app:app /app
+
+# Precompile bootsnap cache
+RUN bundle exec bootsnap precompile --gemfile app/ lib/
+
+# Switch to app user
+USER app
+
+# Expose port
+EXPOSE 3001
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:3001/health || exit 1
+
+# Default command
+CMD ["bundle", "exec", "rails", "server", "-b", "0.0.0.0", "-p", "3001"]

@@ -1,0 +1,33 @@
+# Environment
+.env
+.env.*
+!.env.example
+
+# Dependencies
+node_modules/
+vendor/bundle/
+
+# Build artifacts
+web/dist/
+web/build/
+api/tmp/
+api/log/
+
+# Test results
+test-results/
+playwright-report/
+web/test-results/
+web/playwright-report/
+
+# Docker
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo

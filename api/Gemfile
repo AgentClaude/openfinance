@@ -1,0 +1,87 @@
+source "https://rubygems.org"
+
+ruby ">= 3.3.0"
+
+# Rails 8 with API mode
+gem "rails", "~> 8.0.0"
+
+# Database
+gem "pg", "~> 1.5"
+
+# Authentication
+gem "devise", "~> 4.9"
+gem "devise-jwt", "~> 0.11"
+
+# GraphQL
+gem "graphql", "~> 2.2"
+gem "graphiql-rails", "~> 1.9"
+
+# Background Jobs
+gem "sidekiq", "~> 7.2"
+# Sidekiq web UI is included in sidekiq gem
+
+# HTTP Client for Plaid
+gem "faraday", "~> 2.8"
+gem "faraday-retry", "~> 2.2"
+
+# Plaid Integration
+gem "plaid", "~> 25.0"
+
+# JSON Handling
+gem "oj", "~> 3.16"
+
+# Caching
+gem "redis", "~> 5.0"
+
+# CORS
+gem "rack-cors", "~> 2.0"
+
+# Environment Variables
+gem "dotenv-rails", "~> 2.8"
+
+# Performance
+gem "bootsnap", "~> 1.17", require: false
+
+# Server
+gem "puma", "~> 6.4"
+
+# Data Validation
+gem "strong_migrations", "~> 1.8"
+
+# Money handling
+gem "money-rails", "~> 1.15"
+
+# Pagination
+gem "kaminari", "~> 1.2"
+
+# Image processing (for avatars/receipts)
+gem "image_processing", "~> 1.12"
+
+group :development, :test do
+  # Debugging
+  gem "debug", "~> 1.8"
+  
+  # Testing
+  gem "rspec-rails", "~> 6.1"
+  gem "factory_bot_rails", "~> 6.4"
+  gem "faker", "~> 3.2"
+  gem "webmock", "~> 3.19"
+  gem "vcr", "~> 6.2"
+end
+
+group :development do
+  # Code quality
+  gem "rubocop", "~> 1.58", require: false
+  gem "rubocop-rails", "~> 2.22", require: false
+  gem "rubocop-rspec", "~> 2.25", require: false
+  gem "rubocop-performance", "~> 1.19", require: false
+  
+  # Database tools
+  # gem "annotate" — not yet compatible with Rails 8
+end
+
+group :test do
+  gem "shoulda-matchers", "~> 5.3"
+  gem "database_cleaner-active_record", "~> 2.1"
+  gem "simplecov", "~> 0.22", require: false
+end
