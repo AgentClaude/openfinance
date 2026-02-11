@@ -2,7 +2,10 @@ import { createContext, useContext, useEffect, useState, ReactNode } from 'react
 import { useQuery, useMutation } from '@apollo/client'
 import { ME } from '../graphql/queries'
 import { LOGIN, REGISTER } from '../graphql/mutations'
+import { updateAuthToken } from '../lib/apollo'
 import type { User, AuthContextType } from '../types'
+
+const TOKEN_KEY = 'access_token'
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
@@ -16,7 +19,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   // Query current user on app load
   const { loading: queryLoading } = useQuery(ME, {
-    skip: !localStorage.getItem('auth-token'),
+    skip: !localStorage.getItem(TOKEN_KEY),
     errorPolicy: 'ignore', // Don't show errors for unauthenticated users
     onCompleted: (data) => {
       if (data?.me) {
@@ -26,7 +29,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     },
     onError: () => {
       // Clear invalid tokens
-      localStorage.removeItem('auth-token')
+      updateAuthToken(null)
       setUser(null)
       setLoading(false)
     },
@@ -37,7 +40,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     onCompleted: (data) => {
       if (data?.login?.token) {
         const { user: userData, token } = data.login
-        localStorage.setItem('auth-token', JSON.stringify(token))
+        updateAuthToken(token)
         setUser(userData)
       }
     },
@@ -48,7 +51,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     onCompleted: (data) => {
       if (data?.register?.token) {
         const { user: userData, token } = data.register
-        localStorage.setItem('auth-token', JSON.stringify(token))
+        updateAuthToken(token)
         setUser(userData)
       }
     },
@@ -56,7 +59,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   // Set loading state based on query loading
   useEffect(() => {
-    if (!localStorage.getItem('auth-token')) {
+    if (!localStorage.getItem(TOKEN_KEY)) {
       setLoading(false)
     } else {
       setLoading(queryLoading)
@@ -94,7 +97,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }
 
   const logout = () => {
-    localStorage.removeItem('auth-token')
+    updateAuthToken(null)
     setUser(null)
     // Note: You might want to add a logout mutation here if needed
   }
