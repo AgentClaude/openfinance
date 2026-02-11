@@ -29,7 +29,7 @@ class AutoCategorizeTransactionsJob < ApplicationJob
     
     # Schedule recurring transaction detection if we categorized some transactions
     if categorized_count > 0
-      DetectRecurringTransactionsJob.perform_later(household)
+      DetectRecurringTransactionsJob.safe_perform_later(household)
     end
   end
 end

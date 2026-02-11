@@ -230,10 +230,10 @@ class Household < ApplicationRecord
   private
 
   def create_default_categories
-    CreateDefaultCategoriesJob.perform_later(self)
+    CreateDefaultCategoriesJob.safe_perform_later(self)
   end
 
   def create_default_budget
-    CreateDefaultBudgetJob.perform_later(self)
+    CreateDefaultBudgetJob.safe_perform_later(self)
   end
 end

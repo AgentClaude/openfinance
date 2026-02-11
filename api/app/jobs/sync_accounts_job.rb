@@ -6,7 +6,7 @@ class SyncAccountsJob < ApplicationJob
 
   def perform(connection)
     # Delegate to the actual sync transactions job
-    SyncTransactionsJob.perform_later(connection)
+    SyncTransactionsJob.safe_perform_later(connection)
   end
 
   # Cancel sync jobs for a specific connection

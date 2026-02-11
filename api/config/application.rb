@@ -39,16 +39,16 @@ module OpenFinance
     # API-only mode
     config.api_only = true
 
-    # CORS Configuration
-    config.middleware.insert_before 0, Rack::Cors do
-      allow do
-        origins ENV['CORS_ORIGINS']&.split(',') || ['http://localhost:3000']
-        resource '*',
-          headers: :any,
-          methods: [:get, :post, :put, :patch, :delete, :options, :head],
-          credentials: true
-      end
-    end
+    # CORS Configuration — handled by config/initializers/cors.rb
+    # config.middleware.insert_before 0, Rack::Cors do
+    #   allow do
+    #     origins ENV['CORS_ORIGINS']&.split(',') || ['http://localhost:3000']
+    #     resource '*',
+    #       headers: :any,
+    #       methods: [:get, :post, :put, :patch, :delete, :options, :head],
+    #       credentials: true
+    #   end
+    # end
 
     # JWT Configuration
     config.jwt_secret_key = ENV.fetch('JWT_SECRET_KEY', 'dev-jwt-secret-change-me')

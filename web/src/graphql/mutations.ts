@@ -211,3 +211,53 @@ export const UPDATE_BUDGET_ITEM = gql`
     }
   }
 `;
+
+export const DELETE_BUDGET_ITEM = gql`
+  mutation DeleteBudgetItem($categoryId: ID!, $month: String!) {
+    deleteBudgetItem(categoryId: $categoryId, month: $month) {
+      success
+    }
+  }
+`;
+
+export const COPY_BUDGET_FROM_MONTH = gql`
+  mutation CopyBudgetFromMonth($sourceMonth: String!, $targetMonth: String!) {
+    copyBudgetFromMonth(sourceMonth: $sourceMonth, targetMonth: $targetMonth) {
+      budgetItems {
+        id
+        categoryId
+        budgeted
+        spent
+        month
+        category {
+          id
+          name
+          icon
+          color
+          groupName
+        }
+      }
+    }
+  }
+`;
+
+export const FILL_BUDGET_FROM_AVERAGES = gql`
+  mutation FillBudgetFromAverages($month: String!) {
+    fillBudgetFromAverages(month: $month) {
+      budgetItems {
+        id
+        categoryId
+        budgeted
+        spent
+        month
+        category {
+          id
+          name
+          icon
+          color
+          groupName
+        }
+      }
+    }
+  }
+`;

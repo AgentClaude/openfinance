@@ -4,7 +4,10 @@ import {
   ChevronRightIcon,
   PencilIcon,
   CheckIcon,
-  XMarkIcon
+  XMarkIcon,
+  TrashIcon,
+  DocumentDuplicateIcon,
+  CalculatorIcon,
 } from '@heroicons/react/24/outline';
 import { useBudget } from '@/hooks/useBudget';
 import Card from '@/components/ui/Card';
@@ -28,14 +31,19 @@ const BudgetPage: React.FC = () => {
     budgetItems,
     loading,
     updating,
+    copying,
+    filling,
     updateBudgetItem,
+    deleteBudgetItem,
+    copyFromLastMonth,
+    fillFromAverages,
     getTotalBudgeted,
     getTotalSpent,
-    getTotalRemaining,
     getBudgetProgress,
     getOverBudgetItems,
     getCategoryProgress,
     getCategoryRemaining,
+    getGroupedBudgetItems,
   } = useBudget(currentMonth);
 
   const { addToast } = useToast();
@@ -44,7 +52,7 @@ const BudgetPage: React.FC = () => {
     setCurrentDate(prev => 
       direction === 'prev' ? subMonths(prev, 1) : addMonths(prev, 1)
     );
-    setEditingCategory(null); // Reset editing when changing months
+    setEditingCategory(null);
   };
 
   const handleEditStart = (categoryId: string, currentBudgeted: number) => {
@@ -60,29 +68,43 @@ const BudgetPage: React.FC = () => {
   const handleEditSave = async (categoryId: string) => {
     const amount = parseFloat(editAmount);
     if (isNaN(amount) || amount < 0) {
-      addToast({
-        type: 'error',
-        title: 'Invalid amount',
-        message: 'Please enter a valid amount.',
-      });
+      addToast({ type: 'error', title: 'Invalid amount', message: 'Please enter a valid amount.' });
       return;
     }
-
     try {
       await updateBudgetItem(categoryId, amount);
-      addToast({
-        type: 'success',
-        title: 'Budget updated',
-        message: 'Category budget has been updated successfully.',
-      });
+      addToast({ type: 'success', title: 'Budget updated' });
       setEditingCategory(null);
       setEditAmount('');
     } catch (error: any) {
-      addToast({
-        type: 'error',
-        title: 'Failed to update budget',
-        message: error.message || 'An error occurred while updating the budget.',
-      });
+      addToast({ type: 'error', title: 'Failed to update', message: error.message });
+    }
+  };
+
+  const handleDelete = async (categoryId: string) => {
+    try {
+      await deleteBudgetItem(categoryId);
+      addToast({ type: 'success', title: 'Budget item removed' });
+    } catch (error: any) {
+      addToast({ type: 'error', title: 'Failed to delete', message: error.message });
+    }
+  };
+
+  const handleCopyFromLastMonth = async () => {
+    try {
+      await copyFromLastMonth();
+      addToast({ type: 'success', title: 'Budget copied', message: 'Copied budget from last month.' });
+    } catch (error: any) {
+      addToast({ type: 'error', title: 'Failed to copy', message: error.message });
+    }
+  };
+
+  const handleFillFromAverages = async () => {
+    try {
+      await fillFromAverages();
+      addToast({ type: 'success', title: 'Budget filled', message: 'Filled from 3-month averages.' });
+    } catch (error: any) {
+      addToast({ type: 'error', title: 'Failed to fill', message: error.message });
     }
   };
 
@@ -93,6 +115,8 @@ const BudgetPage: React.FC = () => {
   };
 
   const overBudgetItems = getOverBudgetItems();
+  const groupedItems = getGroupedBudgetItems();
+  const leftToBudget = getTotalBudgeted() - getTotalSpent();
 
   if (loading) {
     return (
@@ -109,28 +133,36 @@ const BudgetPage: React.FC = () => {
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Budget</h1>
           <div className="flex items-center mt-1 space-x-4">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => navigateMonth('prev')}
-              className="p-2"
-            >
+            <Button variant="ghost" size="sm" onClick={() => navigateMonth('prev')} className="p-2">
               <ChevronLeftIcon className="h-4 w-4" />
             </Button>
-            
             <h2 className="text-lg font-medium text-gray-700 min-w-32 text-center">
               {format(currentDate, 'MMMM yyyy')}
             </h2>
-            
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => navigateMonth('next')}
-              className="p-2"
-            >
+            <Button variant="ghost" size="sm" onClick={() => navigateMonth('next')} className="p-2">
               <ChevronRightIcon className="h-4 w-4" />
             </Button>
           </div>
+        </div>
+        <div className="flex items-center space-x-2">
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={handleCopyFromLastMonth}
+            disabled={copying}
+          >
+            <DocumentDuplicateIcon className="h-4 w-4 mr-1" />
+            {copying ? 'Copying...' : 'Copy from last month'}
+          </Button>
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={handleFillFromAverages}
+            disabled={filling}
+          >
+            <CalculatorIcon className="h-4 w-4 mr-1" />
+            {filling ? 'Filling...' : 'Fill from averages'}
+          </Button>
         </div>
       </div>
 
@@ -139,15 +171,12 @@ const BudgetPage: React.FC = () => {
         <Card title="Total Budgeted">
           <AmountDisplay amount={getTotalBudgeted()} size="lg" colorize={false} className="text-blue-600" />
         </Card>
-        
         <Card title="Total Spent">
           <AmountDisplay amount={getTotalSpent()} size="lg" colorize={false} className="text-gray-900" />
         </Card>
-        
-        <Card title="Remaining">
-          <AmountDisplay amount={getTotalRemaining()} size="lg" />
+        <Card title="Left to Budget">
+          <AmountDisplay amount={leftToBudget} size="lg" />
         </Card>
-        
         <Card title="Progress">
           <div className="space-y-2">
             <div className="text-2xl font-semibold text-gray-900">
@@ -167,156 +196,133 @@ const BudgetPage: React.FC = () => {
       {overBudgetItems.length > 0 && (
         <Card className="mb-6 bg-red-50 border-red-200">
           <div className="flex items-center">
-            <div className="flex-shrink-0">
-              <XMarkIcon className="h-5 w-5 text-red-400" />
-            </div>
+            <XMarkIcon className="h-5 w-5 text-red-400 flex-shrink-0" />
             <div className="ml-3">
               <h3 className="text-sm font-medium text-red-800">
                 {overBudgetItems.length} categor{overBudgetItems.length === 1 ? 'y is' : 'ies are'} over budget
               </h3>
               <div className="mt-1 text-sm text-red-700">
-                {overBudgetItems.map(item => item.category.name).join(', ')}
+                {overBudgetItems.map(item => item.category?.name || 'Unknown').join(', ')}
               </div>
             </div>
           </div>
         </Card>
       )}
 
-      {/* Budget Table */}
-      <Card title="Category Budgets">
-        {budgetItems.length === 0 ? (
+      {/* Budget by Category Groups */}
+      {budgetItems.length === 0 ? (
+        <Card>
           <EmptyState
             title="No budget data"
-            description="Budget data will appear here once you have transactions and set budget amounts."
+            description="Use 'Copy from last month' or 'Fill from averages' to get started, or set budget amounts for your categories."
             className="py-8"
           />
-        ) : (
-          <div className="overflow-hidden">
-            <table className="min-w-full divide-y divide-gray-300">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Category
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Budgeted
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Spent
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Remaining
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Progress
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200 bg-white">
-                {budgetItems.map((item) => {
-                  const progress = getCategoryProgress(item.categoryId);
-                  const remaining = getCategoryRemaining(item.categoryId);
-                  const isEditing = editingCategory === item.categoryId;
+        </Card>
+      ) : (
+        Object.entries(groupedItems).map(([groupName, group]) => (
+          <Card key={groupName} className="mb-4">
+            {/* Group Header */}
+            <div className="flex items-center justify-between mb-4 pb-2 border-b border-gray-200">
+              <h3 className="text-lg font-semibold text-gray-800">{groupName}</h3>
+              <div className="flex items-center space-x-6 text-sm">
+                <span className="text-gray-500">
+                  Budgeted: <span className="font-medium text-gray-900">${group.totalBudgeted.toFixed(2)}</span>
+                </span>
+                <span className="text-gray-500">
+                  Spent: <span className="font-medium text-gray-900">${group.totalSpent.toFixed(2)}</span>
+                </span>
+                <span className={`font-medium ${group.totalBudgeted - group.totalSpent >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  ${(group.totalBudgeted - group.totalSpent).toFixed(2)} remaining
+                </span>
+              </div>
+            </div>
 
-                  return (
-                    <tr key={item.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center">
-                          {item.category.icon && (
-                            <span className="mr-2">{item.category.icon}</span>
-                          )}
-                          <div>
-                            <div className="text-sm font-medium text-gray-900">
-                              {item.category.name}
-                            </div>
-                            <div className="text-sm text-gray-500">
-                              {item.category.groupName}
-                            </div>
-                          </div>
-                        </div>
-                      </td>
-                      
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        {isEditing ? (
-                          <div className="flex items-center space-x-2">
-                            <Input
-                              type="number"
-                              step="0.01"
-                              value={editAmount}
-                              onChange={(e) => setEditAmount(e.target.value)}
-                              className="w-24"
-                              autoFocus
-                            />
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleEditSave(item.categoryId)}
-                              disabled={updating}
-                              className="p-1"
-                            >
-                              <CheckIcon className="h-4 w-4 text-green-600" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={handleEditCancel}
-                              className="p-1"
-                            >
-                              <XMarkIcon className="h-4 w-4 text-red-600" />
-                            </Button>
-                          </div>
-                        ) : (
-                          <div className="flex items-center space-x-2">
-                            <AmountDisplay amount={item.budgeted} size="sm" colorize={false} />
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleEditStart(item.categoryId, item.budgeted)}
-                              className="p-1"
-                            >
-                              <PencilIcon className="h-4 w-4 text-gray-400" />
-                            </Button>
-                          </div>
-                        )}
-                      </td>
-                      
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <AmountDisplay amount={item.spent} size="sm" colorize={false} className="text-gray-900" />
-                      </td>
-                      
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <AmountDisplay amount={remaining} size="sm" />
-                      </td>
-                      
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="w-24">
-                          <ProgressBar
-                            value={item.spent}
-                            max={item.budgeted || 1}
-                            color={getProgressColor(progress)}
-                            showPercentage={false}
-                            size="sm"
+            {/* Category Rows */}
+            <div className="space-y-3">
+              {group.items.map((item) => {
+                const progress = getCategoryProgress(item.categoryId);
+                const remaining = getCategoryRemaining(item.categoryId);
+                const isEditing = editingCategory === item.categoryId;
+
+                return (
+                  <div key={item.id} className="flex items-center gap-4 py-2 hover:bg-gray-50 rounded-lg px-2">
+                    {/* Category Name */}
+                    <div className="w-48 flex-shrink-0">
+                      <div className="flex items-center">
+                        {item.category?.icon && <span className="mr-2">{item.category.icon}</span>}
+                        <span className="text-sm font-medium text-gray-900">{item.category?.name}</span>
+                      </div>
+                    </div>
+
+                    {/* Budgeted */}
+                    <div className="w-32 flex-shrink-0">
+                      {isEditing ? (
+                        <div className="flex items-center space-x-1">
+                          <Input
+                            type="number"
+                            step="0.01"
+                            value={editAmount}
+                            onChange={(e) => setEditAmount(e.target.value)}
+                            className="w-20 text-sm"
+                            autoFocus
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') handleEditSave(item.categoryId);
+                              if (e.key === 'Escape') handleEditCancel();
+                            }}
                           />
+                          <button onClick={() => handleEditSave(item.categoryId)} disabled={updating} className="p-1">
+                            <CheckIcon className="h-4 w-4 text-green-600" />
+                          </button>
+                          <button onClick={handleEditCancel} className="p-1">
+                            <XMarkIcon className="h-4 w-4 text-red-600" />
+                          </button>
                         </div>
-                        <div className="text-xs text-gray-500 mt-1">
-                          {Math.round(progress)}%
-                        </div>
-                      </td>
-                      
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {/* Additional actions could go here */}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </Card>
+                      ) : (
+                        <button
+                          onClick={() => handleEditStart(item.categoryId, item.budgeted)}
+                          className="flex items-center space-x-1 group"
+                        >
+                          <span className="text-sm text-gray-900">${item.budgeted.toFixed(2)}</span>
+                          <PencilIcon className="h-3 w-3 text-gray-400 opacity-0 group-hover:opacity-100" />
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Actual Spent */}
+                    <div className="w-28 flex-shrink-0">
+                      <span className="text-sm text-gray-700">${item.spent.toFixed(2)}</span>
+                    </div>
+
+                    {/* Remaining */}
+                    <div className="w-28 flex-shrink-0">
+                      <span className={`text-sm font-medium ${remaining >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                        ${remaining.toFixed(2)}
+                      </span>
+                    </div>
+
+                    {/* Progress Bar */}
+                    <div className="flex-1 min-w-24">
+                      <ProgressBar
+                        value={item.spent}
+                        max={item.budgeted || 1}
+                        color={getProgressColor(progress)}
+                        showPercentage={false}
+                        size="sm"
+                      />
+                      <div className="text-xs text-gray-500 mt-0.5">{Math.round(progress)}%</div>
+                    </div>
+
+                    {/* Delete */}
+                    <button onClick={() => handleDelete(item.categoryId)} className="p-1 opacity-0 hover:opacity-100 group-hover:opacity-100">
+                      <TrashIcon className="h-4 w-4 text-gray-400 hover:text-red-500" />
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          </Card>
+        ))
+      )}
     </div>
   );
 };

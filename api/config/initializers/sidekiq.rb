@@ -24,12 +24,6 @@ Sidekiq.configure_server do |config|
   # Server-specific settings
   config.concurrency = ENV.fetch('SIDEKIQ_CONCURRENCY', 5).to_i
   
-  # Job timeout
-  config.timeout = ENV.fetch('SIDEKIQ_TIMEOUT', 25).to_i
-  
-  # Job retry configuration
-  config.max_retries = 3
-  
   # Death handlers for failed jobs
   config.death_handlers << lambda do |job, ex|
     Rails.logger.error "Sidekiq job died: #{job.inspect}"
@@ -42,10 +36,6 @@ Sidekiq.configure_server do |config|
     end
   end
   
-  # Middleware for job tracking
-  config.server_middleware do |chain|
-    chain.add Sidekiq::Middleware::Server::Logging
-  end
 end
 
 Sidekiq.configure_client do |config|

@@ -6,10 +6,15 @@ const PASSWORD = 'password123';
 
 async function login(page: Page) {
   await page.goto('/login');
-  await page.fill('input[type="email"]', EMAIL);
-  await page.fill('input[type="password"]', PASSWORD);
-  await page.click('button[type="submit"]');
-  await page.waitForURL('**/dashboard', { timeout: 10000 });
+  await page.waitForLoadState('networkidle');
+  const emailInput = page.getByLabel('Email address');
+  const passwordInput = page.getByLabel('Password');
+  await emailInput.click();
+  await emailInput.pressSequentially(EMAIL, { delay: 20 });
+  await passwordInput.click();
+  await passwordInput.pressSequentially(PASSWORD, { delay: 20 });
+  await page.getByRole('button', { name: 'Sign in' }).click();
+  await page.waitForURL('**/dashboard', { timeout: 15000 });
 }
 
 async function getAuthToken(): Promise<string> {

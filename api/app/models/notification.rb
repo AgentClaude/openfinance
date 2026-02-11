@@ -205,7 +205,7 @@ class Notification < ApplicationRecord
   def send_notification_if_needed
     # Hook for real-time notifications (websockets, push notifications, etc.)
     # This could trigger email/SMS/push notifications based on user preferences
-    NotificationDeliveryJob.perform_later(self) if should_send_immediately?
+    NotificationDeliveryJob.safe_perform_later(self) if should_send_immediately?
   end
 
   def should_send_immediately?

@@ -83,7 +83,7 @@ class Transactions::CategorizeTransactionService < ApplicationService
     @rule_created = true
     
     # Apply this rule to other uncategorized transactions
-    ApplyCategorizationRulesJob.perform_later(transaction.household, rule.id)
+    ApplyCategorizationRulesJob.safe_perform_later(transaction.household, rule.id)
   end
 
   def mark_as_reviewed!

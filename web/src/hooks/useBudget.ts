@@ -1,8 +1,8 @@
 import { useQuery, useMutation } from '@apollo/client';
 import { GET_BUDGET } from '@/graphql/queries';
-import { UPDATE_BUDGET_ITEM } from '@/graphql/mutations';
+import { UPDATE_BUDGET_ITEM, DELETE_BUDGET_ITEM, COPY_BUDGET_FROM_MONTH, FILL_BUDGET_FROM_AVERAGES } from '@/graphql/mutations';
 import { BudgetItem } from '@/types';
-import { format, startOfMonth } from 'date-fns';
+import { format, startOfMonth, subMonths } from 'date-fns';
 
 export const useBudget = (month?: string) => {
   const currentMonth = month || format(startOfMonth(new Date()), 'yyyy-MM');
@@ -11,79 +11,58 @@ export const useBudget = (month?: string) => {
     variables: { month: currentMonth },
   });
 
-  const [updateBudgetItemMutation, { loading: updating }] = useMutation(
-    UPDATE_BUDGET_ITEM
-  );
+  const [updateBudgetItemMutation, { loading: updating }] = useMutation(UPDATE_BUDGET_ITEM);
+  const [deleteBudgetItemMutation, { loading: deleting }] = useMutation(DELETE_BUDGET_ITEM);
+  const [copyBudgetMutation, { loading: copying }] = useMutation(COPY_BUDGET_FROM_MONTH);
+  const [fillAveragesMutation, { loading: filling }] = useMutation(FILL_BUDGET_FROM_AVERAGES);
 
   const budgetItems: BudgetItem[] = data?.budget || [];
 
   const updateBudgetItem = async (categoryId: string, budgeted: number) => {
-    try {
-      const result = await updateBudgetItemMutation({
-        variables: {
-          categoryId,
-          month: currentMonth,
-          budgeted,
-        },
-        update: (cache, { data: updateData }) => {
-          if (updateData?.updateBudgetItem) {
-            // Update the cache optimistically
-            const existingData: any = cache.readQuery({
-              query: GET_BUDGET,
-              variables: { month: currentMonth },
-            });
+    const result = await updateBudgetItemMutation({
+      variables: { categoryId, month: currentMonth, budgeted },
+      refetchQueries: [{ query: GET_BUDGET, variables: { month: currentMonth } }],
+    });
+    return result.data.updateBudgetItem;
+  };
 
-            if (existingData?.budget) {
-              const updatedBudget = existingData.budget.map((item: BudgetItem) =>
-                item.categoryId === categoryId ? updateData.updateBudgetItem : item
-              );
+  const deleteBudgetItem = async (categoryId: string) => {
+    await deleteBudgetItemMutation({
+      variables: { categoryId, month: currentMonth },
+      refetchQueries: [{ query: GET_BUDGET, variables: { month: currentMonth } }],
+    });
+  };
 
-              cache.writeQuery({
-                query: GET_BUDGET,
-                variables: { month: currentMonth },
-                data: { budget: updatedBudget },
-              });
-            }
-          }
-        },
-      });
-      return result.data.updateBudgetItem;
-    } catch (error) {
-      throw error;
-    }
+  const copyFromLastMonth = async () => {
+    const prevMonth = format(subMonths(new Date(currentMonth + '-01'), 1), 'yyyy-MM');
+    const result = await copyBudgetMutation({
+      variables: { sourceMonth: prevMonth, targetMonth: currentMonth },
+      refetchQueries: [{ query: GET_BUDGET, variables: { month: currentMonth } }],
+    });
+    return result.data.copyBudgetFromMonth.budgetItems;
+  };
+
+  const fillFromAverages = async () => {
+    const result = await fillAveragesMutation({
+      variables: { month: currentMonth },
+      refetchQueries: [{ query: GET_BUDGET, variables: { month: currentMonth } }],
+    });
+    return result.data.fillBudgetFromAverages.budgetItems;
   };
 
   const getBudgetItemByCategory = (categoryId: string) => {
     return budgetItems.find(item => item.categoryId === categoryId);
   };
 
-  const getTotalBudgeted = () => {
-    return budgetItems.reduce((total, item) => total + item.budgeted, 0);
-  };
-
-  const getTotalSpent = () => {
-    return budgetItems.reduce((total, item) => total + item.spent, 0);
-  };
-
-  const getTotalRemaining = () => {
-    return getTotalBudgeted() - getTotalSpent();
-  };
-
+  const getTotalBudgeted = () => budgetItems.reduce((t, i) => t + i.budgeted, 0);
+  const getTotalSpent = () => budgetItems.reduce((t, i) => t + i.spent, 0);
+  const getTotalRemaining = () => getTotalBudgeted() - getTotalSpent();
   const getBudgetProgress = () => {
-    const totalBudgeted = getTotalBudgeted();
-    const totalSpent = getTotalSpent();
-    
-    if (totalBudgeted === 0) return 0;
-    return (totalSpent / totalBudgeted) * 100;
+    const total = getTotalBudgeted();
+    return total === 0 ? 0 : (getTotalSpent() / total) * 100;
   };
 
-  const getOverBudgetItems = () => {
-    return budgetItems.filter(item => item.spent > item.budgeted && item.budgeted > 0);
-  };
-
-  const getUnderBudgetItems = () => {
-    return budgetItems.filter(item => item.spent < item.budgeted && item.budgeted > 0);
-  };
+  const getOverBudgetItems = () => budgetItems.filter(i => i.spent > i.budgeted && i.budgeted > 0);
 
   const getCategoryProgress = (categoryId: string) => {
     const item = getBudgetItemByCategory(categoryId);
@@ -97,22 +76,42 @@ export const useBudget = (month?: string) => {
     return item.budgeted - item.spent;
   };
 
+  // Group budget items by category group
+  const getGroupedBudgetItems = () => {
+    const groups: Record<string, { items: BudgetItem[]; totalBudgeted: number; totalSpent: number }> = {};
+    budgetItems.forEach(item => {
+      const groupName = item.category?.groupName || 'Other';
+      if (!groups[groupName]) {
+        groups[groupName] = { items: [], totalBudgeted: 0, totalSpent: 0 };
+      }
+      groups[groupName].items.push(item);
+      groups[groupName].totalBudgeted += item.budgeted;
+      groups[groupName].totalSpent += item.spent;
+    });
+    return groups;
+  };
+
   return {
     budgetItems,
     currentMonth,
     loading,
-    updating,
+    updating: updating || deleting || copying || filling,
+    copying,
+    filling,
     error,
     refetch,
     updateBudgetItem,
+    deleteBudgetItem,
+    copyFromLastMonth,
+    fillFromAverages,
     getBudgetItemByCategory,
     getTotalBudgeted,
     getTotalSpent,
     getTotalRemaining,
     getBudgetProgress,
     getOverBudgetItems,
-    getUnderBudgetItems,
     getCategoryProgress,
     getCategoryRemaining,
+    getGroupedBudgetItems,
   };
 };
