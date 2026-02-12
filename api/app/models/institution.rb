@@ -11,8 +11,9 @@ class Institution < ApplicationRecord
   validates :logo_url, format: { with: URI::regexp }, allow_blank: true
   validates :website_url, format: { with: URI::regexp }, allow_blank: true
   validates :plaid_institution_id, uniqueness: true, allow_blank: true
-  validates :finicity_institution_id, uniqueness: true, allow_blank: true
-  validates :mx_institution_id, uniqueness: true, allow_blank: true
+  # Note: finicity_institution_id and mx_institution_id columns not yet added to schema
+  # validates :finicity_institution_id, uniqueness: true, allow_blank: true
+  # validates :mx_institution_id, uniqueness: true, allow_blank: true
 
   # Scopes
   scope :with_plaid, -> { where.not(plaid_institution_id: nil) }
@@ -59,11 +60,11 @@ class Institution < ApplicationRecord
   end
 
   def supports_finicity?
-    finicity_institution_id.present?
+    respond_to?(:finicity_institution_id) && finicity_institution_id.present?
   end
 
   def supports_mx?
-    mx_institution_id.present?
+    respond_to?(:mx_institution_id) && mx_institution_id.present?
   end
 
   def supported_providers

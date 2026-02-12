@@ -36,10 +36,10 @@ _See MONARCH_FEATURES.md for detailed feature spec and data fields_
 - ✅ Playwright E2E tests (22 passing)
 - ✅ GraphQL codegen for typed frontend
 - ✅ RSpec setup
-- ⬚ Model specs (User, Account, Transaction, Category, AccountConnection, Institution)
+- ✅ Model specs (User, Account, Transaction, Category, AccountConnection, Institution) — 89 specs passing
 - ✅ Service specs — Plaid services with WebMock
-- ⬚ Request specs for GraphQL mutations
-- ⬚ Request specs for GraphQL queries
+- ✅ Request specs for GraphQL mutations — 11 specs (login, createManualAccount, createTransaction, updateTransaction, createCategory, deleteCategory)
+- ✅ Request specs for GraphQL queries — 10 specs (me, accounts, transactions, categories, dashboardSummary)
 
 ## Phase 4: Plaid Integration
 - ✅ Plaid gem installed, config modules

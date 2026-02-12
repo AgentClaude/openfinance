@@ -10,17 +10,19 @@ module AuthHelper
   end
 
   def generate_jwt_token(user)
-    payload = user.jwt_payload
-    JWT.encode(payload, Rails.application.credentials.devise_jwt_secret_key)
+    secret = ENV.fetch('DEVISE_JWT_SECRET_KEY', Rails.application.secret_key_base)
+    payload = { sub: user.id, jti: SecureRandom.uuid, exp: 24.hours.from_now.to_i, iat: Time.current.to_i }
+    JWT.encode(payload, secret, 'HS256')
   end
 
   def graphql_query(query, variables: {}, user: nil)
     headers = user ? auth_headers_for(user) : {}
+    headers['Content-Type'] = 'application/json'
     
     post '/graphql', params: {
       query: query,
       variables: variables
-    }, headers: headers
+    }.to_json, headers: headers
 
     JSON.parse(response.body)
   end

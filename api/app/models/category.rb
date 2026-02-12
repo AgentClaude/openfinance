@@ -160,18 +160,19 @@ class Category < ApplicationRecord
     start_date = date.beginning_of_month
     end_date = date.end_of_month
     
-    amount = transactions
+    amount_cents = transactions
       .where(date: start_date..end_date)
-      .sum(:amount)
+      .sum(:amount_cents)
     
-    is_income? ? amount : amount.abs
+    result = Money.new(amount_cents)
+    is_income? ? result : result.abs
   end
 
   def average_transaction_amount
-    return 0 if transaction_count.zero?
+    return Money.new(0) if transaction_count.zero?
     
-    total = transactions.sum(:amount)
-    total / transaction_count
+    total_cents = transactions.sum(:amount_cents)
+    Money.new(total_cents / transaction_count)
   end
 
   def can_be_deleted?

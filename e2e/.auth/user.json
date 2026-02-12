@@ -5,8 +5,8 @@
       "origin": "http://localhost:3002",
       "localStorage": [
         {
-          "name": "auth-token",
-          "value": "\"eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI5ZTgwZjgzNS04ODZiLTRiYWUtOTRiZC03MzM2OTI1ZGE5OWMiLCJqdGkiOiIzNTE2YmMxMy0xZTlkLTRhMTQtOWRlNy02MjlkZDJlNDAwY2QiLCJleHAiOjE3NzA5MDUzMTgsImlhdCI6MTc3MDgxODkxOH0.EVfF41Zka9KBIje3UpxX5Wivd1Bwav8WtUpq96J6L8Q\""
+          "name": "access_token",
+          "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI5ZTgwZjgzNS04ODZiLTRiYWUtOTRiZC03MzM2OTI1ZGE5OWMiLCJqdGkiOiJhZjhkMThmYy0wZWMwLTRjNGUtYWM1Ni05NzU3MWMyZDNhOTIiLCJleHAiOjE3NzA5NTU3MjUsImlhdCI6MTc3MDg2OTMyNX0.Tmf4r1rAfPaNn1jMavbIzINQ8x1br-5nr9FbRRuVS54"
         }
       ]
     }

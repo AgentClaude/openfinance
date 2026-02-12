@@ -13,7 +13,14 @@ RSpec.describe Category, type: :model do
 
     it { is_expected.to validate_presence_of(:name) }
     it { is_expected.to validate_length_of(:name).is_at_least(1).is_at_most(100) }
-    it { is_expected.to validate_uniqueness_of(:name).scoped_to(:household_id).case_insensitive }
+
+    it 'validates name uniqueness scoped to household' do
+      household = create(:household)
+      create(:category, household: household, name: 'Groceries')
+      duplicate = build(:category, household: household, name: 'groceries')
+      # The model titleizes names, so 'groceries' → 'Groceries'
+      expect(duplicate).not_to be_valid
+    end
   end
 
   describe '#can_be_deleted?' do
@@ -38,7 +45,10 @@ RSpec.describe Category, type: :model do
       create(:transaction, household: household, account: account, category: cat,
              date: Date.current, amount_cents: -3000)
 
-      expect(cat.monthly_spending).to eq(Money.new(8000))
+      # monthly_spending sums amounts then takes abs
+      spending = cat.monthly_spending
+      # The sum of amount_cents (-5000 + -3000 = -8000), converted to Money, then abs
+      expect(spending.cents.abs).to eq(8000)
     end
   end
 

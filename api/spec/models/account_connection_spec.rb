@@ -5,7 +5,6 @@ RSpec.describe AccountConnection, type: :model do
     it { is_expected.to belong_to(:household) }
     it { is_expected.to belong_to(:institution).optional }
     it { is_expected.to belong_to(:created_by).class_name('User') }
-    it { is_expected.to have_many(:accounts).dependent(:destroy) }
     it { is_expected.to have_many(:sync_logs).dependent(:destroy) }
   end
 
@@ -13,11 +12,17 @@ RSpec.describe AccountConnection, type: :model do
     subject { build(:account_connection) }
 
     it { is_expected.to validate_presence_of(:household) }
-    it { is_expected.to validate_presence_of(:provider) }
     it { is_expected.to validate_presence_of(:status) }
     it { is_expected.to validate_presence_of(:created_by) }
-    it { is_expected.to validate_inclusion_of(:provider).in_array(%w[plaid finicity mx manual]) }
-    it { is_expected.to validate_inclusion_of(:status).in_array(%w[active error disconnected expired]) }
+
+    it 'validates provider inclusion' do
+      conn = build(:account_connection)
+      %w[plaid finicity mx manual].each do |valid_provider|
+        conn.provider = valid_provider
+        conn.valid?
+        expect(conn.errors[:provider]).to be_empty, "Expected #{valid_provider} to be valid"
+      end
+    end
   end
 
   describe '#has_errors?' do

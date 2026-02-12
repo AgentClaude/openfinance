@@ -241,6 +241,123 @@ export const COPY_BUDGET_FROM_MONTH = gql`
   }
 `;
 
+export const CREATE_CATEGORIZATION_RULE = gql`
+  mutation CreateCategorizationRule(
+    $matchField: String!
+    $matchType: String!
+    $matchValue: String!
+    $categoryId: ID!
+    $renameTo: String
+    $priority: Int
+  ) {
+    createCategorizationRule(
+      matchField: $matchField
+      matchType: $matchType
+      matchValue: $matchValue
+      categoryId: $categoryId
+      renameTo: $renameTo
+      priority: $priority
+    ) {
+      id
+      name
+      matchField
+      matchType
+      matchValue
+      renameTo
+      priority
+      isActive
+      matchesCount
+      categoryId
+      category {
+        id
+        name
+        icon
+        color
+      }
+    }
+  }
+`;
+
+export const UPDATE_CATEGORIZATION_RULE = gql`
+  mutation UpdateCategorizationRule(
+    $id: ID!
+    $matchField: String
+    $matchType: String
+    $matchValue: String
+    $categoryId: ID
+    $renameTo: String
+    $priority: Int
+    $isActive: Boolean
+  ) {
+    updateCategorizationRule(
+      id: $id
+      matchField: $matchField
+      matchType: $matchType
+      matchValue: $matchValue
+      categoryId: $categoryId
+      renameTo: $renameTo
+      priority: $priority
+      isActive: $isActive
+    ) {
+      id
+      name
+      matchField
+      matchType
+      matchValue
+      renameTo
+      priority
+      isActive
+      matchesCount
+      categoryId
+      category {
+        id
+        name
+        icon
+        color
+      }
+    }
+  }
+`;
+
+export const DELETE_CATEGORIZATION_RULE = gql`
+  mutation DeleteCategorizationRule($id: ID!) {
+    deleteCategorizationRule(id: $id) {
+      success
+    }
+  }
+`;
+
+export const APPLY_CATEGORIZATION_RULES = gql`
+  mutation ApplyCategorizationRules {
+    applyCategorizationRules {
+      updatedCount
+    }
+  }
+`;
+
+export const DETECT_RECURRING_TRANSACTIONS = gql`
+  mutation DetectRecurringTransactions {
+    detectRecurringTransactions {
+      detectedCount
+      recurringItems {
+        id
+        name
+        merchantName
+        amount
+        frequency
+        nextOccurrence
+        isIncome
+        estimatedMonthlyAmount
+        category {
+          id
+          name
+          color
+        }
+      }
+    }
+  }
+`;
+
 export const FILL_BUDGET_FROM_AVERAGES = gql`
   mutation FillBudgetFromAverages($month: String!) {
     fillBudgetFromAverages(month: $month) {

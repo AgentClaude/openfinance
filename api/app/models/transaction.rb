@@ -29,8 +29,8 @@ class Transaction < ApplicationRecord
   # Enums removed - currency is now just a string field
 
   # Scopes
-  scope :income, -> { where('amount > 0') }
-  scope :expenses, -> { where('amount < 0') }
+  scope :income, -> { where('amount_cents > 0') }
+  scope :expenses, -> { where('amount_cents < 0') }
   scope :pending, -> { where(is_pending: true) }
   scope :posted, -> { where(is_pending: false) }
   scope :needs_review, -> { where(needs_review: true) }

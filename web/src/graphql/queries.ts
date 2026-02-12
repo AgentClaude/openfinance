@@ -178,6 +178,70 @@ export const GET_TAGS = gql`
   }
 `;
 
+export const GET_CATEGORIZATION_RULES = gql`
+  query GetCategorizationRules {
+    categorizationRules {
+      id
+      name
+      matchField
+      matchType
+      matchValue
+      renameTo
+      priority
+      isActive
+      matchesCount
+      categoryId
+      category {
+        id
+        name
+        icon
+        color
+      }
+      createdAt
+    }
+  }
+`;
+
+export const GET_RECURRING_ITEMS = gql`
+  query GetRecurringItems($activeOnly: Boolean) {
+    recurringItems(activeOnly: $activeOnly) {
+      id
+      name
+      merchantName
+      description
+      itemType
+      amount
+      averageAmount
+      currency
+      frequency
+      frequencyInterval
+      nextOccurrence
+      lastOccurrence
+      isActive
+      isIncome
+      isAutoDetected
+      occurrenceCount
+      estimatedMonthlyAmount
+      dueSoon
+      overdue
+      daysUntilDue
+      categoryId
+      category {
+        id
+        name
+        icon
+        color
+      }
+      accountId
+      account {
+        id
+        name
+        type
+      }
+    }
+  }
+`;
+
 export const GET_BUDGET = gql`
   query GetBudget($month: String!) {
     budget(month: $month) {

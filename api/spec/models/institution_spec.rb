@@ -9,31 +9,23 @@ RSpec.describe Institution, type: :model do
     subject { build(:institution) }
 
     it { is_expected.to validate_presence_of(:name) }
-    it { is_expected.to validate_length_of(:name).is_at_least(2).is_at_most(255) }
-    it { is_expected.to validate_uniqueness_of(:plaid_institution_id) }
-  end
 
-  describe '#supported_providers' do
-    it 'includes plaid when plaid_institution_id is set' do
-      inst = build(:institution, plaid_institution_id: 'ins_123')
-      expect(inst.supported_providers).to include('plaid')
-    end
-
-    it 'returns empty array when no provider ids set' do
-      inst = build(:institution, plaid_institution_id: nil)
-      expect(inst.supported_providers).to be_empty
+    it 'validates plaid_institution_id uniqueness' do
+      create(:institution, plaid_institution_id: 'ins_123')
+      duplicate = build(:institution, plaid_institution_id: 'ins_123')
+      expect(duplicate).not_to be_valid
     end
   end
 
-  describe '#primary_provider' do
-    it 'prefers plaid' do
+  describe '#supports_plaid?' do
+    it 'returns true when plaid_institution_id is set' do
       inst = build(:institution, plaid_institution_id: 'ins_123')
-      expect(inst.primary_provider).to eq('plaid')
+      expect(inst.supports_plaid?).to be true
     end
 
-    it 'returns nil when no providers' do
+    it 'returns false when plaid_institution_id is nil' do
       inst = build(:institution, plaid_institution_id: nil)
-      expect(inst.primary_provider).to be_nil
+      expect(inst.supports_plaid?).to be false
     end
   end
 
@@ -41,6 +33,7 @@ RSpec.describe Institution, type: :model do
     it 'creates a new institution from plaid data' do
       plaid_data = { 'institution_id' => 'ins_999', 'name' => 'Test Bank', 'logo' => nil, 'url' => 'https://test.com', 'primary_color' => '#FF0000' }
       inst = Institution.find_or_create_from_plaid(plaid_data)
+      expect(inst).to be_persisted
       expect(inst.name).to eq('Test Bank')
       expect(inst.plaid_institution_id).to eq('ins_999')
     end

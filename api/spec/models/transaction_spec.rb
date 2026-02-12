@@ -15,7 +15,8 @@ RSpec.describe Transaction, type: :model do
     it { is_expected.to validate_presence_of(:household) }
     it { is_expected.to validate_presence_of(:account) }
     it { is_expected.to validate_presence_of(:date) }
-    it { is_expected.to validate_presence_of(:amount) }
+    # amount uses monetize which wraps nil → Money(0), so presence_of doesn't work with shoulda
+    it { is_expected.to validate_numericality_of(:amount) }
   end
 
   describe 'custom validations' do
@@ -87,9 +88,10 @@ RSpec.describe Transaction, type: :model do
       expect(txn.currency).to eq('EUR')
     end
 
-    it 'strips merchant name whitespace' do
-      txn = build(:transaction, merchant_name: '  Starbucks  ')
-      txn.valid?
+    it 'strips merchant name whitespace on save' do
+      household = create(:household)
+      account = create(:account, household: household)
+      txn = create(:transaction, household: household, account: account, merchant_name: '  Starbucks  ')
       expect(txn.merchant_name).to eq('Starbucks')
     end
   end

@@ -17,6 +17,9 @@ import AccountsPage from '@/pages/AccountsPage';
 import BudgetPage from '@/pages/BudgetPage';
 import CategoriesPage from '@/pages/CategoriesPage';
 
+import RulesPage from '@/pages/RulesPage';
+import RecurringPage from '@/pages/RecurringPage';
+
 // Temporary placeholder page
 const SettingsPage: React.FC = () => <div>Settings Page (Coming Soon)</div>;
 
@@ -39,6 +42,8 @@ function App() {
                 <Route path="accounts" element={<AccountsPage />} />
                 <Route path="budget" element={<BudgetPage />} />
                 <Route path="categories" element={<CategoriesPage />} />
+                <Route path="rules" element={<RulesPage />} />
+                <Route path="recurring" element={<RecurringPage />} />
                 <Route path="settings" element={<SettingsPage />} />
               </Route>
 

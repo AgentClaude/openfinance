@@ -163,14 +163,14 @@ class Account < ApplicationRecord
     start_date = date.beginning_of_month
     end_date = date.end_of_month
     
-    transactions.where(date: start_date..end_date, amount: ...0).sum(:amount).abs
+    Money.new(transactions.where(date: start_date..end_date).where('amount_cents < 0').sum(:amount_cents).abs)
   end
 
   def monthly_deposits(date = Date.current)
     start_date = date.beginning_of_month
     end_date = date.end_of_month
     
-    transactions.where(date: start_date..end_date, amount: 0..).sum(:amount)
+    Money.new(transactions.where(date: start_date..end_date).where('amount_cents >= 0').sum(:amount_cents))
   end
 
   # Credit card specific methods

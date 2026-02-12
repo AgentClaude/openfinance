@@ -9,6 +9,8 @@ import {
   CogIcon,
   Bars3Icon,
   XMarkIcon,
+  BoltIcon,
+  ArrowPathIcon,
 } from '@heroicons/react/24/outline';
 import { useAuth } from '@/hooks/useAuth';
 import Sidebar from '@/components/ui/Sidebar';
@@ -21,7 +23,9 @@ const navigation = [
   { name: 'Transactions', href: '/transactions', icon: CreditCardIcon },
   { name: 'Accounts', href: '/accounts', icon: BanknotesIcon },
   { name: 'Budget', href: '/budget', icon: ChartBarIcon },
+  { name: 'Recurring', href: '/recurring', icon: ArrowPathIcon },
   { name: 'Categories', href: '/categories', icon: TagIcon },
+  { name: 'Rules', href: '/rules', icon: BoltIcon },
   { name: 'Settings', href: '/settings', icon: CogIcon },
 ];
 

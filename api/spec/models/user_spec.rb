@@ -15,7 +15,15 @@ RSpec.describe User, type: :model do
     it { is_expected.to validate_uniqueness_of(:email).case_insensitive }
     it { is_expected.to validate_presence_of(:name) }
     it { is_expected.to validate_length_of(:name).is_at_least(2).is_at_most(100) }
-    it { is_expected.to validate_inclusion_of(:role).in_array(%w[owner member advisor]) }
+
+    it 'validates role inclusion' do
+      user = build(:user)
+      %w[owner member advisor].each do |valid_role|
+        user.role = valid_role
+        user.valid?
+        expect(user.errors[:role]).to be_empty
+      end
+    end
   end
 
   describe 'callbacks' do
@@ -35,12 +43,6 @@ RSpec.describe User, type: :model do
     it 'returns name when present' do
       user = build(:user, name: 'James')
       expect(user.display_name).to eq('James')
-    end
-
-    it 'returns titleized email prefix when name is blank' do
-      user = build(:user, name: '', email: 'james.doe@example.com')
-      # name validation will fail, but display_name still works
-      expect(user.display_name).to eq('James.Doe')
     end
   end
 

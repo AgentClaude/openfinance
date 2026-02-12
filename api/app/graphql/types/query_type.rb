@@ -113,6 +113,22 @@ module Types
       }
     end
 
+    field :categorization_rules, [Types::CategorizationRuleType], null: false
+    def categorization_rules
+      return [] unless context[:current_user]&.household
+      context[:current_user].household.categorization_rules.by_priority.includes(:category)
+    end
+
+    field :recurring_items, [Types::RecurringItemType], null: false do
+      argument :active_only, Boolean, required: false, default_value: false
+    end
+    def recurring_items(active_only: false)
+      return [] unless context[:current_user]&.household
+      scope = context[:current_user].household.recurring_items.includes(:category, :account).order(:next_occurrence)
+      scope = scope.active if active_only
+      scope
+    end
+
     field :budget, [Types::BudgetItemType], null: false do
       argument :month, String, required: true
     end
