@@ -18,12 +18,17 @@ module AuthHelper
   def graphql_query(query, variables: {}, user: nil)
     headers = user ? auth_headers_for(user) : {}
     headers['Content-Type'] = 'application/json'
+    headers['Accept'] = 'application/json'
     
     post '/graphql', params: {
       query: query,
       variables: variables
     }.to_json, headers: headers
 
-    JSON.parse(response.body)
+    begin
+      JSON.parse(response.body)
+    rescue JSON::ParserError => e
+      raise "Failed to parse response (status #{response.status}): #{response.body[0..500]}"
+    end
   end
 end

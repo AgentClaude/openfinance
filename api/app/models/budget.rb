@@ -10,16 +10,12 @@ class Budget < ApplicationRecord
   # Validations
   validates :household, presence: true
   validates :name, presence: true, length: { minimum: 1, maximum: 255 }
-  validates :budget_type, inclusion: { in: %w[category flex] }
-  validates :start_day, inclusion: { in: 1..31 }
-
-  # Enums
-  enum :budget_type, { category: 'category', flex: 'flex' }
+  validates :period_type, inclusion: { in: %w[monthly weekly yearly] }
 
   # Scopes
   scope :active, -> { where(is_active: true) }
   scope :inactive, -> { where(is_active: false) }
-  scope :by_type, ->(type) { where(budget_type: type) }
+  scope :by_type, ->(type) { where(period_type: type) }
 
   # Callbacks
   before_create :set_as_active_if_first

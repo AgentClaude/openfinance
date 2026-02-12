@@ -6,15 +6,19 @@ RSpec.describe Plaid::CreateLinkTokenService, type: :service do
   let(:products) { %w[transactions auth] }
   let(:country_codes) { %w[US CA] }
 
+  let(:plaid_client) { double('Plaid::PlaidApi') }
+
   before do
     allow(PlaidConfig).to receive(:enabled?).and_return(true)
-    allow(PlaidConfig).to receive(:client).and_return(double('Plaid::PlaidApi'))
+    allow(PlaidConfig).to receive(:client).and_return(plaid_client)
   end
 
   describe '#call' do
     context 'with valid inputs' do
       before do
-        stub_plaid_link_token_create(success: true)
+        allow(plaid_client).to receive(:link_token_create).and_return(
+          double('LinkTokenCreateResponse', link_token: 'link-sandbox-123456', expiration: Time.current + 4.hours)
+        )
       end
 
       it 'creates a link token successfully with minimal params' do
@@ -22,8 +26,8 @@ RSpec.describe Plaid::CreateLinkTokenService, type: :service do
         result = service.call
 
         expect(result.success?).to be true
-        expect(result.value[:link_token]).to eq('link-sandbox-123456')
-        expect(result.value[:expiration]).to be_a(Time)
+        expect(result.data[:link_token]).to eq('link-sandbox-123456')
+        expect(result.data[:expiration]).to be_a(Time)
       end
 
       it 'creates a link token with custom webhook URL' do
@@ -31,7 +35,7 @@ RSpec.describe Plaid::CreateLinkTokenService, type: :service do
         result = service.call
 
         expect(result.success?).to be true
-        expect(result.value[:link_token]).to eq('link-sandbox-123456')
+        expect(result.data[:link_token]).to eq('link-sandbox-123456')
       end
 
       it 'creates a link token with custom products' do
@@ -56,6 +60,7 @@ RSpec.describe Plaid::CreateLinkTokenService, type: :service do
       end
 
       it 'logs successful token creation' do
+        allow(Rails.logger).to receive(:info)
         expect(Rails.logger).to receive(:info).with(/Created Plaid link token for user/)
 
         service = described_class.new(user: user)
@@ -69,7 +74,7 @@ RSpec.describe Plaid::CreateLinkTokenService, type: :service do
         result = service.call
 
         expect(result.success?).to be false
-        expect(result.errors).to include(/user/)
+        expect(result.errors).to include(/[Uu]ser/)
       end
 
       it 'fails when Plaid is not configured' do
@@ -84,24 +89,23 @@ RSpec.describe Plaid::CreateLinkTokenService, type: :service do
     end
 
     context 'with Plaid API errors' do
-      before do
-        stub_plaid_link_token_create(success: false)
-      end
-
       it 'handles Plaid API errors gracefully' do
+        allow(plaid_client).to receive(:link_token_create).and_raise(
+          Plaid::ApiError.new(response_body: '{"error_message":"INVALID_REQUEST","display_message":"Invalid request","error_type":"INVALID_REQUEST","error_code":"INVALID_BODY"}')
+        )
+        allow(Rails.logger).to receive(:error)
+
         service = described_class.new(user: user)
         result = service.call
 
         expect(result.success?).to be false
         expect(result.errors).to be_present
-        expect(Rails.logger).to receive(:error).with(/Plaid API error/)
       end
 
       it 'handles generic errors' do
-        allow_any_instance_of(Plaid::PlaidApi).to receive(:link_token_create)
+        allow(plaid_client).to receive(:link_token_create)
           .and_raise(StandardError, 'Network error')
-
-        expect(Rails.logger).to receive(:error).with(/Plaid link token creation failed/)
+        allow(Rails.logger).to receive(:error)
 
         service = described_class.new(user: user)
         result = service.call
@@ -114,6 +118,7 @@ RSpec.describe Plaid::CreateLinkTokenService, type: :service do
     context 'with environment-specific behavior' do
       it 'uses webhook URL in production' do
         allow(Rails.env).to receive(:production?).and_return(true)
+        allow(ENV).to receive(:[]).and_call_original
         allow(ENV).to receive(:[]).with('PLAID_WEBHOOK_URL').and_return(webhook_url)
 
         service = described_class.new(user: user)

@@ -138,52 +138,85 @@ module PlaidHelpers
     )
   end
 
-  # Setup WebMock stubs for common Plaid API calls
+  # Get the PlaidConfig client (may be a double in tests)
+  def plaid_client_stub_target
+    PlaidConfig.client
+  rescue
+    nil
+  end
+
+  # Setup stubs for common Plaid API calls
+  # Works with both real instances and test doubles
   def stub_plaid_exchange_token(success: true)
+    target = plaid_client_stub_target
     if success
+      allow(target).to receive(:item_public_token_exchange)
+        .and_return(mock_exchange_token_response) if target
       allow_any_instance_of(Plaid::PlaidApi).to receive(:item_public_token_exchange)
         .and_return(mock_exchange_token_response)
     else
+      allow(target).to receive(:item_public_token_exchange)
+        .and_raise(mock_plaid_error) if target
       allow_any_instance_of(Plaid::PlaidApi).to receive(:item_public_token_exchange)
         .and_raise(mock_plaid_error)
     end
   end
 
   def stub_plaid_accounts_get(success: true)
+    target = plaid_client_stub_target
     if success
+      allow(target).to receive(:accounts_get)
+        .and_return(mock_accounts_get_response) if target
       allow_any_instance_of(Plaid::PlaidApi).to receive(:accounts_get)
         .and_return(mock_accounts_get_response)
     else
+      allow(target).to receive(:accounts_get)
+        .and_raise(mock_plaid_error) if target
       allow_any_instance_of(Plaid::PlaidApi).to receive(:accounts_get)
         .and_raise(mock_plaid_error)
     end
   end
 
   def stub_plaid_institutions_get_by_id(success: true)
+    target = plaid_client_stub_target
     if success
+      allow(target).to receive(:institutions_get_by_id)
+        .and_return(mock_institutions_get_by_id_response) if target
       allow_any_instance_of(Plaid::PlaidApi).to receive(:institutions_get_by_id)
         .and_return(mock_institutions_get_by_id_response)
     else
+      allow(target).to receive(:institutions_get_by_id)
+        .and_raise(mock_plaid_error) if target
       allow_any_instance_of(Plaid::PlaidApi).to receive(:institutions_get_by_id)
         .and_raise(mock_plaid_error)
     end
   end
 
   def stub_plaid_link_token_create(success: true)
+    target = plaid_client_stub_target
     if success
+      allow(target).to receive(:link_token_create)
+        .and_return(mock_link_token_create_response) if target
       allow_any_instance_of(Plaid::PlaidApi).to receive(:link_token_create)
         .and_return(mock_link_token_create_response)
     else
+      allow(target).to receive(:link_token_create)
+        .and_raise(mock_plaid_error) if target
       allow_any_instance_of(Plaid::PlaidApi).to receive(:link_token_create)
         .and_raise(mock_plaid_error)
     end
   end
 
   def stub_plaid_transactions_get(success: true)
+    target = plaid_client_stub_target
     if success
+      allow(target).to receive(:transactions_get)
+        .and_return(mock_transactions_get_response) if target
       allow_any_instance_of(Plaid::PlaidApi).to receive(:transactions_get)
         .and_return(mock_transactions_get_response)
     else
+      allow(target).to receive(:transactions_get)
+        .and_raise(mock_plaid_error) if target
       allow_any_instance_of(Plaid::PlaidApi).to receive(:transactions_get)
         .and_raise(mock_plaid_error)
     end

@@ -69,6 +69,8 @@ RSpec.describe Plaid::ExchangePublicTokenService, type: :service do
 
       it 'schedules initial sync gracefully when Sidekiq is unavailable' do
         allow(SyncTransactionsJob).to receive(:set).and_raise(StandardError, 'Redis unavailable')
+        allow(Rails.logger).to receive(:warn)
+        allow(Rails.logger).to receive(:info)
         expect(Rails.logger).to receive(:warn).with(/Failed to schedule initial sync/)
 
         result = service.call
@@ -82,7 +84,7 @@ RSpec.describe Plaid::ExchangePublicTokenService, type: :service do
         result = invalid_service.call
 
         expect(result.success?).to be false
-        expect(result.errors).to include(/public_token/)
+        expect(result.errors).to include(/[Pp]ublic.token/)
       end
 
       it 'fails when user is missing' do
@@ -90,7 +92,7 @@ RSpec.describe Plaid::ExchangePublicTokenService, type: :service do
         result = invalid_service.call
 
         expect(result.success?).to be false
-        expect(result.errors).to include(/user/)
+        expect(result.errors).to include(/[Uu]ser/)
       end
 
       it 'fails when Plaid is not configured' do
@@ -120,6 +122,8 @@ RSpec.describe Plaid::ExchangePublicTokenService, type: :service do
         stub_plaid_institutions_get_by_id(success: false)
         stub_plaid_accounts_get(success: true)
 
+        allow(Rails.logger).to receive(:warn)
+        allow(Rails.logger).to receive(:info)
         expect(Rails.logger).to receive(:warn).with(/Failed to fetch institution/)
 
         result = service.call

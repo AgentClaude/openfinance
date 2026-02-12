@@ -9,14 +9,12 @@ class BudgetItem < ApplicationRecord
 
   # Money attributes
   monetize :amount_cents
-  monetize :rollover_amount_cents, allow_nil: true
 
   # Validations
   validates :budget, presence: true
   validates :category, presence: true
   validates :month, presence: true
   validates :amount, presence: true, numericality: { greater_than_or_equal_to: 0 }
-  validates :rollover_amount, numericality: { greater_than_or_equal_to: 0 }, allow_nil: true
   validates :category_id, uniqueness: { scope: [:budget_id, :month] }
 
   # Enums removed - currency is now just a string field
@@ -32,7 +30,7 @@ class BudgetItem < ApplicationRecord
 
   # Helper methods
   def total_budgeted
-    amount + (rollover_amount || 0)
+    amount
   end
 
   def month_name

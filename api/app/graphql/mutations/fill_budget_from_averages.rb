@@ -14,8 +14,8 @@ module Mutations
       budget = household.budgets.first || Budget.create!(
         household: household,
         name: "Monthly Budget",
-        budget_type: "category",
-        start_day: 1
+        period_type: "monthly",
+        start_date: target_date
       )
 
       # Calculate 3-month average spending per category

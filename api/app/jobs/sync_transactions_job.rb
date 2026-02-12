@@ -4,8 +4,7 @@
 class SyncTransactionsJob < ApplicationJob
   queue_as :high
   
-  # Throttle to prevent overwhelming the API
-  throttle concurrency: 3, threshold: 10, period: 1.minute
+  # Rate limiting handled at the service level
 
   def perform(connection)
     return unless connection.active? && connection.plaid?

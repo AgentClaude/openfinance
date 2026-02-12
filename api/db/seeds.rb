@@ -59,20 +59,20 @@ puts "Created 3 demo accounts"
 
 # Create system categories
 system_categories = [
-  { name: 'Income', is_income: true, color_hex: '#10B981', icon: 'fa-money-bill-wave' },
-  { name: 'Salary', is_income: true, color_hex: '#059669', icon: 'fa-briefcase' },
-  { name: 'Groceries', is_income: false, color_hex: '#F59E0B', icon: 'fa-shopping-cart' },
-  { name: 'Dining Out', is_income: false, color_hex: '#EF4444', icon: 'fa-utensils' },
-  { name: 'Transportation', is_income: false, color_hex: '#3B82F6', icon: 'fa-car' },
-  { name: 'Gas', is_income: false, color_hex: '#1D4ED8', icon: 'fa-gas-pump' },
-  { name: 'Entertainment', is_income: false, color_hex: '#8B5CF6', icon: 'fa-film' },
-  { name: 'Shopping', is_income: false, color_hex: '#EC4899', icon: 'fa-shopping-bag' },
-  { name: 'Utilities', is_income: false, color_hex: '#6B7280', icon: 'fa-home' },
-  { name: 'Healthcare', is_income: false, color_hex: '#DC2626', icon: 'fa-heart' },
-  { name: 'Insurance', is_income: false, color_hex: '#9CA3AF', icon: 'fa-shield-alt' },
-  { name: 'Home', is_income: false, color_hex: '#92400E', icon: 'fa-home' },
-  { name: 'Personal Care', is_income: false, color_hex: '#BE185D', icon: 'fa-spa' },
-  { name: 'Transfer', is_income: false, color_hex: '#374151', icon: 'fa-exchange-alt' }
+  { name: 'Income', is_income: true, color_hex: '#10B981', icon: 'fa-money-bill-wave', group_name: 'Income' },
+  { name: 'Salary', is_income: true, color_hex: '#059669', icon: 'fa-briefcase', group_name: 'Income' },
+  { name: 'Groceries', is_income: false, color_hex: '#F59E0B', icon: 'fa-shopping-cart', group_name: 'Food & Dining' },
+  { name: 'Dining Out', is_income: false, color_hex: '#EF4444', icon: 'fa-utensils', group_name: 'Food & Dining' },
+  { name: 'Transportation', is_income: false, color_hex: '#3B82F6', icon: 'fa-car', group_name: 'Transportation' },
+  { name: 'Gas', is_income: false, color_hex: '#1D4ED8', icon: 'fa-gas-pump', group_name: 'Transportation' },
+  { name: 'Entertainment', is_income: false, color_hex: '#8B5CF6', icon: 'fa-film', group_name: 'Lifestyle' },
+  { name: 'Shopping', is_income: false, color_hex: '#EC4899', icon: 'fa-shopping-bag', group_name: 'Lifestyle' },
+  { name: 'Utilities', is_income: false, color_hex: '#6B7280', icon: 'fa-home', group_name: 'Housing' },
+  { name: 'Healthcare', is_income: false, color_hex: '#DC2626', icon: 'fa-heart', group_name: 'Health' },
+  { name: 'Insurance', is_income: false, color_hex: '#9CA3AF', icon: 'fa-shield-alt', group_name: 'Health' },
+  { name: 'Home', is_income: false, color_hex: '#92400E', icon: 'fa-home', group_name: 'Housing' },
+  { name: 'Personal Care', is_income: false, color_hex: '#BE185D', icon: 'fa-spa', group_name: 'Lifestyle' },
+  { name: 'Transfer', is_income: false, color_hex: '#374151', icon: 'fa-exchange-alt', group_name: 'Other' }
 ]
 
 categories = {}
@@ -82,6 +82,7 @@ system_categories.each_with_index do |cat_data, index|
     c.is_system = true
     c.color_hex = cat_data[:color_hex]
     c.icon = cat_data[:icon]
+    c.group_name = cat_data[:group_name]
     c.display_order = index + 1
   end
   categories[cat_data[:name]] = category

@@ -28,7 +28,6 @@ module Mutations
         )
         target_item.update!(
           amount_cents: item.amount_cents,
-          rollover_enabled: item.rollover_enabled,
           currency: item.currency
         )
         copied << target_item
