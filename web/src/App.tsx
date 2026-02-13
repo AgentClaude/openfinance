@@ -22,7 +22,7 @@ import RecurringPage from '@/pages/RecurringPage';
 import ReportsPage from '@/pages/ReportsPage';
 
 // Temporary placeholder page
-const SettingsPage: React.FC = () => <div>Settings Page (Coming Soon)</div>;
+import SettingsPageReal from '@/pages/SettingsPage';
 
 function App() {
   return (
@@ -46,7 +46,7 @@ function App() {
                 <Route path="rules" element={<RulesPage />} />
                 <Route path="recurring" element={<RecurringPage />} />
                 <Route path="reports" element={<ReportsPage />} />
-                <Route path="settings" element={<SettingsPage />} />
+                <Route path="settings" element={<SettingsPageReal />} />
               </Route>
 
               {/* Catch all */}

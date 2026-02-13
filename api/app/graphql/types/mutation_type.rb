@@ -21,5 +21,7 @@ module Types
     field :delete_categorization_rule, mutation: Mutations::DeleteCategorizationRule
     field :apply_categorization_rules, mutation: Mutations::ApplyCategorizationRules
     field :detect_recurring_transactions, mutation: Mutations::DetectRecurringTransactions
+    field :update_profile, mutation: Mutations::UpdateProfile
+    field :change_password, mutation: Mutations::ChangePassword
   end
 end
