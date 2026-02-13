@@ -135,28 +135,11 @@ module Types
     def budget(month:)
       return [] unless context[:current_user]&.household
       date = Date.parse("#{month}-01") rescue Date.current.beginning_of_month
-      start_date = date.beginning_of_month
       household = context[:current_user].household
-      items = BudgetItem.joins(:budget)
+      BudgetItem.joins(:budget)
         .where(budgets: { household_id: household.id })
-        .where(month: start_date)
+        .where(month: date.beginning_of_month)
         .includes(:category)
-
-      # Precompute spent amounts to avoid N+1 in BudgetItemType#spent
-      category_ids = items.map(&:category_id).compact.uniq
-      if category_ids.any?
-        end_date = date.end_of_month
-        spent_by_category = household.transactions
-          .where(category_id: category_ids, date: start_date..end_date)
-          .where('amount_cents < 0')
-          .group(:category_id)
-          .sum(:amount_cents)
-          .transform_values { |v| v.abs / 100.0 }
-        context[:budget_spent_by_category] ||= {}
-        context[:budget_spent_by_category][start_date.to_s] = spent_by_category
-      end
-
-      items
     end
 
     field :budget_summary, Types::BudgetSummaryType, null: true do
@@ -186,19 +169,6 @@ module Types
         .where('amount_cents > 0')
         .sum(:amount_cents)
 
-      # Batch-load spent amounts to avoid N+1 queries
-      category_ids = items.filter_map { |i| i.category_id }
-      spent_by_category = household.transactions
-        .where(category_id: category_ids, date: start_date..end_date)
-        .where('amount_cents < 0')
-        .group(:category_id)
-        .sum(:amount_cents)
-        .transform_values { |v| v.abs / 100.0 }
-
-      # Store in context so BudgetItemType#spent can use precomputed values
-      context[:budget_spent_by_category] ||= {}
-      context[:budget_spent_by_category][start_date.to_s] = spent_by_category
-
       # Income budget items (categories with group_name 'Income')
       income_items = items.select { |i| i.category&.group_name == 'Income' }
       expense_items = items.reject { |i| i.category&.group_name == 'Income' }
@@ -210,11 +180,11 @@ module Types
       groups = expense_items.group_by { |i| i.category&.group_name || 'Other' }
       category_groups = groups.map do |name, group_items|
         budgeted_sum = group_items.sum(&:amount_cents) / 100.0
-        group_spent = group_items.sum { |i| spent_by_category[i.category_id] || 0.0 }
+        # spent computed per-item in the type resolver
         {
           name: name,
           budgeted: budgeted_sum,
-          spent: group_spent,
+          spent: group_items.sum { |i| compute_spent(i) },
           items: group_items
         }
       end.sort_by { |g| g[:name] }
@@ -227,12 +197,19 @@ module Types
         total_spent: total_spent,
         total_income: total_income,
         income_actual: income_actual_cents / 100.0,
-        # left_to_budget: budgeted income minus total expense budget allocations.
-        # Represents how much income hasn't been assigned to expense categories yet.
-        # Positive = unallocated funds available; Negative = over-budgeted.
-        left_to_budget: total_income - total_budgeted,
+        left_to_budget: total_budgeted - total_spent,
         category_groups: category_groups
       }
+    end
+
+    def compute_spent(budget_item)
+      start_date = budget_item.month.beginning_of_month
+      end_date = budget_item.month.end_of_month
+      budget_item.category.transactions
+        .where(date: start_date..end_date)
+        .where('amount_cents < 0')
+        .sum(:amount_cents)
+        .abs / 100.0
     end
 
     field :reports, Types::ReportsType, null: false do

@@ -178,7 +178,7 @@ const RecurringItemCard: React.FC<{ item: RecurringItem }> = ({ item }) => {
             <div className="flex items-center gap-3 mt-1">
               {item.category && (
                 <span className="text-xs text-gray-500">
-                  {item.category.icon} {item.category.name}
+                  {item.category.icon && <CategoryIcon icon={item.category.icon} className="mr-1" />} {item.category.name}
                 </span>
               )}
               {item.account && (
