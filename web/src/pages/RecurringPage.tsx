@@ -81,8 +81,9 @@ const RecurringPage: React.FC = () => {
           : 'No new recurring transactions detected',
         type: count > 0 ? 'success' : 'info',
       });
-    } catch (e: any) {
-      addToast({ title: e.message, type: 'error' });
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : "Something went wrong";
+      addToast({ title: msg, type: 'error' });
     }
   };
 
@@ -106,8 +107,9 @@ const RecurringPage: React.FC = () => {
         addToast({ title: 'Recurring item created', type: 'success' });
       }
       setModalOpen(false);
-    } catch (e: any) {
-      addToast({ title: e.message, type: 'error' });
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : "Something went wrong";
+      addToast({ title: msg, type: 'error' });
     }
   };
 
@@ -116,8 +118,9 @@ const RecurringPage: React.FC = () => {
       await deleteItem(id);
       addToast({ title: 'Recurring item deleted', type: 'success' });
       setDeleteConfirm(null);
-    } catch (e: any) {
-      addToast({ title: e.message, type: 'error' });
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : "Something went wrong";
+      addToast({ title: msg, type: 'error' });
     }
   };
 
@@ -125,8 +128,9 @@ const RecurringPage: React.FC = () => {
     try {
       await markPaid(id);
       addToast({ title: 'Marked as paid — next occurrence updated', type: 'success' });
-    } catch (e: any) {
-      addToast({ title: e.message, type: 'error' });
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : "Something went wrong";
+      addToast({ title: msg, type: 'error' });
     }
   };
 
@@ -134,8 +138,9 @@ const RecurringPage: React.FC = () => {
     try {
       await updateItem(item.id, { isActive: !item.isActive });
       addToast({ title: item.isActive ? 'Paused recurring item' : 'Resumed recurring item', type: 'success' });
-    } catch (e: any) {
-      addToast({ title: e.message, type: 'error' });
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : "Something went wrong";
+      addToast({ title: msg, type: 'error' });
     }
   };
 
@@ -404,7 +409,7 @@ const RecurringItemCard: React.FC<RecurringItemCardProps> = ({
 interface RecurringItemModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (input: RecurringItemInput) => void;
+  onSave: (input: RecurringItemInput) => Promise<void>;
   item: RecurringItem | null;
   saving: boolean;
 }
@@ -412,11 +417,11 @@ interface RecurringItemModalProps {
 const RecurringItemModal: React.FC<RecurringItemModalProps> = ({
   isOpen, onClose, onSave, item, saving,
 }) => {
-  const { data: catData } = useQuery(GET_CATEGORIES);
-  const { data: accData } = useQuery(GET_ACCOUNTS);
+  const { data: catData } = useQuery(GET_CATEGORIES, { skip: !isOpen });
+  const { data: accData } = useQuery(GET_ACCOUNTS, { skip: !isOpen });
 
-  const categories = catData?.categories || [];
-  const accounts = accData?.accounts || [];
+  const categories: Array<{ id: string; name: string; icon: string }> = catData?.categories || [];
+  const accounts: Array<{ id: string; name: string }> = accData?.accounts || [];
 
   const [form, setForm] = useState<RecurringItemInput>({
     name: '',
@@ -575,8 +580,7 @@ const RecurringItemModal: React.FC<RecurringItemModalProps> = ({
               className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm"
             >
               <option value="">None</option>
-              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-              {categories.map((c: any) => (
+              {categories.map((c) => (
                 <option key={c.id} value={c.id}>{c.icon} {c.name}</option>
               ))}
             </select>
@@ -589,8 +593,7 @@ const RecurringItemModal: React.FC<RecurringItemModalProps> = ({
               className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm"
             >
               <option value="">None</option>
-              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-              {accounts.map((a: any) => (
+              {accounts.map((a) => (
                 <option key={a.id} value={a.id}>{a.name}</option>
               ))}
             </select>
