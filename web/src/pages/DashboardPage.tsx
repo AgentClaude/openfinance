@@ -15,6 +15,7 @@ import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import EmptyState from '@/components/ui/EmptyState';
 import PageHeader from '@/components/ui/PageHeader';
 import DashboardBudgetWidget from '@/components/DashboardBudgetWidget';
+import DashboardBillsWidget from '@/components/DashboardBillsWidget';
 import { format } from 'date-fns';
 import clsx from 'clsx';
 
@@ -212,9 +213,10 @@ const DashboardPage: React.FC = () => {
         </Card>
       </div>
 
-      {/* Budget Widget */}
-      <div className="mb-8">
+      {/* Budget & Bills Widgets */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         <DashboardBudgetWidget />
+        <DashboardBillsWidget />
       </div>
 
       {/* Recent Transactions */}
