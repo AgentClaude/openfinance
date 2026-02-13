@@ -45,8 +45,8 @@ test:
 
 production:
   <<: *default
-  # Use DATABASE_URL environment variable
-  url: <%= ENV.fetch('DATABASE_URL') %>
+  # Use DATABASE_URL environment variable (optional fallback for CI environments)
+  url: <%= ENV['DATABASE_URL'] %>
   
   # Production-specific pool size
   pool: <%= ENV.fetch("DB_POOL", 10) %>
