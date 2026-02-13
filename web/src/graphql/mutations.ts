@@ -403,3 +403,104 @@ export const CHANGE_PASSWORD = gql`
     }
   }
 `;
+
+export const CREATE_RECURRING_ITEM = gql`
+  mutation CreateRecurringItem(
+    $name: String!
+    $amount: Float!
+    $frequency: String!
+    $merchantName: String
+    $description: String
+    $nextOccurrence: ISO8601Date
+    $categoryId: ID
+    $accountId: ID
+    $isIncome: Boolean
+  ) {
+    createRecurringItem(
+      name: $name
+      amount: $amount
+      frequency: $frequency
+      merchantName: $merchantName
+      description: $description
+      nextOccurrence: $nextOccurrence
+      categoryId: $categoryId
+      accountId: $accountId
+      isIncome: $isIncome
+    ) {
+      id
+      name
+      merchantName
+      amount
+      frequency
+      nextOccurrence
+      isActive
+      isIncome
+      estimatedMonthlyAmount
+      category { id name icon color }
+      account { id name }
+    }
+  }
+`;
+
+export const UPDATE_RECURRING_ITEM = gql`
+  mutation UpdateRecurringItem(
+    $id: ID!
+    $name: String
+    $amount: Float
+    $frequency: String
+    $merchantName: String
+    $description: String
+    $nextOccurrence: ISO8601Date
+    $categoryId: ID
+    $accountId: ID
+    $isIncome: Boolean
+    $isActive: Boolean
+  ) {
+    updateRecurringItem(
+      id: $id
+      name: $name
+      amount: $amount
+      frequency: $frequency
+      merchantName: $merchantName
+      description: $description
+      nextOccurrence: $nextOccurrence
+      categoryId: $categoryId
+      accountId: $accountId
+      isIncome: $isIncome
+      isActive: $isActive
+    ) {
+      id
+      name
+      merchantName
+      amount
+      frequency
+      nextOccurrence
+      isActive
+      isIncome
+      estimatedMonthlyAmount
+      category { id name icon color }
+      account { id name }
+    }
+  }
+`;
+
+export const DELETE_RECURRING_ITEM = gql`
+  mutation DeleteRecurringItem($id: ID!) {
+    deleteRecurringItem(id: $id) {
+      success
+    }
+  }
+`;
+
+export const MARK_RECURRING_ITEM_PAID = gql`
+  mutation MarkRecurringItemPaid($id: ID!, $transactionId: ID) {
+    markRecurringItemPaid(id: $id, transactionId: $transactionId) {
+      id
+      nextOccurrence
+      lastOccurrence
+      dueSoon
+      overdue
+      daysUntilDue
+    }
+  }
+`;
