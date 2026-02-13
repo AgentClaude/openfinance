@@ -15,6 +15,13 @@ module Types
     end
 
     def spent
+      # Use precomputed spent values from context (set by budget/budget_summary resolvers)
+      # to avoid N+1 queries per budget item
+      month_key = object.month.beginning_of_month.to_s
+      precomputed = context[:budget_spent_by_category]&.dig(month_key, object.category_id)
+      return precomputed if precomputed
+
+      # Fallback for direct item resolution without precomputation
       start_date = object.month.beginning_of_month
       end_date = object.month.end_of_month
       cents = object.category.transactions

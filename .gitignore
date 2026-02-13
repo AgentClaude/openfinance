@@ -16,8 +16,6 @@ api/log/
 # Test results
 test-results/
 playwright-report/
-web/test-results/
-web/playwright-report/
 
 # Docker
 *.log
