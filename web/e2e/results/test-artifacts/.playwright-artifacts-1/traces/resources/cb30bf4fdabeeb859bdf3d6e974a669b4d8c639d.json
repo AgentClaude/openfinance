@@ -1,1 +1,0 @@
-{"operationName":"GetBudget","variables":{"month":"2026-02"},"query":"query GetBudget($month: String!) {\n  budget(month: $month) {\n    id\n    categoryId\n    budgeted\n    spent\n    month\n    category {\n      id\n      name\n      icon\n      color\n      groupName\n      __typename\n    }\n    __typename\n  }\n}"}

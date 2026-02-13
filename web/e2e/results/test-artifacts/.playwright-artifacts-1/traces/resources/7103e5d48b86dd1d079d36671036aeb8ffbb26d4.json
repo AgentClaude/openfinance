@@ -1,1 +1,0 @@
-{"operationName":"GetCategories","variables":{},"query":"query GetCategories {\n  categories {\n    id\n    name\n    icon\n    color\n    groupName\n    isSystem\n    householdId\n    parentId\n    children {\n      id\n      name\n      icon\n      color\n      isSystem\n      __typename\n    }\n    __typename\n  }\n}"}
