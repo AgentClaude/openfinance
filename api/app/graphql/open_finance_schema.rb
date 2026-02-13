@@ -11,10 +11,6 @@ class OpenFinanceSchema < GraphQL::Schema
   # are built-in as of graphql-ruby 2.x and no longer need explicit `use`
   use GraphQL::Subscriptions::ActionCableSubscriptions if defined?(ActionCable)
 
-  # Query depth and complexity limits (built-in in graphql-ruby 2.x)
-  max_query_depth Rails.application.config.graphql_max_depth
-  max_query_complexity Rails.application.config.graphql_max_complexity
-
   # Authentication and authorization
   def self.unauthorized_object(error)
     raise GraphQL::ExecutionError, "Authentication required"

@@ -14,7 +14,7 @@ gem "devise-jwt", "~> 0.11"
 
 # GraphQL
 gem "graphql", "~> 2.2"
-gem "graphiql-rails", "~> 1.9"
+# graphiql-rails moved to development group (engine incompatible with api_only + Rails 8 in test)
 
 # Background Jobs
 gem "sidekiq", "~> 7.2"
@@ -70,6 +70,9 @@ group :development, :test do
 end
 
 group :development do
+  # GraphiQL playground (engine requires non-API middleware)
+  gem "graphiql-rails", "~> 1.9"
+
   # Code quality
   gem "rubocop", "~> 1.58", require: false
   gem "rubocop-rails", "~> 2.22", require: false
