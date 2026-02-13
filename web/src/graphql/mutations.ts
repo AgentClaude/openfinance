@@ -378,3 +378,28 @@ export const FILL_BUDGET_FROM_AVERAGES = gql`
     }
   }
 `;
+
+export const UPDATE_PROFILE = gql`
+  mutation UpdateProfile($name: String, $email: String, $currency: String) {
+    updateProfile(name: $name, email: $email, currency: $currency) {
+      id
+      name
+      email
+      householdId
+      household {
+        id
+        name
+        currency
+      }
+    }
+  }
+`;
+
+export const CHANGE_PASSWORD = gql`
+  mutation ChangePassword($currentPassword: String!, $newPassword: String!) {
+    changePassword(currentPassword: $currentPassword, newPassword: $newPassword) {
+      success
+      message
+    }
+  }
+`;

@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useQuery, useMutation } from '@apollo/client';
 import {
   PlusIcon,
   TrashIcon,
@@ -7,13 +6,8 @@ import {
   PlayIcon,
   BoltIcon,
 } from '@heroicons/react/24/outline';
-import { GET_CATEGORIZATION_RULES, GET_CATEGORIES } from '@/graphql/queries';
-import {
-  CREATE_CATEGORIZATION_RULE,
-  UPDATE_CATEGORIZATION_RULE,
-  DELETE_CATEGORIZATION_RULE,
-  APPLY_CATEGORIZATION_RULES,
-} from '@/graphql/mutations';
+import { useRules, Rule } from '@/hooks/useRules';
+import { useCategories } from '@/hooks/useCategories';
 import PageHeader from '@/components/ui/PageHeader';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
@@ -25,25 +19,11 @@ import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import EmptyState from '@/components/ui/EmptyState';
 import { useToast } from '@/components/ui/Toast';
 
-interface Rule {
-  id: string;
-  name: string;
-  matchField: string;
-  matchType: string;
-  matchValue: string;
-  renameTo: string | null;
-  priority: number;
-  isActive: boolean;
-  matchesCount: number;
-  categoryId: string;
-  category: { id: string; name: string; icon: string; color: string };
-}
-
 interface Category {
   id: string;
   name: string;
-  icon: string;
-  color: string;
+  icon?: string;
+  color?: string;
   children?: Category[];
 }
 
@@ -72,50 +52,15 @@ const RulesPage: React.FC = () => {
     priority: 0,
   });
 
-  const { data, loading, refetch } = useQuery(GET_CATEGORIZATION_RULES);
-  const { data: catData } = useQuery(GET_CATEGORIES);
-
-  const [createRule] = useMutation(CREATE_CATEGORIZATION_RULE, {
-    onCompleted: () => {
-      addToast({ title: 'Rule created', type: 'success' });
-      setShowModal(false);
-      refetch();
-    },
-    onError: (e) => addToast({ title: e.message, type: 'error' }),
-  });
-
-  const [updateRule] = useMutation(UPDATE_CATEGORIZATION_RULE, {
-    onCompleted: () => {
-      addToast({ title: 'Rule updated', type: 'success' });
-      setShowModal(false);
-      setEditingRule(null);
-      refetch();
-    },
-    onError: (e) => addToast({ title: e.message, type: 'error' }),
-  });
-
-  const [deleteRule] = useMutation(DELETE_CATEGORIZATION_RULE, {
-    onCompleted: () => {
-      addToast({ title: 'Rule deleted', type: 'success' });
-      refetch();
-    },
-    onError: (e) => addToast({ title: e.message, type: 'error' }),
-  });
-
-  const [applyRules, { loading: applying }] = useMutation(APPLY_CATEGORIZATION_RULES, {
-    onCompleted: (data) => {
-      const count = data.applyCategorizationRules.updatedCount;
-      addToast({ title: `Applied rules to ${count} transaction${count !== 1 ? 's' : ''}`, type: 'success' });
-      refetch();
-    },
-    onError: (e) => addToast({ title: e.message, type: 'error' }),
-  });
-
-  const rules: Rule[] = data?.categorizationRules || [];
+  const {
+    rules, loading, applying,
+    createRule, updateRule, deleteRule, applyRules,
+  } = useRules();
+  const { categories } = useCategories();
 
   // Flatten categories for select
   const allCategories: Category[] = [];
-  (catData?.categories || []).forEach((cat: Category) => {
+  (categories || []).forEach((cat: Category) => {
     allCategories.push(cat);
     cat.children?.forEach((child: Category) => allCategories.push(child));
   });
@@ -139,7 +84,7 @@ const RulesPage: React.FC = () => {
     setShowModal(true);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!form.matchValue.trim() || !form.categoryId) return;
 
     const variables: Record<string, unknown> = {
@@ -151,21 +96,38 @@ const RulesPage: React.FC = () => {
     };
     if (form.renameTo.trim()) variables.renameTo = form.renameTo.trim();
 
-    if (editingRule) {
-      updateRule({ variables: { id: editingRule.id, ...variables } });
-    } else {
-      createRule({ variables });
+    try {
+      if (editingRule) {
+        await updateRule(editingRule.id, variables);
+        addToast({ title: 'Rule updated', type: 'success' });
+      } else {
+        await createRule(variables as any);
+        addToast({ title: 'Rule created', type: 'success' });
+      }
+      setShowModal(false);
+      setEditingRule(null);
+    } catch (e: any) {
+      addToast({ title: e.message, type: 'error' });
     }
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     if (confirm('Delete this rule?')) {
-      deleteRule({ variables: { id } });
+      try {
+        await deleteRule(id);
+        addToast({ title: 'Rule deleted', type: 'success' });
+      } catch (e: any) {
+        addToast({ title: e.message, type: 'error' });
+      }
     }
   };
 
-  const handleToggle = (rule: Rule) => {
-    updateRule({ variables: { id: rule.id, isActive: !rule.isActive } });
+  const handleToggle = async (rule: Rule) => {
+    try {
+      await updateRule(rule.id, { isActive: !rule.isActive });
+    } catch (e: any) {
+      addToast({ title: e.message, type: 'error' });
+    }
   };
 
   if (loading) return <LoadingSpinner />;
@@ -178,7 +140,15 @@ const RulesPage: React.FC = () => {
         actions={
           <div className="flex gap-2">
             <Button
-              onClick={() => applyRules()}
+              onClick={async () => {
+                try {
+                  const result = await applyRules();
+                  const count = result.updatedCount;
+                  addToast({ title: `Applied rules to ${count} transaction${count !== 1 ? 's' : ''}`, type: 'success' });
+                } catch (e: any) {
+                  addToast({ title: e.message, type: 'error' });
+                }
+              }}
               variant="secondary"
               disabled={applying || rules.length === 0}
             >

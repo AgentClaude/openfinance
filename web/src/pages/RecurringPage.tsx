@@ -1,5 +1,4 @@
 import React from 'react';
-import { useQuery, useMutation } from '@apollo/client';
 import {
   ArrowPathIcon,
   CalendarIcon,
@@ -7,8 +6,7 @@ import {
   CheckCircleIcon,
   ClockIcon,
 } from '@heroicons/react/24/outline';
-import { GET_RECURRING_ITEMS } from '@/graphql/queries';
-import { DETECT_RECURRING_TRANSACTIONS } from '@/graphql/mutations';
+import { useRecurring, RecurringItem } from '@/hooks/useRecurring';
 import PageHeader from '@/components/ui/PageHeader';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
@@ -16,31 +14,6 @@ import Badge from '@/components/ui/Badge';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import EmptyState from '@/components/ui/EmptyState';
 import { useToast } from '@/components/ui/Toast';
-
-interface RecurringItem {
-  id: string;
-  name: string;
-  merchantName: string | null;
-  description: string | null;
-  itemType: string;
-  amount: number;
-  averageAmount: number;
-  currency: string;
-  frequency: string;
-  frequencyInterval: number;
-  nextOccurrence: string | null;
-  lastOccurrence: string | null;
-  isActive: boolean;
-  isIncome: boolean;
-  isAutoDetected: boolean;
-  occurrenceCount: number;
-  estimatedMonthlyAmount: number;
-  dueSoon: boolean;
-  overdue: boolean;
-  daysUntilDue: number | null;
-  category: { id: string; name: string; icon: string; color: string } | null;
-  account: { id: string; name: string; type: string } | null;
-}
 
 const formatCurrency = (amount: number) =>
   new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount);
@@ -63,28 +36,31 @@ const frequencyLabel = (freq: string) => {
 
 const RecurringPage: React.FC = () => {
   const { addToast } = useToast();
-  const { data, loading, refetch } = useQuery(GET_RECURRING_ITEMS);
+  const {
+    items, loading, detecting,
+    detectRecurring, getExpenses, getIncome,
+    getTotalMonthlyExpenses, getTotalMonthlyIncome,
+  } = useRecurring();
 
-  const [detect, { loading: detecting }] = useMutation(DETECT_RECURRING_TRANSACTIONS, {
-    onCompleted: (data) => {
-      const count = data.detectRecurringTransactions.detectedCount;
+  const expenses = getExpenses();
+  const income = getIncome();
+  const totalMonthlyExpenses = getTotalMonthlyExpenses();
+  const totalMonthlyIncome = getTotalMonthlyIncome();
+
+  const handleDetect = async () => {
+    try {
+      const result = await detectRecurring();
+      const count = result.detectedCount;
       addToast({
         title: count > 0
           ? `Detected ${count} recurring transaction${count !== 1 ? 's' : ''}`
           : 'No new recurring transactions detected',
         type: count > 0 ? 'success' : 'info',
       });
-      refetch();
-    },
-    onError: (e) => addToast({ title: e.message, type: 'error' }),
-  });
-
-  const items: RecurringItem[] = data?.recurringItems || [];
-  const expenses = items.filter((i) => !i.isIncome);
-  const income = items.filter((i) => i.isIncome);
-
-  const totalMonthlyExpenses = expenses.reduce((sum, i) => sum + i.estimatedMonthlyAmount, 0);
-  const totalMonthlyIncome = income.reduce((sum, i) => sum + i.estimatedMonthlyAmount, 0);
+    } catch (e: any) {
+      addToast({ title: e.message, type: 'error' });
+    }
+  };
 
   if (loading) return <LoadingSpinner />;
 
@@ -94,7 +70,7 @@ const RecurringPage: React.FC = () => {
         title="Recurring Transactions"
         subtitle="Track subscriptions, bills, and recurring income"
         actions={
-          <Button onClick={() => detect()} disabled={detecting}>
+          <Button onClick={() => handleDetect()} disabled={detecting}>
             <ArrowPathIcon className={`h-4 w-4 mr-1 ${detecting ? 'animate-spin' : ''}`} />
             {detecting ? 'Detecting...' : 'Detect Recurring'}
           </Button>
@@ -132,7 +108,7 @@ const RecurringPage: React.FC = () => {
           title="No recurring transactions"
           description="Click 'Detect Recurring' to scan your transaction history for recurring patterns like subscriptions and bills."
           actionLabel="Detect Recurring"
-          onAction={() => detect()}
+          onAction={() => handleDetect()}
         />
       ) : (
         <div className="space-y-6">
