@@ -18,6 +18,7 @@ import Badge from '@/components/ui/Badge';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import EmptyState from '@/components/ui/EmptyState';
 import { useToast } from '@/components/ui/Toast';
+import CategoryIcon from '@/components/ui/CategoryIcon';
 
 interface Category {
   id: string;
@@ -202,7 +203,7 @@ const RulesPage: React.FC = () => {
                       <div className="flex items-center gap-2 mt-1">
                         <span className="text-xs text-gray-500">→ Categorize as</span>
                         <Badge style={{ backgroundColor: rule.category.color + '20', color: rule.category.color }}>
-                          {rule.category.icon} {rule.category.name}
+                          {rule.category.icon && <CategoryIcon icon={rule.category.icon} className="mr-1" />} {rule.category.name}
                         </Badge>
                         {rule.renameTo && (
                           <span className="text-xs text-gray-400">

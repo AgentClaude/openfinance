@@ -14,6 +14,7 @@ import Badge from '@/components/ui/Badge';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import EmptyState from '@/components/ui/EmptyState';
 import { useToast } from '@/components/ui/Toast';
+import CategoryIcon from '@/components/ui/CategoryIcon';
 
 const formatCurrency = (amount: number) =>
   new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount);
@@ -178,7 +179,7 @@ const RecurringItemCard: React.FC<{ item: RecurringItem }> = ({ item }) => {
             <div className="flex items-center gap-3 mt-1">
               {item.category && (
                 <span className="text-xs text-gray-500">
-                  {item.category.icon} {item.category.name}
+                  {item.category.icon && <CategoryIcon icon={item.category.icon} className="mr-1" />} {item.category.name}
                 </span>
               )}
               {item.account && (
