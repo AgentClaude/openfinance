@@ -68,15 +68,15 @@ const RecurringPage: React.FC = () => {
   const [detect, { loading: detecting }] = useMutation(DETECT_RECURRING_TRANSACTIONS, {
     onCompleted: (data) => {
       const count = data.detectRecurringTransactions.detectedCount;
-      addToast(
-        count > 0
+      addToast({
+        title: count > 0
           ? `Detected ${count} recurring transaction${count !== 1 ? 's' : ''}`
           : 'No new recurring transactions detected',
-        count > 0 ? 'success' : 'info'
-      );
+        type: count > 0 ? 'success' : 'info',
+      });
       refetch();
     },
-    onError: (e) => addToast(e.message, 'error'),
+    onError: (e) => addToast({ title: e.message, type: 'error' }),
   });
 
   const items: RecurringItem[] = data?.recurringItems || [];
@@ -128,10 +128,11 @@ const RecurringPage: React.FC = () => {
 
       {items.length === 0 ? (
         <EmptyState
-          icon={CalendarIcon}
+          icon={<CalendarIcon className="h-12 w-12" />}
           title="No recurring transactions"
           description="Click 'Detect Recurring' to scan your transaction history for recurring patterns like subscriptions and bills."
-          action={{ label: 'Detect Recurring', onClick: () => detect() }}
+          actionLabel="Detect Recurring"
+          onAction={() => detect()}
         />
       ) : (
         <div className="space-y-6">
@@ -189,11 +190,11 @@ const RecurringItemCard: React.FC<{ item: RecurringItem }> = ({ item }) => {
               <p className="text-sm font-medium text-gray-900">
                 {item.merchantName || item.name}
               </p>
-              <Badge variant="outline" className="text-xs">
+              <Badge variant="secondary" className="text-xs">
                 {frequencyLabel(item.frequency)}
               </Badge>
               {item.isAutoDetected && (
-                <Badge variant="outline" className="text-xs text-indigo-600">
+                <Badge variant="secondary" className="text-xs text-indigo-600">
                   Auto-detected
                 </Badge>
               )}

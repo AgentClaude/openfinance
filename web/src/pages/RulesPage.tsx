@@ -77,38 +77,38 @@ const RulesPage: React.FC = () => {
 
   const [createRule] = useMutation(CREATE_CATEGORIZATION_RULE, {
     onCompleted: () => {
-      addToast('Rule created', 'success');
+      addToast({ title: 'Rule created', type: 'success' });
       setShowModal(false);
       refetch();
     },
-    onError: (e) => addToast(e.message, 'error'),
+    onError: (e) => addToast({ title: e.message, type: 'error' }),
   });
 
   const [updateRule] = useMutation(UPDATE_CATEGORIZATION_RULE, {
     onCompleted: () => {
-      addToast('Rule updated', 'success');
+      addToast({ title: 'Rule updated', type: 'success' });
       setShowModal(false);
       setEditingRule(null);
       refetch();
     },
-    onError: (e) => addToast(e.message, 'error'),
+    onError: (e) => addToast({ title: e.message, type: 'error' }),
   });
 
   const [deleteRule] = useMutation(DELETE_CATEGORIZATION_RULE, {
     onCompleted: () => {
-      addToast('Rule deleted', 'success');
+      addToast({ title: 'Rule deleted', type: 'success' });
       refetch();
     },
-    onError: (e) => addToast(e.message, 'error'),
+    onError: (e) => addToast({ title: e.message, type: 'error' }),
   });
 
   const [applyRules, { loading: applying }] = useMutation(APPLY_CATEGORIZATION_RULES, {
     onCompleted: (data) => {
       const count = data.applyCategorizationRules.updatedCount;
-      addToast(`Applied rules to ${count} transaction${count !== 1 ? 's' : ''}`, 'success');
+      addToast({ title: `Applied rules to ${count} transaction${count !== 1 ? 's' : ''}`, type: 'success' });
       refetch();
     },
-    onError: (e) => addToast(e.message, 'error'),
+    onError: (e) => addToast({ title: e.message, type: 'error' }),
   });
 
   const rules: Rule[] = data?.categorizationRules || [];
@@ -195,10 +195,11 @@ const RulesPage: React.FC = () => {
 
       {rules.length === 0 ? (
         <EmptyState
-          icon={BoltIcon}
+          icon={<BoltIcon className="h-12 w-12" />}
           title="No categorization rules"
           description="Create rules to automatically categorize transactions based on merchant name or description patterns."
-          action={{ label: 'Create Rule', onClick: openCreate }}
+          actionLabel="Create Rule"
+          onAction={openCreate}
         />
       ) : (
         <div className="space-y-3">
@@ -230,7 +231,7 @@ const RulesPage: React.FC = () => {
                       </p>
                       <div className="flex items-center gap-2 mt-1">
                         <span className="text-xs text-gray-500">→ Categorize as</span>
-                        <Badge color={rule.category.color}>
+                        <Badge style={{ backgroundColor: rule.category.color + '20', color: rule.category.color }}>
                           {rule.category.icon} {rule.category.name}
                         </Badge>
                         {rule.renameTo && (

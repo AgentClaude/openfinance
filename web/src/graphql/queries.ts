@@ -242,6 +242,42 @@ export const GET_RECURRING_ITEMS = gql`
   }
 `;
 
+export const GET_REPORTS = gql`
+  query GetReports($months: Int, $dateFrom: String, $dateTo: String) {
+    reports(months: $months, dateFrom: $dateFrom, dateTo: $dateTo) {
+      monthlySummary {
+        month
+        income
+        expenses
+        cashFlow
+      }
+      spendingByCategory {
+        categoryId
+        categoryName
+        categoryIcon
+        categoryColor
+        amount
+        percentage
+        transactionCount
+      }
+      monthlySpendingByCategory {
+        month
+        categories {
+          categoryId
+          categoryName
+          categoryColor
+          amount
+        }
+      }
+      topMerchants {
+        merchantName
+        amount
+        transactionCount
+      }
+    }
+  }
+`;
+
 export const GET_BUDGET = gql`
   query GetBudget($month: String!) {
     budget(month: $month) {

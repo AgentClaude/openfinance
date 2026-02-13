@@ -1,6 +1,6 @@
 # OpenFinance Roadmap
 
-_Last updated: 2026-02-10_
+_Last updated: 2026-02-13_
 _See MONARCH_FEATURES.md for detailed feature spec and data fields_
 
 ## Legend
@@ -65,13 +65,13 @@ _See MONARCH_FEATURES.md for detailed feature spec and data fields_
 - ⬚ Over-budget alerts/notifications
 - ⬚ Dashboard budget summary widget
 
-## Phase 6: Rules Engine — HIGH PRIORITY
-- ⬚ CategorizationRule model (exists) → expose via GraphQL
-- ⬚ Rule CRUD mutations + UI page
+## Phase 6: Rules Engine ✅
+- ✅ CategorizationRule model → exposed via GraphQL
+- ✅ Rule CRUD mutations + UI page (match field, type, value, category, rename)
+- ✅ Apply rules button (bulk retroactive application)
+- ✅ Toggle rules active/inactive
 - ⬚ Create rule from transaction detail ("always categorize X as Y")
 - ⬚ Merchant name mapping (raw description → clean name)
-- ⬚ Auto-apply rules on new transaction sync
-- ⬚ Bulk retroactive rule application
 - ⬚ Suggested rules based on manual categorization patterns
 
 ## Phase 7: Recurring Transactions — HIGH PRIORITY
