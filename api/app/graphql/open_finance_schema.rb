@@ -7,9 +7,13 @@ class OpenFinanceSchema < GraphQL::Schema
   mutation(Types::MutationType)
 
   # Schema configuration
-  use GraphQL::Pagination::Connections
-  use GraphQL::Analysis::AST
+  # Note: GraphQL::Pagination::Connections and GraphQL::Analysis::AST
+  # are built-in as of graphql-ruby 2.x and no longer need explicit `use`
   use GraphQL::Subscriptions::ActionCableSubscriptions if defined?(ActionCable)
+
+  # Query depth and complexity limits (built-in in graphql-ruby 2.x)
+  max_query_depth Rails.application.config.graphql_max_depth
+  max_query_complexity Rails.application.config.graphql_max_complexity
 
   # Authentication and authorization
   def self.unauthorized_object(error)
@@ -33,14 +37,10 @@ class OpenFinanceSchema < GraphQL::Schema
     raise GraphQL::ExecutionError, "You don't have permission to perform this action"
   end
 
-  # Query analysis and security
-  query_analyzer GraphQL::Analysis::QueryDepth.new(max_depth: Rails.application.config.graphql_max_depth)
-  query_analyzer GraphQL::Analysis::QueryComplexity.new(max_complexity: Rails.application.config.graphql_max_complexity)
-  
   # Timeout for long-running queries
   def self.execute(query_str = nil, **kwargs)
     timeout = Rails.application.config.graphql_timeout
-    
+
     Timeout.timeout(timeout) do
       super(query_str, **kwargs)
     end
@@ -53,21 +53,6 @@ class OpenFinanceSchema < GraphQL::Schema
         }
       ]
     }
-  end
-
-  # Development introspection
-  def self.introspection_enabled?
-    Rails.application.config.graphql_introspection_enabled
-  end
-
-  # Tracing for performance monitoring
-  if Rails.env.development?
-    tracer GraphQL::Tracing::PlatformTracing
-  end
-
-  # Context helpers
-  def self.context_class
-    OpenFinanceContext
   end
 end
 
@@ -87,7 +72,7 @@ class OpenFinanceContext < GraphQL::Query::Context
 
   def can?(action, resource = nil)
     return false unless authenticated?
-    
+
     case action
     when :manage_household
       current_user.owner? && (resource.nil? || current_user.household_id == resource.id)
