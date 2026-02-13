@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
-import { useQuery } from '@apollo/client';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
   PieChart, Pie, Cell,
   Area, AreaChart,
 } from 'recharts';
-import { GET_REPORTS } from '@/graphql/queries';
+import { useReports } from '@/hooks/useReports';
 import PageHeader from '@/components/ui/PageHeader';
 import Card from '@/components/ui/Card';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
@@ -30,12 +29,7 @@ type ReportTab = 'overview' | 'spending' | 'cashflow' | 'merchants';
 const ReportsPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<ReportTab>('overview');
   const [months, setMonths] = useState(6);
-
-  const { data, loading } = useQuery(GET_REPORTS, {
-    variables: { months },
-  });
-
-  const reports = data?.reports;
+  const { reports, loading } = useReports({ months });
 
   if (loading) return <LoadingSpinner />;
 

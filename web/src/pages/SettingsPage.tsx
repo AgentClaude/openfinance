@@ -1,38 +1,13 @@
 import { useState } from 'react';
 import { useAuth } from '@/components/AuthProvider';
-import { useMutation } from '@apollo/client';
-import { gql } from '@apollo/client';
+import { useSettings } from '@/hooks/useSettings';
 import toast from 'react-hot-toast';
-
-const UPDATE_PROFILE = gql`
-  mutation UpdateProfile($name: String, $email: String, $currency: String) {
-    updateProfile(name: $name, email: $email, currency: $currency) {
-      id
-      name
-      email
-      householdId
-      household {
-        id
-        name
-        currency
-      }
-    }
-  }
-`;
-
-const CHANGE_PASSWORD = gql`
-  mutation ChangePassword($currentPassword: String!, $newPassword: String!) {
-    changePassword(currentPassword: $currentPassword, newPassword: $newPassword) {
-      success
-      message
-    }
-  }
-`;
 
 const CURRENCIES = ['USD', 'EUR', 'GBP', 'CAD', 'AUD', 'NZD', 'JPY', 'CHF'];
 
 export default function SettingsPage() {
   const { user, logout } = useAuth();
+  const { updateProfile, updatingProfile, changePassword, changingPassword } = useSettings();
   const [activeTab, setActiveTab] = useState<'profile' | 'security' | 'preferences' | 'data'>('profile');
 
   // Profile form
@@ -45,13 +20,10 @@ export default function SettingsPage() {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
-  const [updateProfile, { loading: updating }] = useMutation(UPDATE_PROFILE);
-  const [changePassword, { loading: changingPassword }] = useMutation(CHANGE_PASSWORD);
-
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await updateProfile({ variables: { name, email, currency } });
+      await updateProfile({ name, email, currency });
       toast.success('Profile updated');
     } catch (err: any) {
       toast.error(err.message || 'Failed to update profile');
@@ -69,16 +41,14 @@ export default function SettingsPage() {
       return;
     }
     try {
-      const result = await changePassword({
-        variables: { currentPassword, newPassword },
-      });
-      if (result.data?.changePassword?.success) {
+      const result = await changePassword(currentPassword, newPassword);
+      if (result.success) {
         toast.success('Password changed');
         setCurrentPassword('');
         setNewPassword('');
         setConfirmPassword('');
       } else {
-        toast.error(result.data?.changePassword?.message || 'Failed to change password');
+        toast.error(result.message || 'Failed to change password');
       }
     } catch (err: any) {
       toast.error(err.message || 'Failed to change password');
@@ -168,10 +138,10 @@ export default function SettingsPage() {
           <div className="flex justify-end">
             <button
               type="submit"
-              disabled={updating}
+              disabled={updatingProfile}
               className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 disabled:opacity-50 text-sm font-medium"
             >
-              {updating ? 'Saving...' : 'Save Changes'}
+              {updatingProfile ? 'Saving...' : 'Save Changes'}
             </button>
           </div>
         </form>

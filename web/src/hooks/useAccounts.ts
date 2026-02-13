@@ -1,6 +1,6 @@
 import { useQuery, useMutation } from '@apollo/client';
 import { GET_ACCOUNTS } from '@/graphql/queries';
-import { CREATE_MANUAL_ACCOUNT } from '@/graphql/mutations';
+import { CREATE_MANUAL_ACCOUNT, CREATE_PLAID_LINK_TOKEN, EXCHANGE_PLAID_TOKEN } from '@/graphql/mutations';
 import { Account, AccountType } from '@/types';
 
 interface CreateAccountInput {
@@ -18,6 +18,12 @@ export const useAccounts = () => {
     {
       refetchQueries: [{ query: GET_ACCOUNTS }],
     }
+  );
+
+  const [createLinkTokenMutation] = useMutation(CREATE_PLAID_LINK_TOKEN);
+  const [exchangePlaidTokenMutation, { loading: linking }] = useMutation(
+    EXCHANGE_PLAID_TOKEN,
+    { refetchQueries: [{ query: GET_ACCOUNTS }] }
   );
 
   const accounts: Account[] = data?.accounts || [];
@@ -65,13 +71,28 @@ export const useAccounts = () => {
     return assets - liabilities;
   };
 
+  const createPlaidLinkToken = async () => {
+    const result = await createLinkTokenMutation();
+    return result.data.createPlaidLinkToken;
+  };
+
+  const exchangePlaidToken = async (publicToken: string, metadata?: any) => {
+    const result = await exchangePlaidTokenMutation({
+      variables: { publicToken, metadata },
+    });
+    return result.data.exchangePlaidToken;
+  };
+
   return {
     accounts,
     loading,
     error,
     creating,
+    linking,
     refetch,
     createAccount,
+    createPlaidLinkToken,
+    exchangePlaidToken,
     getAccountsByType,
     getActiveAccounts,
     getTotalBalance,

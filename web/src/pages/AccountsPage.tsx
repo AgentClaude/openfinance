@@ -19,10 +19,7 @@ import AmountDisplay from '@/components/ui/AmountDisplay';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import EmptyState from '@/components/ui/EmptyState';
 import { useToast } from '@/components/ui/Toast';
-import { useMutation } from '@apollo/client';
 import { usePlaidLink } from 'react-plaid-link';
-import { CREATE_PLAID_LINK_TOKEN, EXCHANGE_PLAID_TOKEN } from '@/graphql/mutations';
-import { GET_ACCOUNTS } from '@/graphql/queries';
 import { format } from 'date-fns';
 import clsx from 'clsx';
 
@@ -63,21 +60,18 @@ const AccountsPage: React.FC = () => {
   const [linkToken, setLinkToken] = useState<string | null>(null);
   const [plaidLoading, setPlaidLoading] = useState(false);
 
-  const { accounts, loading, creating, createAccount, getAccountsByType, getNetWorth } = useAccounts();
+  const {
+    accounts, loading, creating,
+    createAccount, createPlaidLinkToken, exchangePlaidToken,
+    getAccountsByType, getNetWorth,
+  } = useAccounts();
   const { addToast } = useToast();
-
-  const [createLinkToken] = useMutation(CREATE_PLAID_LINK_TOKEN);
-  const [exchangePlaidToken] = useMutation(EXCHANGE_PLAID_TOKEN, {
-    refetchQueries: [{ query: GET_ACCOUNTS }],
-  });
 
   const onPlaidSuccess = useCallback(async (publicToken: string, metadata: any) => {
     try {
       setPlaidLoading(true);
-      const { data } = await exchangePlaidToken({
-        variables: { publicToken, metadata },
-      });
-      const count = data?.exchangePlaidToken?.length || 0;
+      const result = await exchangePlaidToken(publicToken, metadata);
+      const count = Array.isArray(result) ? result.length : 1;
       addToast({ type: 'success', title: 'Connected', message: `Successfully connected ${count} account${count !== 1 ? 's' : ''}!` });
       setIsAddModalOpen(false);
       setLinkToken(null);
@@ -86,7 +80,7 @@ const AccountsPage: React.FC = () => {
     } finally {
       setPlaidLoading(false);
     }
-  }, [exchangePlaidToken, addToast]);
+  }, [exchangePlaidToken, addToast]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const { open: openPlaidLink, ready: plaidReady } = usePlaidLink({
     token: linkToken,
@@ -99,8 +93,8 @@ const AccountsPage: React.FC = () => {
   const handleConnectBank = async () => {
     try {
       setPlaidLoading(true);
-      const { data } = await createLinkToken();
-      const token = data?.createPlaidLinkToken?.linkToken;
+      const linkData = await createPlaidLinkToken();
+      const token = linkData?.linkToken;
       if (token) {
         setLinkToken(token);
       } else {
