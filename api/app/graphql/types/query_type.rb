@@ -142,6 +142,76 @@ module Types
         .includes(:category)
     end
 
+    field :budget_summary, Types::BudgetSummaryType, null: true do
+      argument :month, String, required: true
+    end
+    def budget_summary(month:)
+      household = context[:current_user]&.household
+      return nil unless household
+
+      date = Date.parse("#{month}-01") rescue Date.current.beginning_of_month
+      start_date = date.beginning_of_month
+      end_date = date.end_of_month
+
+      # Auto-create budget if none exists
+      budget = household.budgets.first || Budget.create!(
+        household: household,
+        name: "Monthly Budget",
+        period_type: "monthly",
+        start_date: start_date
+      )
+
+      items = BudgetItem.where(budget: budget, month: start_date).includes(:category)
+
+      # Calculate income from transactions
+      income_actual_cents = household.transactions
+        .where(date: start_date..end_date)
+        .where('amount_cents > 0')
+        .sum(:amount_cents)
+
+      # Income budget items (categories with group_name 'Income')
+      income_items = items.select { |i| i.category&.group_name == 'Income' }
+      expense_items = items.reject { |i| i.category&.group_name == 'Income' }
+
+      total_income = income_items.sum(&:amount_cents) / 100.0
+      total_budgeted = expense_items.sum(&:amount_cents) / 100.0
+
+      # Group items by category group
+      groups = expense_items.group_by { |i| i.category&.group_name || 'Other' }
+      category_groups = groups.map do |name, group_items|
+        budgeted_sum = group_items.sum(&:amount_cents) / 100.0
+        # spent computed per-item in the type resolver
+        {
+          name: name,
+          budgeted: budgeted_sum,
+          spent: group_items.sum { |i| compute_spent(i) },
+          items: group_items
+        }
+      end.sort_by { |g| g[:name] }
+
+      total_spent = category_groups.sum { |g| g[:spent] }
+
+      {
+        month: month,
+        total_budgeted: total_budgeted,
+        total_spent: total_spent,
+        total_income: total_income,
+        income_actual: income_actual_cents / 100.0,
+        left_to_budget: total_budgeted - total_spent,
+        category_groups: category_groups
+      }
+    end
+
+    def compute_spent(budget_item)
+      start_date = budget_item.month.beginning_of_month
+      end_date = budget_item.month.end_of_month
+      budget_item.category.transactions
+        .where(date: start_date..end_date)
+        .where('amount_cents < 0')
+        .sum(:amount_cents)
+        .abs / 100.0
+    end
+
     field :reports, Types::ReportsType, null: false do
       argument :months, Integer, required: false, default_value: 6
       argument :date_from, String, required: false

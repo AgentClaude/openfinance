@@ -2,6 +2,13 @@
 
 _Last updated: 2026-02-13_
 _See MONARCH_FEATURES.md for detailed feature spec and data fields_
+_See SPRINT.md for prioritized sprint plan (Sprints 1-3)_
+
+> **Key insight (Feb 2026):** Backend is further along than roadmap suggests.
+> Budget query + mutations, recurring items query + detect mutation, and reports query
+> (4 report types) all exist. The gap is primarily **rich UI** and some backend enrichment.
+> Monarch rebranded to monarch.com and charges $99.99/yr. Their core value props are:
+> budgeting, recurring detection, reports/charts, collaboration, and reliable connections.
 
 ## Legend
 - ✅ Done
@@ -52,7 +59,8 @@ _See MONARCH_FEATURES.md for detailed feature spec and data fields_
 - ⬚ Plaid category → OpenFinance category mapping
 - ⬚ Update mode for broken connections (ITEM_LOGIN_REQUIRED)
 
-## Phase 5: Budget System — HIGH PRIORITY
+## Phase 5: Budget System — HIGH PRIORITY → Sprint 1
+_Backend partially exists: budget query, BudgetItem CRUD, copyBudgetFromMonth, fillBudgetFromAverages mutations_
 - ⬚ Budget page UI (monthly view with category groups, progress bars)
 - ⬚ Month navigation (prev/next arrows, month picker)
 - ⬚ Budget vs actual per category (progress bars: green/yellow/red)
@@ -74,8 +82,9 @@ _See MONARCH_FEATURES.md for detailed feature spec and data fields_
 - ⬚ Merchant name mapping (raw description → clean name)
 - ⬚ Suggested rules based on manual categorization patterns
 
-## Phase 7: Recurring Transactions — HIGH PRIORITY
-- ⬚ RecurringItem model (exists) → expose via GraphQL
+## Phase 7: Recurring Transactions — HIGH PRIORITY → Sprint 2
+_Backend partially exists: RecurringItem model, recurring_items query, detectRecurringTransactions mutation_
+- ✅ RecurringItem model (exists) → exposed via GraphQL (query + detect mutation exist)
 - ⬚ Auto-detection from transaction history (pattern matching)
 - ⬚ Recurring transactions page (list view)
 - ⬚ Upcoming bills view / calendar
@@ -84,8 +93,9 @@ _See MONARCH_FEATURES.md for detailed feature spec and data fields_
 - ⬚ Dashboard "upcoming bills" widget
 - ⬚ Bill reminder notifications
 
-## Phase 8: Reports & Analytics — MEDIUM PRIORITY
-- ⬚ Reports page with report type selector
+## Phase 8: Reports & Analytics — MEDIUM PRIORITY → Sprint 3
+_Backend partially exists: reports query returns monthly_summary, spending_by_category, monthly_spending_by_category, top_merchants_
+- 🔧 Reports page with report type selector (basic shell exists, 393 LOC)
 - ⬚ Spending by Category (donut chart + table, date range filter)
 - ⬚ Spending Over Time (monthly bar chart, stacked by category)
 - ⬚ Income vs Expenses (dual bar chart)

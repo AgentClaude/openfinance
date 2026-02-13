@@ -76,8 +76,28 @@ export interface BudgetItem {
   categoryId: string;
   budgeted: number;
   spent: number;
+  rollover: number;
+  available: number;
+  percentUsed: number;
   month: string;
   category: Category;
+}
+
+export interface BudgetCategoryGroup {
+  name: string;
+  budgeted: number;
+  spent: number;
+  items: BudgetItem[];
+}
+
+export interface BudgetSummary {
+  month: string;
+  totalBudgeted: number;
+  totalSpent: number;
+  totalIncome: number;
+  incomeActual: number;
+  leftToBudget: number;
+  categoryGroups: BudgetCategoryGroup[];
 }
 
 export interface DashboardSummary {

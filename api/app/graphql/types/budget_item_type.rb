@@ -4,6 +4,9 @@ module Types
     field :category_id, ID, null: false
     field :budgeted, Float, null: false
     field :spent, Float, null: false
+    field :rollover, Float, null: false
+    field :available, Float, null: false
+    field :percent_used, Float, null: false
     field :month, String, null: false
     field :category, Types::CategoryType, null: true
 
@@ -12,7 +15,6 @@ module Types
     end
 
     def spent
-      # Calculate actual spending for this category in this month
       start_date = object.month.beginning_of_month
       end_date = object.month.end_of_month
       cents = object.category.transactions
@@ -21,6 +23,20 @@ module Types
         .sum(:amount_cents)
         .abs
       cents / 100.0
+    end
+
+    def rollover
+      object.rollover_cents / 100.0
+    end
+
+    def available
+      budgeted + rollover - spent
+    end
+
+    def percent_used
+      b = budgeted
+      return 0.0 if b == 0
+      (spent / b * 100).round(1)
     end
 
     def month
