@@ -8,6 +8,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { useCategories } from '@/hooks/useCategories';
 import { Category } from '@/types';
+import CategoryIcon from '@/components/ui/CategoryIcon';
 import PageHeader from '@/components/ui/PageHeader';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
@@ -240,7 +241,7 @@ const CategoriesPage: React.FC = () => {
                     >
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center space-x-2">
-                          {category.icon && <span className="text-lg">{category.icon}</span>}
+                          {category.icon && <CategoryIcon icon={category.icon} className="text-lg" />}
                           <div
                             className="w-3 h-3 rounded-full"
                             style={{ backgroundColor: category.color }}
