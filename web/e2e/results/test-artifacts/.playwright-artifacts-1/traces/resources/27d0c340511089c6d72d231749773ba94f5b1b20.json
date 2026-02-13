@@ -1,0 +1,1 @@
+{"operationName":"GetTags","variables":{},"query":"query GetTags {\n  tags {\n    id\n    name\n    color\n    householdId\n    __typename\n  }\n}"}

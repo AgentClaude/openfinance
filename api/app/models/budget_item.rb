@@ -9,6 +9,7 @@ class BudgetItem < ApplicationRecord
 
   # Money attributes
   monetize :amount_cents
+  monetize :rollover_cents
 
   # Validations
   validates :budget, presence: true

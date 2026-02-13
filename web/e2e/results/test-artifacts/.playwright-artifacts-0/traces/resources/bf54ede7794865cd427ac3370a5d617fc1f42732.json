@@ -1,0 +1,1 @@
+{"operationName":"CreateManualAccount","variables":{"input":{"name":"E2E Test Account 1771022226145","type":"DEPOSITORY","balance":5000}},"query":"mutation CreateManualAccount($input: ManualAccountInput!) {\n  createManualAccount(input: $input) {\n    id\n    name\n    type\n    subtype\n    balance\n    balanceDate\n    isActive\n    householdId\n    __typename\n  }\n}"}

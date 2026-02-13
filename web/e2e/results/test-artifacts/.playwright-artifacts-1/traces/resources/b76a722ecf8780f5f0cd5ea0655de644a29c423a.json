@@ -1,0 +1,1 @@
+{"operationName":"GetAccounts","variables":{},"query":"query GetAccounts {\n  accounts {\n    id\n    name\n    type\n    subtype\n    balance\n    balanceDate\n    mask\n    officialName\n    isActive\n    plaidAccountId\n    householdId\n    __typename\n  }\n}"}

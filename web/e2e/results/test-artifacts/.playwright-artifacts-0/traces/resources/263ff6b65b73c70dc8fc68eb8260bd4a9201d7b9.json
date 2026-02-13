@@ -1,0 +1,1 @@
+{"data":{"createManualAccount":{"id":"1903aaec-01d1-46b3-903f-af5a50425b27","name":"E2E Test Account 1771022226145","type":"DEPOSITORY","subtype":"checking","balance":5000.0,"balanceDate":"2026-02-13T22:37:06Z","isActive":true,"householdId":"d69e2fb0-1a36-4936-bd26-bfee96ca2e39","__typename":"CreateManualAccountPayload"}}}

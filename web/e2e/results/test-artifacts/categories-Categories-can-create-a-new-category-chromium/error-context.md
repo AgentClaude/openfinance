@@ -1,0 +1,235 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e1]:
+  - generic [ref=e3]:
+    - generic [ref=e6]:
+      - generic [ref=e8]:
+        - generic [ref=e11]: OF
+        - heading [level=1] [ref=e13]: OpenFinance
+      - navigation [ref=e14]:
+        - link [ref=e15] [cursor=pointer]:
+          - /url: /dashboard
+          - img [ref=e16]
+          - generic [ref=e18]: Dashboard
+        - link [ref=e19] [cursor=pointer]:
+          - /url: /transactions
+          - img [ref=e20]
+          - generic [ref=e22]: Transactions
+        - link [ref=e23] [cursor=pointer]:
+          - /url: /accounts
+          - img [ref=e24]
+          - generic [ref=e26]: Accounts
+        - link [ref=e27] [cursor=pointer]:
+          - /url: /budget
+          - img [ref=e28]
+          - generic [ref=e30]: Budget
+        - link [ref=e31] [cursor=pointer]:
+          - /url: /recurring
+          - img [ref=e32]
+          - generic [ref=e34]: Recurring
+        - link [ref=e35] [cursor=pointer]:
+          - /url: /categories
+          - img [ref=e36]
+          - generic [ref=e39]: Categories
+        - link [ref=e40] [cursor=pointer]:
+          - /url: /reports
+          - img [ref=e41]
+          - generic [ref=e44]: Reports
+        - link [ref=e45] [cursor=pointer]:
+          - /url: /rules
+          - img [ref=e46]
+          - generic [ref=e48]: Rules
+        - link [ref=e49] [cursor=pointer]:
+          - /url: /settings
+          - img [ref=e50]
+          - generic [ref=e52]: Settings
+    - generic [ref=e53]:
+      - generic [ref=e57]:
+        - button [ref=e60] [cursor=pointer]:
+          - generic [ref=e61]: DU
+        - generic [ref=e62]:
+          - generic [ref=e63]: Demo Household
+          - generic [ref=e64]: USD
+      - main [ref=e65]:
+        - generic [ref=e68]:
+          - generic [ref=e70]:
+            - generic [ref=e71]:
+              - heading [level=1] [ref=e72]: Categories
+              - paragraph [ref=e73]: 0 custom categories, 14 system categories
+            - button [ref=e75] [cursor=pointer]:
+              - img [ref=e76]
+              - text: Add Category
+          - generic [ref=e78]:
+            - generic [ref=e79]:
+              - heading [level=3] [ref=e83]: Income
+              - generic [ref=e85]:
+                - generic [ref=e86]:
+                  - generic [ref=e88]:
+                    - generic [ref=e89]: fa-money-bill-wave
+                    - generic [ref=e91]: Income
+                    - img [ref=e92]
+                  - generic [ref=e94]: 0 transactions this month
+                - generic [ref=e95]:
+                  - generic [ref=e97]:
+                    - generic [ref=e98]: fa-briefcase
+                    - generic [ref=e100]: Salary
+                    - img [ref=e101]
+                  - generic [ref=e103]: 0 transactions this month
+            - generic [ref=e104]:
+              - heading [level=3] [ref=e108]: Food & Dining
+              - generic [ref=e110]:
+                - generic [ref=e111]:
+                  - generic [ref=e113]:
+                    - generic [ref=e114]: fa-shopping-cart
+                    - generic [ref=e116]: Groceries
+                    - img [ref=e117]
+                  - generic [ref=e119]: 0 transactions this month
+                - generic [ref=e120]:
+                  - generic [ref=e122]:
+                    - generic [ref=e123]: fa-utensils
+                    - generic [ref=e125]: Dining Out
+                    - img [ref=e126]
+                  - generic [ref=e128]: 0 transactions this month
+            - generic [ref=e129]:
+              - heading [level=3] [ref=e133]: Transportation
+              - generic [ref=e135]:
+                - generic [ref=e136]:
+                  - generic [ref=e138]:
+                    - generic [ref=e139]: fa-car
+                    - generic [ref=e141]: Transportation
+                    - img [ref=e142]
+                  - generic [ref=e144]: 0 transactions this month
+                - generic [ref=e145]:
+                  - generic [ref=e147]:
+                    - generic [ref=e148]: fa-gas-pump
+                    - generic [ref=e150]: Gas
+                    - img [ref=e151]
+                  - generic [ref=e153]: 0 transactions this month
+            - generic [ref=e154]:
+              - heading [level=3] [ref=e158]: Lifestyle
+              - generic [ref=e160]:
+                - generic [ref=e161]:
+                  - generic [ref=e163]:
+                    - generic [ref=e164]: fa-film
+                    - generic [ref=e166]: Entertainment
+                    - img [ref=e167]
+                  - generic [ref=e169]: 0 transactions this month
+                - generic [ref=e170]:
+                  - generic [ref=e172]:
+                    - generic [ref=e173]: fa-shopping-bag
+                    - generic [ref=e175]: Shopping
+                    - img [ref=e176]
+                  - generic [ref=e178]: 0 transactions this month
+                - generic [ref=e179]:
+                  - generic [ref=e181]:
+                    - generic [ref=e182]: fa-spa
+                    - generic [ref=e184]: Personal Care
+                    - img [ref=e185]
+                  - generic [ref=e187]: 0 transactions this month
+            - generic [ref=e188]:
+              - heading [level=3] [ref=e192]: Housing
+              - generic [ref=e194]:
+                - generic [ref=e195]:
+                  - generic [ref=e197]:
+                    - generic [ref=e198]: fa-home
+                    - generic [ref=e200]: Utilities
+                    - img [ref=e201]
+                  - generic [ref=e203]: 0 transactions this month
+                - generic [ref=e204]:
+                  - generic [ref=e206]:
+                    - generic [ref=e207]: fa-home
+                    - generic [ref=e209]: Home
+                    - img [ref=e210]
+                  - generic [ref=e212]: 0 transactions this month
+            - generic [ref=e213]:
+              - heading [level=3] [ref=e217]: Health
+              - generic [ref=e219]:
+                - generic [ref=e220]:
+                  - generic [ref=e222]:
+                    - generic [ref=e223]: fa-heart
+                    - generic [ref=e225]: Healthcare
+                    - img [ref=e226]
+                  - generic [ref=e228]: 0 transactions this month
+                - generic [ref=e229]:
+                  - generic [ref=e231]:
+                    - generic [ref=e232]: fa-shield-alt
+                    - generic [ref=e234]: Insurance
+                    - img [ref=e235]
+                  - generic [ref=e237]: 0 transactions this month
+            - generic [ref=e238]:
+              - heading [level=3] [ref=e242]: Other
+              - generic [ref=e245]:
+                - generic [ref=e247]:
+                  - generic [ref=e248]: fa-exchange-alt
+                  - generic [ref=e250]: Transfer
+                  - img [ref=e251]
+                - generic [ref=e253]: 0 transactions this month
+  - generic:
+    - generic:
+      - generic:
+        - dialog "Add Category":
+          - generic [ref=e257]:
+            - generic [ref=e258]:
+              - heading "Add Category" [level=3] [ref=e259]
+              - button [ref=e260] [cursor=pointer]:
+                - img [ref=e261]
+            - generic [ref=e263]:
+              - generic [ref=e264]:
+                - generic [ref=e265]: Category Name
+                - textbox "Category Name" [active] [ref=e267]:
+                  - /placeholder: e.g., Groceries, Gas, Entertainment
+                  - text: E2E Category 1771022250428
+              - generic [ref=e268]:
+                - generic [ref=e269]: Group
+                - combobox "Group" [ref=e270]:
+                  - option "Income"
+                  - option "Food & Dining" [selected]
+                  - option "Transportation"
+                  - option "Shopping"
+                  - option "Entertainment"
+                  - option "Bills & Utilities"
+                  - option "Healthcare"
+                  - option "Education"
+                  - option "Travel"
+                  - option "Other"
+              - generic [ref=e271]:
+                - generic [ref=e272]: Parent Category (Optional)
+                - combobox "Parent Category (Optional)" [ref=e273]:
+                  - option "None (Top-level category)" [selected]
+                  - option "Income"
+                  - option "Salary"
+                  - option "Groceries"
+                  - option "Dining Out"
+                  - option "Transportation"
+                  - option "Gas"
+                  - option "Entertainment"
+                  - option "Shopping"
+                  - option "Utilities"
+                  - option "Healthcare"
+                  - option "Insurance"
+                  - option "Home"
+                  - option "Personal Care"
+                  - option "Transfer"
+              - generic [ref=e274]:
+                - generic [ref=e275]: Icon (Optional)
+                - textbox "Icon (Optional)" [ref=e277]:
+                  - /placeholder: 🍔 (paste emoji)
+                - paragraph [ref=e278]: Paste an emoji to use as the category icon
+              - generic [ref=e279]:
+                - generic [ref=e280]: Color
+                - generic [ref=e281]:
+                  - button [ref=e282] [cursor=pointer]
+                  - button [ref=e283] [cursor=pointer]
+                  - button [ref=e284] [cursor=pointer]
+                  - button [ref=e285] [cursor=pointer]
+                  - button [ref=e286] [cursor=pointer]
+                  - button [ref=e287] [cursor=pointer]
+                  - button [ref=e288] [cursor=pointer]
+                  - button [ref=e289] [cursor=pointer]
+                  - button [ref=e290] [cursor=pointer]
+                  - button [ref=e291] [cursor=pointer]
+              - generic [ref=e292]:
+                - button "Cancel" [ref=e293] [cursor=pointer]
+                - button "Create Category" [ref=e294] [cursor=pointer]
+```

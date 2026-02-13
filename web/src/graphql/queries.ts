@@ -285,6 +285,9 @@ export const GET_BUDGET = gql`
       categoryId
       budgeted
       spent
+      rollover
+      available
+      percentUsed
       month
       category {
         id
@@ -292,6 +295,40 @@ export const GET_BUDGET = gql`
         icon
         color
         groupName
+      }
+    }
+  }
+`;
+
+export const GET_BUDGET_SUMMARY = gql`
+  query GetBudgetSummary($month: String!) {
+    budgetSummary(month: $month) {
+      month
+      totalBudgeted
+      totalSpent
+      totalIncome
+      incomeActual
+      leftToBudget
+      categoryGroups {
+        name
+        budgeted
+        spent
+        items {
+          id
+          budgeted
+          spent
+          rollover
+          available
+          percentUsed
+          month
+          category {
+            id
+            name
+            icon
+            color
+            groupName
+          }
+        }
       }
     }
   }
