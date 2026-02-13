@@ -74,7 +74,7 @@ const ToastItem: React.FC<ToastItemProps> = ({ toast, onRemove }) => {
     >
       <div
         className={clsx(
-          'max-w-sm w-full shadow-lg rounded-lg pointer-events-auto border',
+          'max-w-lg w-full shadow-lg rounded-lg pointer-events-auto border',
           colorClasses[toast.type]
         )}
       >
