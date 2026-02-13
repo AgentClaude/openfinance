@@ -123,11 +123,7 @@ jobs:
 
     env:
       RAILS_ENV: production
-      DB_HOST: localhost
-      DB_PORT: 5432
-      DB_USERNAME: openfinance
-      DB_PASSWORD: password
-      POSTGRES_DB: openfinance_production
+      DATABASE_URL: postgresql://openfinance:password@localhost:5432/openfinance_production
       REDIS_URL: redis://localhost:6379/1
       SECRET_KEY_BASE: ci-test-secret-key-base-not-real
       VITE_API_URL: http://localhost:3001
