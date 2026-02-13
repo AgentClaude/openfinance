@@ -33,7 +33,7 @@ class Plaid::SyncTransactionsService < ApplicationService
     @added_count = 0
     @modified_count = 0
     @removed_count = 0
-    @cursor = connection.sync_cursor
+    @cursor = connection&.sync_cursor
   end
 
   def sync_transactions!

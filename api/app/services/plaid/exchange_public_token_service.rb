@@ -97,14 +97,21 @@ class Plaid::ExchangePublicTokenService < ApplicationService
     account_type = map_plaid_account_type(plaid_account.type)
     subtype = map_plaid_account_subtype(plaid_account.subtype)
     # Refine account_type based on subtype
-    account_type = subtype if %w[checking savings].include?(subtype) && account_type == 'checking'
+    if %w[checking savings].include?(subtype)
+      account_type = subtype
+      subtype = nil # checking/savings are account_types, not subtypes
+    end
+
+    # Only set account_subtype if it's a valid enum value
+    valid_subtypes = Account.account_subtypes.keys.map(&:to_s)
+    resolved_subtype = (subtype.present? && subtype != 'other' && valid_subtypes.include?(subtype)) ? subtype : nil
 
     @connection.accounts.create!(
       household: user.household,
       name: plaid_account.name,
       official_name: plaid_account.official_name,
       account_type: account_type,
-      account_subtype: subtype == 'other' ? nil : subtype,
+      account_subtype: resolved_subtype,
       plaid_account_id: plaid_account.account_id,
       mask: plaid_account.mask,
       current_balance_cents: (balance_current * 100).round,
@@ -118,6 +125,8 @@ class Plaid::ExchangePublicTokenService < ApplicationService
     # Schedule an immediate sync of transactions
     # Gracefully handle Sidekiq being unavailable
     SyncTransactionsJob.safe_perform_later(@connection, set_options: { wait: 10.seconds })
+  rescue StandardError => e
+    Rails.logger.warn "Failed to schedule initial sync: #{e.message}"
   end
 
   def find_or_create_institution(institution_id)

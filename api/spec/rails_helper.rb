@@ -43,6 +43,7 @@ RSpec.configure do |config|
   config.include FactoryBot::Syntax::Methods
 
   # Include custom helpers
+  config.include ActiveSupport::Testing::TimeHelpers
   config.include AuthHelper
   config.include GraphQLHelper
   config.include PlaidHelpers

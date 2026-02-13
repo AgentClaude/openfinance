@@ -61,6 +61,7 @@ end
 # Result object for service responses
 class ServiceResult
   attr_reader :data, :errors
+  alias_method :value, :data
 
   def initialize(success:, data: {}, errors: [])
     @success = success
