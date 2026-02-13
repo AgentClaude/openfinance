@@ -62,6 +62,7 @@ jobs:
 
       - name: Setup database
         run: |
+          mkdir -p log tmp
           bundle exec rails db:create db:schema:load
 
       - name: Run RSpec
@@ -148,6 +149,7 @@ jobs:
       - name: Setup API database & seed
         working-directory: api
         run: |
+          mkdir -p log tmp
           bundle exec rails db:create db:schema:load db:seed
 
       - name: Start API server
