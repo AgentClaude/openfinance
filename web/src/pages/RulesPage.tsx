@@ -265,7 +265,7 @@ const RulesPage: React.FC = () => {
             label="Category"
             value={form.categoryId}
             onChange={(e) => setForm({ ...form, categoryId: e.target.value })}
-            options={allCategories.map((c) => ({ value: c.id, label: `${c.icon || ''} ${c.name}`.trim() }))}
+            options={allCategories.map((c) => ({ value: c.id, label: c.name }))}
           />
           <Input
             label="Rename Merchant To (optional)"

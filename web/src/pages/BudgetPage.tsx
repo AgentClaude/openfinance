@@ -18,6 +18,7 @@ import AmountDisplay from '@/components/ui/AmountDisplay';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import EmptyState from '@/components/ui/EmptyState';
 import { useToast } from '@/components/ui/Toast';
+import CategoryIcon from '@/components/ui/CategoryIcon';
 import { useNavigate } from 'react-router-dom';
 import { format, addMonths, subMonths, startOfMonth, endOfMonth } from 'date-fns';
 
@@ -269,7 +270,7 @@ const BudgetPage: React.FC = () => {
                           navigate(`/transactions?categoryId=${item.category?.id}&dateFrom=${start}&dateTo=${end}`);
                         }}
                       >
-                        {item.category?.icon && <span className="mr-2">{item.category.icon}</span>}
+                        {item.category?.icon && <CategoryIcon icon={item.category.icon} className="mr-2" />}
                         <span className="text-sm font-medium text-gray-900 group-hover:text-indigo-600">{item.category?.name}</span>
                       </button>
                     </div>
