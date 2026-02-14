@@ -50,6 +50,22 @@ export interface Transaction {
   category?: Category;
   subcategory?: Category;
   tags: Tag[];
+  isSplit?: boolean;
+  isTransfer?: boolean;
+  excluded?: boolean;
+  parentTransactionId?: string;
+  transferPairId?: string;
+}
+
+export interface TransferCandidate {
+  outflowId: string;
+  inflowId: string;
+  amount: number;
+  outflowAccount: string;
+  inflowAccount: string;
+  outflowDate: string;
+  inflowDate: string;
+  description: string;
 }
 
 export interface Category {
@@ -179,4 +195,44 @@ export interface ColumnConfig<T> {
   render?: (item: T) => React.ReactNode;
   sortable?: boolean;
   width?: string;
+}
+export interface Security {
+  id: string;
+  symbol: string;
+  name: string;
+  securityType?: string;
+  currentPrice?: number;
+}
+
+export interface Holding {
+  id: string;
+  security: Security;
+  quantity: number;
+  currentPrice?: number;
+  marketValue?: number;
+  costBasis?: number;
+  costBasisTotal: number;
+  currentValue: number;
+  unrealizedGainLoss: number;
+  unrealizedGainLossPercentage: number;
+  weightInAccount: number;
+  asOfDate: string;
+  currency: string;
+}
+
+export interface PortfolioAllocation {
+  securityName: string;
+  symbol: string;
+  securityType?: string;
+  value: number;
+  percentage: number;
+}
+
+export interface PortfolioSummary {
+  totalValue: number;
+  totalCostBasis: number;
+  totalGainLoss: number;
+  totalGainLossPercentage: number;
+  totalHoldingsCount: number;
+  allocations: PortfolioAllocation[];
 }

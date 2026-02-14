@@ -20,6 +20,7 @@ import CategoriesPage from '@/pages/CategoriesPage';
 import RulesPage from '@/pages/RulesPage';
 import RecurringPage from '@/pages/RecurringPage';
 import ReportsPage from '@/pages/ReportsPage';
+import InvestmentsPage from '@/pages/InvestmentsPage';
 
 // Temporary placeholder page
 import SettingsPageReal from '@/pages/SettingsPage';
@@ -46,6 +47,7 @@ function App() {
                 <Route path="rules" element={<RulesPage />} />
                 <Route path="recurring" element={<RecurringPage />} />
                 <Route path="reports" element={<ReportsPage />} />
+                <Route path="investments" element={<InvestmentsPage />} />
                 <Route path="settings" element={<SettingsPageReal />} />
               </Route>
 
