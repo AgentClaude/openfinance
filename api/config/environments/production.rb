@@ -47,8 +47,9 @@ Rails.application.configure do
 
   # Use a different cache store in production.
   config.cache_store = :redis_cache_store, {
-    url: ENV['REDIS_URL'],
+    url: ENV.fetch('REDIS_URL', 'redis://localhost:6379/1'),
     reconnect_attempts: 1,
+    pool: false,
     error_handler: -> (method:, returning:, exception:) {
       Rails.logger.error "Redis cache error: #{exception.message}"
     }
@@ -106,7 +107,6 @@ Rails.application.configure do
   }
 
   # Database query timeout
-  config.active_record.query_timeout = 30.seconds
 
   # Instrumentation
   if ENV['NEW_RELIC_LICENSE_KEY'].present?

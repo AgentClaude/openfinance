@@ -129,6 +129,7 @@ jobs:
       REDIS_URL: redis://localhost:6379/1
       SECRET_KEY_BASE: ci-test-secret-key-base-not-real
       VITE_API_URL: http://localhost:3001
+      BUNDLE_WITHOUT: development
 
     steps:
       - uses: actions/checkout@v4
