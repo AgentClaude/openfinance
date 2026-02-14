@@ -752,3 +752,25 @@ export const UPLOAD_STATEMENT = gql`
     }
   }
 `;
+
+export const MARK_NOTIFICATION_READ = gql`
+  mutation MarkNotificationRead($id: ID!, $read: Boolean) {
+    markNotificationRead(id: $id, read: $read) {
+      notification {
+        id
+        isRead
+        readAt
+      }
+      errors
+    }
+  }
+`;
+
+export const MARK_ALL_NOTIFICATIONS_READ = gql`
+  mutation MarkAllNotificationsRead {
+    markAllNotificationsRead {
+      count
+      errors
+    }
+  }
+`;

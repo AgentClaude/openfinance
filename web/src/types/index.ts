@@ -258,3 +258,15 @@ export interface BalanceAdjustment {
   createdByName?: string;
   createdAt: string;
 }
+
+export interface Notification {
+  id: string;
+  title: string;
+  body?: string;
+  notificationType: string;
+  priority: string;
+  isRead: boolean;
+  readAt?: string;
+  data?: Record<string, unknown>;
+  createdAt: string;
+}

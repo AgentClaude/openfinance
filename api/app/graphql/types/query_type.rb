@@ -202,6 +202,23 @@ module Types
       }
     end
 
+    field :notifications, [Types::NotificationType], null: false do
+      argument :unread_only, Boolean, required: false, default_value: false
+      argument :limit, Integer, required: false, default_value: 50
+    end
+    def notifications(unread_only: false, limit: 50)
+      return [] unless context[:current_user]
+      scope = context[:current_user].notifications.recent
+      scope = scope.unread if unread_only
+      scope.limit(limit)
+    end
+
+    field :unread_notification_count, Integer, null: false
+    def unread_notification_count
+      return 0 unless context[:current_user]
+      context[:current_user].notifications.unread.count
+    end
+
     field :notification_preferences, [Types::NotificationPreferenceType], null: false
     def notification_preferences
       return [] unless context[:current_user]

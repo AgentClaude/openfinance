@@ -19,6 +19,7 @@ import { useAuth } from '@/hooks/useAuth';
 import Sidebar from '@/components/ui/Sidebar';
 import Avatar from '@/components/ui/Avatar';
 import Dropdown from '@/components/ui/Dropdown';
+import NotificationBell from '@/components/NotificationBell';
 import { Transition } from '@headlessui/react';
 
 const navigation = [
@@ -139,7 +140,7 @@ const AppLayout: React.FC = () => {
             </div>
             
             <div className="ml-4 flex items-center md:ml-6 space-x-4">
-              {/* Notifications button could go here */}
+              <NotificationBell />
               
               {/* Profile dropdown */}
               <Dropdown
