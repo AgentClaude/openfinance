@@ -23,6 +23,8 @@ class User < ApplicationRecord
   has_many :shared_accounts_given, class_name: 'SharedAccount', foreign_key: :shared_by_user_id, dependent: :destroy
   has_many :referrals_given, class_name: 'Referral', foreign_key: :referrer_id, dependent: :destroy
   has_many :referrals_received, class_name: 'Referral', foreign_key: :referred_user_id, dependent: :destroy
+  has_many :api_keys, dependent: :destroy
+  has_many :share_tokens, dependent: :destroy
 
   # Validations
   validates :email, presence: true, uniqueness: true, format: { with: URI::MailTo::EMAIL_REGEXP }

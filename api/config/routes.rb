@@ -44,6 +44,27 @@ Rails.application.routes.draw do
     delete '/auth/2fa/disable', to: 'two_factor#disable'
   end
 
+  # Public API v1
+  namespace :api do
+    namespace :v1 do
+      # API docs (no auth required)
+      get '/docs', to: 'api_docs#show'
+
+      # Authenticated endpoints
+      get '/accounts', to: 'accounts#index'
+      get '/transactions', to: 'transactions#index'
+      get '/budgets/:month', to: 'budgets#show'
+      get '/net_worth', to: 'net_worth#show'
+      get '/monthly_summary/:month', to: 'monthly_summary#show'
+      get '/daily_spend/:date', to: 'daily_spend#show'
+      get '/account_balances', to: 'account_balances#index'
+
+      # Embeddable widget endpoints (share token auth, no API key)
+      get '/embed/net_worth', to: 'embed#net_worth'
+      get '/embed/spending', to: 'embed#spending'
+    end
+  end
+
   # Webhooks (no authentication required)
   namespace :webhooks do
     post '/plaid', to: 'plaid#create'
