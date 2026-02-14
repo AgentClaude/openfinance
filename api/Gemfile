@@ -54,6 +54,9 @@ gem "money-rails", "~> 1.15"
 # Pagination
 gem "kaminari", "~> 1.2"
 
+# Authorization
+gem "pundit", "~> 2.4"
+
 # Image processing (for avatars/receipts)
 gem "image_processing", "~> 1.12"
 
@@ -85,3 +88,4 @@ group :test do
   gem "database_cleaner-active_record", "~> 2.1"
   gem "simplecov", "~> 0.22", require: false
 end
+gem "rack-attack", "~> 6.8"

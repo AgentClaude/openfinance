@@ -459,11 +459,10 @@ const IncomeExpensesReport: React.FC<{ reports: any }> = ({ reports }) => {
             <Bar dataKey="expenses" name="Expenses" fill="#ef4444" radius={[4, 4, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
-      </Card>
+      </ChartCard>
 
       {/* Cumulative savings trend */}
-      <Card className="p-6">
-        <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Cumulative Savings</h3>
+      <ChartCard title="Cumulative Savings">
         <ResponsiveContainer width="100%" height={300}>
           <ComposedChart data={cumulativeData}>
             <CartesianGrid strokeDasharray="3 3" />
@@ -487,10 +486,10 @@ const IncomeExpensesReport: React.FC<{ reports: any }> = ({ reports }) => {
             />
           </ComposedChart>
         </ResponsiveContainer>
-      </Card>
+      </ChartCard>
 
       {/* Monthly comparison table */}
-      <Card className="p-6">
+      <ChartCard title="Monthly Comparison">
         <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Monthly Comparison</h3>
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
