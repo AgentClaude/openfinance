@@ -15,6 +15,11 @@ module Types
     field :category, Types::CategoryType, null: true
     field :subcategory, Types::CategoryType, null: true
     field :tags, [Types::TagType], null: false
+    field :is_split, Boolean, null: false
+    field :is_transfer, Boolean, null: false
+    field :excluded, Boolean, null: false
+    field :parent_transaction_id, ID, null: true
+    field :transfer_pair_id, ID, null: true
 
     def amount
       object.amount_cents / 100.0

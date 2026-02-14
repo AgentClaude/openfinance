@@ -1,11 +1,12 @@
 import React, { Fragment, useState, useEffect } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
-import { XMarkIcon, CheckIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline';
+import { XMarkIcon, CheckIcon, ExclamationTriangleIcon, ScissorsIcon } from '@heroicons/react/24/outline';
 import { Transaction, Category, Tag } from '@/types';
 import AmountDisplay from '@/components/ui/AmountDisplay';
 import Badge from '@/components/ui/Badge';
 import Button from '@/components/ui/Button';
 import Select from '@/components/ui/Select';
+import SplitTransactionModal from '@/components/SplitTransactionModal';
 import { format } from 'date-fns';
 
 interface TransactionDetailPanelProps {
@@ -37,6 +38,7 @@ const TransactionDetailPanel: React.FC<TransactionDetailPanelProps> = ({
   const [transactionTags, setTransactionTags] = useState<Tag[]>([]);
   const [tagInput, setTagInput] = useState('');
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const [splitOpen, setSplitOpen] = useState(false);
 
   useEffect(() => {
     if (transaction) {
@@ -104,6 +106,7 @@ const TransactionDetailPanel: React.FC<TransactionDetailPanelProps> = ({
   };
 
   return (
+    <>
     <Transition appear show={isOpen} as={Fragment}>
       <Dialog as="div" className="relative z-50" onClose={onClose}>
         <Transition.Child
@@ -291,7 +294,28 @@ const TransactionDetailPanel: React.FC<TransactionDetailPanelProps> = ({
                     </div>
 
                     {/* Footer */}
-                    <div className="border-t border-gray-200 px-4 py-4 sm:px-6">
+                    <div className="border-t border-gray-200 px-4 py-4 sm:px-6 space-y-3">
+                      {!transaction.isSplit && !transaction.parentTransactionId && (
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          onClick={() => setSplitOpen(true)}
+                          className="w-full"
+                        >
+                          <ScissorsIcon className="h-4 w-4 mr-2" />
+                          Split Transaction
+                        </Button>
+                      )}
+                      {transaction.isSplit && (
+                        <div className="text-center">
+                          <Badge variant="info" size="sm">This transaction has been split</Badge>
+                        </div>
+                      )}
+                      {transaction.isTransfer && (
+                        <div className="text-center">
+                          <Badge variant="secondary" size="sm">Linked as transfer</Badge>
+                        </div>
+                      )}
                       <div className="flex gap-3">
                         <Button variant="secondary" onClick={onClose} className="flex-1">
                           Cancel
@@ -309,6 +333,20 @@ const TransactionDetailPanel: React.FC<TransactionDetailPanelProps> = ({
         </div>
       </Dialog>
     </Transition>
+
+    {transaction && (
+      <SplitTransactionModal
+        transaction={transaction}
+        categories={categories}
+        isOpen={splitOpen}
+        onClose={() => setSplitOpen(false)}
+        onSuccess={() => {
+          setFeedback({ type: 'success', message: 'Transaction split successfully!' });
+          setSplitOpen(false);
+        }}
+      />
+    )}
+    </>
   );
 };
 

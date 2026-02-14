@@ -5,6 +5,42 @@ module Types
       context[:current_user]
     end
 
+    field :household_members, [Types::HouseholdMemberType], null: false
+    def household_members
+      return [] unless context[:current_user]&.household
+
+      household = context[:current_user].household
+      members = []
+
+      # Primary users (users table household_id)
+      household.users.each do |u|
+        members << OpenStruct.new(id: "primary-#{u.id}", user: u, role: u.role, joined_at: u.created_at, is_primary: true)
+      end
+
+      # Membership users
+      household.household_memberships.includes(:user).each do |m|
+        members << OpenStruct.new(id: m.id, user: m.user, role: m.role, joined_at: m.joined_at, is_primary: false)
+      end
+
+      members
+    end
+
+    field :household_invitations, [Types::InvitationType], null: false
+    def household_invitations
+      return [] unless context[:current_user]&.household
+      context[:current_user].household.invitations.pending.where('expires_at > ?', Time.current).order(created_at: :desc)
+    end
+
+    field :goals, [Types::GoalType], null: false do
+      argument :active_only, Boolean, required: false, default_value: false
+    end
+    def goals(active_only: false)
+      return [] unless context[:current_user]&.household
+      scope = context[:current_user].household.goals.order(:target_date)
+      scope = scope.where(is_active: true, is_achieved: false) if active_only
+      scope
+    end
+
     field :accounts, [Types::AccountType], null: false
     def accounts
       return [] unless context[:current_user]&.household
@@ -109,7 +145,8 @@ module Types
         spending_by_category: spending,
         recent_transactions: recent,
         account_balances: balances,
-        needs_review_count: household.transactions.where(needs_review: true).count
+        needs_review_count: household.transactions.where(needs_review: true).count,
+        goals_summary: household.goals.where(is_active: true, is_achieved: false).order(:target_date).limit(5)
       }
     end
 
@@ -408,7 +445,7 @@ module Types
     end
 
     def empty_dashboard
-      { net_worth: 0.0, net_worth_change: 0.0, monthly_income: 0.0, monthly_expenses: 0.0, cash_flow: 0.0, spending_by_category: [], recent_transactions: [], account_balances: [], needs_review_count: 0 }
+      { net_worth: 0.0, net_worth_change: 0.0, monthly_income: 0.0, monthly_expenses: 0.0, cash_flow: 0.0, spending_by_category: [], recent_transactions: [], account_balances: [], needs_review_count: 0, goals_summary: [] }
     end
   end
 end

@@ -25,7 +25,18 @@ module Types
     field :update_recurring_item, mutation: Mutations::UpdateRecurringItem
     field :delete_recurring_item, mutation: Mutations::DeleteRecurringItem
     field :mark_recurring_item_paid, mutation: Mutations::MarkRecurringItemPaid
+    field :create_goal, mutation: Mutations::CreateGoal
+    field :update_goal, mutation: Mutations::UpdateGoal
+    field :delete_goal, mutation: Mutations::DeleteGoal
     field :update_profile, mutation: Mutations::UpdateProfile
     field :change_password, mutation: Mutations::ChangePassword
+    field :invite_to_household, mutation: Mutations::InviteToHousehold
+    field :accept_invitation, mutation: Mutations::AcceptInvitation
+    field :remove_household_member, mutation: Mutations::RemoveHouseholdMember
+    field :import_csv, mutation: Mutations::ImportCsv
+    field :bulk_transaction_action, mutation: Mutations::BulkTransactionAction
+    field :split_transaction, mutation: Mutations::SplitTransaction
+    field :detect_transfers, mutation: Mutations::DetectTransfers
+    field :link_transfer, mutation: Mutations::LinkTransfer
   end
 end

@@ -22,20 +22,20 @@ const Card: React.FC<CardProps> = ({
 }) => {
   return (
     <div className={clsx(
-      'bg-white rounded-xl shadow-sm border border-gray-200',
+      'bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700',
       className
     )}>
       {(title || subtitle || actions) && (
-        <div className="px-6 py-4 border-b border-gray-200">
+        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
             <div>
               {title && (
-                <h3 className="text-lg font-semibold text-gray-900">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                   {title}
                 </h3>
               )}
               {subtitle && (
-                <p className="mt-1 text-sm text-gray-600">
+                <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
                   {subtitle}
                 </p>
               )}
@@ -54,7 +54,7 @@ const Card: React.FC<CardProps> = ({
       </div>
 
       {footer && (
-        <div className="px-6 py-4 border-t border-gray-200 bg-gray-50 rounded-b-xl">
+        <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 rounded-b-xl">
           {footer}
         </div>
       )}

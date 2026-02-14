@@ -381,3 +381,32 @@ export const GET_PORTFOLIO_SUMMARY = gql`
     }
   }
 `;
+
+export const GET_GOALS = gql`
+  query GetGoals($activeOnly: Boolean) {
+    goals(activeOnly: $activeOnly) {
+      id
+      name
+      description
+      goalType
+      icon
+      color
+      targetAmount
+      currentAmount
+      currency
+      targetDate
+      startDate
+      isActive
+      isAchieved
+      achievedAt
+      progressPercentage
+      amountRemaining
+      daysRemaining
+      isOverdue
+      isOnTrack
+      monthlyTarget
+      linkedAccountIds
+      createdAt
+    }
+  }
+`;

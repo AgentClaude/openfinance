@@ -15,6 +15,7 @@ class Household < ApplicationRecord
   has_many :recurring_items, dependent: :destroy
   has_many :categorization_rules, dependent: :destroy
   has_many :tags, dependent: :destroy
+  has_many :invitations, dependent: :destroy
 
   # Validations
   validates :name, presence: true, length: { minimum: 2, maximum: 100 }
