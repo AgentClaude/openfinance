@@ -64,7 +64,7 @@ const ReportsPage: React.FC = () => {
                 className={`px-3 py-1.5 text-xs font-medium rounded-l-md border ${
                   dateRangeMode === 'preset'
                     ? 'bg-indigo-50 border-indigo-300 text-indigo-700'
-                    : 'bg-white border-gray-300 text-gray-600 hover:bg-gray-50'
+                    : 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:bg-gray-900'
                 }`}
               >
                 Preset
@@ -74,7 +74,7 @@ const ReportsPage: React.FC = () => {
                 className={`px-3 py-1.5 text-xs font-medium rounded-r-md border-t border-r border-b ${
                   dateRangeMode === 'custom'
                     ? 'bg-indigo-50 border-indigo-300 text-indigo-700'
-                    : 'bg-white border-gray-300 text-gray-600 hover:bg-gray-50'
+                    : 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:bg-gray-900'
                 }`}
               >
                 Custom
@@ -84,7 +84,7 @@ const ReportsPage: React.FC = () => {
               <select
                 value={months}
                 onChange={(e) => setMonths(parseInt(e.target.value))}
-                className="rounded-md border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                className="rounded-md border-gray-300 dark:border-gray-600 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
               >
                 <option value={3}>Last 3 months</option>
                 <option value={6}>Last 6 months</option>
@@ -97,14 +97,14 @@ const ReportsPage: React.FC = () => {
                   type="date"
                   value={customFrom}
                   onChange={(e) => setCustomFrom(e.target.value)}
-                  className="rounded-md border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                  className="rounded-md border-gray-300 dark:border-gray-600 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                 />
                 <span className="text-gray-400 text-sm">to</span>
                 <input
                   type="date"
                   value={customTo}
                   onChange={(e) => setCustomTo(e.target.value)}
-                  className="rounded-md border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                  className="rounded-md border-gray-300 dark:border-gray-600 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                 />
               </div>
             )}
@@ -113,7 +113,7 @@ const ReportsPage: React.FC = () => {
       />
 
       {/* Tabs */}
-      <div className="border-b border-gray-200 mb-6">
+      <div className="border-b border-gray-200 dark:border-gray-700 mb-6">
         <nav className="-mb-px flex space-x-6 overflow-x-auto">
           {tabs.map((tab) => (
             <button
@@ -122,7 +122,7 @@ const ReportsPage: React.FC = () => {
               className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors whitespace-nowrap ${
                 activeTab === tab.id
                   ? 'border-indigo-500 text-indigo-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:border-gray-600'
               }`}
             >
               <span className="mr-1.5">{tab.icon}</span>
@@ -160,25 +160,25 @@ const OverviewReport: React.FC<{ reports: any }> = ({ reports }) => {
       {/* Summary cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
         <Card className="p-4">
-          <p className="text-sm text-gray-500">Total Income</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">Total Income</p>
           <p className="text-2xl font-bold text-green-600">{formatCurrency(totalIncome)}</p>
         </Card>
         <Card className="p-4">
-          <p className="text-sm text-gray-500">Total Expenses</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">Total Expenses</p>
           <p className="text-2xl font-bold text-red-600">{formatCurrency(totalExpenses)}</p>
         </Card>
         <Card className="p-4">
-          <p className="text-sm text-gray-500">Net Cash Flow</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">Net Cash Flow</p>
           <p className={`text-2xl font-bold ${totalIncome - totalExpenses >= 0 ? 'text-green-600' : 'text-red-600'}`}>
             {formatCurrency(totalIncome - totalExpenses)}
           </p>
         </Card>
         <Card className="p-4">
-          <p className="text-sm text-gray-500">Avg Monthly Expenses</p>
-          <p className="text-2xl font-bold text-gray-900">{formatCurrency(avgMonthlyExpenses)}</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">Avg Monthly Expenses</p>
+          <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{formatCurrency(avgMonthlyExpenses)}</p>
         </Card>
         <Card className="p-4">
-          <p className="text-sm text-gray-500">Savings Rate</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">Savings Rate</p>
           <p className={`text-2xl font-bold ${savingsRate >= 0 ? 'text-green-600' : 'text-red-600'}`}>
             {savingsRate.toFixed(1)}%
           </p>
@@ -187,7 +187,7 @@ const OverviewReport: React.FC<{ reports: any }> = ({ reports }) => {
 
       {/* Income vs Expenses bar chart */}
       <Card className="p-6">
-        <h3 className="text-lg font-medium text-gray-900 mb-4">Income vs Expenses</h3>
+        <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Income vs Expenses</h3>
         <ResponsiveContainer width="100%" height={300}>
           <BarChart data={monthlySummary}>
             <CartesianGrid strokeDasharray="3 3" />
@@ -203,7 +203,7 @@ const OverviewReport: React.FC<{ reports: any }> = ({ reports }) => {
 
       {/* Spending by category donut */}
       <Card className="p-6">
-        <h3 className="text-lg font-medium text-gray-900 mb-4">Spending by Category</h3>
+        <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Spending by Category</h3>
         <div className="flex flex-col md:flex-row items-center gap-8">
           <ResponsiveContainer width="100%" height={300} className="max-w-sm">
             <PieChart>
@@ -231,12 +231,12 @@ const OverviewReport: React.FC<{ reports: any }> = ({ reports }) => {
               <div key={cat.categoryId || i} className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-3 rounded-full" style={{ backgroundColor: COLORS[i % COLORS.length] }} />
-                  <span className="text-sm text-gray-700">
+                  <span className="text-sm text-gray-700 dark:text-gray-300">
                     {cat.categoryIcon} {cat.categoryName}
                   </span>
                 </div>
                 <div className="text-right">
-                  <span className="text-sm font-medium text-gray-900">{formatCurrency(cat.amount)}</span>
+                  <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{formatCurrency(cat.amount)}</span>
                   <span className="text-xs text-gray-400 ml-2">{cat.percentage}%</span>
                 </div>
               </div>
@@ -280,7 +280,7 @@ const SpendingReport: React.FC<{ reports: any }> = ({ reports }) => {
     <div className="space-y-6">
       {/* Donut chart */}
       <Card className="p-6">
-        <h3 className="text-lg font-medium text-gray-900 mb-4">Spending by Category</h3>
+        <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Spending by Category</h3>
         <div className="flex flex-col lg:flex-row items-center gap-8">
           <div className="w-full max-w-xs">
             <ResponsiveContainer width="100%" height={320}>
@@ -315,12 +315,12 @@ const SpendingReport: React.FC<{ reports: any }> = ({ reports }) => {
                 <div key={cat.categoryId || i} className="flex items-center justify-between py-1">
                   <div className="flex items-center gap-2">
                     <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: COLORS[i % COLORS.length] }} />
-                    <span className="text-sm text-gray-700">
+                    <span className="text-sm text-gray-700 dark:text-gray-300">
                       {cat.categoryIcon} {cat.categoryName}
                     </span>
                   </div>
                   <div className="flex items-center gap-4">
-                    <span className="text-sm font-medium text-gray-900">{formatCurrency(cat.amount)}</span>
+                    <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{formatCurrency(cat.amount)}</span>
                     <span className="text-xs text-gray-400 w-10 text-right">{cat.percentage}%</span>
                     <span className="text-xs text-gray-400 w-14 text-right">{cat.transactionCount} txns</span>
                   </div>
@@ -333,7 +333,7 @@ const SpendingReport: React.FC<{ reports: any }> = ({ reports }) => {
 
       {/* Stacked bar - spending over time */}
       <Card className="p-6">
-        <h3 className="text-lg font-medium text-gray-900 mb-4">Spending Over Time</h3>
+        <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Spending Over Time</h3>
         <ResponsiveContainer width="100%" height={400}>
           <BarChart data={stackedData}>
             <CartesianGrid strokeDasharray="3 3" />
@@ -350,36 +350,36 @@ const SpendingReport: React.FC<{ reports: any }> = ({ reports }) => {
 
       {/* Category breakdown table */}
       <Card className="p-6">
-        <h3 className="text-lg font-medium text-gray-900 mb-4">Category Breakdown</h3>
+        <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Category Breakdown</h3>
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead>
               <tr>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Category</th>
-                <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Amount</th>
-                <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">%</th>
-                <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Transactions</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Distribution</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Category</th>
+                <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Amount</th>
+                <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">%</th>
+                <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Transactions</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Distribution</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
               {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
               {spendingByCategory.map((cat: any, i: number) => (
-                <tr key={cat.categoryId || i} className="hover:bg-gray-50">
-                  <td className="px-4 py-3 text-sm text-gray-900">
+                <tr key={cat.categoryId || i} className="hover:bg-gray-50 dark:bg-gray-900">
+                  <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
                     {cat.categoryIcon} {cat.categoryName}
                   </td>
-                  <td className="px-4 py-3 text-sm text-right font-medium text-gray-900">
+                  <td className="px-4 py-3 text-sm text-right font-medium text-gray-900 dark:text-gray-100">
                     {formatCurrency(cat.amount)}
                   </td>
-                  <td className="px-4 py-3 text-sm text-right text-gray-500">
+                  <td className="px-4 py-3 text-sm text-right text-gray-500 dark:text-gray-400">
                     {cat.percentage}%
                   </td>
-                  <td className="px-4 py-3 text-sm text-right text-gray-500">
+                  <td className="px-4 py-3 text-sm text-right text-gray-500 dark:text-gray-400">
                     {cat.transactionCount}
                   </td>
                   <td className="px-4 py-3 w-40">
-                    <div className="w-full bg-gray-100 rounded-full h-2.5">
+                    <div className="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2.5">
                       <div
                         className="h-2.5 rounded-full transition-all"
                         style={{
@@ -424,21 +424,21 @@ const IncomeExpensesReport: React.FC<{ reports: any }> = ({ reports }) => {
       {/* Summary stats */}
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
         <Card className="p-4">
-          <p className="text-sm text-gray-500">Total Income</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">Total Income</p>
           <p className="text-2xl font-bold text-green-600">{formatCurrency(totalIncome)}</p>
         </Card>
         <Card className="p-4">
-          <p className="text-sm text-gray-500">Total Expenses</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">Total Expenses</p>
           <p className="text-2xl font-bold text-red-600">{formatCurrency(totalExpenses)}</p>
         </Card>
         <Card className="p-4">
-          <p className="text-sm text-gray-500">Net Savings</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">Net Savings</p>
           <p className={`text-2xl font-bold ${netSavings >= 0 ? 'text-green-600' : 'text-red-600'}`}>
             {formatCurrency(netSavings)}
           </p>
         </Card>
         <Card className="p-4">
-          <p className="text-sm text-gray-500">Savings Rate</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">Savings Rate</p>
           <p className={`text-2xl font-bold ${savingsRate >= 0 ? 'text-green-600' : 'text-red-600'}`}>
             {savingsRate.toFixed(1)}%
           </p>
@@ -447,7 +447,7 @@ const IncomeExpensesReport: React.FC<{ reports: any }> = ({ reports }) => {
 
       {/* Dual bar chart */}
       <Card className="p-6">
-        <h3 className="text-lg font-medium text-gray-900 mb-4">Monthly Income vs Expenses</h3>
+        <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Monthly Income vs Expenses</h3>
         <ResponsiveContainer width="100%" height={400}>
           <BarChart data={monthlySummary} barCategoryGap="20%">
             <CartesianGrid strokeDasharray="3 3" />
@@ -463,7 +463,7 @@ const IncomeExpensesReport: React.FC<{ reports: any }> = ({ reports }) => {
 
       {/* Cumulative savings trend */}
       <Card className="p-6">
-        <h3 className="text-lg font-medium text-gray-900 mb-4">Cumulative Savings</h3>
+        <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Cumulative Savings</h3>
         <ResponsiveContainer width="100%" height={300}>
           <ComposedChart data={cumulativeData}>
             <CartesianGrid strokeDasharray="3 3" />
@@ -491,16 +491,16 @@ const IncomeExpensesReport: React.FC<{ reports: any }> = ({ reports }) => {
 
       {/* Monthly comparison table */}
       <Card className="p-6">
-        <h3 className="text-lg font-medium text-gray-900 mb-4">Monthly Comparison</h3>
+        <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Monthly Comparison</h3>
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead>
               <tr>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Month</th>
-                <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Income</th>
-                <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Expenses</th>
-                <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Savings</th>
-                <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Rate</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Month</th>
+                <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Income</th>
+                <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Expenses</th>
+                <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Savings</th>
+                <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Rate</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
@@ -508,8 +508,8 @@ const IncomeExpensesReport: React.FC<{ reports: any }> = ({ reports }) => {
               {[...monthlySummary].reverse().map((m: any) => {
                 const rate = m.income > 0 ? ((m.cashFlow / m.income) * 100) : 0;
                 return (
-                  <tr key={m.month} className="hover:bg-gray-50">
-                    <td className="px-4 py-3 text-sm font-medium text-gray-900">{formatMonth(m.month)}</td>
+                  <tr key={m.month} className="hover:bg-gray-50 dark:bg-gray-900">
+                    <td className="px-4 py-3 text-sm font-medium text-gray-900 dark:text-gray-100">{formatMonth(m.month)}</td>
                     <td className="px-4 py-3 text-sm text-right text-green-600">{formatCurrency(m.income)}</td>
                     <td className="px-4 py-3 text-sm text-right text-red-600">{formatCurrency(m.expenses)}</td>
                     <td className={`px-4 py-3 text-sm text-right font-medium ${m.cashFlow >= 0 ? 'text-green-600' : 'text-red-600'}`}>
@@ -554,7 +554,7 @@ const CashFlowReport: React.FC<{ reports: any }> = ({ reports }) => {
     <div className="space-y-6">
       {/* Income vs Expenses area */}
       <Card className="p-6">
-        <h3 className="text-lg font-medium text-gray-900 mb-4">Cash Flow Over Time</h3>
+        <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Cash Flow Over Time</h3>
         <ResponsiveContainer width="100%" height={350}>
           <AreaChart data={monthlySummary}>
             <CartesianGrid strokeDasharray="3 3" />
@@ -570,7 +570,7 @@ const CashFlowReport: React.FC<{ reports: any }> = ({ reports }) => {
 
       {/* Waterfall-style cash flow */}
       <Card className="p-6">
-        <h3 className="text-lg font-medium text-gray-900 mb-4">Monthly Cash Flow</h3>
+        <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Monthly Cash Flow</h3>
         <ResponsiveContainer width="100%" height={300}>
           <BarChart data={monthlySummary}>
             <CartesianGrid strokeDasharray="3 3" />
@@ -593,7 +593,7 @@ const CashFlowReport: React.FC<{ reports: any }> = ({ reports }) => {
 
       {/* Running balance line */}
       <Card className="p-6">
-        <h3 className="text-lg font-medium text-gray-900 mb-4">Cumulative Cash Flow</h3>
+        <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Cumulative Cash Flow</h3>
         <ResponsiveContainer width="100%" height={300}>
           <LineChart data={waterfallData}>
             <CartesianGrid strokeDasharray="3 3" />
@@ -616,23 +616,23 @@ const CashFlowReport: React.FC<{ reports: any }> = ({ reports }) => {
 
       {/* Monthly breakdown table */}
       <Card className="p-6">
-        <h3 className="text-lg font-medium text-gray-900 mb-4">Monthly Summary</h3>
+        <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Monthly Summary</h3>
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead>
               <tr>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Month</th>
-                <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Income</th>
-                <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Expenses</th>
-                <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Cash Flow</th>
-                <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Cumulative</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Month</th>
+                <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Income</th>
+                <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Expenses</th>
+                <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Cash Flow</th>
+                <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Cumulative</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
               {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
               {[...waterfallData].reverse().map((m: any) => (
-                <tr key={m.month} className="hover:bg-gray-50">
-                  <td className="px-4 py-3 text-sm font-medium text-gray-900">{formatMonth(m.month)}</td>
+                <tr key={m.month} className="hover:bg-gray-50 dark:bg-gray-900">
+                  <td className="px-4 py-3 text-sm font-medium text-gray-900 dark:text-gray-100">{formatMonth(m.month)}</td>
                   <td className="px-4 py-3 text-sm text-right text-green-600">{formatCurrency(m.income)}</td>
                   <td className="px-4 py-3 text-sm text-right text-red-600">{formatCurrency(m.expenses)}</td>
                   <td className={`px-4 py-3 text-sm text-right font-medium ${m.cashFlow >= 0 ? 'text-green-600' : 'text-red-600'}`}>
@@ -660,9 +660,9 @@ const MerchantReport: React.FC<{ reports: any }> = ({ reports }) => {
   return (
     <div className="space-y-6">
       <Card className="p-6">
-        <h3 className="text-lg font-medium text-gray-900 mb-4">Top Merchants by Spending</h3>
+        <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Top Merchants by Spending</h3>
         {topMerchants.length === 0 ? (
-          <p className="text-gray-500 text-sm">No merchant data available for this period.</p>
+          <p className="text-gray-500 dark:text-gray-400 text-sm">No merchant data available for this period.</p>
         ) : (
           <div className="space-y-3">
             {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
@@ -673,13 +673,13 @@ const MerchantReport: React.FC<{ reports: any }> = ({ reports }) => {
                   <span className="w-6 text-sm text-gray-400 text-right font-medium">{i + 1}</span>
                   <div className="flex-1">
                     <div className="flex items-center justify-between mb-1">
-                      <span className="text-sm font-medium text-gray-900">{m.merchantName}</span>
+                      <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{m.merchantName}</span>
                       <div className="text-right">
-                        <span className="text-sm font-medium text-gray-900">{formatCurrency(m.amount)}</span>
+                        <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{formatCurrency(m.amount)}</span>
                         <span className="text-xs text-gray-400 ml-2">({m.transactionCount} txns · {pct}%)</span>
                       </div>
                     </div>
-                    <div className="w-full bg-gray-100 rounded-full h-2.5">
+                    <div className="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2.5">
                       <div
                         className="h-2.5 rounded-full transition-all"
                         style={{

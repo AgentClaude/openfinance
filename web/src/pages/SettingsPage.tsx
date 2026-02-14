@@ -1,19 +1,35 @@
 import { useState } from 'react';
 import { useAuth } from '@/components/AuthProvider';
 import { useSettings } from '@/hooks/useSettings';
+import { useThemeContext } from '@/components/ThemeProvider';
+import { usePreferences } from '@/hooks/usePreferences';
 import toast from 'react-hot-toast';
 
 const CURRENCIES = ['USD', 'EUR', 'GBP', 'CAD', 'AUD', 'NZD', 'JPY', 'CHF'];
+const DATE_FORMATS = [
+  { value: 'MM/DD/YYYY', label: 'MM/DD/YYYY' },
+  { value: 'DD/MM/YYYY', label: 'DD/MM/YYYY' },
+  { value: 'YYYY-MM-DD', label: 'YYYY-MM-DD' },
+  { value: 'DD.MM.YYYY', label: 'DD.MM.YYYY' },
+];
+const NUMBER_FORMATS = [
+  { value: 'comma-dot', label: '1,234.56 (US)' },
+  { value: 'dot-comma', label: '1.234,56 (EU)' },
+  { value: 'space-comma', label: '1 234,56 (FR)' },
+];
+
+type TabId = 'profile' | 'preferences' | 'household';
 
 export default function SettingsPage() {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const { updateProfile, updatingProfile, changePassword, changingPassword } = useSettings();
-  const [activeTab, setActiveTab] = useState<'profile' | 'security' | 'preferences' | 'data'>('profile');
+  const { isDark, toggleTheme } = useThemeContext();
+  const { preferences, updatePreference } = usePreferences();
+  const [activeTab, setActiveTab] = useState<TabId>('profile');
 
   // Profile form
   const [name, setName] = useState(user?.name || '');
   const [email, setEmail] = useState(user?.email || '');
-  const [currency, setCurrency] = useState(user?.household?.currency || 'USD');
 
   // Password form
   const [currentPassword, setCurrentPassword] = useState('');
@@ -23,10 +39,10 @@ export default function SettingsPage() {
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await updateProfile({ name, email, currency });
+      await updateProfile({ name, email });
       toast.success('Profile updated');
-    } catch (err: any) {
-      toast.error(err.message || 'Failed to update profile');
+    } catch (err: unknown) {
+      toast.error((err as Error).message || 'Failed to update profile');
     }
   };
 
@@ -50,24 +66,28 @@ export default function SettingsPage() {
       } else {
         toast.error(result.message || 'Failed to change password');
       }
-    } catch (err: any) {
-      toast.error(err.message || 'Failed to change password');
+    } catch (err: unknown) {
+      toast.error((err as Error).message || 'Failed to change password');
     }
   };
 
   const tabs = [
     { id: 'profile' as const, label: 'Profile', icon: '👤' },
-    { id: 'security' as const, label: 'Security', icon: '🔒' },
     { id: 'preferences' as const, label: 'Preferences', icon: '⚙️' },
-    { id: 'data' as const, label: 'Data & Export', icon: '📦' },
+    { id: 'household' as const, label: 'Household', icon: '🏠' },
   ];
+
+  const inputClasses = 'mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-3 py-2 border';
+  const labelClasses = 'block text-sm font-medium text-gray-700 dark:text-gray-300';
+  const cardClasses = 'bg-white dark:bg-gray-800 shadow rounded-lg p-6';
+  const headingClasses = 'text-lg font-medium text-gray-900 dark:text-gray-100 mb-4';
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">Settings</h1>
+      <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">Settings</h1>
 
       {/* Tabs */}
-      <div className="border-b border-gray-200 mb-6">
+      <div className="border-b border-gray-200 dark:border-gray-700 mb-6">
         <nav className="flex space-x-8">
           {tabs.map((tab) => (
             <button
@@ -75,8 +95,8 @@ export default function SettingsPage() {
               onClick={() => setActiveTab(tab.id)}
               className={`py-3 px-1 border-b-2 font-medium text-sm transition-colors ${
                 activeTab === tab.id
-                  ? 'border-indigo-500 text-indigo-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400'
+                  : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
               }`}
             >
               <span className="mr-2">{tab.icon}</span>
@@ -88,99 +108,74 @@ export default function SettingsPage() {
 
       {/* Profile Tab */}
       {activeTab === 'profile' && (
-        <form onSubmit={handleUpdateProfile} className="space-y-6">
-          <div className="bg-white shadow rounded-lg p-6">
-            <h2 className="text-lg font-medium text-gray-900 mb-4">Profile Information</h2>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Name</label>
-                <input
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-3 py-2 border"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Email</label>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-3 py-2 border"
-                />
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white shadow rounded-lg p-6">
-            <h2 className="text-lg font-medium text-gray-900 mb-4">Household</h2>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Household Name</label>
-                <p className="mt-1 text-sm text-gray-500">{user?.household?.name || 'My Household'}</p>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Currency</label>
-                <select
-                  value={currency}
-                  onChange={(e) => setCurrency(e.target.value)}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-3 py-2 border"
-                >
-                  {CURRENCIES.map((c) => (
-                    <option key={c} value={c}>{c}</option>
-                  ))}
-                </select>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex justify-end">
-            <button
-              type="submit"
-              disabled={updatingProfile}
-              className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 disabled:opacity-50 text-sm font-medium"
-            >
-              {updatingProfile ? 'Saving...' : 'Save Changes'}
-            </button>
-          </div>
-        </form>
-      )}
-
-      {/* Security Tab */}
-      {activeTab === 'security' && (
         <div className="space-y-6">
-          <form onSubmit={handleChangePassword} className="bg-white shadow rounded-lg p-6">
-            <h2 className="text-lg font-medium text-gray-900 mb-4">Change Password</h2>
+          <form onSubmit={handleUpdateProfile} className="space-y-6">
+            <div className={cardClasses}>
+              <h2 className={headingClasses}>Profile Information</h2>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div>
+                  <label className={labelClasses}>Name</label>
+                  <input
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className={inputClasses}
+                  />
+                </div>
+                <div>
+                  <label className={labelClasses}>Email</label>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className={inputClasses}
+                  />
+                </div>
+              </div>
+              <div className="mt-4 flex justify-end">
+                <button
+                  type="submit"
+                  disabled={updatingProfile}
+                  className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 disabled:opacity-50 text-sm font-medium"
+                >
+                  {updatingProfile ? 'Saving...' : 'Save Changes'}
+                </button>
+              </div>
+            </div>
+          </form>
+
+          {/* Change Password */}
+          <form onSubmit={handleChangePassword} className={cardClasses}>
+            <h2 className={headingClasses}>Change Password</h2>
             <div className="space-y-4 max-w-md">
               <div>
-                <label className="block text-sm font-medium text-gray-700">Current Password</label>
+                <label className={labelClasses}>Current Password</label>
                 <input
                   type="password"
                   value={currentPassword}
                   onChange={(e) => setCurrentPassword(e.target.value)}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-3 py-2 border"
+                  className={inputClasses}
                   required
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">New Password</label>
+                <label className={labelClasses}>New Password</label>
                 <input
                   type="password"
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-3 py-2 border"
+                  className={inputClasses}
                   required
                   minLength={8}
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">Confirm New Password</label>
+                <label className={labelClasses}>Confirm New Password</label>
                 <input
                   type="password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-3 py-2 border"
+                  className={inputClasses}
                   required
                 />
               </div>
@@ -193,75 +188,142 @@ export default function SettingsPage() {
               </button>
             </div>
           </form>
-
-          <div className="bg-white shadow rounded-lg p-6">
-            <h2 className="text-lg font-medium text-gray-900 mb-4">Sessions</h2>
-            <p className="text-sm text-gray-500 mb-4">Manage your active sessions.</p>
-            <button
-              onClick={logout}
-              className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 text-sm font-medium"
-            >
-              Sign Out
-            </button>
-          </div>
         </div>
       )}
 
       {/* Preferences Tab */}
       {activeTab === 'preferences' && (
-        <div className="bg-white shadow rounded-lg p-6">
-          <h2 className="text-lg font-medium text-gray-900 mb-4">Preferences</h2>
-          <div className="space-y-4">
+        <div className="space-y-6">
+          <div className={cardClasses}>
+            <h2 className={headingClasses}>Appearance</h2>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-900">Dark Mode</p>
-                <p className="text-xs text-gray-500">Use dark theme across the app</p>
+                <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Dark Mode</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Use dark theme across the app</p>
               </div>
-              <span className="text-xs text-gray-400 bg-gray-100 px-2 py-1 rounded">Coming soon</span>
+              <button
+                onClick={toggleTheme}
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 ${
+                  isDark ? 'bg-indigo-600' : 'bg-gray-200 dark:bg-gray-600'
+                }`}
+              >
+                <span
+                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                    isDark ? 'translate-x-6' : 'translate-x-1'
+                  }`}
+                />
+              </button>
             </div>
-            <div className="flex items-center justify-between">
+          </div>
+
+          <div className={cardClasses}>
+            <h2 className={headingClasses}>Formatting</h2>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
-                <p className="text-sm font-medium text-gray-900">Email Notifications</p>
-                <p className="text-xs text-gray-500">Weekly spending summaries and alerts</p>
+                <label className={labelClasses}>Date Format</label>
+                <select
+                  value={preferences.dateFormat}
+                  onChange={(e) => updatePreference('dateFormat', e.target.value)}
+                  className={inputClasses}
+                >
+                  {DATE_FORMATS.map((f) => (
+                    <option key={f.value} value={f.value}>{f.label}</option>
+                  ))}
+                </select>
               </div>
-              <span className="text-xs text-gray-400 bg-gray-100 px-2 py-1 rounded">Coming soon</span>
-            </div>
-            <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-900">Auto-categorize Transactions</p>
-                <p className="text-xs text-gray-500">Automatically apply rules to new transactions</p>
+                <label className={labelClasses}>First Day of Week</label>
+                <select
+                  value={preferences.firstDayOfWeek}
+                  onChange={(e) => updatePreference('firstDayOfWeek', e.target.value as 'sunday' | 'monday')}
+                  className={inputClasses}
+                >
+                  <option value="sunday">Sunday</option>
+                  <option value="monday">Monday</option>
+                </select>
               </div>
-              <span className="text-xs text-gray-400 bg-gray-100 px-2 py-1 rounded">Coming soon</span>
+              <div>
+                <label className={labelClasses}>Number Format</label>
+                <select
+                  value={preferences.numberFormat}
+                  onChange={(e) => updatePreference('numberFormat', e.target.value as 'comma-dot' | 'dot-comma' | 'space-comma')}
+                  className={inputClasses}
+                >
+                  {NUMBER_FORMATS.map((f) => (
+                    <option key={f.value} value={f.value}>{f.label}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className={labelClasses}>Currency</label>
+                <select
+                  value={preferences.currency}
+                  onChange={(e) => updatePreference('currency', e.target.value)}
+                  className={inputClasses}
+                >
+                  {CURRENCIES.map((c) => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
+                </select>
+              </div>
             </div>
           </div>
         </div>
       )}
 
-      {/* Data & Export Tab */}
-      {activeTab === 'data' && (
+      {/* Household Tab */}
+      {activeTab === 'household' && (
         <div className="space-y-6">
-          <div className="bg-white shadow rounded-lg p-6">
-            <h2 className="text-lg font-medium text-gray-900 mb-4">Export Data</h2>
-            <p className="text-sm text-gray-500 mb-4">Download your financial data in CSV format.</p>
-            <div className="flex space-x-3">
-              <button className="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-50 text-sm font-medium">
-                Export Transactions
-              </button>
-              <button className="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-50 text-sm font-medium">
-                Export Accounts
-              </button>
-              <button className="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-50 text-sm font-medium">
-                Export All Data
-              </button>
+          <div className={cardClasses}>
+            <h2 className={headingClasses}>Household Details</h2>
+            <div className="space-y-4">
+              <div>
+                <label className={labelClasses}>Household Name</label>
+                <p className="mt-1 text-sm text-gray-900 dark:text-gray-100">
+                  {user?.household?.name || 'My Household'}
+                </p>
+              </div>
+              <div>
+                <label className={labelClasses}>Currency</label>
+                <p className="mt-1 text-sm text-gray-900 dark:text-gray-100">
+                  {user?.household?.currency || 'USD'}
+                </p>
+              </div>
             </div>
           </div>
 
-          <div className="bg-white shadow rounded-lg p-6">
-            <h2 className="text-lg font-medium text-red-600 mb-4">Danger Zone</h2>
-            <p className="text-sm text-gray-500 mb-4">Permanently delete your account and all associated data.</p>
-            <button className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 text-sm font-medium">
-              Delete Account
-            </button>
+          <div className={cardClasses}>
+            <h2 className={headingClasses}>Members</h2>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between py-3 border-b border-gray-100 dark:border-gray-700">
+                <div className="flex items-center space-x-3">
+                  <div className="h-10 w-10 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center">
+                    <span className="text-sm font-medium text-indigo-600 dark:text-indigo-400">
+                      {(user?.name || 'U').charAt(0).toUpperCase()}
+                    </span>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{user?.name || 'You'}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">{user?.email}</p>
+                  </div>
+                </div>
+                <span className="text-xs font-medium text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/20 px-2 py-1 rounded-full">
+                  Owner
+                </span>
+              </div>
+
+              <div className="pt-3">
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  Household collaboration is coming soon. You&apos;ll be able to invite family members to share accounts and budgets.
+                </p>
+                <button
+                  disabled
+                  className="mt-3 bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500 px-4 py-2 rounded-md text-sm font-medium cursor-not-allowed"
+                >
+                  Invite Member (Coming Soon)
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}

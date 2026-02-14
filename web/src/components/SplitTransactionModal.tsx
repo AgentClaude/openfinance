@@ -104,17 +104,17 @@ const SplitTransactionModal: React.FC<SplitTransactionModalProps> = ({
               enter="ease-out duration-300" enterFrom="opacity-0 scale-95" enterTo="opacity-100 scale-100"
               leave="ease-in duration-200" leaveFrom="opacity-100 scale-100" leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className="w-full max-w-lg transform overflow-hidden rounded-2xl bg-white p-6 shadow-xl transition-all">
+              <Dialog.Panel className="w-full max-w-lg transform overflow-hidden rounded-2xl bg-white dark:bg-gray-800 p-6 shadow-xl transition-all">
                 <div className="flex items-center justify-between mb-4">
-                  <Dialog.Title className="text-lg font-semibold text-gray-900">
+                  <Dialog.Title className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                     Split Transaction
                   </Dialog.Title>
-                  <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
+                  <button onClick={onClose} className="text-gray-400 hover:text-gray-600 dark:text-gray-400">
                     <XMarkIcon className="h-5 w-5" />
                   </button>
                 </div>
 
-                <p className="text-sm text-gray-600 mb-1">
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
                   {transaction.description} — <span className="font-semibold">${absAmount.toFixed(2)}</span>
                 </p>
 

@@ -39,7 +39,7 @@ const DashboardPage: React.FC = () => {
   const netWorthTrendPercentage = Math.abs(getNetWorthTrendPercentage());
 
   const TrendIcon = netWorthTrend === 'up' ? ArrowTrendingUpIcon : ArrowTrendingDownIcon;
-  const trendColor = netWorthTrend === 'up' ? 'text-green-600' : netWorthTrend === 'down' ? 'text-red-600' : 'text-gray-600';
+  const trendColor = netWorthTrend === 'up' ? 'text-green-600' : netWorthTrend === 'down' ? 'text-red-600' : 'text-gray-600 dark:text-gray-400';
 
   const pieChartData = summary.spendingByCategory.map((category, index) => ({
     name: category.categoryName,
@@ -183,7 +183,7 @@ const DashboardPage: React.FC = () => {
               {summary.accountBalances.slice(0, 6).map((account) => (
                 <div key={account.accountId} className="flex items-center justify-between">
                   <div>
-                    <div className="font-medium text-gray-900">{account.accountName}</div>
+                    <div className="font-medium text-gray-900 dark:text-gray-100">{account.accountName}</div>
                     <Badge variant="secondary" size="sm">
                       {account.accountType.toLowerCase().replace('_', ' ')}
                     </Badge>
@@ -236,10 +236,10 @@ const DashboardPage: React.FC = () => {
                 <div className="flex-1">
                   <div className="flex items-center justify-between">
                     <div>
-                      <div className="font-medium text-gray-900">
+                      <div className="font-medium text-gray-900 dark:text-gray-100">
                         {transaction.description}
                       </div>
-                      <div className="text-sm text-gray-500">
+                      <div className="text-sm text-gray-500 dark:text-gray-400">
                         {transaction.account.name}
                         {transaction.account.mask && ` •••${transaction.account.mask}`}
                         {transaction.pending && (
@@ -251,7 +251,7 @@ const DashboardPage: React.FC = () => {
                     </div>
                     <div className="text-right">
                       <AmountDisplay amount={transaction.amount} size="sm" />
-                      <div className="text-xs text-gray-500">
+                      <div className="text-xs text-gray-500 dark:text-gray-400">
                         {format(new Date(transaction.date), 'MMM d')}
                       </div>
                     </div>

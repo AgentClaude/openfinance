@@ -192,16 +192,16 @@ const RulesPage: React.FC = () => {
                       />
                     </button>
                     <div>
-                      <p className="text-sm font-medium text-gray-900">
+                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
                         When{' '}
                         <span className="text-indigo-600">
                           {rule.matchField === 'merchant_name' ? 'merchant name' : 'description'}
                         </span>{' '}
-                        <span className="text-gray-500">{rule.matchType.replace('_', ' ')}</span>{' '}
+                        <span className="text-gray-500 dark:text-gray-400">{rule.matchType.replace('_', ' ')}</span>{' '}
                         "<span className="font-semibold">{rule.matchValue}</span>"
                       </p>
                       <div className="flex items-center gap-2 mt-1">
-                        <span className="text-xs text-gray-500">→ Categorize as</span>
+                        <span className="text-xs text-gray-500 dark:text-gray-400">→ Categorize as</span>
                         <Badge style={{ backgroundColor: rule.category.color + '20', color: rule.category.color }}>
                           {rule.category.icon && <CategoryIcon icon={rule.category.icon} className="mr-1" />} {rule.category.name}
                         </Badge>
@@ -220,7 +220,7 @@ const RulesPage: React.FC = () => {
                   </span>
                   <button
                     onClick={() => openEdit(rule)}
-                    className="text-gray-400 hover:text-gray-600"
+                    className="text-gray-400 hover:text-gray-600 dark:text-gray-400"
                   >
                     <PencilIcon className="h-4 w-4" />
                   </button>

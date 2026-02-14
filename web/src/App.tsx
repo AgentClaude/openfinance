@@ -24,7 +24,6 @@ import ReportsPage from '@/pages/ReportsPage';
 import InvestmentsPage from '@/pages/InvestmentsPage';
 import ImportPage from '@/pages/ImportPage';
 import SettingsPage from '@/pages/SettingsPage';
-import GoalsPage from '@/pages/GoalsPage';
 
 function App() {
   return (

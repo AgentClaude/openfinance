@@ -192,8 +192,8 @@ const AccountsPage: React.FC = () => {
             return (
               <div key={type}>
                 <div className="flex items-center mb-4">
-                  <IconComponent className="h-6 w-6 text-gray-500 mr-2" />
-                  <h2 className="text-lg font-semibold text-gray-900">
+                  <IconComponent className="h-6 w-6 text-gray-500 dark:text-gray-400 mr-2" />
+                  <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                     {accountTypeLabels[type]}
                   </h2>
                   <div className="ml-auto">
@@ -205,7 +205,7 @@ const AccountsPage: React.FC = () => {
                   {accountsOfType.map(account => (
                     <Card key={account.id} className="hover:shadow-md transition-shadow cursor-pointer">
                       <div className="flex items-center justify-between mb-3">
-                        <h3 className="font-medium text-gray-900">{account.name}</h3>
+                        <h3 className="font-medium text-gray-900 dark:text-gray-100">{account.name}</h3>
                         {!account.isActive && (
                           <Badge variant="secondary" size="sm">Inactive</Badge>
                         )}
@@ -213,11 +213,11 @@ const AccountsPage: React.FC = () => {
 
                       <div className="space-y-2">
                         {account.officialName && account.officialName !== account.name && (
-                          <p className="text-sm text-gray-600">{account.officialName}</p>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">{account.officialName}</p>
                         )}
 
                         {account.mask && (
-                          <p className="text-sm text-gray-500">
+                          <p className="text-sm text-gray-500 dark:text-gray-400">
                             Account •••{account.mask}
                           </p>
                         )}
@@ -231,7 +231,7 @@ const AccountsPage: React.FC = () => {
                         <div className="flex items-center justify-between pt-2">
                           <AmountDisplay amount={account.balance} size="lg" />
                           <div className="text-right">
-                            <p className="text-xs text-gray-500">
+                            <p className="text-xs text-gray-500 dark:text-gray-400">
                               Updated {format(new Date(account.balanceDate), 'MMM d')}
                             </p>
                           </div>
@@ -254,7 +254,7 @@ const AccountsPage: React.FC = () => {
         size="lg"
       >
         {/* Tab Headers */}
-        <div className="border-b border-gray-200 mb-6">
+        <div className="border-b border-gray-200 dark:border-gray-700 mb-6">
           <nav className="-mb-px flex space-x-8">
             <button
               onClick={() => setActiveTab('manual')}
@@ -262,7 +262,7 @@ const AccountsPage: React.FC = () => {
                 'whitespace-nowrap pb-2 px-1 border-b-2 font-medium text-sm',
                 activeTab === 'manual'
                   ? 'border-indigo-500 text-indigo-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:border-gray-600'
               )}
             >
               Manual Account
@@ -273,7 +273,7 @@ const AccountsPage: React.FC = () => {
                 'whitespace-nowrap pb-2 px-1 border-b-2 font-medium text-sm',
                 activeTab === 'connect'
                   ? 'border-indigo-500 text-indigo-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:border-gray-600'
               )}
             >
               Connect Bank
@@ -336,10 +336,10 @@ const AccountsPage: React.FC = () => {
         ) : (
           <div className="text-center py-8">
             <BanknotesIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
+            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
               Connect Your Bank
             </h3>
-            <p className="text-gray-500 mb-6">
+            <p className="text-gray-500 dark:text-gray-400 mb-6">
               Securely connect your bank accounts using Plaid to automatically sync transactions.
             </p>
             <Button

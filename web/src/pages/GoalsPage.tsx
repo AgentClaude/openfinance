@@ -172,18 +172,18 @@ const GoalsPage: React.FC = () => {
       {activeGoals.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           <Card className="p-4">
-            <div className="text-sm text-gray-500">Active Goals</div>
-            <div className="text-2xl font-bold text-gray-900">{activeGoals.length}</div>
+            <div className="text-sm text-gray-500 dark:text-gray-400">Active Goals</div>
+            <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">{activeGoals.length}</div>
           </Card>
           <Card className="p-4">
-            <div className="text-sm text-gray-500">Total Target</div>
-            <div className="text-2xl font-bold text-gray-900">
+            <div className="text-sm text-gray-500 dark:text-gray-400">Total Target</div>
+            <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
               {formatCurrency(activeGoals.reduce((s, g) => s + g.targetAmount, 0))}
             </div>
           </Card>
           <Card className="p-4">
-            <div className="text-sm text-gray-500">Total Progress</div>
-            <div className="text-2xl font-bold text-gray-900">
+            <div className="text-sm text-gray-500 dark:text-gray-400">Total Progress</div>
+            <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
               {formatCurrency(activeGoals.reduce((s, g) => s + g.currentAmount, 0))}
             </div>
           </Card>
@@ -192,12 +192,12 @@ const GoalsPage: React.FC = () => {
 
       {achievedGoals.length > 0 && (
         <div className="mb-4">
-          <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
+          <label className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 cursor-pointer">
             <input
               type="checkbox"
               checked={showCompleted}
               onChange={(e) => setShowCompleted(e.target.checked)}
-              className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+              className="rounded border-gray-300 dark:border-gray-600 text-indigo-600 focus:ring-indigo-500"
             />
             Show achieved goals ({achievedGoals.length})
           </label>
@@ -218,13 +218,13 @@ const GoalsPage: React.FC = () => {
             <Card key={goal.id} className="p-5">
               <div className="flex items-start justify-between mb-3">
                 <div>
-                  <h3 className="font-semibold text-gray-900">{goal.name}</h3>
-                  <span className="text-xs text-gray-500 capitalize">
+                  <h3 className="font-semibold text-gray-900 dark:text-gray-100">{goal.name}</h3>
+                  <span className="text-xs text-gray-500 dark:text-gray-400 capitalize">
                     {goal.goalType === 'debt_payoff' ? 'Debt Payoff' : 'Savings'}
                   </span>
                 </div>
                 <div className="flex gap-1">
-                  <button onClick={() => openEdit(goal)} className="p-1 text-gray-400 hover:text-gray-600">
+                  <button onClick={() => openEdit(goal)} className="p-1 text-gray-400 hover:text-gray-600 dark:text-gray-400">
                     <PencilIcon className="h-4 w-4" />
                   </button>
                   <button onClick={() => setDeleteConfirm(goal.id)} className="p-1 text-gray-400 hover:text-red-500">
@@ -233,12 +233,12 @@ const GoalsPage: React.FC = () => {
                 </div>
               </div>
 
-              {goal.description && <p className="text-sm text-gray-500 mb-3">{goal.description}</p>}
+              {goal.description && <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">{goal.description}</p>}
 
               <div className="mb-3">
                 <div className="flex justify-between text-sm mb-1">
-                  <span className="font-medium text-gray-700">{formatCurrency(goal.currentAmount)}</span>
-                  <span className="text-gray-500">{formatCurrency(goal.targetAmount)}</span>
+                  <span className="font-medium text-gray-700 dark:text-gray-300">{formatCurrency(goal.currentAmount)}</span>
+                  <span className="text-gray-500 dark:text-gray-400">{formatCurrency(goal.targetAmount)}</span>
                 </div>
                 <div className={`w-full h-3 rounded-full ${getProgressBg(goal.progressPercentage, goal.isOverdue, goal.isAchieved)}`}>
                   <div
@@ -247,8 +247,8 @@ const GoalsPage: React.FC = () => {
                   />
                 </div>
                 <div className="flex justify-between text-xs mt-1">
-                  <span className="text-gray-500">{goal.progressPercentage.toFixed(1)}%</span>
-                  <span className="text-gray-500">{formatCurrency(goal.amountRemaining)} remaining</span>
+                  <span className="text-gray-500 dark:text-gray-400">{goal.progressPercentage.toFixed(1)}%</span>
+                  <span className="text-gray-500 dark:text-gray-400">{formatCurrency(goal.amountRemaining)} remaining</span>
                 </div>
               </div>
 
@@ -271,7 +271,7 @@ const GoalsPage: React.FC = () => {
                 )}
               </div>
 
-              <div className="text-xs text-gray-500 space-y-1">
+              <div className="text-xs text-gray-500 dark:text-gray-400 space-y-1">
                 {goal.targetDate && <div>Target: {formatDate(goal.targetDate)} ({goal.daysRemaining} days left)</div>}
                 {goal.monthlyTarget > 0 && !goal.isAchieved && (
                   <div>Need {formatCurrency(goal.monthlyTarget)}/month to reach goal</div>
@@ -285,40 +285,40 @@ const GoalsPage: React.FC = () => {
       <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title={editingGoal ? 'Edit Goal' : 'Create Goal'}>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Name</label>
             <input type="text" required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })}
-              className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" placeholder="Emergency Fund" />
+              className="w-full rounded-lg border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" placeholder="Emergency Fund" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Goal Type</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Goal Type</label>
             <select value={form.goalType} onChange={(e) => setForm({ ...form, goalType: e.target.value })}
-              className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+              className="w-full rounded-lg border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
               {GOAL_TYPES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
             </select>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Target Amount</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Target Amount</label>
               <input type="number" required min="0.01" step="0.01" value={form.targetAmount}
                 onChange={(e) => setForm({ ...form, targetAmount: e.target.value })}
-                className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" placeholder="10000" />
+                className="w-full rounded-lg border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" placeholder="10000" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Current Amount</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Current Amount</label>
               <input type="number" min="0" step="0.01" value={form.currentAmount}
                 onChange={(e) => setForm({ ...form, currentAmount: e.target.value })}
-                className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" placeholder="0" />
+                className="w-full rounded-lg border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" placeholder="0" />
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Target Date</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Target Date</label>
             <input type="date" value={form.targetDate} onChange={(e) => setForm({ ...form, targetDate: e.target.value })}
-              className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" />
+              className="w-full rounded-lg border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Description (optional)</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description (optional)</label>
             <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={2}
-              className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" placeholder="What are you saving for?" />
+              className="w-full rounded-lg border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" placeholder="What are you saving for?" />
           </div>
           <div className="flex justify-end gap-3 pt-4">
             <Button variant="secondary" onClick={() => setModalOpen(false)} type="button">Cancel</Button>
@@ -328,7 +328,7 @@ const GoalsPage: React.FC = () => {
       </Modal>
 
       <Modal isOpen={!!deleteConfirm} onClose={() => setDeleteConfirm(null)} title="Delete Goal">
-        <p className="text-sm text-gray-600 mb-4">Are you sure you want to delete this goal? This action cannot be undone.</p>
+        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">Are you sure you want to delete this goal? This action cannot be undone.</p>
         <div className="flex justify-end gap-3">
           <Button variant="secondary" onClick={() => setDeleteConfirm(null)}>Cancel</Button>
           <Button variant="danger" loading={deleting} onClick={() => deleteConfirm && handleDelete(deleteConfirm)}>Delete</Button>

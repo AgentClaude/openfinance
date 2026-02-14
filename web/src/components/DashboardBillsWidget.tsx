@@ -55,12 +55,12 @@ const DashboardBillsWidget: React.FC = () => {
                 ) : (
                   <ClockIcon className="h-4 w-4 text-amber-500 flex-shrink-0" />
                 )}
-                <span className="text-sm text-gray-900 truncate max-w-[140px]">
+                <span className="text-sm text-gray-900 dark:text-gray-100 truncate max-w-[140px]">
                   {item.merchantName || item.name}
                 </span>
               </div>
               <div className="text-right">
-                <span className="text-sm font-medium text-gray-900">
+                <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
                   {formatCurrency(item.amount)}
                 </span>
                 <p className={`text-xs ${item.overdue ? 'text-red-500' : 'text-amber-500'}`}>
