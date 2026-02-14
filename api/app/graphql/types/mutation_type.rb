@@ -49,5 +49,6 @@ module Types
     field :upload_receipt, mutation: Mutations::UploadReceipt
     field :upload_statement, mutation: Mutations::UploadStatement
     field :update_member_role, mutation: Mutations::UpdateMemberRole
+    field :redeem_referral, mutation: Mutations::RedeemReferral
   end
 end

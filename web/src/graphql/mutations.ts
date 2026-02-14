@@ -20,8 +20,8 @@ export const LOGIN = gql`
 `;
 
 export const REGISTER = gql`
-  mutation Register($name: String!, $email: String!, $password: String!) {
-    register(name: $name, email: $email, password: $password) {
+  mutation Register($name: String!, $email: String!, $password: String!, $referralCode: String) {
+    register(name: $name, email: $email, password: $password, referralCode: $referralCode) {
       token
       user {
         id
@@ -760,6 +760,11 @@ export const MARK_NOTIFICATION_READ = gql`
         id
         isRead
         readAt
+      }
+    }
+  }
+`;
+
 export const INVITE_TO_HOUSEHOLD = gql`
   mutation InviteToHousehold($email: String!, $role: String) {
     inviteToHousehold(input: { email: $email, role: $role }) {
@@ -780,6 +785,10 @@ export const MARK_ALL_NOTIFICATIONS_READ = gql`
   mutation MarkAllNotificationsRead {
     markAllNotificationsRead {
       count
+    }
+  }
+`;
+
 export const ACCEPT_INVITATION = gql`
   mutation AcceptInvitation($token: String!) {
     acceptInvitation(input: { token: $token }) {
@@ -802,6 +811,18 @@ export const UPDATE_MEMBER_ROLE = gql`
   mutation UpdateMemberRole($userId: ID!, $role: String!) {
     updateMemberRole(input: { userId: $userId, role: $role }) {
       success
+      errors
+    }
+  }
+`;
+
+export const REDEEM_REFERRAL = gql`
+  mutation RedeemReferral($referralCode: String!) {
+    redeemReferral(referralCode: $referralCode) {
+      referral {
+        id
+        status
+      }
       errors
     }
   }

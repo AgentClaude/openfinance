@@ -5,7 +5,7 @@ import { useThemeContext } from '@/components/ThemeProvider';
 import { usePreferences } from '@/hooks/usePreferences';
 import { useTags } from '@/hooks/useTags';
 import { useQuery, useMutation } from '@apollo/client';
-import { GET_NOTIFICATION_PREFERENCES, GET_HOUSEHOLD_MEMBERS, GET_HOUSEHOLD_INVITATIONS } from '@/graphql/queries';
+import { GET_NOTIFICATION_PREFERENCES, GET_HOUSEHOLD_MEMBERS, GET_HOUSEHOLD_INVITATIONS, GET_MY_REFERRAL_CODE, GET_REFERRALS } from '@/graphql/queries';
 import { UPDATE_HOUSEHOLD, UPDATE_NOTIFICATION_PREFERENCE, UPDATE_TAG, DELETE_TAG, EXPORT_DATA, INVITE_TO_HOUSEHOLD, REMOVE_HOUSEHOLD_MEMBER, UPDATE_MEMBER_ROLE } from '@/graphql/mutations';
 import { NotificationPreference } from '@/types';
 import toast from 'react-hot-toast';
@@ -37,7 +37,7 @@ const CHANNELS = [
   { key: 'push', label: 'Push' },
 ];
 
-type TabId = 'profile' | 'preferences' | 'household' | 'members' | 'notifications' | 'tags' | 'data';
+type TabId = 'profile' | 'preferences' | 'household' | 'members' | 'notifications' | 'tags' | 'referrals' | 'data';
 
 export default function SettingsPage() {
   const { user } = useAuth();
@@ -80,6 +80,20 @@ export default function SettingsPage() {
   const [inviteMutation, { loading: inviting }] = useMutation(INVITE_TO_HOUSEHOLD);
   const [removeMemberMutation] = useMutation(REMOVE_HOUSEHOLD_MEMBER);
   const [updateRoleMutation] = useMutation(UPDATE_MEMBER_ROLE);
+
+  // Referrals
+  const { data: referralCodeData } = useQuery(GET_MY_REFERRAL_CODE, { skip: activeTab !== 'referrals' });
+  const { data: referralsData } = useQuery(GET_REFERRALS, { skip: activeTab !== 'referrals' });
+  const myReferralCode = referralCodeData?.myReferralCode || '';
+  const myReferrals = referralsData?.referrals || [];
+  const [codeCopied, setCodeCopied] = useState(false);
+
+  const handleCopyCode = () => {
+    navigator.clipboard.writeText(myReferralCode);
+    setCodeCopied(true);
+    toast.success('Referral code copied!');
+    setTimeout(() => setCodeCopied(false), 2000);
+  };
 
   const members = membersData?.householdMembers || [];
   const invitations = invitationsData?.householdInvitations || [];
@@ -255,6 +269,7 @@ export default function SettingsPage() {
     { id: 'members' as const, label: 'Members', icon: '👥' },
     { id: 'notifications' as const, label: 'Notifications', icon: '🔔' },
     { id: 'tags' as const, label: 'Tags', icon: '🏷️' },
+    { id: 'referrals' as const, label: 'Referrals', icon: '🎁' },
     { id: 'data' as const, label: 'Data', icon: '📦' },
   ];
 
@@ -622,6 +637,58 @@ export default function SettingsPage() {
               ))}
             </div>
           )}
+        </div>
+      )}
+
+      {/* Referrals Tab */}
+      {activeTab === 'referrals' && (
+        <div className="space-y-6">
+          <div className={cardClasses}>
+            <h2 className={headingClasses}>Your Referral Code</h2>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+              Share your referral code with friends. When they sign up, you'll both be tracked in the referral program.
+            </p>
+            <div className="flex items-center space-x-3">
+              <code className="flex-1 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 px-4 py-3 rounded-md font-mono text-lg tracking-wider">
+                {myReferralCode || '...'}
+              </code>
+              <button onClick={handleCopyCode} className={btnPrimary} disabled={!myReferralCode}>
+                {codeCopied ? '✓ Copied' : '📋 Copy'}
+              </button>
+            </div>
+          </div>
+
+          <div className={cardClasses}>
+            <h2 className={headingClasses}>Your Referrals ({myReferrals.length})</h2>
+            {myReferrals.length === 0 ? (
+              <p className="text-sm text-gray-400 dark:text-gray-500 italic">No referrals yet. Share your code to get started!</p>
+            ) : (
+              <div className="space-y-3">
+                {myReferrals.map((ref: { id: string; status: string; createdAt: string; referredUser: { id: string; name: string; email: string } }) => (
+                  <div key={ref.id} className="flex items-center justify-between py-3 border-b border-gray-100 dark:border-gray-700 last:border-0">
+                    <div className="flex items-center space-x-3">
+                      <div className="h-10 w-10 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+                        <span className="text-sm font-medium text-green-600 dark:text-green-400">
+                          {(ref.referredUser.name || ref.referredUser.email || 'U').charAt(0).toUpperCase()}
+                        </span>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{ref.referredUser.name || 'Unnamed'}</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">Joined {new Date(ref.createdAt).toLocaleDateString()}</p>
+                      </div>
+                    </div>
+                    <span className={`text-xs font-medium px-2 py-1 rounded-full ${
+                      ref.status === 'completed' ? 'text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20' :
+                      ref.status === 'rewarded' ? 'text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/20' :
+                      'text-yellow-600 dark:text-yellow-400 bg-yellow-50 dark:bg-yellow-900/20'
+                    }`}>
+                      {ref.status.charAt(0).toUpperCase() + ref.status.slice(1)}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       )}
 

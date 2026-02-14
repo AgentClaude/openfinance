@@ -453,6 +453,9 @@ export const GET_NOTIFICATIONS = gql`
       createdAt
     }
     unreadNotificationCount
+  }
+`;
+
 export const GET_HOUSEHOLD_MEMBERS = gql`
   query GetHouseholdMembers {
     householdMembers {
@@ -482,6 +485,29 @@ export const GET_HOUSEHOLD_INVITATIONS = gql`
         id
         name
       }
+    }
+  }
+`;
+
+export const GET_MY_REFERRAL_CODE = gql`
+  query GetMyReferralCode {
+    myReferralCode
+  }
+`;
+
+export const GET_REFERRALS = gql`
+  query GetReferrals {
+    referrals {
+      id
+      referralCode
+      status
+      rewardedAt
+      referredUser {
+        id
+        name
+        email
+      }
+      createdAt
     }
   }
 `;

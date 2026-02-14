@@ -3,12 +3,13 @@ module Mutations
     argument :name, String, required: true
     argument :email, String, required: true
     argument :password, String, required: true
+    argument :referral_code, String, required: false
 
     field :token, String, null: true
     field :user, Types::UserType, null: true
     field :errors, [String], null: false
 
-    def resolve(name:, email:, password:)
+    def resolve(name:, email:, password:, referral_code: nil)
       household = Household.create!(name: "#{name}'s Household")
       user = User.new(name: name, email: email, password: password, household: household, role: 'owner')
 
@@ -19,6 +20,19 @@ module Mutations
           { sub: user.id, jti: SecureRandom.uuid, exp: 24.hours.from_now.to_i, iat: Time.current.to_i },
           secret, 'HS256'
         )
+        # Process referral if code provided
+        if referral_code.present?
+          referrer = User.find_by(referral_code: referral_code)
+          if referrer && referrer.id != user.id
+            Referral.create(
+              referrer: referrer,
+              referred_user: user,
+              referral_code: referral_code,
+              status: 'completed'
+            )
+          end
+        end
+
         { token: token, user: user, errors: [] }
       else
         household.destroy
