@@ -22,6 +22,16 @@ import CategoryIcon from '@/components/ui/CategoryIcon';
 import { useNavigate } from 'react-router-dom';
 import { format, addMonths, subMonths, startOfMonth, endOfMonth } from 'date-fns';
 
+const formatCurrency = (value: number): string => {
+  const absFormatted = new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(Math.abs(value));
+  return value < 0 ? `-${absFormatted}` : absFormatted;
+};
+
 const BudgetPage: React.FC = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [editingCategory, setEditingCategory] = useState<string | null>(null);
@@ -173,10 +183,10 @@ const BudgetPage: React.FC = () => {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
-        <StatCard label="Total Budgeted" value={`$${getTotalBudgeted().toFixed(2)}`} valueClassName="text-blue-600" />
-        <StatCard label="Total Spent" value={`$${getTotalSpent().toFixed(2)}`} />
-        <StatCard label="Left to Budget" value={`$${leftToBudget.toFixed(2)}`} valueClassName={leftToBudget >= 0 ? 'text-green-600' : 'text-red-600'} />
-        <StatCard label="Income" value={`$${(summary?.incomeActual ?? 0).toFixed(2)}`} valueClassName="text-green-600" />
+        <StatCard label="Total Budgeted" value={formatCurrency(getTotalBudgeted())} valueClassName="text-blue-600" />
+        <StatCard label="Total Spent" value={formatCurrency(getTotalSpent())} />
+        <StatCard label="Left to Budget" value={formatCurrency(leftToBudget)} valueClassName={leftToBudget >= 0 ? 'text-green-600' : 'text-red-600'} />
+        <StatCard label="Income" value={formatCurrency(summary?.incomeActual ?? 0)} valueClassName="text-green-600" />
         <Card title="Progress">
           <div className="space-y-2">
             <div className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
@@ -226,13 +236,13 @@ const BudgetPage: React.FC = () => {
               <h3 className="text-lg font-semibold text-gray-800">{groupName}</h3>
               <div className="flex items-center space-x-6 text-sm">
                 <span className="text-gray-500 dark:text-gray-400">
-                  Budgeted: <span className="font-medium text-gray-900 dark:text-gray-100">${group.totalBudgeted.toFixed(2)}</span>
+                  Budgeted: <span className="font-medium text-gray-900 dark:text-gray-100">{formatCurrency(group.totalBudgeted)}</span>
                 </span>
                 <span className="text-gray-500 dark:text-gray-400">
-                  Spent: <span className="font-medium text-gray-900 dark:text-gray-100">${group.totalSpent.toFixed(2)}</span>
+                  Spent: <span className="font-medium text-gray-900 dark:text-gray-100">{formatCurrency(group.totalSpent)}</span>
                 </span>
                 <span className={`font-medium ${group.totalBudgeted - group.totalSpent >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                  ${(group.totalBudgeted - group.totalSpent).toFixed(2)} remaining
+                  {formatCurrency(group.totalBudgeted - group.totalSpent)} remaining
                 </span>
               </div>
             </div>
@@ -240,9 +250,10 @@ const BudgetPage: React.FC = () => {
             {/* Category Rows */}
             <div className="space-y-3">
               {group.items.map((item) => {
-                const progress = getCategoryProgress(item.categoryId);
-                const remaining = getCategoryRemaining(item.categoryId);
-                const isEditing = editingCategory === item.categoryId;
+                const catId = item.categoryId || item.category?.id || '';
+                const progress = item.percentUsed ?? getCategoryProgress(catId);
+                const remaining = item.available ?? getCategoryRemaining(catId);
+                const isEditing = editingCategory === catId;
 
                 return (
                   <div key={item.id} className="flex items-center gap-4 py-2 hover:bg-gray-50 dark:bg-gray-900 rounded-lg px-2">
@@ -253,7 +264,7 @@ const BudgetPage: React.FC = () => {
                         onClick={() => {
                           const start = format(startOfMonth(currentDate), 'yyyy-MM-dd');
                           const end = format(endOfMonth(currentDate), 'yyyy-MM-dd');
-                          navigate(`/transactions?categoryId=${item.category?.id}&dateFrom=${start}&dateTo=${end}`);
+                          navigate(`/transactions?categoryId=${catId}&dateFrom=${start}&dateTo=${end}`);
                         }}
                       >
                         {item.category?.icon && <CategoryIcon icon={item.category.icon} className="mr-2" />}
@@ -273,11 +284,11 @@ const BudgetPage: React.FC = () => {
                             className="w-20 text-sm"
                             autoFocus
                             onKeyDown={(e) => {
-                              if (e.key === 'Enter') handleEditSave(item.categoryId);
+                              if (e.key === 'Enter') handleEditSave(catId);
                               if (e.key === 'Escape') handleEditCancel();
                             }}
                           />
-                          <button onClick={() => handleEditSave(item.categoryId)} disabled={updating} className="p-1">
+                          <button onClick={() => handleEditSave(catId)} disabled={updating} className="p-1">
                             <CheckIcon className="h-4 w-4 text-green-600" />
                           </button>
                           <button onClick={handleEditCancel} className="p-1">
@@ -286,10 +297,10 @@ const BudgetPage: React.FC = () => {
                         </div>
                       ) : (
                         <button
-                          onClick={() => handleEditStart(item.categoryId, item.budgeted)}
+                          onClick={() => handleEditStart(catId, item.budgeted)}
                           className="flex items-center space-x-1 group"
                         >
-                          <span className="text-sm text-gray-900 dark:text-gray-100">${item.budgeted.toFixed(2)}</span>
+                          <span className="text-sm text-gray-900 dark:text-gray-100">{formatCurrency(item.budgeted)}</span>
                           <PencilIcon className="h-3 w-3 text-gray-400 opacity-0 group-hover:opacity-100" />
                         </button>
                       )}
@@ -297,13 +308,13 @@ const BudgetPage: React.FC = () => {
 
                     {/* Actual Spent */}
                     <div className="w-28 flex-shrink-0">
-                      <span className="text-sm text-gray-700 dark:text-gray-300">${item.spent.toFixed(2)}</span>
+                      <span className="text-sm text-gray-700 dark:text-gray-300">{formatCurrency(item.spent)}</span>
                     </div>
 
                     {/* Remaining */}
                     <div className="w-28 flex-shrink-0">
                       <span className={`text-sm font-medium ${remaining >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                        ${remaining.toFixed(2)}
+                        {formatCurrency(remaining)}
                       </span>
                     </div>
 
@@ -320,7 +331,7 @@ const BudgetPage: React.FC = () => {
                     </div>
 
                     {/* Delete */}
-                    <button onClick={() => handleDelete(item.categoryId)} className="p-1 opacity-0 hover:opacity-100 group-hover:opacity-100">
+                    <button onClick={() => handleDelete(catId)} className="p-1 opacity-0 hover:opacity-100 group-hover:opacity-100">
                       <TrashIcon className="h-4 w-4 text-gray-400 hover:text-red-500" />
                     </button>
                   </div>

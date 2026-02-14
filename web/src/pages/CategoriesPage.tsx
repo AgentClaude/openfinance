@@ -288,8 +288,7 @@ const CategoriesPage: React.FC = () => {
                       )}
 
                       <div className="mt-3 text-sm text-gray-500 dark:text-gray-400">
-                        {/* Transaction count and monthly spend would go here */}
-                        0 transactions this month
+                        {category.transactionCount ?? 0} transaction{category.transactionCount === 1 ? '' : 's'} this month
                       </div>
                     </div>
                   );

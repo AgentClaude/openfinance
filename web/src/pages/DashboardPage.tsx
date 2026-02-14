@@ -123,34 +123,49 @@ const DashboardPage: React.FC = () => {
           }
         >
           {pieChartData.length > 0 ? (
-            <div className="h-80">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={pieChartData}
-                    cx="50%"
-                    cy="50%"
-                    outerRadius={100}
-                    fill="#8884d8"
-                    dataKey="value"
-                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                    labelLine={false}
-                  >
-                    {pieChartData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip 
-                    formatter={(value: number) => [
-                      new Intl.NumberFormat('en-US', { 
-                        style: 'currency', 
-                        currency: 'USD' 
-                      }).format(value), 
-                      'Amount'
-                    ]}
-                  />
-                </PieChart>
-              </ResponsiveContainer>
+            <div className="flex flex-col md:flex-row items-center gap-4">
+              <div className="w-full max-w-xs" style={{ height: 260 }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={pieChartData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={60}
+                      outerRadius={110}
+                      fill="#8884d8"
+                      dataKey="value"
+                      paddingAngle={2}
+                    >
+                      {pieChartData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip 
+                      formatter={(value: number) => [
+                        new Intl.NumberFormat('en-US', { 
+                          style: 'currency', 
+                          currency: 'USD' 
+                        }).format(value), 
+                        'Amount'
+                      ]}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+              <div className="flex-1 space-y-1.5">
+                {pieChartData.slice(0, 8).map((entry, index) => (
+                  <div key={index} className="flex items-center justify-between text-sm">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: entry.color }} />
+                      <span className="text-gray-700 dark:text-gray-300 truncate max-w-[120px]">{entry.name}</span>
+                    </div>
+                    <span className="font-medium text-gray-900 dark:text-gray-100">
+                      {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(entry.value)}
+                    </span>
+                  </div>
+                ))}
+              </div>
             </div>
           ) : (
             <EmptyState

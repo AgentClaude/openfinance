@@ -81,6 +81,7 @@ export interface Category {
   householdId: string;
   parentId?: string;
   children?: Category[];
+  transactionCount?: number;
 }
 
 export interface Tag {
