@@ -4,6 +4,7 @@ export interface User {
   name: string;
   householdId: string;
   household?: Household;
+  role?: string;
 }
 
 export interface Household {

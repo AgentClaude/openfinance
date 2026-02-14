@@ -8,7 +8,7 @@ import {
   AdjustmentsHorizontalIcon
 } from '@heroicons/react/24/outline';
 import { useAccounts } from '@/hooks/useAccounts';
-import { AccountType, Account } from '@/types';
+import { AccountType } from '@/types';
 import AdjustBalanceModal from '@/components/AdjustBalanceModal';
 import BalanceHistory from '@/components/BalanceHistory';
 import PageHeader from '@/components/ui/PageHeader';
