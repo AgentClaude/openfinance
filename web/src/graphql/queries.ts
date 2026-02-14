@@ -153,12 +153,39 @@ export const GET_DASHBOARD_SUMMARY = gql`
         description
         date
         pending
+        needsReview
+        accountId
+        categoryId
+        subcategoryId
+        merchantName
+        plaidTransactionId
+        isSplit
+        isTransfer
+        excluded
+        parentTransactionId
+        transferPairId
+        hasReceipt
+        receiptUrl
         account {
           id
           name
+          type
           mask
         }
         category {
+          id
+          name
+          icon
+          color
+          groupName
+        }
+        subcategory {
+          id
+          name
+          icon
+          color
+        }
+        tags {
           id
           name
           color

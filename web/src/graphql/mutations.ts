@@ -47,7 +47,10 @@ export const CREATE_MANUAL_ACCOUNT = gql`
       subtype
       balance
       balanceDate
+      mask
+      officialName
       isActive
+      plaidAccountId
       householdId
     }
   }
@@ -66,12 +69,34 @@ export const CREATE_TRANSACTION = gql`
       categoryId
       subcategoryId
       merchantName
+      plaidTransactionId
+      isSplit
+      isTransfer
+      excluded
+      parentTransactionId
+      transferPairId
+      hasReceipt
+      receiptUrl
       account {
         id
         name
         type
+        mask
       }
       category {
+        id
+        name
+        icon
+        color
+        groupName
+      }
+      subcategory {
+        id
+        name
+        icon
+        color
+      }
+      tags {
         id
         name
         color
@@ -93,12 +118,34 @@ export const UPDATE_TRANSACTION = gql`
       categoryId
       subcategoryId
       merchantName
+      plaidTransactionId
+      isSplit
+      isTransfer
+      excluded
+      parentTransactionId
+      transferPairId
+      hasReceipt
+      receiptUrl
       account {
         id
         name
         type
+        mask
       }
       category {
+        id
+        name
+        icon
+        color
+        groupName
+      }
+      subcategory {
+        id
+        name
+        icon
+        color
+      }
+      tags {
         id
         name
         color
@@ -115,7 +162,9 @@ export const BULK_CATEGORIZE = gql`
       category {
         id
         name
+        icon
         color
+        groupName
       }
     }
   }
@@ -202,11 +251,16 @@ export const UPDATE_BUDGET_ITEM = gql`
       categoryId
       budgeted
       spent
+      rollover
+      available
+      percentUsed
       month
       category {
         id
         name
+        icon
         color
+        groupName
       }
     }
   }
