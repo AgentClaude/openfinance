@@ -68,6 +68,17 @@ export interface TransferCandidate {
   description: string;
 }
 
+export interface TransferCandidate {
+  outflowId: string;
+  inflowId: string;
+  amount: number;
+  outflowAccount: string;
+  inflowAccount: string;
+  outflowDate: string;
+  inflowDate: string;
+  description?: string;
+}
+
 export interface Category {
   id: string;
   name: string;

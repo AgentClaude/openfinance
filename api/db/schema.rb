@@ -306,6 +306,23 @@ ActiveRecord::Schema[8.0].define(version: 2026_02_13_200001) do
     t.index ["supported_products"], name: "index_institutions_on_supported_products", using: :gin
   end
 
+  create_table "invitations", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "email", null: false
+    t.string "role", default: "member", null: false
+    t.string "status", default: "pending", null: false
+    t.string "token", null: false
+    t.uuid "household_id", null: false
+    t.uuid "invited_by_id", null: false
+    t.datetime "accepted_at"
+    t.datetime "expires_at", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["email", "household_id"], name: "index_invitations_on_email_and_household_id", unique: true, where: "((status)::text = 'pending'::text)"
+    t.index ["household_id"], name: "index_invitations_on_household_id"
+    t.index ["invited_by_id"], name: "index_invitations_on_invited_by_id"
+    t.index ["token"], name: "index_invitations_on_token", unique: true
+  end
+
   create_table "notification_rules", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "user_id", null: false
     t.uuid "household_id", null: false
@@ -546,6 +563,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_02_13_200001) do
   add_foreign_key "household_memberships", "households"
   add_foreign_key "household_memberships", "users"
   add_foreign_key "household_memberships", "users", column: "invited_by_id"
+  add_foreign_key "invitations", "households"
+  add_foreign_key "invitations", "users", column: "invited_by_id"
   add_foreign_key "notification_rules", "households"
   add_foreign_key "notification_rules", "users"
   add_foreign_key "notifications", "households"
