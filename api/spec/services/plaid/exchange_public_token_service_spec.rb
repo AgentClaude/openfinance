@@ -13,11 +13,12 @@ RSpec.describe Plaid::ExchangePublicTokenService, type: :service do
     }
   end
 
+  let(:plaid_client) { double('Plaid::PlaidApi') }
   let(:service) { described_class.new(public_token: public_token, user: user, metadata: metadata) }
 
   before do
     allow(PlaidConfig).to receive(:enabled?).and_return(true)
-    allow(PlaidConfig).to receive(:client).and_return(double('Plaid::PlaidApi'))
+    allow(PlaidConfig).to receive(:client).and_return(plaid_client)
   end
 
   describe '#call' do
