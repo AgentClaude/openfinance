@@ -15,10 +15,10 @@ const PageHeader: React.FC<PageHeaderProps> = ({
   className,
 }) => {
   return (
-    <div className={clsx('border-b border-gray-200 dark:border-gray-700 pb-5 mb-6', className)}>
+    <div className={clsx('pb-6 mb-6', className)}>
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+          <h1 className="text-2xl font-bold tracking-heading text-gray-900 dark:text-gray-100">
             {title}
           </h1>
           {subtitle && (

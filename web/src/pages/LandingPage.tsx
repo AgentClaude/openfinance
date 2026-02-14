@@ -48,7 +48,7 @@ export default function LandingPage() {
       {/* Nav */}
       <nav className="border-b border-gray-200 dark:border-gray-800">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
-          <span className="text-xl font-bold text-emerald-600">OpenFinance</span>
+          <span className="text-xl font-bold text-brand-700">OpenFinance</span>
           <div className="flex gap-3">
             <Link
               to="/login"
@@ -58,7 +58,7 @@ export default function LandingPage() {
             </Link>
             <Link
               to="/register"
-              className="px-4 py-2 text-sm font-medium rounded-lg bg-emerald-600 text-white hover:bg-emerald-700"
+              className="px-4 py-2 text-sm font-medium rounded-lg bg-brand-700 text-white hover:bg-brand-800"
             >
               Sign Up
             </Link>
@@ -70,7 +70,7 @@ export default function LandingPage() {
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-24 sm:py-32 text-center">
         <h1 className="text-4xl sm:text-6xl font-bold tracking-tight text-gray-900 dark:text-white">
           Your finances,{' '}
-          <span className="text-emerald-600">your&nbsp;way.</span>
+          <span className="text-brand-700">your&nbsp;way.</span>
         </h1>
         <p className="mt-6 text-lg sm:text-xl leading-8 text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
           Open-source personal finance tracking. Budgets, investments, goals, and reports — all in one place, completely free.
@@ -78,7 +78,7 @@ export default function LandingPage() {
         <div className="mt-10 flex items-center justify-center gap-4 flex-wrap">
           <Link
             to="/register"
-            className="rounded-lg bg-emerald-600 px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600"
+            className="rounded-lg bg-brand-700 px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-brand-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600"
           >
             Get Started — It&apos;s Free
           </Link>
@@ -114,8 +114,8 @@ export default function LandingPage() {
                 className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-6"
               >
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-900/30">
-                    <feature.icon className="h-5 w-5 text-emerald-600" />
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-brand-100 dark:bg-brand-900/30">
+                    <feature.icon className="h-5 w-5 text-brand-700" />
                   </div>
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{feature.name}</h3>
                 </div>
@@ -139,8 +139,8 @@ export default function LandingPage() {
           <p className="mt-4 text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
             OpenFinance is open-source software. No premium tier, no paywall, no catch.
           </p>
-          <div className="mt-12 mx-auto max-w-sm rounded-2xl border-2 border-emerald-600 p-8">
-            <p className="text-sm font-semibold text-emerald-600 uppercase tracking-wide">Open Source</p>
+          <div className="mt-12 mx-auto max-w-sm rounded-2xl border-2 border-brand-700 p-8">
+            <p className="text-sm font-semibold text-brand-700 uppercase tracking-wide">Open Source</p>
             <p className="mt-4 text-5xl font-bold text-gray-900 dark:text-white">$0</p>
             <p className="mt-1 text-sm text-gray-500">per month, forever</p>
             <ul className="mt-8 space-y-3 text-sm text-gray-600 dark:text-gray-400 text-left">
@@ -154,14 +154,14 @@ export default function LandingPage() {
                 'Self-hostable',
               ].map((item) => (
                 <li key={item} className="flex items-start gap-2">
-                  <span className="text-emerald-600 mt-0.5">✓</span>
+                  <span className="text-brand-700 mt-0.5">✓</span>
                   {item}
                 </li>
               ))}
             </ul>
             <Link
               to="/register"
-              className="mt-8 block w-full rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700"
+              className="mt-8 block w-full rounded-lg bg-brand-700 px-4 py-2.5 text-sm font-semibold text-white hover:bg-brand-800"
             >
               Get Started
             </Link>

@@ -12,9 +12,9 @@ import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import { StatCard, ChartCard } from '@/components/shared';
 
 const COLORS = [
-  '#6366f1', '#ec4899', '#f59e0b', '#10b981', '#3b82f6',
-  '#8b5cf6', '#ef4444', '#14b8a6', '#f97316', '#06b6d4',
-  '#84cc16', '#e879f9',
+  '#0D9488', '#F59E0B', '#7C3AED', '#E11D48', '#0EA5E9',
+  '#10B981', '#F97316', '#6366F1', '#84CC16', '#EC4899',
+  '#06B6D4', '#8B5CF6',
 ];
 
 const formatCurrency = (value: number) =>
@@ -64,7 +64,7 @@ const ReportsPage: React.FC = () => {
                 className={`px-3 py-1.5 text-xs font-medium rounded-l-md border ${
                   dateRangeMode === 'preset'
                     ? 'bg-brand-50 border-brand-300 text-brand-800'
-                    : 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:bg-gray-900'
+                    : 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-slate-700/50'
                 }`}
               >
                 Preset
@@ -74,7 +74,7 @@ const ReportsPage: React.FC = () => {
                 className={`px-3 py-1.5 text-xs font-medium rounded-r-md border-t border-r border-b ${
                   dateRangeMode === 'custom'
                     ? 'bg-brand-50 border-brand-300 text-brand-800'
-                    : 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:bg-gray-900'
+                    : 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-slate-700/50'
                 }`}
               >
                 Custom
@@ -175,8 +175,8 @@ const OverviewReport: React.FC<{ reports: any }> = ({ reports }) => {
             <YAxis tickFormatter={(v) => formatCurrency(v)} />
             <Tooltip formatter={(v: number) => formatCurrency(v)} labelFormatter={formatMonth} />
             <Legend />
-            <Bar dataKey="income" name="Income" fill="#10b981" radius={[4, 4, 0, 0]} />
-            <Bar dataKey="expenses" name="Expenses" fill="#ef4444" radius={[4, 4, 0, 0]} />
+            <Bar dataKey="income" name="Income" fill="#059669" radius={[4, 4, 0, 0]} />
+            <Bar dataKey="expenses" name="Expenses" fill="#DC2626" radius={[4, 4, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
       </ChartCard>
@@ -341,7 +341,7 @@ const SpendingReport: React.FC<{ reports: any }> = ({ reports }) => {
             <tbody className="divide-y divide-gray-100">
               {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
               {spendingByCategory.map((cat: any, i: number) => (
-                <tr key={cat.categoryId || i} className="hover:bg-gray-50 dark:bg-gray-900">
+                <tr key={cat.categoryId || i} className="hover:bg-gray-50 dark:hover:bg-slate-700/50">
                   <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
                     {cat.categoryIcon} {cat.categoryName}
                   </td>
@@ -414,8 +414,8 @@ const IncomeExpensesReport: React.FC<{ reports: any }> = ({ reports }) => {
             <YAxis tickFormatter={(v) => formatCurrency(v)} />
             <Tooltip formatter={(v: number) => formatCurrency(v)} labelFormatter={formatMonth} />
             <Legend />
-            <Bar dataKey="income" name="Income" fill="#10b981" radius={[4, 4, 0, 0]} />
-            <Bar dataKey="expenses" name="Expenses" fill="#ef4444" radius={[4, 4, 0, 0]} />
+            <Bar dataKey="income" name="Income" fill="#059669" radius={[4, 4, 0, 0]} />
+            <Bar dataKey="expenses" name="Expenses" fill="#DC2626" radius={[4, 4, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
       </ChartCard>
@@ -439,9 +439,9 @@ const IncomeExpensesReport: React.FC<{ reports: any }> = ({ reports }) => {
               type="monotone"
               dataKey="cumulativeSavings"
               name="Cumulative"
-              stroke="#6366f1"
+              stroke="#0D9488"
               strokeWidth={2}
-              dot={{ fill: '#6366f1', r: 4 }}
+              dot={{ fill: '#0D9488', r: 4 }}
             />
           </ComposedChart>
         </ResponsiveContainer>
@@ -466,7 +466,7 @@ const IncomeExpensesReport: React.FC<{ reports: any }> = ({ reports }) => {
               {[...monthlySummary].reverse().map((m: any) => {
                 const rate = m.income > 0 ? ((m.cashFlow / m.income) * 100) : 0;
                 return (
-                  <tr key={m.month} className="hover:bg-gray-50 dark:bg-gray-900">
+                  <tr key={m.month} className="hover:bg-gray-50 dark:hover:bg-slate-700/50">
                     <td className="px-4 py-3 text-sm font-medium text-gray-900 dark:text-gray-100">{formatMonth(m.month)}</td>
                     <td className="px-4 py-3 text-sm text-right text-green-600">{formatCurrency(m.income)}</td>
                     <td className="px-4 py-3 text-sm text-right text-red-600">{formatCurrency(m.expenses)}</td>
@@ -519,8 +519,8 @@ const CashFlowReport: React.FC<{ reports: any }> = ({ reports }) => {
             <YAxis tickFormatter={(v) => formatCurrency(v)} />
             <Tooltip formatter={(v: number) => formatCurrency(v)} labelFormatter={formatMonth} />
             <Legend />
-            <Area type="monotone" dataKey="income" name="Income" stroke="#10b981" fill="#10b98133" />
-            <Area type="monotone" dataKey="expenses" name="Expenses" stroke="#ef4444" fill="#ef444433" />
+            <Area type="monotone" dataKey="income" name="Income" stroke="#059669" fill="#05966920" />
+            <Area type="monotone" dataKey="expenses" name="Expenses" stroke="#DC2626" fill="#DC262620" />
           </AreaChart>
         </ResponsiveContainer>
       </ChartCard>
@@ -560,9 +560,9 @@ const CashFlowReport: React.FC<{ reports: any }> = ({ reports }) => {
               type="monotone"
               dataKey="runningBalance"
               name="Cumulative Cash Flow"
-              stroke="#6366f1"
+              stroke="#0D9488"
               strokeWidth={3}
-              dot={{ fill: '#6366f1', r: 5 }}
+              dot={{ fill: '#0D9488', r: 5 }}
               activeDot={{ r: 7 }}
             />
           </LineChart>
@@ -585,7 +585,7 @@ const CashFlowReport: React.FC<{ reports: any }> = ({ reports }) => {
             <tbody className="divide-y divide-gray-100">
               {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
               {[...waterfallData].reverse().map((m: any) => (
-                <tr key={m.month} className="hover:bg-gray-50 dark:bg-gray-900">
+                <tr key={m.month} className="hover:bg-gray-50 dark:hover:bg-slate-700/50">
                   <td className="px-4 py-3 text-sm font-medium text-gray-900 dark:text-gray-100">{formatMonth(m.month)}</td>
                   <td className="px-4 py-3 text-sm text-right text-green-600">{formatCurrency(m.income)}</td>
                   <td className="px-4 py-3 text-sm text-right text-red-600">{formatCurrency(m.expenses)}</td>

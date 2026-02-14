@@ -62,7 +62,7 @@ const AppLayout: React.FC = () => {
   ];
 
   return (
-    <div className="h-screen flex overflow-hidden bg-gray-100">
+    <div className="h-screen flex overflow-hidden bg-slate-50 dark:bg-slate-900">
       {/* Mobile sidebar */}
       <Transition show={sidebarOpen}>
         <div className="relative z-40 md:hidden">
@@ -125,7 +125,7 @@ const AppLayout: React.FC = () => {
       {/* Main content */}
       <div className="flex flex-col w-0 flex-1 overflow-hidden">
         {/* Top bar */}
-        <div className="relative z-10 flex-shrink-0 flex h-16 bg-white shadow">
+        <div className="relative z-10 flex-shrink-0 flex h-16 bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700">
           <button
             type="button"
             className="px-4 border-r border-gray-200 text-gray-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-brand-500 md:hidden"
@@ -145,7 +145,7 @@ const AppLayout: React.FC = () => {
               {/* Profile dropdown */}
               <Dropdown
                 trigger={
-                  <button className="max-w-xs bg-white rounded-full flex items-center text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500">
+                  <button className="max-w-xs bg-white dark:bg-slate-800 rounded-full flex items-center text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 dark:focus:ring-offset-slate-800">
                     <Avatar 
                       name={user?.name || 'User'} 
                       size="sm"
@@ -160,10 +160,10 @@ const AppLayout: React.FC = () => {
               {/* Household name */}
               {user?.household && (
                 <div className="hidden md:flex flex-col items-end">
-                  <div className="text-sm font-medium text-gray-900">
+                  <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
                     {user.household.name}
                   </div>
-                  <div className="text-xs text-gray-500">
+                  <div className="text-xs text-gray-500 dark:text-gray-400">
                     {user.household.currency}
                   </div>
                 </div>

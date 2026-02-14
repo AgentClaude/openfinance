@@ -71,9 +71,9 @@ function DataTable<T>({
   }
 
   return (
-    <div className={clsx('overflow-hidden shadow ring-1 ring-black ring-opacity-5 rounded-lg', className)}>
-      <table className="min-w-full divide-y divide-gray-300">
-        <thead className="bg-gray-50">
+    <div className={clsx('overflow-hidden rounded-xl border border-gray-200 dark:border-gray-700', className)}>
+      <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+        <thead className="bg-gray-50 dark:bg-slate-800/50">
           <tr>
             {(onSelectRow || onSelectAll) && (
               <th scope="col" className="relative w-12 px-6 py-3">
@@ -93,8 +93,8 @@ function DataTable<T>({
                 key={column.key}
                 scope="col"
                 className={clsx(
-                  'px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider',
-                  column.sortable && 'cursor-pointer select-none hover:bg-gray-100',
+                  'px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider',
+                  column.sortable && 'cursor-pointer select-none hover:bg-gray-100 dark:hover:bg-slate-700',
                   column.width && `w-${column.width}`
                 )}
                 onClick={() => column.sortable && handleSort(column.key)}
@@ -119,7 +119,7 @@ function DataTable<T>({
             ))}
           </tr>
         </thead>
-        <tbody className="divide-y divide-gray-200 bg-white">
+        <tbody className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-slate-800">
           {data.map((item, index) => {
             const rowId = getRowId?.(item) || index.toString();
             const isSelected = selectedIds.includes(rowId);
@@ -128,7 +128,7 @@ function DataTable<T>({
               <tr
                 key={rowId}
                 className={clsx(
-                  'hover:bg-gray-50',
+                  'hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors',
                   onRowClick && 'cursor-pointer',
                   isSelected && 'bg-brand-50'
                 )}
@@ -150,7 +150,7 @@ function DataTable<T>({
                 {columns.map((column) => (
                   <td
                     key={column.key}
-                    className="px-6 py-4 whitespace-nowrap text-sm text-gray-900"
+                    className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100"
                   >
                     {column.render
                       ? column.render(item)

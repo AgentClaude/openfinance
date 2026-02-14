@@ -45,7 +45,7 @@ const Dropdown: React.FC<DropdownProps> = ({
       >
         <Menu.Items
           className={clsx(
-            'absolute z-10 mt-2 w-56 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none',
+            'absolute z-10 mt-2 w-56 rounded-xl bg-white dark:bg-slate-800 shadow-lg ring-1 ring-black/5 dark:ring-white/10 focus:outline-none',
             alignClasses[align]
           )}
         >
@@ -57,13 +57,13 @@ const Dropdown: React.FC<DropdownProps> = ({
                     onClick={item.onClick}
                     disabled={item.disabled}
                     className={clsx(
-                      'flex items-center px-4 py-2 text-sm w-full text-left',
+                      'flex items-center px-4 py-2 text-sm w-full text-left transition-colors',
                       {
-                        'bg-gray-100 text-gray-900': active && !item.disabled,
-                        'text-gray-700': !active && !item.disabled,
-                        'text-gray-400 cursor-not-allowed': item.disabled,
-                        'text-red-700': item.variant === 'danger' && !item.disabled,
-                        'bg-red-50': item.variant === 'danger' && active && !item.disabled,
+                        'bg-gray-100 dark:bg-slate-700 text-gray-900 dark:text-gray-100': active && !item.disabled && item.variant !== 'danger',
+                        'text-gray-700 dark:text-gray-300': !active && !item.disabled && item.variant !== 'danger',
+                        'text-gray-400 dark:text-gray-500 cursor-not-allowed': item.disabled,
+                        'text-red-600 dark:text-red-400': item.variant === 'danger' && !item.disabled,
+                        'bg-red-50 dark:bg-red-900/20': item.variant === 'danger' && active && !item.disabled,
                       }
                     )}
                   >

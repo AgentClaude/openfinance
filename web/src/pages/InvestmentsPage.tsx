@@ -14,8 +14,8 @@ import {
 } from '@heroicons/react/24/outline';
 
 const COLORS = [
-  '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6',
-  '#EC4899', '#14B8A6', '#F97316', '#6366F1', '#84CC16',
+  '#0D9488', '#F59E0B', '#7C3AED', '#E11D48', '#0EA5E9',
+  '#10B981', '#F97316', '#6366F1', '#84CC16', '#EC4899',
   '#06B6D4', '#D946EF',
 ];
 
@@ -81,9 +81,9 @@ const AllocationPieChart: React.FC<{ allocations: PortfolioAllocation[] }> = ({ 
           );
         })}
         {/* Center hole for donut */}
-        <circle cx={cx} cy={cy} r={45} fill="white" />
-        <text x={cx} y={cy - 6} textAnchor="middle" className="text-xs fill-gray-500">Total</text>
-        <text x={cx} y={cy + 12} textAnchor="middle" className="text-sm font-semibold fill-gray-900">
+        <circle cx={cx} cy={cy} r={45} className="fill-white dark:fill-slate-800" />
+        <text x={cx} y={cy - 6} textAnchor="middle" className="text-xs fill-gray-500 dark:fill-gray-400">Total</text>
+        <text x={cx} y={cy + 12} textAnchor="middle" className="text-sm font-semibold fill-gray-900 dark:fill-gray-100">
           {formatCurrency(total)}
         </text>
       </svg>
@@ -112,7 +112,7 @@ const HoldingRow: React.FC<{ holding: Holding }> = ({ holding }) => {
   return (
     <>
       <tr
-        className="hover:bg-gray-50 dark:bg-gray-900 cursor-pointer border-b border-gray-100"
+        className="hover:bg-gray-50 dark:hover:bg-slate-700/50 cursor-pointer border-b border-gray-100"
         onClick={() => setExpanded(!expanded)}
       >
         <td className="px-4 py-3">
@@ -139,7 +139,7 @@ const HoldingRow: React.FC<{ holding: Holding }> = ({ holding }) => {
         <td className="px-4 py-3 text-right tabular-nums text-gray-500 dark:text-gray-400">{holding.weightInAccount.toFixed(1)}%</td>
       </tr>
       {expanded && (
-        <tr className="bg-gray-50 dark:bg-gray-900">
+        <tr className="bg-gray-50 dark:bg-slate-800/50">
           <td colSpan={6} className="px-8 py-4">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
               <div>
@@ -186,13 +186,13 @@ const InvestmentsPage: React.FC = () => {
   const isPositive = summary.totalGainLoss >= 0;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-6">
+    <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Investments</h1>
+        <h1 className="text-2xl font-bold tracking-heading text-gray-900 dark:text-gray-100">Investments</h1>
         {investmentAccounts.length > 1 && (
           <select
-            className="border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-slate-800 focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
             value={selectedAccountId || ''}
             onChange={(e) => setSelectedAccountId(e.target.value || undefined)}
           >
@@ -267,7 +267,7 @@ const InvestmentsPage: React.FC = () => {
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-gray-50 dark:bg-gray-900 text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                <thead className="bg-gray-50 dark:bg-slate-800/50 text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                   <tr>
                     <th className="px-4 py-3 text-left">Security</th>
                     <th className="px-4 py-3 text-right">Shares</th>

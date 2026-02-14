@@ -87,7 +87,7 @@ function Endpoint({
   responseExample?: string;
 }) {
   const methodColor: Record<string, string> = {
-    GET: 'bg-emerald-500',
+    GET: 'bg-brand-600',
     POST: 'bg-blue-500',
     PUT: 'bg-amber-500',
     PATCH: 'bg-amber-500',
@@ -165,7 +165,7 @@ function Sidebar({ activeSection, onNavigate, mobileOpen, onClose }: {
       `}>
         <div className="p-5 border-b border-gray-200 dark:border-gray-700">
           <a href="/" className="flex items-center gap-2">
-            <div className="w-7 h-7 bg-emerald-500 rounded-lg flex items-center justify-center text-white font-bold text-sm">$</div>
+            <div className="w-7 h-7 bg-brand-600 rounded-lg flex items-center justify-center text-white font-bold text-sm">$</div>
             <span className="font-bold text-lg dark:text-white">OpenFinance</span>
           </a>
           <p className="text-xs text-gray-500 mt-1">API Documentation</p>
@@ -177,7 +177,7 @@ function Sidebar({ activeSection, onNavigate, mobileOpen, onClose }: {
                 onClick={() => { onNavigate(item.id); onClose(); }}
                 className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors ${
                   activeSection === item.id
-                    ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 font-medium'
+                    ? 'bg-brand-50 dark:bg-brand-900/30 text-brand-700 dark:text-brand-400 font-medium'
                     : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
                 }`}
               >
@@ -191,7 +191,7 @@ function Sidebar({ activeSection, onNavigate, mobileOpen, onClose }: {
                       onClick={() => { onNavigate(child.id); onClose(); }}
                       className={`w-full text-left px-3 py-1.5 rounded-md text-xs transition-colors ${
                         activeSection === child.id
-                          ? 'text-emerald-700 dark:text-emerald-400 font-medium'
+                          ? 'text-brand-700 dark:text-brand-400 font-medium'
                           : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
                       }`}
                     >
@@ -501,7 +501,7 @@ export default function DocsPage() {
                 <div key={q.name} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-white dark:bg-gray-800">
                   <div className="flex items-start justify-between gap-2">
                     <div>
-                      <code className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">{q.name}</code>
+                      <code className="text-sm font-semibold text-brand-700 dark:text-emerald-400">{q.name}</code>
                       {q.args && <span className="text-xs text-gray-400 ml-2">({q.args})</span>}
                     </div>
                     <span className="text-xs text-gray-500 bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded shrink-0">{q.returns}</span>
