@@ -109,6 +109,46 @@ FactoryBot.define do
     end
   end
 
+  factory :recurring_item do
+    association :household
+
+    name { Faker::Company.name }
+    merchant_name { name }
+    item_type { 'expense' }
+    amount_cents { rand(500..20000) }
+    currency { 'USD' }
+    frequency { 'monthly' }
+    frequency_interval { 1 }
+    start_date { 3.months.ago.to_date }
+    next_occurrence { 1.week.from_now.to_date }
+    is_active { true }
+    is_income { false }
+    is_auto_detected { false }
+    occurrence_count { 3 }
+
+    trait :income do
+      item_type { 'income' }
+      is_income { true }
+      amount_cents { rand(200000..500000) }
+    end
+
+    trait :overdue do
+      next_occurrence { 3.days.ago.to_date }
+    end
+
+    trait :due_soon do
+      next_occurrence { 3.days.from_now.to_date }
+    end
+
+    trait :inactive do
+      is_active { false }
+    end
+
+    trait :auto_detected do
+      is_auto_detected { true }
+    end
+  end
+
   factory :transaction do
     association :account
     association :category

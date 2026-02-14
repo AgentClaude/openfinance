@@ -21,6 +21,10 @@ module Types
     field :delete_categorization_rule, mutation: Mutations::DeleteCategorizationRule
     field :apply_categorization_rules, mutation: Mutations::ApplyCategorizationRules
     field :detect_recurring_transactions, mutation: Mutations::DetectRecurringTransactions
+    field :create_recurring_item, mutation: Mutations::CreateRecurringItem
+    field :update_recurring_item, mutation: Mutations::UpdateRecurringItem
+    field :delete_recurring_item, mutation: Mutations::DeleteRecurringItem
+    field :mark_recurring_item_paid, mutation: Mutations::MarkRecurringItemPaid
     field :update_profile, mutation: Mutations::UpdateProfile
     field :change_password, mutation: Mutations::ChangePassword
   end
