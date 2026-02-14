@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
   PieChart, Pie, Cell,
   Area, AreaChart,
+  LineChart, Line,
+  ComposedChart,
 } from 'recharts';
 import { useReports } from '@/hooks/useReports';
 import PageHeader from '@/components/ui/PageHeader';
@@ -24,20 +26,29 @@ const formatMonth = (month: string) => {
   return date.toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
 };
 
-type ReportTab = 'overview' | 'spending' | 'cashflow' | 'merchants';
+type ReportTab = 'overview' | 'spending' | 'income-expenses' | 'cashflow' | 'merchants';
+
+type DateRangeMode = 'preset' | 'custom';
 
 const ReportsPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<ReportTab>('overview');
   const [months, setMonths] = useState(6);
-  const { reports, loading } = useReports({ months });
+  const [dateRangeMode, setDateRangeMode] = useState<DateRangeMode>('preset');
+  const [customFrom, setCustomFrom] = useState('');
+  const [customTo, setCustomTo] = useState('');
 
-  if (loading) return <LoadingSpinner />;
+  const queryVars = dateRangeMode === 'custom' && customFrom && customTo
+    ? { dateFrom: customFrom, dateTo: customTo }
+    : { months };
 
-  const tabs: { id: ReportTab; label: string }[] = [
-    { id: 'overview', label: 'Overview' },
-    { id: 'spending', label: 'Spending by Category' },
-    { id: 'cashflow', label: 'Cash Flow' },
-    { id: 'merchants', label: 'Top Merchants' },
+  const { reports, loading } = useReports(queryVars);
+
+  const tabs: { id: ReportTab; label: string; icon: string }[] = [
+    { id: 'overview', label: 'Overview', icon: '📊' },
+    { id: 'spending', label: 'Spending by Category', icon: '🍩' },
+    { id: 'income-expenses', label: 'Income vs Expenses', icon: '⚖️' },
+    { id: 'cashflow', label: 'Cash Flow', icon: '💰' },
+    { id: 'merchants', label: 'Top Merchants', icon: '🏪' },
   ];
 
   return (
@@ -46,41 +57,91 @@ const ReportsPage: React.FC = () => {
         title="Reports & Analytics"
         subtitle="Understand your spending patterns and financial trends"
         actions={
-          <select
-            value={months}
-            onChange={(e) => setMonths(parseInt(e.target.value))}
-            className="rounded-md border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-          >
-            <option value={3}>Last 3 months</option>
-            <option value={6}>Last 6 months</option>
-            <option value={12}>Last 12 months</option>
-          </select>
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setDateRangeMode('preset')}
+                className={`px-3 py-1.5 text-xs font-medium rounded-l-md border ${
+                  dateRangeMode === 'preset'
+                    ? 'bg-indigo-50 border-indigo-300 text-indigo-700'
+                    : 'bg-white border-gray-300 text-gray-600 hover:bg-gray-50'
+                }`}
+              >
+                Preset
+              </button>
+              <button
+                onClick={() => setDateRangeMode('custom')}
+                className={`px-3 py-1.5 text-xs font-medium rounded-r-md border-t border-r border-b ${
+                  dateRangeMode === 'custom'
+                    ? 'bg-indigo-50 border-indigo-300 text-indigo-700'
+                    : 'bg-white border-gray-300 text-gray-600 hover:bg-gray-50'
+                }`}
+              >
+                Custom
+              </button>
+            </div>
+            {dateRangeMode === 'preset' ? (
+              <select
+                value={months}
+                onChange={(e) => setMonths(parseInt(e.target.value))}
+                className="rounded-md border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+              >
+                <option value={3}>Last 3 months</option>
+                <option value={6}>Last 6 months</option>
+                <option value={12}>Last 12 months</option>
+                <option value={24}>Last 24 months</option>
+              </select>
+            ) : (
+              <div className="flex items-center gap-2">
+                <input
+                  type="date"
+                  value={customFrom}
+                  onChange={(e) => setCustomFrom(e.target.value)}
+                  className="rounded-md border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                />
+                <span className="text-gray-400 text-sm">to</span>
+                <input
+                  type="date"
+                  value={customTo}
+                  onChange={(e) => setCustomTo(e.target.value)}
+                  className="rounded-md border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                />
+              </div>
+            )}
+          </div>
         }
       />
 
       {/* Tabs */}
       <div className="border-b border-gray-200 mb-6">
-        <nav className="-mb-px flex space-x-8">
+        <nav className="-mb-px flex space-x-6 overflow-x-auto">
           {tabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
+              className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors whitespace-nowrap ${
                 activeTab === tab.id
                   ? 'border-indigo-500 text-indigo-600'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
             >
+              <span className="mr-1.5">{tab.icon}</span>
               {tab.label}
             </button>
           ))}
         </nav>
       </div>
 
-      {activeTab === 'overview' && reports && <OverviewReport reports={reports} />}
-      {activeTab === 'spending' && reports && <SpendingReport reports={reports} />}
-      {activeTab === 'cashflow' && reports && <CashFlowReport reports={reports} />}
-      {activeTab === 'merchants' && reports && <MerchantReport reports={reports} />}
+      {loading && <LoadingSpinner />}
+      {!loading && reports && (
+        <>
+          {activeTab === 'overview' && <OverviewReport reports={reports} />}
+          {activeTab === 'spending' && <SpendingReport reports={reports} />}
+          {activeTab === 'income-expenses' && <IncomeExpensesReport reports={reports} />}
+          {activeTab === 'cashflow' && <CashFlowReport reports={reports} />}
+          {activeTab === 'merchants' && <MerchantReport reports={reports} />}
+        </>
+      )}
     </div>
   );
 };
@@ -92,11 +153,12 @@ const OverviewReport: React.FC<{ reports: any }> = ({ reports }) => {
   const totalIncome = monthlySummary.reduce((s: number, m: { income: number }) => s + m.income, 0);
   const totalExpenses = monthlySummary.reduce((s: number, m: { expenses: number }) => s + m.expenses, 0);
   const avgMonthlyExpenses = monthlySummary.length > 0 ? totalExpenses / monthlySummary.length : 0;
+  const savingsRate = totalIncome > 0 ? ((totalIncome - totalExpenses) / totalIncome * 100) : 0;
 
   return (
     <div className="space-y-6">
       {/* Summary cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
         <Card className="p-4">
           <p className="text-sm text-gray-500">Total Income</p>
           <p className="text-2xl font-bold text-green-600">{formatCurrency(totalIncome)}</p>
@@ -114,6 +176,12 @@ const OverviewReport: React.FC<{ reports: any }> = ({ reports }) => {
         <Card className="p-4">
           <p className="text-sm text-gray-500">Avg Monthly Expenses</p>
           <p className="text-2xl font-bold text-gray-900">{formatCurrency(avgMonthlyExpenses)}</p>
+        </Card>
+        <Card className="p-4">
+          <p className="text-sm text-gray-500">Savings Rate</p>
+          <p className={`text-2xl font-bold ${savingsRate >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+            {savingsRate.toFixed(1)}%
+          </p>
         </Card>
       </div>
 
@@ -210,8 +278,62 @@ const SpendingReport: React.FC<{ reports: any }> = ({ reports }) => {
 
   return (
     <div className="space-y-6">
+      {/* Donut chart */}
       <Card className="p-6">
-        <h3 className="text-lg font-medium text-gray-900 mb-4">Monthly Spending by Category</h3>
+        <h3 className="text-lg font-medium text-gray-900 mb-4">Spending by Category</h3>
+        <div className="flex flex-col lg:flex-row items-center gap-8">
+          <div className="w-full max-w-xs">
+            <ResponsiveContainer width="100%" height={320}>
+              <PieChart>
+                <Pie
+                  data={spendingByCategory.slice(0, 10)}
+                  dataKey="amount"
+                  nameKey="categoryName"
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={70}
+                  outerRadius={130}
+                  paddingAngle={2}
+                  label={({ categoryName, percentage }: { categoryName: string; percentage: number }) =>
+                    `${categoryName} ${percentage}%`
+                  }
+                  labelLine={false}
+                >
+                  {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+                  {spendingByCategory.slice(0, 10).map((_: any, i: number) => (
+                    <Cell key={i} fill={COLORS[i % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip formatter={(v: number) => formatCurrency(v)} />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+          <div className="flex-1 w-full">
+            <div className="space-y-2">
+              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+              {spendingByCategory.map((cat: any, i: number) => (
+                <div key={cat.categoryId || i} className="flex items-center justify-between py-1">
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: COLORS[i % COLORS.length] }} />
+                    <span className="text-sm text-gray-700">
+                      {cat.categoryIcon} {cat.categoryName}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <span className="text-sm font-medium text-gray-900">{formatCurrency(cat.amount)}</span>
+                    <span className="text-xs text-gray-400 w-10 text-right">{cat.percentage}%</span>
+                    <span className="text-xs text-gray-400 w-14 text-right">{cat.transactionCount} txns</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </Card>
+
+      {/* Stacked bar - spending over time */}
+      <Card className="p-6">
+        <h3 className="text-lg font-medium text-gray-900 mb-4">Spending Over Time</h3>
         <ResponsiveContainer width="100%" height={400}>
           <BarChart data={stackedData}>
             <CartesianGrid strokeDasharray="3 3" />
@@ -237,13 +359,13 @@ const SpendingReport: React.FC<{ reports: any }> = ({ reports }) => {
                 <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Amount</th>
                 <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">%</th>
                 <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Transactions</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Bar</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Distribution</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
               {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
               {spendingByCategory.map((cat: any, i: number) => (
-                <tr key={cat.categoryId || i}>
+                <tr key={cat.categoryId || i} className="hover:bg-gray-50">
                   <td className="px-4 py-3 text-sm text-gray-900">
                     {cat.categoryIcon} {cat.categoryName}
                   </td>
@@ -256,10 +378,10 @@ const SpendingReport: React.FC<{ reports: any }> = ({ reports }) => {
                   <td className="px-4 py-3 text-sm text-right text-gray-500">
                     {cat.transactionCount}
                   </td>
-                  <td className="px-4 py-3 w-32">
-                    <div className="w-full bg-gray-100 rounded-full h-2">
+                  <td className="px-4 py-3 w-40">
+                    <div className="w-full bg-gray-100 rounded-full h-2.5">
                       <div
-                        className="h-2 rounded-full"
+                        className="h-2.5 rounded-full transition-all"
                         style={{
                           width: `${cat.percentage}%`,
                           backgroundColor: COLORS[i % COLORS.length],
@@ -278,11 +400,159 @@ const SpendingReport: React.FC<{ reports: any }> = ({ reports }) => {
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const CashFlowReport: React.FC<{ reports: any }> = ({ reports }) => {
+const IncomeExpensesReport: React.FC<{ reports: any }> = ({ reports }) => {
   const { monthlySummary } = reports;
+
+  const totalIncome = monthlySummary.reduce((s: number, m: { income: number }) => s + m.income, 0);
+  const totalExpenses = monthlySummary.reduce((s: number, m: { expenses: number }) => s + m.expenses, 0);
+  const netSavings = totalIncome - totalExpenses;
+  const savingsRate = totalIncome > 0 ? (netSavings / totalIncome * 100) : 0;
+
+  // Compute cumulative savings
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const cumulativeData = useMemo(() => {
+    let cumulative = 0;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return monthlySummary.map((m: any) => {
+      cumulative += m.cashFlow;
+      return { ...m, cumulativeSavings: cumulative };
+    });
+  }, [monthlySummary]);
 
   return (
     <div className="space-y-6">
+      {/* Summary stats */}
+      <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+        <Card className="p-4">
+          <p className="text-sm text-gray-500">Total Income</p>
+          <p className="text-2xl font-bold text-green-600">{formatCurrency(totalIncome)}</p>
+        </Card>
+        <Card className="p-4">
+          <p className="text-sm text-gray-500">Total Expenses</p>
+          <p className="text-2xl font-bold text-red-600">{formatCurrency(totalExpenses)}</p>
+        </Card>
+        <Card className="p-4">
+          <p className="text-sm text-gray-500">Net Savings</p>
+          <p className={`text-2xl font-bold ${netSavings >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+            {formatCurrency(netSavings)}
+          </p>
+        </Card>
+        <Card className="p-4">
+          <p className="text-sm text-gray-500">Savings Rate</p>
+          <p className={`text-2xl font-bold ${savingsRate >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+            {savingsRate.toFixed(1)}%
+          </p>
+        </Card>
+      </div>
+
+      {/* Dual bar chart */}
+      <Card className="p-6">
+        <h3 className="text-lg font-medium text-gray-900 mb-4">Monthly Income vs Expenses</h3>
+        <ResponsiveContainer width="100%" height={400}>
+          <BarChart data={monthlySummary} barCategoryGap="20%">
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="month" tickFormatter={formatMonth} />
+            <YAxis tickFormatter={(v) => formatCurrency(v)} />
+            <Tooltip formatter={(v: number) => formatCurrency(v)} labelFormatter={formatMonth} />
+            <Legend />
+            <Bar dataKey="income" name="Income" fill="#10b981" radius={[4, 4, 0, 0]} />
+            <Bar dataKey="expenses" name="Expenses" fill="#ef4444" radius={[4, 4, 0, 0]} />
+          </BarChart>
+        </ResponsiveContainer>
+      </Card>
+
+      {/* Cumulative savings trend */}
+      <Card className="p-6">
+        <h3 className="text-lg font-medium text-gray-900 mb-4">Cumulative Savings</h3>
+        <ResponsiveContainer width="100%" height={300}>
+          <ComposedChart data={cumulativeData}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="month" tickFormatter={formatMonth} />
+            <YAxis tickFormatter={(v) => formatCurrency(v)} />
+            <Tooltip formatter={(v: number) => formatCurrency(v)} labelFormatter={formatMonth} />
+            <Legend />
+            <Bar dataKey="cashFlow" name="Monthly Savings" radius={[4, 4, 0, 0]}>
+              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+              {cumulativeData.map((entry: any, i: number) => (
+                <Cell key={i} fill={entry.cashFlow >= 0 ? '#10b981' : '#ef4444'} />
+              ))}
+            </Bar>
+            <Line
+              type="monotone"
+              dataKey="cumulativeSavings"
+              name="Cumulative"
+              stroke="#6366f1"
+              strokeWidth={2}
+              dot={{ fill: '#6366f1', r: 4 }}
+            />
+          </ComposedChart>
+        </ResponsiveContainer>
+      </Card>
+
+      {/* Monthly comparison table */}
+      <Card className="p-6">
+        <h3 className="text-lg font-medium text-gray-900 mb-4">Monthly Comparison</h3>
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead>
+              <tr>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Month</th>
+                <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Income</th>
+                <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Expenses</th>
+                <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Savings</th>
+                <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Rate</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+              {[...monthlySummary].reverse().map((m: any) => {
+                const rate = m.income > 0 ? ((m.cashFlow / m.income) * 100) : 0;
+                return (
+                  <tr key={m.month} className="hover:bg-gray-50">
+                    <td className="px-4 py-3 text-sm font-medium text-gray-900">{formatMonth(m.month)}</td>
+                    <td className="px-4 py-3 text-sm text-right text-green-600">{formatCurrency(m.income)}</td>
+                    <td className="px-4 py-3 text-sm text-right text-red-600">{formatCurrency(m.expenses)}</td>
+                    <td className={`px-4 py-3 text-sm text-right font-medium ${m.cashFlow >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                      {formatCurrency(m.cashFlow)}
+                    </td>
+                    <td className={`px-4 py-3 text-sm text-right ${rate >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                      {rate.toFixed(1)}%
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </Card>
+    </div>
+  );
+};
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const CashFlowReport: React.FC<{ reports: any }> = ({ reports }) => {
+  const { monthlySummary } = reports;
+
+  // Compute running balance for waterfall effect
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const waterfallData = useMemo(() => {
+    let runningBalance = 0;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return monthlySummary.map((m: any) => {
+      const prevBalance = runningBalance;
+      runningBalance += m.cashFlow;
+      return {
+        ...m,
+        runningBalance,
+        waterfallBase: m.cashFlow >= 0 ? prevBalance : runningBalance,
+        waterfallAmount: Math.abs(m.cashFlow),
+      };
+    });
+  }, [monthlySummary]);
+
+  return (
+    <div className="space-y-6">
+      {/* Income vs Expenses area */}
       <Card className="p-6">
         <h3 className="text-lg font-medium text-gray-900 mb-4">Cash Flow Over Time</h3>
         <ResponsiveContainer width="100%" height={350}>
@@ -298,6 +568,7 @@ const CashFlowReport: React.FC<{ reports: any }> = ({ reports }) => {
         </ResponsiveContainer>
       </Card>
 
+      {/* Waterfall-style cash flow */}
       <Card className="p-6">
         <h3 className="text-lg font-medium text-gray-900 mb-4">Monthly Cash Flow</h3>
         <ResponsiveContainer width="100%" height={300}>
@@ -320,32 +591,61 @@ const CashFlowReport: React.FC<{ reports: any }> = ({ reports }) => {
         </ResponsiveContainer>
       </Card>
 
+      {/* Running balance line */}
+      <Card className="p-6">
+        <h3 className="text-lg font-medium text-gray-900 mb-4">Cumulative Cash Flow</h3>
+        <ResponsiveContainer width="100%" height={300}>
+          <LineChart data={waterfallData}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="month" tickFormatter={formatMonth} />
+            <YAxis tickFormatter={(v) => formatCurrency(v)} />
+            <Tooltip formatter={(v: number) => formatCurrency(v)} labelFormatter={formatMonth} />
+            <Legend />
+            <Line
+              type="monotone"
+              dataKey="runningBalance"
+              name="Cumulative Cash Flow"
+              stroke="#6366f1"
+              strokeWidth={3}
+              dot={{ fill: '#6366f1', r: 5 }}
+              activeDot={{ r: 7 }}
+            />
+          </LineChart>
+        </ResponsiveContainer>
+      </Card>
+
       {/* Monthly breakdown table */}
       <Card className="p-6">
         <h3 className="text-lg font-medium text-gray-900 mb-4">Monthly Summary</h3>
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead>
-            <tr>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Month</th>
-              <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Income</th>
-              <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Expenses</th>
-              <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Cash Flow</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100">
-            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-            {[...monthlySummary].reverse().map((m: any) => (
-              <tr key={m.month}>
-                <td className="px-4 py-3 text-sm text-gray-900">{formatMonth(m.month)}</td>
-                <td className="px-4 py-3 text-sm text-right text-green-600">{formatCurrency(m.income)}</td>
-                <td className="px-4 py-3 text-sm text-right text-red-600">{formatCurrency(m.expenses)}</td>
-                <td className={`px-4 py-3 text-sm text-right font-medium ${m.cashFlow >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                  {formatCurrency(m.cashFlow)}
-                </td>
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead>
+              <tr>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Month</th>
+                <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Income</th>
+                <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Expenses</th>
+                <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Cash Flow</th>
+                <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Cumulative</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+              {[...waterfallData].reverse().map((m: any) => (
+                <tr key={m.month} className="hover:bg-gray-50">
+                  <td className="px-4 py-3 text-sm font-medium text-gray-900">{formatMonth(m.month)}</td>
+                  <td className="px-4 py-3 text-sm text-right text-green-600">{formatCurrency(m.income)}</td>
+                  <td className="px-4 py-3 text-sm text-right text-red-600">{formatCurrency(m.expenses)}</td>
+                  <td className={`px-4 py-3 text-sm text-right font-medium ${m.cashFlow >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    {formatCurrency(m.cashFlow)}
+                  </td>
+                  <td className={`px-4 py-3 text-sm text-right ${m.runningBalance >= 0 ? 'text-indigo-600' : 'text-red-600'}`}>
+                    {formatCurrency(m.runningBalance)}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </Card>
     </div>
   );
@@ -355,38 +655,47 @@ const CashFlowReport: React.FC<{ reports: any }> = ({ reports }) => {
 const MerchantReport: React.FC<{ reports: any }> = ({ reports }) => {
   const { topMerchants } = reports;
   const maxAmount = topMerchants.length > 0 ? topMerchants[0].amount : 1;
+  const totalMerchantSpend = topMerchants.reduce((s: number, m: { amount: number }) => s + m.amount, 0);
 
   return (
-    <Card className="p-6">
-      <h3 className="text-lg font-medium text-gray-900 mb-4">Top Merchants by Spending</h3>
-      {topMerchants.length === 0 ? (
-        <p className="text-gray-500 text-sm">No merchant data available for this period.</p>
-      ) : (
-        <div className="space-y-3">
-          {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-          {topMerchants.map((m: any, i: number) => (
-            <div key={m.merchantName} className="flex items-center gap-4">
-              <span className="w-6 text-sm text-gray-400 text-right">{i + 1}</span>
-              <div className="flex-1">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-sm font-medium text-gray-900">{m.merchantName}</span>
-                  <div className="text-right">
-                    <span className="text-sm font-medium text-gray-900">{formatCurrency(m.amount)}</span>
-                    <span className="text-xs text-gray-400 ml-2">({m.transactionCount} txns)</span>
+    <div className="space-y-6">
+      <Card className="p-6">
+        <h3 className="text-lg font-medium text-gray-900 mb-4">Top Merchants by Spending</h3>
+        {topMerchants.length === 0 ? (
+          <p className="text-gray-500 text-sm">No merchant data available for this period.</p>
+        ) : (
+          <div className="space-y-3">
+            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+            {topMerchants.map((m: any, i: number) => {
+              const pct = totalMerchantSpend > 0 ? ((m.amount / totalMerchantSpend) * 100).toFixed(1) : '0';
+              return (
+                <div key={m.merchantName} className="flex items-center gap-4">
+                  <span className="w-6 text-sm text-gray-400 text-right font-medium">{i + 1}</span>
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-sm font-medium text-gray-900">{m.merchantName}</span>
+                      <div className="text-right">
+                        <span className="text-sm font-medium text-gray-900">{formatCurrency(m.amount)}</span>
+                        <span className="text-xs text-gray-400 ml-2">({m.transactionCount} txns · {pct}%)</span>
+                      </div>
+                    </div>
+                    <div className="w-full bg-gray-100 rounded-full h-2.5">
+                      <div
+                        className="h-2.5 rounded-full transition-all"
+                        style={{
+                          width: `${(m.amount / maxAmount) * 100}%`,
+                          backgroundColor: COLORS[i % COLORS.length],
+                        }}
+                      />
+                    </div>
                   </div>
                 </div>
-                <div className="w-full bg-gray-100 rounded-full h-2">
-                  <div
-                    className="h-2 rounded-full bg-indigo-500"
-                    style={{ width: `${(m.amount / maxAmount) * 100}%` }}
-                  />
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-    </Card>
+              );
+            })}
+          </div>
+        )}
+      </Card>
+    </div>
   );
 };
 
