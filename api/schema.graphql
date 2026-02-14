@@ -1,0 +1,869 @@
+"""
+OpenFinance GraphQL Schema
+Generated from Ruby type definitions. Regenerate with:
+  docker compose exec api bundle exec rails graphql:dump_schema
+"""
+
+schema {
+  query: Query
+  mutation: Mutation
+}
+
+scalar ISO8601DateTime
+scalar ISO8601Date
+scalar JSON
+
+# ─── Object Types ────────────────────────────────────────────────────────────
+
+type User {
+  id: ID!
+  email: String!
+  name: String!
+  role: String!
+  householdId: ID
+  household: Household
+  referralCode: String
+  referralCount: Int!
+  createdAt: ISO8601DateTime!
+}
+
+type Household {
+  id: ID!
+  name: String!
+  currency: String!
+}
+
+type HouseholdMember {
+  id: ID!
+  user: User!
+  role: String!
+  joinedAt: ISO8601DateTime!
+  isPrimary: Boolean!
+}
+
+type Invitation {
+  id: ID!
+  email: String!
+  role: String!
+  status: String!
+  invitedBy: User!
+  expiresAt: ISO8601DateTime!
+  createdAt: ISO8601DateTime!
+}
+
+type Referral {
+  id: ID!
+  referralCode: String!
+  status: String!
+  rewardedAt: ISO8601DateTime
+  referredUser: User!
+  referrer: User!
+  createdAt: ISO8601DateTime!
+}
+
+type Account {
+  id: ID!
+  name: String!
+  type: String!
+  subtype: String
+  balance: Float!
+  balanceDate: String
+  mask: String
+  officialName: String
+  isActive: Boolean!
+  plaidAccountId: String
+  householdId: ID!
+  currency: String!
+  createdAt: ISO8601DateTime!
+}
+
+type Transaction {
+  id: ID!
+  amount: Float!
+  description: String!
+  date: ISO8601Date!
+  pending: Boolean!
+  needsReview: Boolean!
+  accountId: ID!
+  categoryId: ID
+  subcategoryId: ID
+  merchantName: String
+  plaidTransactionId: String
+  account: Account!
+  category: Category
+  subcategory: Category
+  tags: [Tag!]!
+  isSplit: Boolean!
+  isTransfer: Boolean!
+  excluded: Boolean!
+  parentTransactionId: ID
+  transferPairId: ID
+  receiptUrl: String
+  hasReceipt: Boolean!
+}
+
+type TransactionPage {
+  transactions: [Transaction!]!
+  totalCount: Int!
+  hasMore: Boolean!
+}
+
+type Category {
+  id: ID!
+  name: String!
+  icon: String
+  color: String
+  groupName: String
+  isSystem: Boolean!
+  householdId: ID
+  parentId: ID
+  children: [Category!]!
+}
+
+type Tag {
+  id: ID!
+  name: String!
+  color: String
+  colorHex: String
+  isActive: Boolean
+  householdId: ID!
+}
+
+type Goal {
+  id: ID!
+  name: String!
+  description: String
+  goalType: String!
+  icon: String
+  color: String
+  targetAmount: Float!
+  currentAmount: Float!
+  currency: String!
+  targetDate: String
+  startDate: String
+  isActive: Boolean!
+  isAchieved: Boolean!
+  achievedAt: ISO8601DateTime
+  progressPercentage: Float!
+  amountRemaining: Float!
+  daysRemaining: Int!
+  isOverdue: Boolean!
+  isOnTrack: Boolean!
+  monthlyTarget: Float!
+  createdAt: ISO8601DateTime!
+}
+
+type BudgetItem {
+  id: ID!
+  categoryId: ID!
+  budgeted: Float!
+  spent: Float!
+  rollover: Float!
+  available: Float!
+  percentUsed: Float!
+  month: String!
+  category: Category
+}
+
+type BudgetSummary {
+  month: String!
+  totalBudgeted: Float!
+  totalSpent: Float!
+  totalIncome: Float!
+  incomeActual: Float!
+  leftToBudget: Float!
+  categoryGroups: [BudgetCategoryGroup!]!
+}
+
+type BudgetCategoryGroup {
+  name: String!
+  budgeted: Float!
+  spent: Float!
+  items: [BudgetItem!]!
+}
+
+type DashboardSummary {
+  netWorth: Float!
+  netWorthChange: Float!
+  monthlyIncome: Float!
+  monthlyExpenses: Float!
+  cashFlow: Float!
+  spendingByCategory: [CategorySpending!]!
+  recentTransactions: [Transaction!]!
+  accountBalances: [AccountBalance!]!
+  needsReviewCount: Int!
+  goalsSummary: [Goal!]!
+}
+
+type CategorySpending {
+  categoryId: ID
+  categoryName: String!
+  amount: Float!
+  percentage: Float
+  color: String
+}
+
+type AccountBalance {
+  accountId: ID!
+  accountName: String!
+  accountType: String!
+  balance: Float!
+}
+
+type Holding {
+  id: ID!
+  security: Security!
+  quantity: Float!
+  currentPrice: Float
+  marketValue: Float
+  costBasis: Float
+  costBasisTotal: Float!
+  currentValue: Float!
+  unrealizedGainLoss: Float!
+  unrealizedGainLossPercentage: Float!
+  weightInAccount: Float!
+  asOfDate: String!
+  currency: String!
+}
+
+type Security {
+  id: ID!
+  symbol: String!
+  name: String!
+  securityType: String
+  exchange: String
+  currency: String!
+  currentPrice: Float
+}
+
+type PortfolioSummary {
+  totalValue: Float!
+  totalCostBasis: Float!
+  totalGainLoss: Float!
+  totalGainLossPercentage: Float!
+  totalHoldingsCount: Int!
+  allocations: [PortfolioAllocation!]!
+}
+
+type PortfolioAllocation {
+  securityName: String!
+  symbol: String!
+  securityType: String
+  value: Float!
+  percentage: Float!
+}
+
+type Notification {
+  id: ID!
+  title: String!
+  body: String
+  notificationType: String!
+  priority: String!
+  isRead: Boolean!
+  readAt: ISO8601DateTime
+  data: JSON
+  createdAt: ISO8601DateTime!
+}
+
+type NotificationPreference {
+  id: ID!
+  notificationType: String!
+  channel: String!
+  enabled: Boolean!
+}
+
+type RecurringItem {
+  id: ID!
+  name: String!
+  merchantName: String
+  description: String
+  itemType: String!
+  amount: Float!
+  averageAmount: Float
+  currency: String!
+  frequency: String!
+  frequencyInterval: Int!
+  startDate: ISO8601Date!
+  endDate: ISO8601Date
+  nextOccurrence: ISO8601Date
+  lastOccurrence: ISO8601Date
+  isActive: Boolean!
+  isIncome: Boolean!
+  isAutoDetected: Boolean!
+  occurrenceCount: Int!
+  estimatedMonthlyAmount: Float!
+  dueSoon: Boolean!
+  overdue: Boolean!
+  daysUntilDue: Int
+  categoryId: ID
+  category: Category
+  accountId: ID
+  account: Account
+  createdAt: ISO8601DateTime!
+}
+
+type CategorizationRule {
+  id: ID!
+  name: String!
+  matchField: String!
+  matchType: String!
+  matchValue: String!
+  renameTo: String
+  priority: Int!
+  isActive: Boolean!
+  matchesCount: Int!
+  categoryId: ID!
+  category: Category!
+  createdAt: ISO8601DateTime!
+  updatedAt: ISO8601DateTime!
+}
+
+type BalanceAdjustment {
+  id: ID!
+  accountId: ID!
+  amount: Float!
+  currency: String!
+  adjustedAt: String!
+  notes: String
+  createdByName: String
+  createdAt: ISO8601DateTime!
+}
+
+type PlaidLinkToken {
+  linkToken: String!
+  expiration: String!
+}
+
+type ShareToken {
+  id: ID!
+  token: String!
+  widgetType: String!
+  config: JSON!
+  expiresAt: ISO8601DateTime
+  createdAt: ISO8601DateTime!
+}
+
+type SharedAccount {
+  id: ID!
+  account: Account!
+  sharedWithUser: User!
+  sharedByUser: User!
+  permissionLevel: String!
+  createdAt: ISO8601DateTime!
+}
+
+type ApiKey {
+  id: ID!
+  name: String!
+  key: String!
+  lastUsedAt: ISO8601DateTime
+  revokedAt: ISO8601DateTime
+  createdAt: ISO8601DateTime!
+  revoked: Boolean!
+}
+
+type MerchantMapping {
+  id: ID!
+  rawPattern: String!
+  cleanName: String!
+  matchType: String!
+  appliedCount: Int!
+  isActive: Boolean!
+  createdAt: ISO8601DateTime!
+}
+
+type SuggestedRule {
+  merchantName: String!
+  categoryId: ID!
+  categoryName: String!
+  categoryIcon: String
+  categoryColor: String
+  transactionCount: Int!
+  matchField: String!
+  matchType: String!
+  matchValue: String!
+}
+
+type TransferCandidate {
+  outflowId: ID!
+  inflowId: ID!
+  amount: Float!
+  outflowAccount: String!
+  inflowAccount: String!
+  outflowDate: ISO8601Date!
+  inflowDate: ISO8601Date!
+  description: String
+}
+
+type Reports {
+  monthlySummary: [MonthlySummary!]!
+  spendingByCategory: [CategorySpendingReport!]!
+  monthlySpendingByCategory: [MonthlySpendingByCategory!]!
+  topMerchants: [MerchantSpending!]!
+}
+
+type MonthlySummary {
+  month: String!
+  income: Float!
+  expenses: Float!
+  cashFlow: Float!
+}
+
+type CategorySpendingReport {
+  categoryId: ID
+  categoryName: String!
+  categoryIcon: String
+  categoryColor: String
+  amount: Float!
+  percentage: Float!
+  transactionCount: Int!
+}
+
+type MonthlySpendingByCategory {
+  month: String!
+  categories: [CategorySpendingReport!]!
+}
+
+type MerchantSpending {
+  merchantName: String!
+  amount: Float!
+  transactionCount: Int!
+}
+
+type NetWorthSnapshot {
+  date: String!
+  assets: Float!
+  liabilities: Float!
+  netWorth: Float!
+}
+
+type Money {
+  amount: Float!
+  cents: Int!
+  currency: String!
+  formatted: String!
+}
+
+# ─── Input Types ─────────────────────────────────────────────────────────────
+
+input CategoryInput {
+  name: String!
+  icon: String
+  color: String
+  groupName: String
+  parentId: ID
+}
+
+input TagInput {
+  name: String!
+  color: String
+}
+
+input TransactionInput {
+  amount: Float
+  description: String
+  date: String
+  accountId: ID
+  categoryId: ID
+  merchantName: String
+  pending: Boolean = false
+  needsReview: Boolean = false
+  notes: String
+}
+
+input SplitInput {
+  amount: Float!
+  categoryId: ID
+  description: String
+}
+
+input ManualAccountInput {
+  name: String!
+  type: String!
+  subtype: String
+  balance: Float!
+  currency: String = "USD"
+}
+
+input CreateApiKeyInput {
+  name: String!
+}
+
+input RevokeApiKeyInput {
+  id: ID!
+}
+
+input CreateShareTokenInput {
+  widgetType: String!
+  config: JSON
+  expiresInDays: Int
+}
+
+input RevokeShareTokenInput {
+  id: ID!
+}
+
+input InviteToHouseholdInput {
+  email: String!
+  role: String = "member"
+}
+
+input AcceptInvitationInput {
+  token: String!
+}
+
+input RemoveHouseholdMemberInput {
+  userId: ID!
+}
+
+input UpdateMemberRoleInput {
+  userId: ID!
+  role: String!
+}
+
+# ─── Query Type ──────────────────────────────────────────────────────────────
+
+type Query {
+  me: User
+  myReferralCode: String
+  referrals: [Referral!]!
+  householdMembers: [HouseholdMember!]!
+  householdInvitations: [Invitation!]!
+
+  goals(activeOnly: Boolean = false): [Goal!]!
+
+  accounts: [Account!]!
+
+  transactions(
+    search: String
+    categoryId: String
+    accountId: String
+    minAmount: Float
+    maxAmount: Float
+    dateFrom: String
+    dateTo: String
+    needsReview: Boolean
+    page: Int = 1
+    limit: Int = 50
+  ): TransactionPage!
+
+  categories: [Category!]!
+  tags: [Tag!]!
+
+  dashboardSummary: DashboardSummary!
+
+  holdings(accountId: ID): [Holding!]!
+  portfolioSummary(accountId: ID): PortfolioSummary!
+
+  notifications(unreadOnly: Boolean = false, limit: Int = 50): [Notification!]!
+  unreadNotificationCount: Int!
+  notificationPreferences: [NotificationPreference!]!
+
+  apiKeys: [ApiKey!]!
+  shareTokens: [ShareToken!]!
+  balanceAdjustments(accountId: ID!): [BalanceAdjustment!]!
+  categorizationRules: [CategorizationRule!]!
+
+  recurringItems(activeOnly: Boolean = false): [RecurringItem!]!
+
+  budget(month: String!): [BudgetItem!]!
+  budgetSummary(month: String!): BudgetSummary
+
+  reports(months: Int = 6, dateFrom: String, dateTo: String): Reports!
+}
+
+# ─── Mutation Type ───────────────────────────────────────────────────────────
+
+type Mutation {
+  # Auth
+  login(email: String!, password: String!): LoginPayload!
+  register(name: String!, email: String!, password: String!, referralCode: String): RegisterPayload!
+
+  # Accounts
+  createManualAccount(input: ManualAccountInput!): CreateManualAccountPayload!
+  deleteAccount(password: String!): DeleteAccountPayload!
+  adjustBalance(accountId: ID!, amount: Float!, adjustedAt: String, notes: String): AdjustBalancePayload!
+
+  # Transactions
+  createTransaction(input: TransactionInput!): Transaction
+  updateTransaction(id: ID!, input: TransactionInput!): Transaction
+  bulkCategorize(transactionIds: [ID!]!, categoryId: ID!): [Transaction!]
+  bulkTransactionAction(transactionIds: [ID!]!, action: String!, categoryId: ID): BulkTransactionActionPayload!
+  splitTransaction(transactionId: ID!, splits: [SplitInput!]!): SplitTransactionPayload!
+  importCsv(accountId: ID!, csvContent: String!, filename: String = "import.csv", columnMapping: JSON, formatType: String = "auto"): ImportCsvPayload!
+  uploadReceipt(transactionId: ID!, fileData: String!, filename: String!, contentType: String = "application/octet-stream"): UploadReceiptPayload!
+  uploadStatement(accountId: ID!, fileData: String!, filename: String!, contentType: String = "application/octet-stream"): UploadStatementPayload!
+
+  # Categories
+  createCategory(input: CategoryInput!): Category
+  updateCategory(id: ID!, input: CategoryInput!): Category
+  deleteCategory(id: ID!): Boolean
+
+  # Tags
+  createTag(input: TagInput!): Tag
+  updateTag(id: ID!, name: String, colorHex: String, isActive: Boolean): Tag
+  deleteTag(id: ID!): DeleteTagPayload!
+
+  # Budget
+  updateBudgetItem(categoryId: ID!, month: String!, budgeted: Float!): BudgetItem
+  deleteBudgetItem(categoryId: ID!, month: String!): DeleteBudgetItemPayload!
+  copyBudgetFromMonth(sourceMonth: String!, targetMonth: String!): CopyBudgetFromMonthPayload!
+  fillBudgetFromAverages(month: String!): FillBudgetFromAveragesPayload!
+
+  # Plaid
+  createPlaidLinkToken: PlaidLinkToken!
+  exchangePlaidToken(publicToken: String!, metadata: JSON): [Account!]
+
+  # Categorization rules
+  createCategorizationRule(matchField: String!, matchType: String!, matchValue: String!, categoryId: ID!, renameTo: String, priority: Int): CategorizationRule
+  updateCategorizationRule(id: ID!, matchField: String, matchType: String, matchValue: String, categoryId: ID, renameTo: String, priority: Int, isActive: Boolean): CategorizationRule
+  deleteCategorizationRule(id: ID!): DeleteCategorizationRulePayload!
+  applyCategorizationRules: ApplyCategorizationRulesPayload!
+
+  # Recurring items
+  detectRecurringTransactions: DetectRecurringTransactionsPayload!
+  createRecurringItem(name: String!, amount: Float!, frequency: String!, merchantName: String, description: String, nextOccurrence: ISO8601Date, categoryId: ID, accountId: ID, isIncome: Boolean): RecurringItem
+  updateRecurringItem(id: ID!, name: String, amount: Float, frequency: String, merchantName: String, description: String, nextOccurrence: ISO8601Date, categoryId: ID, accountId: ID, isIncome: Boolean, isActive: Boolean): RecurringItem
+  deleteRecurringItem(id: ID!): DeleteRecurringItemPayload!
+  markRecurringItemPaid(id: ID!, transactionId: ID): RecurringItem
+
+  # Goals
+  createGoal(name: String!, targetAmount: Float!, goalType: String = "savings", currentAmount: Float = 0, targetDate: String, description: String, icon: String, color: String): Goal
+  updateGoal(id: ID!, name: String, targetAmount: Float, currentAmount: Float, goalType: String, targetDate: String, description: String, icon: String, color: String, isActive: Boolean): Goal
+  deleteGoal(id: ID!): DeleteGoalPayload!
+
+  # Profile & Household
+  updateProfile(name: String, email: String, currency: String): User
+  changePassword(currentPassword: String!, newPassword: String!): ChangePasswordPayload!
+  updateHousehold(name: String, currency: String): UpdateHouseholdPayload!
+
+  # Household members
+  inviteToHousehold(input: InviteToHouseholdInput!): InviteToHouseholdPayload!
+  acceptInvitation(input: AcceptInvitationInput!): AcceptInvitationPayload!
+  removeHouseholdMember(input: RemoveHouseholdMemberInput!): RemoveHouseholdMemberPayload!
+  updateMemberRole(input: UpdateMemberRoleInput!): UpdateMemberRolePayload!
+
+  # Transfers
+  detectTransfers: DetectTransfersPayload!
+  linkTransfer(transactionAId: ID!, transactionBId: ID!): LinkTransferPayload!
+
+  # Notifications
+  updateNotificationPreference(notificationType: String!, channel: String!, enabled: Boolean!): UpdateNotificationPreferencePayload!
+  markNotificationRead(id: ID!, read: Boolean = true): MarkNotificationReadPayload!
+  markAllNotificationsRead: MarkAllNotificationsReadPayload!
+
+  # Sharing
+  shareAccount(accountId: ID!, email: String!, permissionLevel: String = "view"): ShareAccountPayload!
+  createShareToken(input: CreateShareTokenInput!): CreateShareTokenPayload!
+  revokeShareToken(input: RevokeShareTokenInput!): RevokeShareTokenPayload!
+
+  # API Keys
+  createApiKey(input: CreateApiKeyInput!): CreateApiKeyPayload!
+  revokeApiKey(input: RevokeApiKeyInput!): RevokeApiKeyPayload!
+
+  # Merchant mappings
+  createMerchantMapping(rawPattern: String!, cleanName: String!, matchType: String): MerchantMapping
+  deleteMerchantMapping(id: ID!): DeleteMerchantMappingPayload!
+
+  # Referrals
+  redeemReferral(referralCode: String!): RedeemReferralPayload!
+
+  # Data export
+  exportData: ExportDataPayload!
+}
+
+# ─── Mutation Payload Types ──────────────────────────────────────────────────
+
+type LoginPayload {
+  token: String
+  user: User
+  errors: [String!]!
+}
+
+type RegisterPayload {
+  token: String
+  user: User
+  errors: [String!]!
+}
+
+type CreateManualAccountPayload {
+  id: ID
+  name: String
+  type: String
+  subtype: String
+  balance: Float
+  balanceDate: String
+  isActive: Boolean
+  householdId: ID
+  errors: [String!]!
+}
+
+type DeleteAccountPayload {
+  success: Boolean!
+  errors: [String!]!
+}
+
+type AdjustBalancePayload {
+  balanceAdjustment: BalanceAdjustment
+  account: Account
+  errors: [String!]!
+}
+
+type BulkTransactionActionPayload {
+  transactions: [Transaction!]
+  count: Int!
+  errors: [String!]
+}
+
+type SplitTransactionPayload {
+  transaction: Transaction
+  splits: [Transaction!]
+  errors: [String!]
+}
+
+type ImportCsvPayload {
+  imported: Int!
+  skipped: Int!
+  errors: [String!]
+  importId: ID
+}
+
+type UploadReceiptPayload {
+  transaction: Transaction
+  errors: [String!]!
+}
+
+type UploadStatementPayload {
+  success: Boolean!
+  errors: [String!]!
+}
+
+type DeleteTagPayload {
+  success: Boolean!
+}
+
+type DeleteBudgetItemPayload {
+  success: Boolean!
+}
+
+type CopyBudgetFromMonthPayload {
+  budgetItems: [BudgetItem!]!
+}
+
+type FillBudgetFromAveragesPayload {
+  budgetItems: [BudgetItem!]!
+}
+
+type DeleteCategorizationRulePayload {
+  success: Boolean!
+}
+
+type ApplyCategorizationRulesPayload {
+  updatedCount: Int!
+}
+
+type DetectRecurringTransactionsPayload {
+  detectedCount: Int!
+  recurringItems: [RecurringItem!]!
+}
+
+type DeleteRecurringItemPayload {
+  success: Boolean!
+}
+
+type DeleteGoalPayload {
+  success: Boolean!
+}
+
+type ChangePasswordPayload {
+  success: Boolean!
+  message: String
+}
+
+type UpdateHouseholdPayload {
+  household: Household
+  errors: [String!]!
+}
+
+type InviteToHouseholdPayload {
+  invitation: Invitation
+  errors: [String!]!
+}
+
+type AcceptInvitationPayload {
+  success: Boolean!
+  errors: [String!]!
+}
+
+type RemoveHouseholdMemberPayload {
+  success: Boolean!
+  errors: [String!]!
+}
+
+type UpdateMemberRolePayload {
+  success: Boolean!
+  errors: [String!]!
+}
+
+type DetectTransfersPayload {
+  candidates: [TransferCandidate!]!
+}
+
+type LinkTransferPayload {
+  transactionA: Transaction
+  transactionB: Transaction
+  errors: [String!]
+}
+
+type UpdateNotificationPreferencePayload {
+  notificationPreference: NotificationPreference
+  errors: [String!]!
+}
+
+type MarkNotificationReadPayload {
+  notification: Notification
+  errors: [String!]!
+}
+
+type MarkAllNotificationsReadPayload {
+  count: Int!
+  errors: [String!]!
+}
+
+type ShareAccountPayload {
+  sharedAccount: SharedAccount
+  errors: [String!]!
+}
+
+type CreateShareTokenPayload {
+  shareToken: ShareToken
+  errors: [String!]!
+}
+
+type RevokeShareTokenPayload {
+  success: Boolean!
+  errors: [String!]!
+}
+
+type CreateApiKeyPayload {
+  apiKey: ApiKey
+  errors: [String!]!
+}
+
+type RevokeApiKeyPayload {
+  apiKey: ApiKey
+  errors: [String!]!
+}
+
+type DeleteMerchantMappingPayload {
+  success: Boolean!
+}
+
+type RedeemReferralPayload {
+  referral: Referral
+  errors: [String!]!
+}
+
+type ExportDataPayload {
+  jsonData: String!
+}
