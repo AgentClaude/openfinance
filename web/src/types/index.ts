@@ -46,6 +46,11 @@ export interface Transaction {
   subcategoryId?: string;
   merchantName?: string;
   plaidTransactionId?: string;
+  isSplit: boolean;
+  isTransfer: boolean;
+  excluded: boolean;
+  parentTransactionId?: string;
+  transferPairId?: string;
   account: Account;
   category?: Category;
   subcategory?: Category;
@@ -66,6 +71,17 @@ export interface TransferCandidate {
   outflowDate: string;
   inflowDate: string;
   description: string;
+}
+
+export interface TransferCandidate {
+  outflowId: string;
+  inflowId: string;
+  amount: number;
+  outflowAccount: string;
+  inflowAccount: string;
+  outflowDate: string;
+  inflowDate: string;
+  description?: string;
 }
 
 export interface Category {

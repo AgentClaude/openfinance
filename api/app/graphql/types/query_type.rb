@@ -5,6 +5,16 @@ module Types
       context[:current_user]
     end
 
+    field :goals, [Types::GoalType], null: false do
+      argument :active_only, Boolean, required: false, default_value: false
+    end
+    def goals(active_only: false)
+      return [] unless context[:current_user]&.household
+      scope = context[:current_user].household.goals.order(:target_date)
+      scope = scope.where(is_active: true) if active_only
+      scope
+    end
+
     field :accounts, [Types::AccountType], null: false
     def accounts
       return [] unless context[:current_user]&.household

@@ -492,6 +492,98 @@ export const DELETE_RECURRING_ITEM = gql`
   }
 `;
 
+export const IMPORT_CSV = gql`
+  mutation ImportCsv($accountId: ID!, $csvContent: String!, $filename: String, $columnMapping: JSON, $formatType: String) {
+    importCsv(accountId: $accountId, csvContent: $csvContent, filename: $filename, columnMapping: $columnMapping, formatType: $formatType) {
+      imported
+      skipped
+      errors
+      importId
+    }
+  }
+`;
+
+export const BULK_TRANSACTION_ACTION = gql`
+  mutation BulkTransactionAction($transactionIds: [ID!]!, $action: String!, $categoryId: ID) {
+    bulkTransactionAction(transactionIds: $transactionIds, action: $action, categoryId: $categoryId) {
+      transactions {
+        id
+        amount
+        description
+        date
+        needsReview
+        excluded
+        categoryId
+        category {
+          id
+          name
+          color
+        }
+      }
+      count
+      errors
+    }
+  }
+`;
+
+export const SPLIT_TRANSACTION = gql`
+  mutation SplitTransaction($transactionId: ID!, $splits: [SplitInput!]!) {
+    splitTransaction(transactionId: $transactionId, splits: $splits) {
+      transaction {
+        id
+        isSplit
+      }
+      splits {
+        id
+        amount
+        description
+        categoryId
+        category {
+          id
+          name
+          color
+        }
+      }
+      errors
+    }
+  }
+`;
+
+export const DETECT_TRANSFERS = gql`
+  mutation DetectTransfers {
+    detectTransfers {
+      candidates {
+        outflowId
+        inflowId
+        amount
+        outflowAccount
+        inflowAccount
+        outflowDate
+        inflowDate
+        description
+      }
+    }
+  }
+`;
+
+export const LINK_TRANSFER = gql`
+  mutation LinkTransfer($transactionAId: ID!, $transactionBId: ID!) {
+    linkTransfer(transactionAId: $transactionAId, transactionBId: $transactionBId) {
+      transactionA {
+        id
+        isTransfer
+        transferPairId
+      }
+      transactionB {
+        id
+        isTransfer
+        transferPairId
+      }
+      errors
+    }
+  }
+`;
+
 export const MARK_RECURRING_ITEM_PAID = gql`
   mutation MarkRecurringItemPaid($id: ID!, $transactionId: ID) {
     markRecurringItemPaid(id: $id, transactionId: $transactionId) {

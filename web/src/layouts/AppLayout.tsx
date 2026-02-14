@@ -12,6 +12,7 @@ import {
   BoltIcon,
   ArrowPathIcon,
   ChartPieIcon,
+  ArrowUpTrayIcon,
 } from '@heroicons/react/24/outline';
 import { useAuth } from '@/hooks/useAuth';
 import Sidebar from '@/components/ui/Sidebar';
@@ -28,6 +29,7 @@ const navigation = [
   { name: 'Categories', href: '/categories', icon: TagIcon },
   { name: 'Investments', href: '/investments', icon: ChartBarIcon },
   { name: 'Reports', href: '/reports', icon: ChartPieIcon },
+  { name: 'Import', href: '/import', icon: ArrowUpTrayIcon },
   { name: 'Rules', href: '/rules', icon: BoltIcon },
   { name: 'Settings', href: '/settings', icon: CogIcon },
 ];

@@ -6,6 +6,7 @@ import {
   ChevronDownIcon,
   ChevronUpIcon,
 } from '@heroicons/react/24/outline';
+import { useMutation } from '@apollo/client';
 import { useTransactions } from '@/hooks/useTransactions';
 import { useAccounts } from '@/hooks/useAccounts';
 import { useCategories } from '@/hooks/useCategories';
@@ -20,7 +21,9 @@ import Badge from '@/components/ui/Badge';
 import DataTable from '@/components/ui/DataTable';
 import AmountDisplay from '@/components/ui/AmountDisplay';
 import Card from '@/components/ui/Card';
+import BulkActionToolbar from '@/components/BulkActionToolbar';
 import TransactionDetailPanel from '@/components/TransactionDetailPanel';
+import { BULK_TRANSACTION_ACTION } from '@/graphql/mutations';
 import { format } from 'date-fns';
 
 const TransactionsPage: React.FC = () => {
@@ -37,6 +40,21 @@ const TransactionsPage: React.FC = () => {
   const { accounts } = useAccounts();
   const { categories } = useCategories();
   const { tags, createTag } = useTags();
+
+  const [bulkAction, { loading: bulkLoading }] = useMutation(BULK_TRANSACTION_ACTION);
+
+  const handleBulkAction = async (action: string, categoryId?: string) => {
+    await bulkAction({
+      variables: {
+        transactionIds: selectedTransactionIds,
+        action,
+        categoryId: categoryId || null,
+      },
+    });
+    setSelectedTransactionIds([]);
+    // Refetch by toggling a filter
+    setFilters(prev => ({ ...prev }));
+  };
 
   const handleFilterChange = (key: keyof TransactionFilters, value: any) => {
     setFilters(prev => ({
@@ -351,6 +369,15 @@ const TransactionsPage: React.FC = () => {
           </div>
         </div>
       </Card>
+
+      {/* Bulk Action Toolbar */}
+      <BulkActionToolbar
+        selectedCount={selectedTransactionIds.length}
+        categories={categories}
+        onAction={handleBulkAction}
+        onClearSelection={() => setSelectedTransactionIds([])}
+        loading={bulkLoading}
+      />
 
       {/* Mobile: Card Layout */}
       <div className="md:hidden">
