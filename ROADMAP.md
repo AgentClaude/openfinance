@@ -182,7 +182,32 @@ _Backend partially exists: reports query returns monthly_summary, spending_by_ca
 - ⬚ Onboarding flow (guided setup)
 - ⬚ Empty states with guidance
 
-## Phase 17: Deploy
+## Phase 17: Authorization & Account Sharing — HIGH PRIORITY
+- ⬚ Add Pundit gem for policy-based authorization
+- ⬚ Create policies for all models (Account, Transaction, Category, Budget, Goal, etc.)
+- ⬚ Replace manual `current_user.household` scoping with Pundit policies
+- ⬚ Add Pundit `authorize` calls to every mutation and query resolver
+- ⬚ Account-level sharing: share specific accounts (not just whole household)
+- ⬚ SharedAccount model (account_id, user_id, permission_level: view/edit)
+- ⬚ Invitation flow: invite by email, choose accounts to share, set permissions
+- ⬚ Shared accounts appear in invitee's dashboard with badge
+- ⬚ Granular permissions: view-only vs full edit per shared account
+- ⬚ Audit trail: who changed what on shared accounts
+- ⬚ RSpec policy specs for every policy
+
+## Phase 18: Public Marketing Site
+- ⬚ Static marketing landing page (React route, no auth required)
+- ⬚ Hero section with app screenshots, feature highlights, pricing comparison vs Monarch ($99/yr)
+- ⬚ Feature sections: budgeting, recurring detection, reports, collaboration, dark mode
+- ⬚ Real screenshots generated via Playwright script (login → navigate → screenshot each page)
+- ⬚ `scripts/update_screenshots.sh` — runs Playwright to capture fresh screenshots of every page
+- ⬚ Screenshots stored in `web/public/marketing/` for the landing page
+- ⬚ Responsive design (mobile + desktop)
+- ⬚ CTA: "Get Started" → register page
+- ⬚ SEO meta tags, Open Graph images
+- ⬚ Script runs as part of CI or on-demand to keep screenshots current
+
+## Phase 19: Deploy
 - ⬚ Production Docker config
 - ⬚ Tailscale Serve or cloud hosting
 - ⬚ SSL/TLS
