@@ -7,7 +7,7 @@ class SyncTransactionsJob < ApplicationJob
   # Rate limiting handled at the service level
 
   def perform(connection)
-    return unless connection.active? && connection.plaid?
+    return unless connection.active? && !connection.manual_provider?
 
     Rails.logger.info "Starting transaction sync for connection #{connection.id}"
 
@@ -17,7 +17,8 @@ class SyncTransactionsJob < ApplicationJob
     )
 
     begin
-      result = Plaid::SyncTransactionsService.call(connection: connection)
+      adapter = Providers::Factory.for(connection)
+      result = adapter.sync_transactions
       
       if result.success?
         sync_log.update!(

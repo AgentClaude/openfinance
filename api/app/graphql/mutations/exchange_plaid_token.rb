@@ -9,7 +9,9 @@ module Mutations
       user = context[:current_user]
       raise GraphQL::ExecutionError, "Authentication required" unless user
 
-      result = Plaid::ExchangePublicTokenService.call(
+      # Use provider adapter pattern
+      adapter = Providers::Plaid.new(nil)
+      result = adapter.exchange_token(
         public_token: public_token,
         user: user,
         metadata: metadata || {}
