@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   PlusIcon,
   EyeIcon,
@@ -37,6 +37,8 @@ const TransactionsPage: React.FC = () => {
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
   const [filtersExpanded, setFiltersExpanded] = useState(false);
+  const [sortKey, setSortKey] = useState<string | undefined>(undefined);
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
 
   const { transactions, loading, totalCount, updateTransaction, updating } = useTransactions(filters);
   const { accounts } = useAccounts();
@@ -85,8 +87,21 @@ const TransactionsPage: React.FC = () => {
     setDetailOpen(true);
   };
 
+  const handleAddTransaction = () => {
+    // Open detail panel with empty transaction for creation
+    setSelectedTransaction(null);
+    setDetailOpen(true);
+  };
+
+  const handleSort = (key: string, direction: 'asc' | 'desc') => {
+    setSortKey(key);
+    setSortDirection(direction);
+  };
+
   const handleSaveTransaction = async (id: string, input: any) => {
-    return updateTransaction(id, input);
+    const result = await updateTransaction(id, input);
+    setDetailOpen(false);
+    return result;
   };
 
   const accountOptions = [
@@ -207,6 +222,33 @@ const TransactionsPage: React.FC = () => {
     },
   ];
 
+  // Sort transactions client-side
+  const sortedTransactions = useMemo(() => {
+    if (!sortKey) return transactions;
+    return [...transactions].sort((a, b) => {
+      let aVal: any, bVal: any;
+      switch (sortKey) {
+        case 'date':
+          aVal = a.date;
+          bVal = b.date;
+          break;
+        case 'amount':
+          aVal = a.amount;
+          bVal = b.amount;
+          break;
+        case 'description':
+          aVal = a.description.toLowerCase();
+          bVal = b.description.toLowerCase();
+          break;
+        default:
+          return 0;
+      }
+      if (aVal < bVal) return sortDirection === 'asc' ? -1 : 1;
+      if (aVal > bVal) return sortDirection === 'asc' ? 1 : -1;
+      return 0;
+    });
+  }, [transactions, sortKey, sortDirection]);
+
   // Mobile transaction card
   const TransactionCard = ({ transaction }: { transaction: Transaction }) => (
     <button
@@ -281,7 +323,7 @@ const TransactionsPage: React.FC = () => {
                 Categorize {selectedTransactionIds.length} transactions
               </Button>
             )}
-            <Button size="sm">
+            <Button size="sm" onClick={handleAddTransaction}>
               <PlusIcon className="h-4 w-4 mr-2" />
               Add Transaction
             </Button>
@@ -409,7 +451,7 @@ const TransactionsPage: React.FC = () => {
             </div>
           ) : (
             <div>
-              {transactions.map(transaction => (
+              {sortedTransactions.map(transaction => (
                 <TransactionCard key={transaction.id} transaction={transaction} />
               ))}
             </div>
@@ -421,7 +463,7 @@ const TransactionsPage: React.FC = () => {
       <div className="hidden md:block">
         <DataTable
           columns={columns}
-          data={transactions}
+          data={sortedTransactions}
           loading={loading}
           emptyTitle="No transactions found"
           emptyDescription="Try adjusting your filters or add some transactions."
@@ -430,6 +472,9 @@ const TransactionsPage: React.FC = () => {
           onSelectAll={handleSelectAll}
           getRowId={(transaction) => transaction.id}
           onRowClick={handleTransactionClick}
+          onSort={handleSort}
+          sortKey={sortKey}
+          sortDirection={sortDirection}
         />
       </div>
 

@@ -67,7 +67,10 @@ const TransactionDetailPanel: React.FC<TransactionDetailPanelProps> = ({
         needsReview,
       });
       setFeedback({ type: 'success', message: 'Transaction updated!' });
-      setTimeout(() => setFeedback(null), 2000);
+      setTimeout(() => {
+        setFeedback(null);
+        onClose();
+      }, 800);
     } catch (e: any) {
       setFeedback({ type: 'error', message: e.message || 'Failed to save' });
     }

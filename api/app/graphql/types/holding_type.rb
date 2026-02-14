@@ -43,9 +43,16 @@ module Types
     end
 
     def weight_in_account
-      # Calculate weight using Ruby to avoid DB column issues
-      account_holdings = Holding.where(account_id: object.account_id, as_of_date: object.as_of_date).where('quantity > 0')
-      total = account_holdings.sum { |h| (h.quantity * (h.current_price_cents || 0)).to_i }
+      # Calculate weight across entire portfolio (all investment accounts), not just per-account
+      household = object.account&.household
+      return 0.0 unless household
+
+      # Get all holdings across all investment accounts for this household
+      all_holdings = Holding.joins(:account)
+        .where(accounts: { household_id: household.id })
+        .where(as_of_date: object.as_of_date)
+        .where('quantity > 0')
+      total = all_holdings.sum { |h| h.current_value.cents }
       return 0.0 if total.zero?
       (object.current_value.cents.to_f / total * 100).round(2)
     end

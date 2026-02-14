@@ -33,7 +33,7 @@ const LoginPage: React.FC = () => {
       addToast({
         type: 'error',
         title: 'Login failed',
-        message: error.message || 'Invalid email or password.',
+        message: 'Please check your email and password.',
       });
     } finally {
       setLoading(false);

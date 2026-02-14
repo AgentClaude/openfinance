@@ -130,8 +130,9 @@ const BudgetPage: React.FC = () => {
 
   const overBudgetItems = getOverBudgetItems();
   const groupedItems = getGroupedBudgetItems();
-  // left_to_budget = income minus allocated expense budgets (unassigned income)
-  const leftToBudget = (summary?.totalIncome ?? 0) - getTotalBudgeted();
+  // left_to_budget = actual income minus allocated expense budgets (unassigned income)
+  // Use incomeActual (actual transactions) since totalIncome is budgeted income which may be 0
+  const leftToBudget = (summary?.incomeActual ?? summary?.totalIncome ?? 0) - getTotalBudgeted();
 
   if (loading) {
     return (
