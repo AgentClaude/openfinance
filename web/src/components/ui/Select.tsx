@@ -42,7 +42,7 @@ const Select = forwardRef<HTMLSelectElement, SelectProps>(({
         ref={ref}
         id={selectId}
         className={clsx(
-          'block w-full rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm',
+          'block w-full rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm focus:border-brand-500 focus:ring-brand-500 sm:text-sm',
           error && 'border-red-300 text-red-900 focus:border-red-500 focus:ring-red-500',
           className
         )}

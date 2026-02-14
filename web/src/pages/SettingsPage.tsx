@@ -285,11 +285,11 @@ export default function SettingsPage() {
     { id: 'data' as const, label: 'Data', icon: '📦' },
   ];
 
-  const inputClasses = 'mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-3 py-2 border';
+  const inputClasses = 'mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm focus:border-brand-500 focus:ring-brand-500 sm:text-sm px-3 py-2 border';
   const labelClasses = 'block text-sm font-medium text-gray-700 dark:text-gray-300';
   const cardClasses = 'bg-white dark:bg-gray-800 shadow rounded-lg p-6';
   const headingClasses = 'text-lg font-medium text-gray-900 dark:text-gray-100 mb-4';
-  const btnPrimary = 'bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 disabled:opacity-50 text-sm font-medium';
+  const btnPrimary = 'bg-brand-700 text-white px-4 py-2 rounded-md hover:bg-brand-800 disabled:opacity-50 text-sm font-medium';
   const btnDanger = 'bg-red-600 text-white px-3 py-1.5 rounded-md hover:bg-red-700 text-xs font-medium';
 
   return (
@@ -305,7 +305,7 @@ export default function SettingsPage() {
               onClick={() => setActiveTab(tab.id)}
               className={`py-3 px-1 border-b-2 font-medium text-sm whitespace-nowrap transition-colors ${
                 activeTab === tab.id
-                  ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400'
+                  ? 'border-brand-500 text-brand-700 dark:text-brand-400'
                   : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
               }`}
             >
@@ -375,8 +375,8 @@ export default function SettingsPage() {
               </div>
               <button
                 onClick={toggleTheme}
-                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 ${
-                  isDark ? 'bg-indigo-600' : 'bg-gray-200 dark:bg-gray-600'
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 ${
+                  isDark ? 'bg-brand-700' : 'bg-gray-200 dark:bg-gray-600'
                 }`}
               >
                 <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${isDark ? 'translate-x-6' : 'translate-x-1'}`} />
@@ -460,7 +460,7 @@ export default function SettingsPage() {
           <div className={cardClasses}>
             <h2 className={headingClasses}>Members</h2>
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              Manage household members in the <button onClick={() => setActiveTab('members')} className="text-indigo-600 dark:text-indigo-400 hover:underline font-medium">Members tab</button>.
+              Manage household members in the <button onClick={() => setActiveTab('members')} className="text-brand-700 dark:text-brand-400 hover:underline font-medium">Members tab</button>.
             </p>
           </div>
         </div>
@@ -505,8 +505,8 @@ export default function SettingsPage() {
               {members.map((m: { id: string; role: string; isPrimary: boolean; user: { id: string; name: string; email: string } }) => (
                 <div key={m.id} className="flex items-center justify-between py-3 border-b border-gray-100 dark:border-gray-700 last:border-0">
                   <div className="flex items-center space-x-3">
-                    <div className="h-10 w-10 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center">
-                      <span className="text-sm font-medium text-indigo-600 dark:text-indigo-400">
+                    <div className="h-10 w-10 rounded-full bg-brand-100 dark:bg-indigo-900/30 flex items-center justify-center">
+                      <span className="text-sm font-medium text-brand-700 dark:text-brand-400">
                         {(m.user.name || m.user.email || 'U').charAt(0).toUpperCase()}
                       </span>
                     </div>
@@ -528,7 +528,7 @@ export default function SettingsPage() {
                       </select>
                     ) : (
                       <span className={`text-xs font-medium px-2 py-1 rounded-full ${
-                        m.role === 'owner' ? 'text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/20' :
+                        m.role === 'owner' ? 'text-brand-700 dark:text-brand-400 bg-brand-50 dark:bg-indigo-900/20' :
                         m.role === 'advisor' ? 'text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20' :
                         'text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20'
                       }`}>
@@ -602,7 +602,7 @@ export default function SettingsPage() {
                           <button
                             onClick={() => handleToggleNotif(nt.key, ch.key, enabled)}
                             className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
-                              enabled ? 'bg-indigo-600' : 'bg-gray-200 dark:bg-gray-600'
+                              enabled ? 'bg-brand-700' : 'bg-gray-200 dark:bg-gray-600'
                             }`}
                           >
                             <span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform ${enabled ? 'translate-x-4.5' : 'translate-x-0.5'}`} />
@@ -643,7 +643,7 @@ export default function SettingsPage() {
                         onChange={(e) => setEditTagName(e.target.value)}
                         className={inputClasses + ' !mt-0 max-w-xs'}
                       />
-                      <button onClick={() => handleSaveTag(tag.id)} className="text-indigo-600 hover:text-indigo-800 text-sm font-medium">Save</button>
+                      <button onClick={() => handleSaveTag(tag.id)} className="text-brand-700 hover:text-indigo-800 text-sm font-medium">Save</button>
                       <button onClick={() => setEditingTagId(null)} className="text-gray-400 hover:text-gray-600 text-sm">Cancel</button>
                     </div>
                   ) : (
@@ -656,7 +656,7 @@ export default function SettingsPage() {
                         <span className="text-sm text-gray-900 dark:text-gray-100">{tag.name}</span>
                       </div>
                       <div className="flex items-center space-x-2">
-                        <button onClick={() => handleStartEditTag(tag)} className="text-gray-400 hover:text-indigo-600 text-sm">Edit</button>
+                        <button onClick={() => handleStartEditTag(tag)} className="text-gray-400 hover:text-brand-700 text-sm">Edit</button>
                         <button onClick={() => handleDeleteTag(tag.id)} className={btnDanger}>Delete</button>
                       </div>
                     </>
@@ -707,7 +707,7 @@ export default function SettingsPage() {
                     </div>
                     <span className={`text-xs font-medium px-2 py-1 rounded-full ${
                       ref.status === 'completed' ? 'text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20' :
-                      ref.status === 'rewarded' ? 'text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/20' :
+                      ref.status === 'rewarded' ? 'text-brand-700 dark:text-brand-400 bg-brand-50 dark:bg-indigo-900/20' :
                       'text-yellow-600 dark:text-yellow-400 bg-yellow-50 dark:bg-yellow-900/20'
                     }`}>
                       {ref.status.charAt(0).toUpperCase() + ref.status.slice(1)}

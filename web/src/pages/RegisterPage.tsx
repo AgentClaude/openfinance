@@ -100,7 +100,7 @@ const RegisterPage: React.FC = () => {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="flex justify-center">
-          <div className="h-12 w-12 bg-indigo-600 rounded-xl flex items-center justify-center">
+          <div className="h-12 w-12 bg-brand-700 rounded-xl flex items-center justify-center">
             <span className="text-white font-bold text-xl">OF</span>
           </div>
         </div>
@@ -111,7 +111,7 @@ const RegisterPage: React.FC = () => {
           Already have an account?{' '}
           <Link
             to="/login"
-            className="font-medium text-indigo-600 hover:text-indigo-500"
+            className="font-medium text-brand-700 hover:text-brand-600"
           >
             Sign in here
           </Link>
@@ -165,11 +165,11 @@ const RegisterPage: React.FC = () => {
 
             <div className="text-xs text-gray-500 dark:text-gray-400">
               By creating an account, you agree to our{' '}
-              <a href="#" className="text-indigo-600 hover:text-indigo-500">
+              <a href="#" className="text-brand-700 hover:text-brand-600">
                 Terms of Service
               </a>{' '}
               and{' '}
-              <a href="#" className="text-indigo-600 hover:text-indigo-500">
+              <a href="#" className="text-brand-700 hover:text-brand-600">
                 Privacy Policy
               </a>
               .

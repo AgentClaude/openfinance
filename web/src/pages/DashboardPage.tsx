@@ -68,7 +68,7 @@ const DashboardPage: React.FC = () => {
       {/* Summary Cards */}
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 mb-8">
         {/* Net Worth */}
-        <Card title="Net Worth" className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white border-0">
+        <Card title="Net Worth" className="bg-gradient-to-r from-brand-500 to-purple-600 text-white border-0">
           <div className="flex items-center justify-between">
             <div>
               <AmountDisplay 
@@ -117,7 +117,7 @@ const DashboardPage: React.FC = () => {
           title="Spending by Category" 
           subtitle="Current month breakdown"
           actions={
-            <Link to="/transactions" className="text-indigo-600 hover:text-indigo-700 text-sm font-medium">
+            <Link to="/transactions" className="text-brand-700 hover:text-brand-800 text-sm font-medium">
               View all
             </Link>
           }
@@ -166,7 +166,7 @@ const DashboardPage: React.FC = () => {
           title="Account Balances" 
           subtitle="Current balances"
           actions={
-            <Link to="/accounts" className="text-indigo-600 hover:text-indigo-700 text-sm font-medium">
+            <Link to="/accounts" className="text-brand-700 hover:text-brand-800 text-sm font-medium">
               Manage accounts
             </Link>
           }
@@ -187,7 +187,7 @@ const DashboardPage: React.FC = () => {
               {summary.accountBalances.length > 6 && (
                 <Link 
                   to="/accounts" 
-                  className="flex items-center justify-center py-2 text-sm text-indigo-600 hover:text-indigo-700"
+                  className="flex items-center justify-center py-2 text-sm text-brand-700 hover:text-brand-800"
                 >
                   View all {summary.accountBalances.length} accounts
                   <ArrowRightIcon className="h-4 w-4 ml-1" />
@@ -217,7 +217,7 @@ const DashboardPage: React.FC = () => {
         title="Recent Transactions" 
         subtitle="Latest activity"
         actions={
-          <Link to="/transactions" className="text-indigo-600 hover:text-indigo-700 text-sm font-medium">
+          <Link to="/transactions" className="text-brand-700 hover:text-brand-800 text-sm font-medium">
             View all
           </Link>
         }

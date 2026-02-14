@@ -3,85 +3,183 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    /* Brand Colors */
+    --color-brand-primary: #0F766E;
+    --color-brand-primary-light: #2DD4BF;
+    --color-brand-primary-dark: #134E4A;
+
+    /* Accent */
+    --color-accent: #F59E0B;
+    --color-accent-soft: #FEF3C7;
+
+    /* Semantic */
+    --color-success: #059669;
+    --color-warning: #D97706;
+    --color-error: #DC2626;
+    --color-info: #0284C7;
+
+    /* Money */
+    --color-income: #059669;
+    --color-expense: #DC2626;
+    --color-transfer: #64748B;
+
+    /* Surfaces */
+    --color-surface: #FFFFFF;
+    --color-surface-secondary: #F8FAFC;
+    --color-surface-tertiary: #F1F5F9;
+    --color-border: #E2E8F0;
+    --color-border-subtle: #F1F5F9;
+
+    /* Text */
+    --color-text-primary: #334155;
+    --color-text-secondary: #94A3B8;
+    --color-text-heading: #0F172A;
+
+    /* Chart Palette */
+    --color-chart-1: #0D9488;
+    --color-chart-2: #F59E0B;
+    --color-chart-3: #7C3AED;
+    --color-chart-4: #E11D48;
+    --color-chart-5: #0EA5E9;
+    --color-chart-6: #10B981;
+    --color-chart-7: #F97316;
+    --color-chart-8: #6366F1;
+  }
+
+  .dark {
+    --color-brand-primary: #2DD4BF;
+    --color-brand-primary-light: #5EEAD4;
+    --color-brand-primary-dark: #0F766E;
+
+    --color-success: #34D399;
+    --color-warning: #FBBF24;
+    --color-error: #F87171;
+    --color-info: #38BDF8;
+
+    --color-surface: #0F172A;
+    --color-surface-secondary: #1E293B;
+    --color-surface-tertiary: #334155;
+    --color-border: #334155;
+    --color-border-subtle: #1E293B;
+
+    --color-text-primary: #F1F5F9;
+    --color-text-secondary: #94A3B8;
+    --color-text-heading: #F1F5F9;
+  }
+
   html {
-    font-family: 'Inter', system-ui, sans-serif;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
   }
-  
+
   body {
-    @apply bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-gray-100;
+    @apply bg-gray-50 text-slate-700 dark:bg-slate-900 dark:text-slate-100;
   }
-  
+
   * {
     box-sizing: border-box;
+  }
+
+  /* Typography scale */
+  h1 { @apply text-3xl font-bold tracking-heading text-slate-900 dark:text-slate-100; }
+  h2 { @apply text-2xl font-semibold tracking-heading text-slate-900 dark:text-slate-100; }
+  h3 { @apply text-xl font-semibold text-slate-900 dark:text-slate-100; }
+  h4 { @apply text-lg font-medium text-slate-900 dark:text-slate-100; }
+
+  /* Reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
   }
 }
 
 @layer components {
-  /* Custom component styles */
   .btn {
-    @apply inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none;
+    @apply inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium transition-all duration-150 ease-out focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed;
   }
-  
+
   .btn-primary {
-    @apply bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500;
+    @apply bg-brand-700 text-white hover:bg-brand-800 focus:ring-brand-500 active:bg-brand-900;
   }
-  
+
   .btn-secondary {
-    @apply bg-gray-100 text-gray-900 hover:bg-gray-200 focus:ring-gray-500;
+    @apply bg-white text-slate-700 border border-slate-300 hover:bg-slate-50 focus:ring-brand-500 dark:bg-slate-800 dark:text-slate-100 dark:border-slate-600 dark:hover:bg-slate-700;
   }
-  
+
   .btn-danger {
     @apply bg-danger-600 text-white hover:bg-danger-700 focus:ring-danger-500;
   }
-  
+
   .btn-ghost {
-    @apply text-gray-700 hover:bg-gray-100 focus:ring-gray-500;
+    @apply text-slate-600 hover:bg-slate-100 hover:text-slate-900 focus:ring-brand-500 dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-slate-100;
   }
-  
+
   .input {
-    @apply block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm;
+    @apply block w-full rounded-lg border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 dark:bg-slate-800 dark:border-slate-600 dark:text-slate-100 dark:focus:border-brand-400 dark:focus:ring-brand-400;
   }
-  
+
   .input-error {
-    @apply border-danger-300 focus:border-danger-500 focus:ring-danger-500;
+    @apply border-danger-500 focus:border-danger-500 focus:ring-danger-500;
   }
-  
+
   .card {
-    @apply bg-white rounded-lg shadow-sm border border-gray-200;
+    @apply bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700;
   }
-  
+
   .card-header {
-    @apply px-6 py-4 border-b border-gray-200;
+    @apply px-6 py-4 border-b border-slate-200 dark:border-slate-700;
   }
-  
+
   .card-content {
     @apply px-6 py-4;
   }
-  
+
   .card-footer {
-    @apply px-6 py-4 border-t border-gray-200 bg-gray-50 rounded-b-lg;
+    @apply px-6 py-4 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 rounded-b-xl;
   }
 }
 
 @layer utilities {
-  /* Custom utility classes */
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+
+  .financial-number {
+    font-variant-numeric: tabular-nums;
+    @apply font-semibold tracking-tight;
+  }
+
+  .currency-positive {
+    color: var(--color-income);
+  }
+
+  .currency-negative {
+    color: var(--color-expense);
+  }
+
+  .currency-neutral {
+    color: var(--color-transfer);
+  }
+
   .text-money-positive {
     @apply text-success-600 font-medium;
   }
-  
+
   .text-money-negative {
     @apply text-danger-600 font-medium;
   }
-  
+
   .animate-pulse-slow {
     animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   }
-  
+
   .scrollbar-hide {
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
-  
+
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
@@ -98,9 +196,9 @@
   animation: spin 1s linear infinite;
 }
 
-/* Custom focus styles for accessibility */
+/* Custom focus styles */
 .focus-ring {
-  @apply focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2;
+  @apply focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2;
 }
 
 /* Print styles */

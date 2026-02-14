@@ -185,7 +185,7 @@ const GoalsPage: React.FC = () => {
               type="checkbox"
               checked={showCompleted}
               onChange={(e) => setShowCompleted(e.target.checked)}
-              className="rounded border-gray-300 dark:border-gray-600 text-indigo-600 focus:ring-indigo-500"
+              className="rounded border-gray-300 dark:border-gray-600 text-brand-700 focus:ring-brand-500"
             />
             Show achieved goals ({achievedGoals.length})
           </label>
@@ -274,11 +274,11 @@ const GoalsPage: React.FC = () => {
         <form onSubmit={handleSubmit} className="space-y-4">
           <FormField label="Name" required>
             <input type="text" required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })}
-              className="w-full rounded-lg border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" placeholder="Emergency Fund" />
+              className="w-full rounded-lg border-gray-300 dark:border-gray-600 shadow-sm focus:border-brand-500 focus:ring-brand-500" placeholder="Emergency Fund" />
           </FormField>
           <FormField label="Goal Type">
             <select value={form.goalType} onChange={(e) => setForm({ ...form, goalType: e.target.value })}
-              className="w-full rounded-lg border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+              className="w-full rounded-lg border-gray-300 dark:border-gray-600 shadow-sm focus:border-brand-500 focus:ring-brand-500">
               {GOAL_TYPES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
             </select>
           </FormField>
@@ -286,21 +286,21 @@ const GoalsPage: React.FC = () => {
             <FormField label="Target Amount" required>
               <input type="number" required min="0.01" step="0.01" value={form.targetAmount}
                 onChange={(e) => setForm({ ...form, targetAmount: e.target.value })}
-                className="w-full rounded-lg border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" placeholder="10000" />
+                className="w-full rounded-lg border-gray-300 dark:border-gray-600 shadow-sm focus:border-brand-500 focus:ring-brand-500" placeholder="10000" />
             </FormField>
             <FormField label="Current Amount">
               <input type="number" min="0" step="0.01" value={form.currentAmount}
                 onChange={(e) => setForm({ ...form, currentAmount: e.target.value })}
-                className="w-full rounded-lg border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" placeholder="0" />
+                className="w-full rounded-lg border-gray-300 dark:border-gray-600 shadow-sm focus:border-brand-500 focus:ring-brand-500" placeholder="0" />
             </FormField>
           </div>
           <FormField label="Target Date">
             <input type="date" value={form.targetDate} onChange={(e) => setForm({ ...form, targetDate: e.target.value })}
-              className="w-full rounded-lg border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" />
+              className="w-full rounded-lg border-gray-300 dark:border-gray-600 shadow-sm focus:border-brand-500 focus:ring-brand-500" />
           </FormField>
           <FormField label="Description (optional)">
             <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={2}
-              className="w-full rounded-lg border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" placeholder="What are you saving for?" />
+              className="w-full rounded-lg border-gray-300 dark:border-gray-600 shadow-sm focus:border-brand-500 focus:ring-brand-500" placeholder="What are you saving for?" />
           </FormField>
           <div className="flex justify-end gap-3 pt-4">
             <Button variant="secondary" onClick={() => setModalOpen(false)} type="button">Cancel</Button>

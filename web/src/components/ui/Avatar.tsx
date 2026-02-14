@@ -30,7 +30,7 @@ const Avatar: React.FC<AvatarProps> = ({
     xl: 'h-16 w-16 text-xl',
   };
 
-  const baseClasses = 'inline-flex items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-white font-medium';
+  const baseClasses = 'inline-flex items-center justify-center rounded-full bg-gradient-to-br from-brand-500 to-purple-600 text-white font-medium';
 
   if (src) {
     return (

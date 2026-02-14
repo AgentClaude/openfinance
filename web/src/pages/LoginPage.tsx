@@ -44,7 +44,7 @@ const LoginPage: React.FC = () => {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="flex justify-center">
-          <div className="h-12 w-12 bg-indigo-600 rounded-xl flex items-center justify-center">
+          <div className="h-12 w-12 bg-brand-700 rounded-xl flex items-center justify-center">
             <span className="text-white font-bold text-xl">OF</span>
           </div>
         </div>
@@ -55,7 +55,7 @@ const LoginPage: React.FC = () => {
           Or{' '}
           <Link
             to="/register"
-            className="font-medium text-indigo-600 hover:text-indigo-500"
+            className="font-medium text-brand-700 hover:text-brand-600"
           >
             create a new account
           </Link>
@@ -90,7 +90,7 @@ const LoginPage: React.FC = () => {
                   id="remember-me"
                   name="remember-me"
                   type="checkbox"
-                  className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 dark:border-gray-600 rounded"
+                  className="h-4 w-4 text-brand-700 focus:ring-brand-500 border-gray-300 dark:border-gray-600 rounded"
                 />
                 <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900 dark:text-gray-100">
                   Remember me
@@ -98,7 +98,7 @@ const LoginPage: React.FC = () => {
               </div>
 
               <div className="text-sm">
-                <a href="#" className="font-medium text-indigo-600 hover:text-indigo-500">
+                <a href="#" className="font-medium text-brand-700 hover:text-brand-600">
                   Forgot your password?
                 </a>
               </div>

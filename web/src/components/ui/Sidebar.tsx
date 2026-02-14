@@ -40,7 +40,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         <div className="flex items-center h-16 flex-shrink-0 px-4 bg-slate-900">
           <div className="flex items-center">
             <div className="flex-shrink-0">
-              <div className="h-8 w-8 bg-indigo-600 rounded-lg flex items-center justify-center">
+              <div className="h-8 w-8 bg-brand-700 rounded-lg flex items-center justify-center">
                 <span className="text-white font-bold text-lg">OF</span>
               </div>
             </div>
@@ -63,7 +63,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                 to={item.href}
                 className={clsx(
                   item.current
-                    ? 'bg-slate-900 text-white'
+                    ? 'bg-brand-900/30 text-brand-400'
                     : 'text-slate-300 hover:bg-slate-700 hover:text-white',
                   'group flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors',
                   isCollapsed ? 'justify-center' : ''
@@ -71,7 +71,7 @@ const Sidebar: React.FC<SidebarProps> = ({
               >
                 <IconComponent
                   className={clsx(
-                    item.current ? 'text-white' : 'text-slate-400 group-hover:text-white',
+                    item.current ? 'text-brand-400' : 'text-slate-400 group-hover:text-white',
                     'flex-shrink-0 h-6 w-6 transition-colors',
                     !isCollapsed && 'mr-3'
                   )}

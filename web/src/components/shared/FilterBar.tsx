@@ -46,14 +46,14 @@ const FilterBar: React.FC<FilterBarProps> = ({
             type="date"
             value={dateFrom || ''}
             onChange={(e) => onDateFromChange(e.target.value)}
-            className="rounded-md border-gray-300 dark:border-gray-600 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+            className="rounded-md border-gray-300 dark:border-gray-600 text-sm shadow-sm focus:border-brand-500 focus:ring-brand-500"
           />
           <span className="text-gray-400 text-sm">to</span>
           <input
             type="date"
             value={dateTo || ''}
             onChange={(e) => onDateToChange?.(e.target.value)}
-            className="rounded-md border-gray-300 dark:border-gray-600 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+            className="rounded-md border-gray-300 dark:border-gray-600 text-sm shadow-sm focus:border-brand-500 focus:ring-brand-500"
           />
         </div>
       )}
@@ -62,7 +62,7 @@ const FilterBar: React.FC<FilterBarProps> = ({
         <select
           value={selectedCategory || ''}
           onChange={(e) => onCategoryChange(e.target.value)}
-          className="rounded-md border-gray-300 dark:border-gray-600 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+          className="rounded-md border-gray-300 dark:border-gray-600 text-sm shadow-sm focus:border-brand-500 focus:ring-brand-500"
         >
           <option value="">All Categories</option>
           {categories.map((cat) => (
@@ -75,7 +75,7 @@ const FilterBar: React.FC<FilterBarProps> = ({
         <select
           value={selectedAccount || ''}
           onChange={(e) => onAccountChange(e.target.value)}
-          className="rounded-md border-gray-300 dark:border-gray-600 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+          className="rounded-md border-gray-300 dark:border-gray-600 text-sm shadow-sm focus:border-brand-500 focus:ring-brand-500"
         >
           <option value="">All Accounts</option>
           {accounts.map((acc) => (

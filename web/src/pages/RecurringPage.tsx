@@ -324,7 +324,7 @@ const RecurringItemCard: React.FC<RecurringItemCardProps> = ({
                 {frequencyLabel(item.frequency)}
               </Badge>
               {item.isAutoDetected && (
-                <Badge variant="secondary" className="text-xs text-indigo-600">
+                <Badge variant="secondary" className="text-xs text-brand-700">
                   Auto-detected
                 </Badge>
               )}
@@ -518,7 +518,7 @@ const RecurringItemModal: React.FC<RecurringItemModalProps> = ({
             required
             value={form.name}
             onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-            className="w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm"
+            className="w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-brand-500 focus:ring-brand-500 text-sm"
             placeholder="e.g. Netflix, Rent, Salary"
           />
         </div>
@@ -529,7 +529,7 @@ const RecurringItemModal: React.FC<RecurringItemModalProps> = ({
             type="text"
             value={form.merchantName}
             onChange={e => setForm(f => ({ ...f, merchantName: e.target.value }))}
-            className="w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm"
+            className="w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-brand-500 focus:ring-brand-500 text-sm"
             placeholder="Display name"
           />
         </div>
@@ -544,7 +544,7 @@ const RecurringItemModal: React.FC<RecurringItemModalProps> = ({
               step="0.01"
               value={form.amount || ''}
               onChange={e => setForm(f => ({ ...f, amount: parseFloat(e.target.value) || 0 }))}
-              className="w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm"
+              className="w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-brand-500 focus:ring-brand-500 text-sm"
             />
           </div>
           <div>
@@ -552,7 +552,7 @@ const RecurringItemModal: React.FC<RecurringItemModalProps> = ({
             <select
               value={form.frequency}
               onChange={e => setForm(f => ({ ...f, frequency: e.target.value }))}
-              className="w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm"
+              className="w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-brand-500 focus:ring-brand-500 text-sm"
             >
               {FREQUENCIES.map(f => (
                 <option key={f.value} value={f.value}>{f.label}</option>
@@ -567,7 +567,7 @@ const RecurringItemModal: React.FC<RecurringItemModalProps> = ({
             type="date"
             value={form.nextOccurrence}
             onChange={e => setForm(f => ({ ...f, nextOccurrence: e.target.value }))}
-            className="w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm"
+            className="w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-brand-500 focus:ring-brand-500 text-sm"
           />
         </div>
 
@@ -577,7 +577,7 @@ const RecurringItemModal: React.FC<RecurringItemModalProps> = ({
             <select
               value={form.categoryId}
               onChange={e => setForm(f => ({ ...f, categoryId: e.target.value }))}
-              className="w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm"
+              className="w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-brand-500 focus:ring-brand-500 text-sm"
             >
               <option value="">None</option>
               {categories.map((c) => (
@@ -590,7 +590,7 @@ const RecurringItemModal: React.FC<RecurringItemModalProps> = ({
             <select
               value={form.accountId}
               onChange={e => setForm(f => ({ ...f, accountId: e.target.value }))}
-              className="w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm"
+              className="w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-brand-500 focus:ring-brand-500 text-sm"
             >
               <option value="">None</option>
               {accounts.map((a) => (
@@ -606,7 +606,7 @@ const RecurringItemModal: React.FC<RecurringItemModalProps> = ({
             value={form.description}
             onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
             rows={2}
-            className="w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm"
+            className="w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-brand-500 focus:ring-brand-500 text-sm"
             placeholder="Optional notes"
           />
         </div>

@@ -57,10 +57,10 @@ const NotificationBell: React.FC = () => {
     <div ref={ref} className="relative">
       <button
         onClick={() => setOpen(!open)}
-        className="relative p-2 text-gray-500 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-full"
+        className="relative p-2 text-gray-500 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-brand-500 rounded-full"
       >
         {unreadCount > 0 ? (
-          <BellAlertIcon className="h-6 w-6 text-indigo-600" />
+          <BellAlertIcon className="h-6 w-6 text-brand-700" />
         ) : (
           <BellIcon className="h-6 w-6" />
         )}
@@ -78,7 +78,7 @@ const NotificationBell: React.FC = () => {
             {unreadCount > 0 && (
               <button
                 onClick={() => markAllRead()}
-                className="text-xs text-indigo-600 hover:text-indigo-800 flex items-center gap-1"
+                className="text-xs text-brand-700 hover:text-brand-800 flex items-center gap-1"
               >
                 <CheckIcon className="h-3.5 w-3.5" />
                 Mark all read
@@ -99,7 +99,7 @@ const NotificationBell: React.FC = () => {
                     if (!n.isRead) markRead({ variables: { id: n.id } });
                   }}
                   className={`w-full text-left px-4 py-3 hover:bg-gray-50 border-b border-gray-50 flex gap-3 ${
-                    !n.isRead ? 'bg-indigo-50/50' : ''
+                    !n.isRead ? 'bg-brand-50/50' : ''
                   }`}
                 >
                   <span className="text-lg flex-shrink-0 mt-0.5">
@@ -111,7 +111,7 @@ const NotificationBell: React.FC = () => {
                         {n.title}
                       </span>
                       {!n.isRead && (
-                        <span className="flex-shrink-0 w-2 h-2 bg-indigo-500 rounded-full" />
+                        <span className="flex-shrink-0 w-2 h-2 bg-brand-500 rounded-full" />
                       )}
                     </div>
                     {n.body && (

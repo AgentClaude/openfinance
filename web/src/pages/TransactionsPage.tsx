@@ -340,7 +340,7 @@ const TransactionsPage: React.FC = () => {
                 id="needsReview"
                 checked={filters.needsReview || false}
                 onChange={(e) => handleFilterChange('needsReview', e.target.checked ? true : undefined)}
-                className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                className="h-4 w-4 text-brand-700 focus:ring-brand-500 border-gray-300 rounded"
               />
               <label htmlFor="needsReview" className="ml-2 block text-sm text-gray-900">
                 Needs Review Only
@@ -400,7 +400,7 @@ const TransactionsPage: React.FC = () => {
         <Card className="!p-0 overflow-hidden">
           {loading ? (
             <div className="flex items-center justify-center py-12">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600" />
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-700" />
             </div>
           ) : transactions.length === 0 ? (
             <div className="text-center py-12 px-4">

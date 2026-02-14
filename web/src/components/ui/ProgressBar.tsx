@@ -23,7 +23,7 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
   const percentage = Math.min((value / max) * 100, 100);
   
   const colorClasses = {
-    default: 'bg-indigo-600',
+    default: 'bg-brand-700',
     success: 'bg-green-600',
     warning: 'bg-yellow-600',
     danger: 'bg-red-600',

@@ -249,7 +249,7 @@ const BudgetPage: React.FC = () => {
                     {/* Category Name */}
                     <div className="w-48 flex-shrink-0">
                       <button
-                        className="flex items-center group hover:text-indigo-600 transition-colors"
+                        className="flex items-center group hover:text-brand-700 transition-colors"
                         onClick={() => {
                           const start = format(startOfMonth(currentDate), 'yyyy-MM-dd');
                           const end = format(endOfMonth(currentDate), 'yyyy-MM-dd');
@@ -257,7 +257,7 @@ const BudgetPage: React.FC = () => {
                         }}
                       >
                         {item.category?.icon && <CategoryIcon icon={item.category.icon} className="mr-2" />}
-                        <span className="text-sm font-medium text-gray-900 dark:text-gray-100 group-hover:text-indigo-600">{item.category?.name}</span>
+                        <span className="text-sm font-medium text-gray-900 dark:text-gray-100 group-hover:text-brand-700">{item.category?.name}</span>
                       </button>
                     </div>
 
