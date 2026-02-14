@@ -53,6 +53,7 @@ Rails.application.configure do
     error_handler: -> (method:, returning:, exception:) {
       Rails.logger.error "Redis cache error: #{exception.message}"
     }
+  }
 
   # Enable locale fallbacks for I18n (makes lookups for any locale fall back to
   # the I18n.default_locale when a translation cannot be found).
