@@ -34,8 +34,8 @@ development:
   
 test:
   <<: *default
-  host: <%= ENV.fetch('DB_HOST', 'localhost') %>
-  port: <%= ENV.fetch('DB_PORT', 5432) %>
+  # Explicitly set url to override DATABASE_URL env var which may point to production/development DB
+  url: <%= ENV.fetch('DATABASE_TEST_URL', "postgres://#{ENV.fetch('DB_USERNAME', 'openfinance')}:#{ENV.fetch('DB_PASSWORD', 'password')}@#{ENV.fetch('DB_HOST', 'localhost')}:#{ENV.fetch('DB_PORT', 5432)}/#{ENV.fetch('DB_TEST_NAME', 'openfinance_test')}") %>
   database: <%= ENV.fetch('DB_TEST_NAME', 'openfinance_test') %>
   username: <%= ENV.fetch('DB_USERNAME', 'openfinance') %>
   password: <%= ENV.fetch('DB_PASSWORD', 'password') %>
