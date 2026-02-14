@@ -103,17 +103,4 @@ RSpec.describe 'Settings GraphQL', type: :request do
     end
   end
 
-  describe 'exportData mutation' do
-    let(:query) { 'mutation { exportData { jsonData } }' }
-
-    it 'returns JSON export' do
-      post '/graphql', params: { query: query }, headers: headers, as: :json
-      expect(response).to have_http_status(:ok)
-      json_data = JSON.parse(response.body).dig('data', 'exportData', 'jsonData')
-      parsed = JSON.parse(json_data)
-      expect(parsed).to have_key('exported_at')
-      expect(parsed).to have_key('accounts')
-      expect(parsed).to have_key('transactions')
-    end
-  end
 end

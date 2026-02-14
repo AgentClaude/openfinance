@@ -4,6 +4,10 @@ module AuthHelper
     create(:user, household: household, role: 'owner')
   end
 
+  def auth_headers(user)
+    auth_headers_for(user)
+  end
+
   def auth_headers_for(user)
     token = generate_jwt_token(user)
     { 'Authorization' => "Bearer #{token}" }
