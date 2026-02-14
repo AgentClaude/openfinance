@@ -15,6 +15,7 @@ import Card from '@/components/ui/Card';
 import Modal from '@/components/ui/Modal';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import EmptyState from '@/components/ui/EmptyState';
+import { StatCard, FormField } from '@/components/shared';
 import { useToast } from '@/components/ui/Toast';
 
 interface Goal {
@@ -171,22 +172,9 @@ const GoalsPage: React.FC = () => {
 
       {activeGoals.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <Card className="p-4">
-            <div className="text-sm text-gray-500 dark:text-gray-400">Active Goals</div>
-            <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">{activeGoals.length}</div>
-          </Card>
-          <Card className="p-4">
-            <div className="text-sm text-gray-500 dark:text-gray-400">Total Target</div>
-            <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-              {formatCurrency(activeGoals.reduce((s, g) => s + g.targetAmount, 0))}
-            </div>
-          </Card>
-          <Card className="p-4">
-            <div className="text-sm text-gray-500 dark:text-gray-400">Total Progress</div>
-            <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-              {formatCurrency(activeGoals.reduce((s, g) => s + g.currentAmount, 0))}
-            </div>
-          </Card>
+          <StatCard label="Active Goals" value={activeGoals.length} />
+          <StatCard label="Total Target" value={formatCurrency(activeGoals.reduce((s, g) => s + g.targetAmount, 0))} />
+          <StatCard label="Total Progress" value={formatCurrency(activeGoals.reduce((s, g) => s + g.currentAmount, 0))} />
         </div>
       )}
 
@@ -284,42 +272,36 @@ const GoalsPage: React.FC = () => {
 
       <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title={editingGoal ? 'Edit Goal' : 'Create Goal'}>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Name</label>
+          <FormField label="Name" required>
             <input type="text" required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })}
               className="w-full rounded-lg border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" placeholder="Emergency Fund" />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Goal Type</label>
+          </FormField>
+          <FormField label="Goal Type">
             <select value={form.goalType} onChange={(e) => setForm({ ...form, goalType: e.target.value })}
               className="w-full rounded-lg border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
               {GOAL_TYPES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
             </select>
-          </div>
+          </FormField>
           <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Target Amount</label>
+            <FormField label="Target Amount" required>
               <input type="number" required min="0.01" step="0.01" value={form.targetAmount}
                 onChange={(e) => setForm({ ...form, targetAmount: e.target.value })}
                 className="w-full rounded-lg border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" placeholder="10000" />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Current Amount</label>
+            </FormField>
+            <FormField label="Current Amount">
               <input type="number" min="0" step="0.01" value={form.currentAmount}
                 onChange={(e) => setForm({ ...form, currentAmount: e.target.value })}
                 className="w-full rounded-lg border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" placeholder="0" />
-            </div>
+            </FormField>
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Target Date</label>
+          <FormField label="Target Date">
             <input type="date" value={form.targetDate} onChange={(e) => setForm({ ...form, targetDate: e.target.value })}
               className="w-full rounded-lg border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description (optional)</label>
+          </FormField>
+          <FormField label="Description (optional)">
             <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={2}
               className="w-full rounded-lg border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" placeholder="What are you saving for?" />
-          </div>
+          </FormField>
           <div className="flex justify-end gap-3 pt-4">
             <Button variant="secondary" onClick={() => setModalOpen(false)} type="button">Cancel</Button>
             <Button type="submit" loading={creating || updating}>{editingGoal ? 'Update' : 'Create'} Goal</Button>

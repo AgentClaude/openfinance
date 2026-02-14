@@ -20,6 +20,7 @@ import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import EmptyState from '@/components/ui/EmptyState';
 import Dropdown from '@/components/ui/Dropdown';
 import { useToast } from '@/components/ui/Toast';
+import { FormField } from '@/components/shared';
 import clsx from 'clsx';
 
 const defaultColors = [
@@ -338,10 +339,7 @@ const CategoriesPage: React.FC = () => {
             helperText="Paste an emoji to use as the category icon"
           />
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Color
-            </label>
+          <FormField label="Color">
             <div className="flex flex-wrap gap-2">
               {defaultColors.map(color => (
                 <button
@@ -358,7 +356,7 @@ const CategoriesPage: React.FC = () => {
                 />
               ))}
             </div>
-          </div>
+          </FormField>
 
           <div className="flex justify-end space-x-3 pt-4">
             <Button
