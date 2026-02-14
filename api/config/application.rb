@@ -90,13 +90,8 @@ module OpenFinance
       Money.rounding_mode = BigDecimal::ROUND_HALF_UP
     end
 
-    # Load application classes
-    config.autoload_paths += %W[
-      #{config.root}/app/graphql
-      #{config.root}/app/services
-      #{config.root}/app/jobs
-      #{config.root}/lib
-    ]
+    # Rails 8 auto-discovers app/ subdirectories; autoload_lib handles lib/
+    # No need to manually add autoload_paths
 
     # Plaid Configuration
     config.plaid_environment = ENV['PLAID_ENVIRONMENT'] || 'sandbox'
