@@ -77,6 +77,7 @@ Rails.application.configure do
   config.hosts << "api" # Docker container name
   config.hosts << "localhost"
   config.hosts << "127.0.0.1"
+  config.hosts << /\A100\.\d+\.\d+\.\d+\z/ # Tailscale IPs
 
   # GraphQL settings for development
   config.graphql_playground_enabled = true
