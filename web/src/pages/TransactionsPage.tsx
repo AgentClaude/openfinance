@@ -36,11 +36,14 @@ const TransactionsPage: React.FC = () => {
   const [selectedTransactionIds, setSelectedTransactionIds] = useState<string[]>([]);
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
+  const [addModalOpen, setAddModalOpen] = useState(false);
+  const [addForm, setAddForm] = useState({ description: '', amount: '', date: new Date().toISOString().split('T')[0], accountId: '', categoryId: '' });
+  const [addSaving, setAddSaving] = useState(false);
   const [filtersExpanded, setFiltersExpanded] = useState(false);
   const [sortKey, setSortKey] = useState<string | undefined>(undefined);
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
 
-  const { transactions, loading, totalCount, updateTransaction, updating } = useTransactions(filters);
+  const { transactions, loading, totalCount, updateTransaction, updating, createTransaction } = useTransactions(filters);
   const { accounts } = useAccounts();
   const { categories } = useCategories();
   const { tags, createTag } = useTags();
@@ -88,9 +91,27 @@ const TransactionsPage: React.FC = () => {
   };
 
   const handleAddTransaction = () => {
-    // Open detail panel with empty transaction for creation
-    setSelectedTransaction(null);
-    setDetailOpen(true);
+    setAddForm({ description: '', amount: '', date: new Date().toISOString().split('T')[0], accountId: accounts[0]?.id || '', categoryId: '' });
+    setAddModalOpen(true);
+  };
+
+  const handleAddSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAddSaving(true);
+    try {
+      await createTransaction({
+        accountId: addForm.accountId,
+        amount: parseFloat(addForm.amount),
+        description: addForm.description,
+        date: addForm.date,
+        categoryId: addForm.categoryId || undefined,
+      });
+      setAddModalOpen(false);
+    } catch (err) {
+      console.error('Failed to create transaction:', err);
+    } finally {
+      setAddSaving(false);
+    }
   };
 
   const handleSort = (key: string, direction: 'asc' | 'desc') => {
@@ -477,6 +498,46 @@ const TransactionsPage: React.FC = () => {
           sortDirection={sortDirection}
         />
       </div>
+
+      {/* Add Transaction Modal */}
+      {addModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setAddModalOpen(false)}>
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-md" onClick={e => e.stopPropagation()}>
+            <h2 className="text-lg font-semibold mb-4">Add Transaction</h2>
+            <form onSubmit={handleAddSubmit} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Description *</label>
+                <input type="text" required className="w-full rounded border border-gray-300 dark:border-gray-600 dark:bg-gray-700 px-3 py-2" value={addForm.description} onChange={e => setAddForm(f => ({ ...f, description: e.target.value }))} />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Amount *</label>
+                <input type="number" step="0.01" required className="w-full rounded border border-gray-300 dark:border-gray-600 dark:bg-gray-700 px-3 py-2" value={addForm.amount} onChange={e => setAddForm(f => ({ ...f, amount: e.target.value }))} placeholder="Negative for expenses" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Date *</label>
+                <input type="date" required className="w-full rounded border border-gray-300 dark:border-gray-600 dark:bg-gray-700 px-3 py-2" value={addForm.date} onChange={e => setAddForm(f => ({ ...f, date: e.target.value }))} />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Account *</label>
+                <select required className="w-full rounded border border-gray-300 dark:border-gray-600 dark:bg-gray-700 px-3 py-2" value={addForm.accountId} onChange={e => setAddForm(f => ({ ...f, accountId: e.target.value }))}>
+                  {accounts.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Category</label>
+                <select className="w-full rounded border border-gray-300 dark:border-gray-600 dark:bg-gray-700 px-3 py-2" value={addForm.categoryId} onChange={e => setAddForm(f => ({ ...f, categoryId: e.target.value }))}>
+                  <option value="">Uncategorized</option>
+                  {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                </select>
+              </div>
+              <div className="flex justify-end gap-2 pt-2">
+                <button type="button" onClick={() => setAddModalOpen(false)} className="px-4 py-2 rounded border border-gray-300 dark:border-gray-600">Cancel</button>
+                <button type="submit" disabled={addSaving} className="px-4 py-2 rounded bg-teal-600 text-white hover:bg-teal-700 disabled:opacity-50">{addSaving ? 'Saving...' : 'Add Transaction'}</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* Transaction Detail Slide-over */}
       <TransactionDetailPanel
