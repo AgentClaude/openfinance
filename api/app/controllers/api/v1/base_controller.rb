@@ -2,6 +2,7 @@ module Api
   module V1
     class BaseController < ApplicationController
       before_action :authenticate_api_key!
+      after_action :set_rate_limit_headers
 
       private
 
@@ -28,6 +29,10 @@ module Api
 
       def current_household
         current_user&.household
+      end
+
+      def set_rate_limit_headers
+        response.headers['X-RateLimit-Limit'] = '60'
       end
     end
   end
