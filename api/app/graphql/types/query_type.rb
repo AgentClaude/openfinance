@@ -36,7 +36,7 @@ module Types
     end
     def goals(active_only: false)
       return [] unless context[:current_user]&.household
-      scope = context[:current_user].household.goals.order(:target_date)
+      scope = GoalPolicy::Scope.new(context[:current_user], Goal).resolve.order(:target_date)
       scope = scope.where(is_active: true, is_achieved: false) if active_only
       scope
     end
@@ -62,7 +62,7 @@ module Types
     def transactions(search: nil, category_id: nil, account_id: nil, min_amount: nil, max_amount: nil, date_from: nil, date_to: nil, needs_review: nil, page: 1, limit: 50)
       return { transactions: [], total_count: 0, has_more: false } unless context[:current_user]&.household
 
-      scope = context[:current_user].household.transactions.includes(:account, :category, :tags)
+      scope = TransactionPolicy::Scope.new(context[:current_user], Transaction).resolve.includes(:account, :category, :tags)
 
       scope = scope.where("name ILIKE :q OR merchant_name ILIKE :q", q: "%#{search}%") if search.present?
       scope = scope.where(category_id: category_id) if category_id.present?
@@ -87,13 +87,14 @@ module Types
     field :categories, [Types::CategoryType], null: false
     def categories
       return [] unless context[:current_user]&.household
-      context[:current_user].household.categories.where(parent_id: nil).order(:display_order, :name)
+      CategoryPolicy::Scope.new(context[:current_user], Category).resolve
+        .where(parent_id: nil).order(:display_order, :name)
     end
 
     field :tags, [Types::TagType], null: false
     def tags
       return [] unless context[:current_user]&.household
-      context[:current_user].household.tags.order(:name)
+      TagPolicy::Scope.new(context[:current_user], Tag).resolve.order(:name)
     end
 
     field :dashboard_summary, Types::DashboardSummaryType, null: false

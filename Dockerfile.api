@@ -26,7 +26,7 @@ RUN addgroup -g 1000 -S app && \
 RUN gem install bundler
 
 # Copy Gemfile and Gemfile.lock
-COPY api/Gemfile ./
+COPY api/Gemfile api/Gemfile.lock ./
 
 # Install Ruby dependencies
 RUN bundle install --jobs 4 --retry 3

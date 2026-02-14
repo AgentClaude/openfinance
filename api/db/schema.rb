@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_02_13_100001) do
+ActiveRecord::Schema[8.0].define(version: 2026_02_14_020000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -86,6 +86,18 @@ ActiveRecord::Schema[8.0].define(version: 2026_02_13_100001) do
     t.index ["is_manual"], name: "index_accounts_on_is_manual"
     t.index ["metadata"], name: "index_accounts_on_metadata", using: :gin
     t.index ["plaid_account_id"], name: "index_accounts_on_plaid_account_id", unique: true
+  end
+
+  create_table "api_keys", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "user_id", null: false
+    t.string "key", null: false
+    t.string "name", null: false
+    t.datetime "last_used_at"
+    t.datetime "revoked_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["key"], name: "index_api_keys_on_key", unique: true
+    t.index ["user_id"], name: "index_api_keys_on_user_id"
   end
 
   create_table "budget_items", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -306,6 +318,36 @@ ActiveRecord::Schema[8.0].define(version: 2026_02_13_100001) do
     t.index ["supported_products"], name: "index_institutions_on_supported_products", using: :gin
   end
 
+  create_table "invitations", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "email", null: false
+    t.string "role", default: "member", null: false
+    t.string "status", default: "pending", null: false
+    t.string "token", null: false
+    t.uuid "household_id", null: false
+    t.uuid "invited_by_id", null: false
+    t.datetime "accepted_at"
+    t.datetime "expires_at", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["email", "household_id"], name: "index_invitations_on_email_and_household_id", unique: true, where: "((status)::text = 'pending'::text)"
+    t.index ["household_id"], name: "index_invitations_on_household_id"
+    t.index ["invited_by_id"], name: "index_invitations_on_invited_by_id"
+    t.index ["token"], name: "index_invitations_on_token", unique: true
+  end
+
+  create_table "merchant_mappings", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "household_id", null: false
+    t.string "raw_pattern", null: false
+    t.string "clean_name", null: false
+    t.string "match_type", default: "contains", null: false
+    t.integer "applied_count", default: 0, null: false
+    t.boolean "is_active", default: true, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["household_id", "raw_pattern"], name: "index_merchant_mappings_on_household_id_and_raw_pattern", unique: true
+    t.index ["household_id"], name: "index_merchant_mappings_on_household_id"
+  end
+
   create_table "notification_rules", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "user_id", null: false
     t.uuid "household_id", null: false
@@ -408,6 +450,31 @@ ActiveRecord::Schema[8.0].define(version: 2026_02_13_100001) do
     t.index ["plaid_security_id"], name: "index_securities_on_plaid_security_id", unique: true
     t.index ["security_type"], name: "index_securities_on_security_type"
     t.index ["symbol"], name: "index_securities_on_symbol"
+  end
+
+  create_table "share_tokens", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "user_id", null: false
+    t.string "token", null: false
+    t.string "widget_type", null: false
+    t.jsonb "config", default: {}
+    t.datetime "expires_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["token"], name: "index_share_tokens_on_token", unique: true
+    t.index ["user_id"], name: "index_share_tokens_on_user_id"
+    t.index ["widget_type"], name: "index_share_tokens_on_widget_type"
+  end
+
+  create_table "shared_accounts", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "account_id", null: false
+    t.uuid "shared_with_user_id", null: false
+    t.uuid "shared_by_user_id", null: false
+    t.string "permission_level", default: "view", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id", "shared_with_user_id"], name: "index_shared_accounts_on_account_id_and_shared_with_user_id", unique: true
+    t.index ["shared_by_user_id"], name: "index_shared_accounts_on_shared_by_user_id"
+    t.index ["shared_with_user_id"], name: "index_shared_accounts_on_shared_with_user_id"
   end
 
   create_table "sync_logs", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -565,6 +632,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_02_13_100001) do
   add_foreign_key "recurring_items", "accounts"
   add_foreign_key "recurring_items", "categories"
   add_foreign_key "recurring_items", "households"
+  add_foreign_key "shared_accounts", "accounts", validate: false
+  add_foreign_key "shared_accounts", "users", column: "shared_by_user_id", validate: false
+  add_foreign_key "shared_accounts", "users", column: "shared_with_user_id", validate: false
   add_foreign_key "sync_logs", "account_connections"
   add_foreign_key "tags", "households"
   add_foreign_key "transaction_tags", "tags"
