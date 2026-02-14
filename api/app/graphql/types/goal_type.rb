@@ -6,6 +6,8 @@ module Types
     field :goal_type, String, null: false
     field :target_amount, Float, null: false
     field :current_amount, Float, null: false
+    field :icon, String, null: true
+    field :color, String, null: true
     field :currency, String, null: false
     field :target_date, String, null: true
     field :start_date, String, null: true
