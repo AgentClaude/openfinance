@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useQuery, useMutation } from '@apollo/client';
 import {
   PencilIcon,
   TrashIcon,
@@ -7,8 +6,6 @@ import {
   CheckCircleIcon,
   ExclamationTriangleIcon,
 } from '@heroicons/react/24/outline';
-import { GET_GOALS } from '@/graphql/queries';
-import { CREATE_GOAL, UPDATE_GOAL, DELETE_GOAL } from '@/graphql/mutations';
 import PageHeader from '@/components/ui/PageHeader';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
@@ -17,25 +14,16 @@ import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import EmptyState from '@/components/ui/EmptyState';
 import { StatCard, FormField } from '@/components/shared';
 import { useToast } from '@/components/ui/Toast';
+import {
+  useGetGoalsQuery,
+  useCreateGoalMutation,
+  useUpdateGoalMutation,
+  useDeleteGoalMutation,
+  type GetGoalsQuery,
+} from '@/generated/graphql';
 
-interface Goal {
-  id: string;
-  name: string;
-  description: string | null;
-  goalType: string;
-  targetAmount: number;
-  currentAmount: number;
-  currency: string;
-  targetDate: string | null;
-  isActive: boolean;
-  isAchieved: boolean;
-  progressPercentage: number;
-  amountRemaining: number;
-  daysRemaining: number;
-  isOverdue: boolean;
-  isOnTrack: boolean;
-  monthlyTarget: number;
-}
+// Use the generated Goal type from the query
+type Goal = GetGoalsQuery['goals'][number];
 
 const formatCurrency = (amount: number) =>
   new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount);
@@ -94,10 +82,10 @@ const GoalsPage: React.FC = () => {
   const [showCompleted, setShowCompleted] = useState(false);
   const [form, setForm] = useState<FormData>(emptyForm);
 
-  const { data, loading, refetch } = useQuery(GET_GOALS);
-  const [createGoal, { loading: creating }] = useMutation(CREATE_GOAL);
-  const [updateGoal, { loading: updating }] = useMutation(UPDATE_GOAL);
-  const [deleteGoal, { loading: deleting }] = useMutation(DELETE_GOAL);
+  const { data, loading, refetch } = useGetGoalsQuery();
+  const [createGoal, { loading: creating }] = useCreateGoalMutation();
+  const [updateGoal, { loading: updating }] = useUpdateGoalMutation();
+  const [deleteGoal, { loading: deleting }] = useDeleteGoalMutation();
 
   const goals: Goal[] = data?.goals || [];
   const activeGoals = goals.filter(g => !g.isAchieved);
