@@ -21,8 +21,8 @@ import { format } from 'date-fns';
 import clsx from 'clsx';
 
 const COLORS = [
-  '#4F46E5', '#7C3AED', '#EC4899', '#EF4444', '#F59E0B',
-  '#10B981', '#06B6D4', '#8B5CF6', '#F97316', '#84CC16'
+  '#0D9488', '#F59E0B', '#7C3AED', '#E11D48', '#0EA5E9',
+  '#10B981', '#F97316', '#6366F1', '#84CC16', '#EC4899'
 ];
 
 const DashboardPage: React.FC = () => {
@@ -66,9 +66,9 @@ const DashboardPage: React.FC = () => {
       />
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 mb-8">
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 mb-8">
         {/* Net Worth */}
-        <Card title="Net Worth" className="bg-gradient-to-r from-brand-500 to-purple-600 text-white border-0">
+        <Card title="Net Worth" className="bg-gradient-to-br from-brand-700 to-brand-900 text-white border-0">
           <div className="flex items-center justify-between">
             <div>
               <AmountDisplay 

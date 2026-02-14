@@ -234,7 +234,7 @@ const BudgetPage: React.FC = () => {
           <Card key={groupName} className="mb-4">
             {/* Group Header */}
             <div className="flex items-center justify-between mb-4 pb-2 border-b border-gray-200 dark:border-gray-700">
-              <h3 className="text-lg font-semibold text-gray-800">{groupName}</h3>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{groupName}</h3>
               <div className="flex items-center space-x-6 text-sm">
                 <span className="text-gray-500 dark:text-gray-400">
                   Budgeted: <span className="font-medium text-gray-900 dark:text-gray-100">{formatCurrency(group.totalBudgeted)}</span>
@@ -257,7 +257,7 @@ const BudgetPage: React.FC = () => {
                 const isEditing = editingCategory === catId;
 
                 return (
-                  <div key={item.id} className="flex items-center gap-4 py-2 hover:bg-gray-50 dark:bg-gray-900 rounded-lg px-2">
+                  <div key={item.id} className="flex items-center gap-4 py-2 hover:bg-gray-50 dark:hover:bg-slate-700/50 rounded-lg px-2 transition-colors">
                     {/* Category Name */}
                     <div className="w-48 flex-shrink-0">
                       <button

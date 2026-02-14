@@ -35,10 +35,10 @@ const AmountDisplay: React.FC<AmountDisplayProps> = ({
   };
 
   const getColorClass = () => {
-    if (!colorize) return 'text-gray-900';
-    if (amount > 0) return 'text-green-600';
-    if (amount < 0) return 'text-red-600';
-    return 'text-gray-900';
+    if (!colorize) return 'text-gray-900 dark:text-gray-100';
+    if (amount > 0) return 'text-emerald-600 dark:text-emerald-400';
+    if (amount < 0) return 'text-red-600 dark:text-red-400';
+    return 'text-gray-900 dark:text-gray-100';
   };
 
   const sizeClasses = {
@@ -51,7 +51,7 @@ const AmountDisplay: React.FC<AmountDisplayProps> = ({
   return (
     <span
       className={clsx(
-        'font-mono',
+        'tabular-nums font-semibold',
         getColorClass(),
         sizeClasses[size],
         className
