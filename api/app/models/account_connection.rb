@@ -8,7 +8,7 @@ class AccountConnection < ApplicationRecord
   belongs_to :household
   belongs_to :institution, optional: true
   belongs_to :created_by, class_name: 'User'
-  has_many :accounts, dependent: :destroy
+  has_many :accounts, foreign_key: 'connection_id', dependent: :destroy
   has_many :sync_logs, dependent: :destroy
 
   # Validations

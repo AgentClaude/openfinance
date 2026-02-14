@@ -5,7 +5,7 @@ RSpec.describe Plaid::SyncTransactionsService, type: :service do
   let(:household) { user.household }
   let(:institution) { create(:institution) }
   let(:connection) { create(:account_connection, household: household, institution: institution, provider_access_token: 'access-token') }
-  let(:account) { create(:account, household: household, account_connection: connection, plaid_account_id: 'acc_123456') }
+  let(:account) { create(:account, household: household, connection: connection, plaid_account_id: 'acc_123456') }
   let(:category) { create(:category, household: household, name: 'Food & Dining') }
 
   let(:service) { described_class.new(connection: connection) }
