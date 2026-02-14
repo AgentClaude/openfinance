@@ -14,7 +14,7 @@ interface Props {
 
 const ReceiptUploadButton: React.FC<Props> = ({ transactionId, hasReceipt, receiptUrl, onUploaded }) => {
   const fileRef = useRef<HTMLInputElement>(null);
-  const { showToast } = useToast();
+  const { addToast } = useToast();
   const [uploadReceipt, { loading }] = useMutation(UPLOAD_RECEIPT);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -34,13 +34,13 @@ const ReceiptUploadButton: React.FC<Props> = ({ transactionId, hasReceipt, recei
           },
         });
         if (data.uploadReceipt.errors?.length > 0) {
-          showToast(data.uploadReceipt.errors[0], 'error');
+          addToast({ title: data.uploadReceipt.errors[0], type: 'error' });
         } else {
-          showToast('Receipt uploaded', 'success');
+          addToast({ title: 'Receipt uploaded', type: 'success' });
           onUploaded?.();
         }
       } catch (err: any) {
-        showToast(err.message, 'error');
+        addToast({ title: err.message, type: 'error' });
       }
     };
     reader.readAsDataURL(file);

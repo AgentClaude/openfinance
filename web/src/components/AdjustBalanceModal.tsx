@@ -20,7 +20,7 @@ const AdjustBalanceModal: React.FC<Props> = ({ isOpen, onClose, accountId, accou
   const [amount, setAmount] = useState('');
   const [notes, setNotes] = useState('');
   const [adjustedAt, setAdjustedAt] = useState(format(new Date(), 'yyyy-MM-dd'));
-  const { showToast } = useToast();
+  const { addToast } = useToast();
 
   const [adjustBalance, { loading }] = useMutation(ADJUST_BALANCE, {
     refetchQueries: [{ query: GET_ACCOUNTS }],
@@ -36,15 +36,15 @@ const AdjustBalanceModal: React.FC<Props> = ({ isOpen, onClose, accountId, accou
         variables: { accountId, amount: parsedAmount, adjustedAt, notes: notes || undefined },
       });
       if (data.adjustBalance.errors?.length > 0) {
-        showToast(data.adjustBalance.errors[0], 'error');
+        addToast({ title: data.adjustBalance.errors[0], type: 'error' });
       } else {
-        showToast('Balance adjusted successfully', 'success');
+        addToast({ title: 'Balance adjusted successfully', type: 'success' });
         setAmount('');
         setNotes('');
         onClose();
       }
     } catch (err: any) {
-      showToast(err.message, 'error');
+      addToast({ title: err.message, type: 'error' });
     }
   };
 
