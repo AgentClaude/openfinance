@@ -118,8 +118,9 @@ module Types
       household = context[:current_user].household
       accounts = household.accounts.where(is_hidden: false)
 
-      asset_cents = accounts.select { |a| %w[checking savings investment retirement crypto real_estate vehicle other_asset cash].include?(a.account_type) }.sum(&:current_balance_cents)
-      liability_cents = accounts.select { |a| %w[credit_card loan mortgage other_liability].include?(a.account_type) }.sum(&:current_balance_cents)
+      liability_types = %w[credit_card loan mortgage auto_loan student_loan personal_loan heloc other_liability]
+      asset_cents = accounts.reject { |a| liability_types.include?(a.account_type) }.sum(&:current_balance_cents)
+      liability_cents = accounts.select { |a| liability_types.include?(a.account_type) }.sum(&:current_balance_cents)
       net_worth = (asset_cents - liability_cents) / 100.0
 
       month_start = Date.current.beginning_of_month

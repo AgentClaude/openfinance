@@ -120,6 +120,7 @@ export const GET_CATEGORIES = gql`
       isSystem
       householdId
       parentId
+      transactionCount
       children {
         id
         name
