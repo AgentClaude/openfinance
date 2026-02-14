@@ -2,7 +2,7 @@ module Api
   module V1
     class ApiDocsController < ApplicationController
       def show
-        render html: API_DOCS_HTML.html_safe, content_type: 'text/html'
+        redirect_to '/docs', allow_other_host: false
       end
 
       API_DOCS_HTML = <<~HTML

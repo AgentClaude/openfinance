@@ -26,6 +26,7 @@ import ReportsPage from '@/pages/ReportsPage';
 import InvestmentsPage from '@/pages/InvestmentsPage';
 import ImportPage from '@/pages/ImportPage';
 import SettingsPage from '@/pages/SettingsPage';
+import DocsPage from '@/pages/DocsPage';
 
 function App() {
   return (
@@ -39,6 +40,7 @@ function App() {
                 <Route path="/" element={<AuthGate authenticated={<Navigate to="/dashboard" replace />} unauthenticated={<LandingPage />} />} />
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/register" element={<RegisterPage />} />
+                <Route path="/docs" element={<DocsPage />} />
                 
                 {/* Protected routes */}
                 <Route path="/" element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
