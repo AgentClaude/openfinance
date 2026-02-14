@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_02_13_200001) do
+ActiveRecord::Schema[8.0].define(version: 2026_02_13_100001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -219,8 +219,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_02_13_200001) do
     t.jsonb "metadata", default: {}
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.string "icon"
-    t.string "color"
+    t.string "icon", default: "🎯"
+    t.string "color", default: "#4ECDC4"
     t.index ["achieved_at"], name: "index_goals_on_achieved_at"
     t.index ["goal_type"], name: "index_goals_on_goal_type"
     t.index ["household_id"], name: "index_goals_on_household_id"
@@ -304,23 +304,6 @@ ActiveRecord::Schema[8.0].define(version: 2026_02_13_200001) do
     t.index ["name"], name: "index_institutions_on_name"
     t.index ["plaid_institution_id"], name: "index_institutions_on_plaid_institution_id", unique: true
     t.index ["supported_products"], name: "index_institutions_on_supported_products", using: :gin
-  end
-
-  create_table "invitations", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.string "email", null: false
-    t.string "role", default: "member", null: false
-    t.string "status", default: "pending", null: false
-    t.string "token", null: false
-    t.uuid "household_id", null: false
-    t.uuid "invited_by_id", null: false
-    t.datetime "accepted_at"
-    t.datetime "expires_at", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["email", "household_id"], name: "index_invitations_on_email_and_household_id", unique: true, where: "((status)::text = 'pending'::text)"
-    t.index ["household_id"], name: "index_invitations_on_household_id"
-    t.index ["invited_by_id"], name: "index_invitations_on_invited_by_id"
-    t.index ["token"], name: "index_invitations_on_token", unique: true
   end
 
   create_table "notification_rules", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -489,20 +472,32 @@ ActiveRecord::Schema[8.0].define(version: 2026_02_13_200001) do
     t.jsonb "metadata", default: {}
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.uuid "recurring_item_id"
+    t.uuid "parent_transaction_id"
+    t.boolean "is_split", default: false, null: false
+    t.boolean "excluded", default: false, null: false
+    t.datetime "reviewed_at"
+    t.uuid "transfer_pair_id"
+    t.boolean "is_transfer", default: false, null: false
     t.index ["account_id", "date"], name: "index_transactions_on_account_id_and_date"
     t.index ["account_id"], name: "index_transactions_on_account_id"
     t.index ["amount_cents"], name: "index_transactions_on_amount_cents"
     t.index ["category_id"], name: "index_transactions_on_category_id"
     t.index ["date"], name: "index_transactions_on_date"
+    t.index ["excluded"], name: "index_transactions_on_excluded"
     t.index ["household_id", "date"], name: "index_transactions_on_household_id_and_date"
     t.index ["household_id"], name: "index_transactions_on_household_id"
     t.index ["is_pending"], name: "index_transactions_on_is_pending"
     t.index ["is_recurring"], name: "index_transactions_on_is_recurring"
+    t.index ["is_transfer"], name: "index_transactions_on_is_transfer"
     t.index ["merchant_name"], name: "index_transactions_on_merchant_name"
     t.index ["metadata"], name: "index_transactions_on_metadata", using: :gin
     t.index ["name"], name: "index_transactions_on_name"
     t.index ["needs_review"], name: "index_transactions_on_needs_review"
+    t.index ["parent_transaction_id"], name: "index_transactions_on_parent_transaction_id"
     t.index ["plaid_transaction_id"], name: "index_transactions_on_plaid_transaction_id", unique: true
+    t.index ["recurring_item_id"], name: "index_transactions_on_recurring_item_id"
+    t.index ["transfer_pair_id"], name: "index_transactions_on_transfer_pair_id"
   end
 
   create_table "users", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -563,8 +558,6 @@ ActiveRecord::Schema[8.0].define(version: 2026_02_13_200001) do
   add_foreign_key "household_memberships", "households"
   add_foreign_key "household_memberships", "users"
   add_foreign_key "household_memberships", "users", column: "invited_by_id"
-  add_foreign_key "invitations", "households"
-  add_foreign_key "invitations", "users", column: "invited_by_id"
   add_foreign_key "notification_rules", "households"
   add_foreign_key "notification_rules", "users"
   add_foreign_key "notifications", "households"
