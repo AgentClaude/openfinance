@@ -5,6 +5,19 @@ module Types
       context[:current_user]
     end
 
+    field :my_referral_code, String, null: true
+    def my_referral_code
+      return nil unless context[:current_user]
+      user = context[:current_user]
+      user.referral_code || Referrals::GenerateReferralCode.new(user).call
+    end
+
+    field :referrals, [Types::ReferralType], null: false
+    def referrals
+      return [] unless context[:current_user]
+      context[:current_user].referrals_given.includes(:referred_user).order(created_at: :desc)
+    end
+
     field :household_members, [Types::HouseholdMemberType], null: false
     def household_members
       return [] unless context[:current_user]&.household

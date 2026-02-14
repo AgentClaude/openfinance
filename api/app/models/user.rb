@@ -21,6 +21,8 @@ class User < ApplicationRecord
   has_many :sent_invitations, class_name: 'Invitation', foreign_key: :invited_by_id, dependent: :destroy
   has_many :shared_accounts_received, class_name: 'SharedAccount', foreign_key: :shared_with_user_id, dependent: :destroy
   has_many :shared_accounts_given, class_name: 'SharedAccount', foreign_key: :shared_by_user_id, dependent: :destroy
+  has_many :referrals_given, class_name: 'Referral', foreign_key: :referrer_id, dependent: :destroy
+  has_many :referrals_received, class_name: 'Referral', foreign_key: :referred_user_id, dependent: :destroy
 
   # Validations
   validates :email, presence: true, uniqueness: true, format: { with: URI::MailTo::EMAIL_REGEXP }
@@ -38,6 +40,7 @@ class User < ApplicationRecord
   # Callbacks
   before_validation :set_default_role, on: :create
   after_create :create_default_household, unless: :household_id?
+  after_create :generate_referral_code!
   after_update :update_jwt_payload, if: :saved_change_to_jti?
 
   # Virtual attributes
@@ -180,6 +183,10 @@ class User < ApplicationRecord
   def update_jwt_payload
     # Trigger JWT token refresh on next request
     # This is called when jti changes (logout/security update)
+  end
+
+  def generate_referral_code!
+    Referrals::GenerateReferralCode.new(self).call
   end
 
   def generate_avatar_url
