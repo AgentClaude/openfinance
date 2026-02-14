@@ -7,9 +7,11 @@ import { AuthProvider } from '@/components/AuthProvider';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { ToastProvider } from '@/components/ui/Toast';
 import ProtectedRoute from '@/components/ProtectedRoute';
+import AuthGate from '@/components/AuthGate';
 import AppLayout from '@/layouts/AppLayout';
 
 // Pages
+import LandingPage from '@/pages/LandingPage';
 import LoginPage from '@/pages/LoginPage';
 import RegisterPage from '@/pages/RegisterPage';
 import DashboardPage from '@/pages/DashboardPage';
@@ -34,12 +36,12 @@ function App() {
             <Router>
               <Routes>
                 {/* Public routes */}
+                <Route path="/" element={<AuthGate authenticated={<Navigate to="/dashboard" replace />} unauthenticated={<LandingPage />} />} />
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/register" element={<RegisterPage />} />
                 
                 {/* Protected routes */}
                 <Route path="/" element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
-                  <Route index element={<Navigate to="/dashboard" replace />} />
                   <Route path="dashboard" element={<DashboardPage />} />
                   <Route path="transactions" element={<TransactionsPage />} />
                   <Route path="accounts" element={<AccountsPage />} />
