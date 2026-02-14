@@ -37,7 +37,7 @@ module Types
     def goals(active_only: false)
       return [] unless context[:current_user]&.household
       scope = context[:current_user].household.goals.order(:target_date)
-      scope = scope.where(is_active: true) if active_only
+      scope = scope.where(is_active: true, is_achieved: false) if active_only
       scope
     end
 
@@ -145,7 +145,8 @@ module Types
         spending_by_category: spending,
         recent_transactions: recent,
         account_balances: balances,
-        needs_review_count: household.transactions.where(needs_review: true).count
+        needs_review_count: household.transactions.where(needs_review: true).count,
+        goals_summary: household.goals.where(is_active: true, is_achieved: false).order(:target_date).limit(5)
       }
     end
 
@@ -444,7 +445,7 @@ module Types
     end
 
     def empty_dashboard
-      { net_worth: 0.0, net_worth_change: 0.0, monthly_income: 0.0, monthly_expenses: 0.0, cash_flow: 0.0, spending_by_category: [], recent_transactions: [], account_balances: [], needs_review_count: 0 }
+      { net_worth: 0.0, net_worth_change: 0.0, monthly_income: 0.0, monthly_expenses: 0.0, cash_flow: 0.0, spending_by_category: [], recent_transactions: [], account_balances: [], needs_review_count: 0, goals_summary: [] }
     end
   end
 end

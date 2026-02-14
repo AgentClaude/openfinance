@@ -9,5 +9,6 @@ module Types
     field :recent_transactions, [Types::TransactionType], null: false
     field :account_balances, [Types::AccountBalanceType], null: false
     field :needs_review_count, Integer, null: false
+    field :goals_summary, [Types::GoalType], null: false
   end
 end

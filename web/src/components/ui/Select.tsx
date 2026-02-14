@@ -32,7 +32,7 @@ const Select = forwardRef<HTMLSelectElement, SelectProps>(({
       {label && (
         <label
           htmlFor={selectId}
-          className="block text-sm font-medium text-gray-700"
+          className="block text-sm font-medium text-gray-700 dark:text-gray-300"
         >
           {label}
         </label>
@@ -42,7 +42,7 @@ const Select = forwardRef<HTMLSelectElement, SelectProps>(({
         ref={ref}
         id={selectId}
         className={clsx(
-          'block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm',
+          'block w-full rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm',
           error && 'border-red-300 text-red-900 focus:border-red-500 focus:ring-red-500',
           className
         )}
@@ -56,18 +56,14 @@ const Select = forwardRef<HTMLSelectElement, SelectProps>(({
           </option>
         )}
         {options.map((option) => (
-          <option
-            key={option.value}
-            value={option.value}
-            disabled={option.disabled}
-          >
+          <option key={option.value} value={option.value} disabled={option.disabled}>
             {option.label}
           </option>
         ))}
       </select>
-
+      
       {error && (
-        <p id={`${selectId}-error`} className="text-sm text-red-600">
+        <p className="text-sm text-red-600 dark:text-red-400" id={`${selectId}-error`}>
           {error}
         </p>
       )}
