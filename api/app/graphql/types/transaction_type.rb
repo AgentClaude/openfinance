@@ -22,6 +22,7 @@ module Types
     field :transfer_pair_id, ID, null: true
     field :receipt_url, String, null: true
     field :has_receipt, Boolean, null: false
+    field :notes, String, null: true
 
     def amount
       object.amount_cents / 100.0

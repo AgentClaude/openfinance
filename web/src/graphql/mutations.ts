@@ -126,6 +126,7 @@ export const UPDATE_TRANSACTION = gql`
       transferPairId
       hasReceipt
       receiptUrl
+      notes
       account {
         id
         name

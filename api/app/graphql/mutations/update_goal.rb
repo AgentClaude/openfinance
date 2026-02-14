@@ -8,6 +8,8 @@ module Mutations
     argument :current_amount, Float, required: false
     argument :target_date, String, required: false
     argument :is_active, Boolean, required: false
+    argument :icon, String, required: false
+    argument :color, String, required: false
 
     type Types::GoalType
 
@@ -25,6 +27,8 @@ module Mutations
       attrs[:current_amount_cents] = (args[:current_amount] * 100).to_i if args.key?(:current_amount)
       attrs[:target_date] = args[:target_date].present? ? Date.parse(args[:target_date]) : nil if args.key?(:target_date)
       attrs[:is_active] = args[:is_active] if args.key?(:is_active)
+      attrs[:icon] = args[:icon] if args.key?(:icon)
+      attrs[:color] = args[:color] if args.key?(:color)
 
       goal.update!(attrs)
       goal
