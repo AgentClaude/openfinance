@@ -76,6 +76,8 @@ export const GET_TRANSACTIONS = gql`
         excluded
         parentTransactionId
         transferPairId
+        hasReceipt
+        receiptUrl
         account {
           id
           name
@@ -418,6 +420,21 @@ export const GET_NOTIFICATION_PREFERENCES = gql`
       notificationType
       channel
       enabled
+    }
+  }
+`;
+
+export const GET_BALANCE_ADJUSTMENTS = gql`
+  query GetBalanceAdjustments($accountId: ID!) {
+    balanceAdjustments(accountId: $accountId) {
+      id
+      accountId
+      amount
+      currency
+      adjustedAt
+      notes
+      createdByName
+      createdAt
     }
   }
 `;

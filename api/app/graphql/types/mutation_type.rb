@@ -43,5 +43,8 @@ module Types
     field :update_tag, mutation: Mutations::UpdateTag
     field :delete_tag, mutation: Mutations::DeleteTag
     field :share_account, mutation: Mutations::ShareAccount
+    field :adjust_balance, mutation: Mutations::AdjustBalance
+    field :upload_receipt, mutation: Mutations::UploadReceipt
+    field :upload_statement, mutation: Mutations::UploadStatement
   end
 end

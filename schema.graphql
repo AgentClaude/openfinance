@@ -244,3 +244,14 @@ type User {
   name: String!
   role: String!
 }
+
+type BalanceAdjustment {
+  id: ID!
+  accountId: ID!
+  amount: Float!
+  currency: String!
+  adjustedAt: String!
+  notes: String
+  createdByName: String
+  createdAt: ISO8601DateTime!
+}

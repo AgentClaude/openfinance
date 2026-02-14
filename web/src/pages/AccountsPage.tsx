@@ -4,10 +4,13 @@ import {
   BanknotesIcon,
   CreditCardIcon,
   HomeIcon,
-  ChartBarIcon
+  ChartBarIcon,
+  AdjustmentsHorizontalIcon
 } from '@heroicons/react/24/outline';
 import { useAccounts } from '@/hooks/useAccounts';
-import { AccountType } from '@/types';
+import { AccountType, Account } from '@/types';
+import AdjustBalanceModal from '@/components/AdjustBalanceModal';
+import BalanceHistory from '@/components/BalanceHistory';
 import PageHeader from '@/components/ui/PageHeader';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
@@ -59,6 +62,8 @@ const AccountsPage: React.FC = () => {
 
   const [linkToken, setLinkToken] = useState<string | null>(null);
   const [plaidLoading, setPlaidLoading] = useState(false);
+  const [adjustAccount, setAdjustAccount] = useState<{ id: string; name: string; balance: number } | null>(null);
+  const [expandedAccountId, setExpandedAccountId] = useState<string | null>(null);
 
   const {
     accounts, loading, creating,
@@ -203,12 +208,25 @@ const AccountsPage: React.FC = () => {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {accountsOfType.map(account => (
-                    <Card key={account.id} className="hover:shadow-md transition-shadow cursor-pointer">
+                    <div key={account.id}>
+                    <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => setExpandedAccountId(expandedAccountId === account.id ? null : account.id)}>
                       <div className="flex items-center justify-between mb-3">
                         <h3 className="font-medium text-gray-900 dark:text-gray-100">{account.name}</h3>
-                        {!account.isActive && (
-                          <Badge variant="secondary" size="sm">Inactive</Badge>
-                        )}
+                        <div className="flex items-center gap-2">
+                          {!account.isActive && (
+                            <Badge variant="secondary" size="sm">Inactive</Badge>
+                          )}
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setAdjustAccount({ id: account.id, name: account.name, balance: account.balance });
+                            }}
+                            className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400 hover:text-gray-600"
+                            title="Adjust Balance"
+                          >
+                            <AdjustmentsHorizontalIcon className="h-4 w-4" />
+                          </button>
+                        </div>
                       </div>
 
                       <div className="space-y-2">
@@ -238,6 +256,12 @@ const AccountsPage: React.FC = () => {
                         </div>
                       </div>
                     </Card>
+                    {expandedAccountId === account.id && (
+                      <div className="mt-2">
+                        <BalanceHistory accountId={account.id} />
+                      </div>
+                    )}
+                    </div>
                   ))}
                 </div>
               </div>
@@ -351,6 +375,17 @@ const AccountsPage: React.FC = () => {
           </div>
         )}
       </Modal>
+
+      {/* Adjust Balance Modal */}
+      {adjustAccount && (
+        <AdjustBalanceModal
+          isOpen={!!adjustAccount}
+          onClose={() => setAdjustAccount(null)}
+          accountId={adjustAccount.id}
+          accountName={adjustAccount.name}
+          currentBalance={adjustAccount.balance}
+        />
+      )}
     </div>
   );
 };
