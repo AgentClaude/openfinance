@@ -255,7 +255,11 @@ const AccountsPage: React.FC = () => {
                         )}
 
                         <div className="flex items-center justify-between pt-2">
-                          <AmountDisplay amount={account.balance} size="lg" />
+                          <AmountDisplay 
+                            amount={account.balance} 
+                            size="lg" 
+                            colorize={type !== AccountType.CREDIT && type !== AccountType.LOAN}
+                          />
                           <div className="text-right">
                             <p className="text-xs text-gray-500 dark:text-gray-400">
                               Updated {format(new Date(account.balanceDate), 'MMM d')}

@@ -51,8 +51,8 @@ const AllocationPieChart: React.FC<{ allocations: PortfolioAllocation[] }> = ({ 
   const cx = 100, cy = 100, r = 80;
 
   return (
-    <div className="flex flex-col lg:flex-row items-center gap-6">
-      <svg viewBox="0 0 200 200" className="w-56 h-56 flex-shrink-0">
+    <div className="flex flex-col items-center gap-4">
+      <svg viewBox="0 0 200 200" className="w-48 h-48 flex-shrink-0">
         {slices.map((s) => {
           const largeArc = s.endAngle - s.startAngle > 180 ? 1 : 0;
           const x1 = cx + r * Math.cos(toRad(s.startAngle));
@@ -87,7 +87,7 @@ const AllocationPieChart: React.FC<{ allocations: PortfolioAllocation[] }> = ({ 
           {formatCurrency(total)}
         </text>
       </svg>
-      <div className="flex flex-col gap-1.5 min-w-0 flex-1">
+      <div className="flex flex-col gap-1.5 w-full">
         {slices.map((s) => (
           <div key={s.index}
             className={`flex items-center gap-2 text-sm rounded px-2 py-1 transition-colors ${hovered === s.index ? 'bg-gray-100 dark:bg-gray-700' : ''}`}
@@ -256,7 +256,7 @@ const InvestmentsPage: React.FC = () => {
         </div>
 
         {/* Holdings Table */}
-        <div className="lg:col-span-2 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+        <div className="lg:col-span-2 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden min-w-0">
           <div className="px-5 py-4 border-b border-gray-200 dark:border-gray-700">
             <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Holdings</h2>
           </div>
