@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_02_14_100001) do
+ActiveRecord::Schema[8.0].define(version: 2026_02_14_400001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -88,6 +88,34 @@ ActiveRecord::Schema[8.0].define(version: 2026_02_14_100001) do
     t.index ["plaid_account_id"], name: "index_accounts_on_plaid_account_id", unique: true
   end
 
+  create_table "active_storage_attachments", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "record_type", null: false
+    t.uuid "record_id", null: false
+    t.bigint "blob_id", null: false
+    t.datetime "created_at", null: false
+    t.index ["blob_id"], name: "index_active_storage_attachments_on_blob_id"
+    t.index ["record_type", "record_id", "name", "blob_id"], name: "index_active_storage_attachments_uniqueness", unique: true
+  end
+
+  create_table "active_storage_blobs", force: :cascade do |t|
+    t.string "key", null: false
+    t.string "filename", null: false
+    t.string "content_type"
+    t.text "metadata"
+    t.string "service_name", null: false
+    t.bigint "byte_size", null: false
+    t.string "checksum"
+    t.datetime "created_at", null: false
+    t.index ["key"], name: "index_active_storage_blobs_on_key", unique: true
+  end
+
+  create_table "active_storage_variant_records", force: :cascade do |t|
+    t.bigint "blob_id", null: false
+    t.string "variation_digest", null: false
+    t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
+  end
+
   create_table "api_keys", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "user_id", null: false
     t.string "key", null: false
@@ -98,6 +126,22 @@ ActiveRecord::Schema[8.0].define(version: 2026_02_14_100001) do
     t.datetime "updated_at", null: false
     t.index ["key"], name: "index_api_keys_on_key", unique: true
     t.index ["user_id"], name: "index_api_keys_on_user_id"
+  end
+
+  create_table "balance_adjustments", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "account_id", null: false
+    t.uuid "household_id", null: false
+    t.uuid "created_by_id"
+    t.integer "amount_cents", null: false
+    t.string "currency", default: "USD", null: false
+    t.date "adjusted_at", null: false
+    t.text "notes"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id", "adjusted_at"], name: "index_balance_adjustments_on_account_id_and_adjusted_at"
+    t.index ["account_id"], name: "index_balance_adjustments_on_account_id"
+    t.index ["created_by_id"], name: "index_balance_adjustments_on_created_by_id"
+    t.index ["household_id"], name: "index_balance_adjustments_on_household_id"
   end
 
   create_table "budget_items", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -441,6 +485,20 @@ ActiveRecord::Schema[8.0].define(version: 2026_02_14_100001) do
     t.index ["start_date"], name: "index_recurring_items_on_start_date"
   end
 
+  create_table "referrals", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "referrer_id", null: false
+    t.uuid "referred_user_id", null: false
+    t.string "referral_code", null: false
+    t.string "status", default: "pending", null: false
+    t.datetime "rewarded_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["referral_code"], name: "index_referrals_on_referral_code"
+    t.index ["referred_user_id"], name: "index_referrals_on_referred_user_id"
+    t.index ["referrer_id", "referred_user_id"], name: "index_referrals_on_referrer_id_and_referred_user_id", unique: true
+    t.index ["referrer_id"], name: "index_referrals_on_referrer_id"
+  end
+
   create_table "securities", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "symbol", null: false
     t.string "name", null: false
@@ -606,11 +664,15 @@ ActiveRecord::Schema[8.0].define(version: 2026_02_14_100001) do
     t.text "avatar"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "referral_code"
+    t.datetime "deleted_at"
     t.index ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true
+    t.index ["deleted_at"], name: "index_users_on_deleted_at"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["household_id"], name: "index_users_on_household_id"
     t.index ["jti"], name: "index_users_on_jti", unique: true
     t.index ["preferences"], name: "index_users_on_preferences", using: :gin
+    t.index ["referral_code"], name: "index_users_on_referral_code", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
     t.index ["role"], name: "index_users_on_role"
     t.index ["unlock_token"], name: "index_users_on_unlock_token", unique: true
@@ -622,6 +684,11 @@ ActiveRecord::Schema[8.0].define(version: 2026_02_14_100001) do
   add_foreign_key "account_connections", "users", column: "created_by_id"
   add_foreign_key "accounts", "account_connections", column: "connection_id"
   add_foreign_key "accounts", "households"
+  add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "balance_adjustments", "accounts"
+  add_foreign_key "balance_adjustments", "households"
+  add_foreign_key "balance_adjustments", "users", column: "created_by_id"
   add_foreign_key "budget_items", "budgets"
   add_foreign_key "budget_items", "categories"
   add_foreign_key "budgets", "households"
@@ -644,6 +711,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_02_14_100001) do
   add_foreign_key "recurring_items", "accounts"
   add_foreign_key "recurring_items", "categories"
   add_foreign_key "recurring_items", "households"
+  add_foreign_key "referrals", "users", column: "referred_user_id"
+  add_foreign_key "referrals", "users", column: "referrer_id"
   add_foreign_key "shared_accounts", "accounts", validate: false
   add_foreign_key "shared_accounts", "users", column: "shared_by_user_id", validate: false
   add_foreign_key "shared_accounts", "users", column: "shared_with_user_id", validate: false

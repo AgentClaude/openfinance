@@ -1,14 +1,18 @@
 module Referrals
-  class GenerateReferralCode < ApplicationService
+  class GenerateReferralCode
     def initialize(user)
       @user = user
+    end
+
+    def self.call(user)
+      new(user).call
     end
 
     def call
       return @user.referral_code if @user.referral_code.present?
 
       code = generate_unique_code
-      @user.update!(referral_code: code)
+      @user.update_column(:referral_code, code)
       code
     end
 
