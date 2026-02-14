@@ -47,12 +47,12 @@ Rails.application.configure do
 
   # Use a different cache store in production.
   config.cache_store = :redis_cache_store, {
-    url: ENV['REDIS_URL'],
+    url: ENV.fetch('REDIS_URL', 'redis://localhost:6379/1'),
     reconnect_attempts: 1,
+    pool: false,
     error_handler: -> (method:, returning:, exception:) {
       Rails.logger.error "Redis cache error: #{exception.message}"
     }
-  }
 
   # Enable locale fallbacks for I18n (makes lookups for any locale fall back to
   # the I18n.default_locale when a translation cannot be found).
