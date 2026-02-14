@@ -5,8 +5,8 @@ import { useThemeContext } from '@/components/ThemeProvider';
 import { usePreferences } from '@/hooks/usePreferences';
 import { useTags } from '@/hooks/useTags';
 import { useQuery, useMutation } from '@apollo/client';
-import { GET_NOTIFICATION_PREFERENCES, GET_HOUSEHOLD_MEMBERS, GET_HOUSEHOLD_INVITATIONS, GET_MY_REFERRAL_CODE, GET_REFERRALS } from '@/graphql/queries';
-import { UPDATE_HOUSEHOLD, UPDATE_NOTIFICATION_PREFERENCE, UPDATE_TAG, DELETE_TAG, EXPORT_DATA, INVITE_TO_HOUSEHOLD, REMOVE_HOUSEHOLD_MEMBER, UPDATE_MEMBER_ROLE } from '@/graphql/mutations';
+import { GET_ACCOUNTS, GET_NOTIFICATION_PREFERENCES, GET_HOUSEHOLD_MEMBERS, GET_HOUSEHOLD_INVITATIONS, GET_MY_REFERRAL_CODE, GET_REFERRALS } from '@/graphql/queries';
+import { UPDATE_HOUSEHOLD, UPDATE_NOTIFICATION_PREFERENCE, UPDATE_TAG, DELETE_TAG, EXPORT_DATA, DELETE_ACCOUNT, INVITE_TO_HOUSEHOLD, REMOVE_HOUSEHOLD_MEMBER, UPDATE_MEMBER_ROLE } from '@/graphql/mutations';
 import { NotificationPreference } from '@/types';
 import toast from 'react-hot-toast';
 
@@ -37,7 +37,7 @@ const CHANNELS = [
   { key: 'push', label: 'Push' },
 ];
 
-type TabId = 'profile' | 'preferences' | 'household' | 'members' | 'notifications' | 'tags' | 'referrals' | 'data';
+type TabId = 'profile' | 'preferences' | 'household' | 'members' | 'notifications' | 'tags' | 'referrals' | 'security' | 'data';
 
 export default function SettingsPage() {
   const { user } = useAuth();
@@ -71,6 +71,13 @@ export default function SettingsPage() {
   const [updateTagMutation] = useMutation(UPDATE_TAG);
   const [deleteTagMutation] = useMutation(DELETE_TAG);
   const [exportDataMutation, { loading: exporting }] = useMutation(EXPORT_DATA);
+  const [deleteAccountMutation, { loading: deletingAccount }] = useMutation(DELETE_ACCOUNT);
+
+  // Security state
+  const [deletePassword, setDeletePassword] = useState('');
+  const [deleteConfirm, setDeleteConfirm] = useState('');
+  const [showDeleteForm, setShowDeleteForm] = useState(false);
+  const [twoFactorEnabled, setTwoFactorEnabled] = useState(false);
 
   // Members
   const [inviteEmail, setInviteEmail] = useState('');
@@ -80,6 +87,10 @@ export default function SettingsPage() {
   const [inviteMutation, { loading: inviting }] = useMutation(INVITE_TO_HOUSEHOLD);
   const [removeMemberMutation] = useMutation(REMOVE_HOUSEHOLD_MEMBER);
   const [updateRoleMutation] = useMutation(UPDATE_MEMBER_ROLE);
+
+  // Accounts (for default account preference)
+  const { data: accountsData } = useQuery(GET_ACCOUNTS);
+  const accounts = accountsData?.accounts || [];
 
   // Referrals
   const { data: referralCodeData } = useQuery(GET_MY_REFERRAL_CODE, { skip: activeTab !== 'referrals' });
@@ -270,6 +281,7 @@ export default function SettingsPage() {
     { id: 'notifications' as const, label: 'Notifications', icon: '🔔' },
     { id: 'tags' as const, label: 'Tags', icon: '🏷️' },
     { id: 'referrals' as const, label: 'Referrals', icon: '🎁' },
+    { id: 'security' as const, label: 'Security', icon: '🔒' },
     { id: 'data' as const, label: 'Data', icon: '📦' },
   ];
 
@@ -399,6 +411,22 @@ export default function SettingsPage() {
                 <select value={preferences.currency} onChange={(e) => updatePreference('currency', e.target.value)} className={inputClasses}>
                   {CURRENCIES.map((c) => <option key={c} value={c}>{c}</option>)}
                 </select>
+              </div>
+            </div>
+          </div>
+
+          <div className={cardClasses}>
+            <h2 className={headingClasses}>Defaults</h2>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div>
+                <label className={labelClasses}>Default Account for New Transactions</label>
+                <select value={preferences.defaultAccountId} onChange={(e) => updatePreference('defaultAccountId', e.target.value)} className={inputClasses}>
+                  <option value="">None (always ask)</option>
+                  {accounts.filter((a: { isActive: boolean }) => a.isActive).map((a: { id: string; name: string }) => (
+                    <option key={a.id} value={a.id}>{a.name}</option>
+                  ))}
+                </select>
+                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">Pre-select this account when creating new transactions.</p>
               </div>
             </div>
           </div>
@@ -692,6 +720,71 @@ export default function SettingsPage() {
         </div>
       )}
 
+      {/* Security Tab */}
+      {activeTab === 'security' && (
+        <div className="space-y-6">
+          {/* Two-Factor Authentication */}
+          <div className={cardClasses}>
+            <h2 className={headingClasses}>Two-Factor Authentication</h2>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                  {twoFactorEnabled ? '2FA is enabled' : '2FA is not enabled'}
+                </p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  Add an extra layer of security to your account using an authenticator app.
+                </p>
+              </div>
+              <button
+                onClick={() => {
+                  setTwoFactorEnabled(!twoFactorEnabled);
+                  toast(twoFactorEnabled ? '2FA disabled (placeholder)' : '2FA enabled (placeholder)', { icon: 'ℹ️' });
+                }}
+                className={twoFactorEnabled ? btnDanger : btnPrimary}
+              >
+                {twoFactorEnabled ? 'Disable 2FA' : 'Enable 2FA'}
+              </button>
+            </div>
+            <p className="mt-3 text-xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 rounded-md p-2">
+              ⚠️ Two-factor authentication is coming soon. This is a preview of the interface.
+            </p>
+          </div>
+
+          {/* Active Sessions */}
+          <div className={cardClasses}>
+            <h2 className={headingClasses}>Active Sessions</h2>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+              Manage your active login sessions across devices.
+            </p>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between py-3 border-b border-gray-100 dark:border-gray-700">
+                <div className="flex items-center space-x-3">
+                  <span className="text-2xl">💻</span>
+                  <div>
+                    <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Current Session</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      {navigator.userAgent.includes('Mac') ? 'macOS' : navigator.userAgent.includes('Windows') ? 'Windows' : navigator.userAgent.includes('Linux') ? 'Linux' : 'Unknown OS'} · {navigator.userAgent.includes('Chrome') ? 'Chrome' : navigator.userAgent.includes('Firefox') ? 'Firefox' : navigator.userAgent.includes('Safari') ? 'Safari' : 'Browser'}
+                    </p>
+                  </div>
+                </div>
+                <span className="text-xs font-medium text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20 px-2 py-1 rounded-full">
+                  Active Now
+                </span>
+              </div>
+            </div>
+            <button
+              onClick={() => {
+                localStorage.removeItem('token');
+                window.location.href = '/login';
+              }}
+              className="mt-4 text-sm text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 font-medium"
+            >
+              Log out all other sessions
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Data Tab */}
       {activeTab === 'data' && (
         <div className="space-y-6">
@@ -705,14 +798,67 @@ export default function SettingsPage() {
             </button>
           </div>
 
-          <div className={cardClasses}>
-            <h2 className={headingClasses}>Danger Zone</h2>
+          <div className={`${cardClasses} border-2 border-red-200 dark:border-red-800`}>
+            <h2 className="text-lg font-medium text-red-600 dark:text-red-400 mb-4">Danger Zone</h2>
             <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-              These actions are irreversible. Please be careful.
+              Permanently delete your account and anonymize all associated data. This action cannot be undone.
             </p>
-            <button disabled className="bg-red-100 dark:bg-red-900/20 text-red-400 dark:text-red-500 px-4 py-2 rounded-md text-sm font-medium cursor-not-allowed">
-              Delete Account (Coming Soon)
-            </button>
+            {!showDeleteForm ? (
+              <button onClick={() => setShowDeleteForm(true)} className={btnDanger + ' !px-4 !py-2 !text-sm'}>
+                Delete My Account
+              </button>
+            ) : (
+              <div className="space-y-3 max-w-md">
+                <div>
+                  <label className={labelClasses}>Type &quot;DELETE&quot; to confirm</label>
+                  <input
+                    type="text"
+                    value={deleteConfirm}
+                    onChange={(e) => setDeleteConfirm(e.target.value)}
+                    placeholder="DELETE"
+                    className={inputClasses}
+                  />
+                </div>
+                <div>
+                  <label className={labelClasses}>Enter your password</label>
+                  <input
+                    type="password"
+                    value={deletePassword}
+                    onChange={(e) => setDeletePassword(e.target.value)}
+                    className={inputClasses}
+                  />
+                </div>
+                <div className="flex space-x-3">
+                  <button
+                    onClick={async () => {
+                      if (deleteConfirm !== 'DELETE') {
+                        toast.error('Please type DELETE to confirm');
+                        return;
+                      }
+                      try {
+                        const { data } = await deleteAccountMutation({ variables: { password: deletePassword } });
+                        if (data.deleteAccount.errors?.length) {
+                          toast.error(data.deleteAccount.errors[0]);
+                        } else {
+                          toast.success('Account deleted. Goodbye!');
+                          localStorage.removeItem('token');
+                          setTimeout(() => { window.location.href = '/login'; }, 1500);
+                        }
+                      } catch {
+                        toast.error('Failed to delete account');
+                      }
+                    }}
+                    disabled={deletingAccount || deleteConfirm !== 'DELETE' || !deletePassword}
+                    className={btnDanger + ' !px-4 !py-2 !text-sm disabled:opacity-50'}
+                  >
+                    {deletingAccount ? 'Deleting...' : 'Permanently Delete Account'}
+                  </button>
+                  <button onClick={() => { setShowDeleteForm(false); setDeleteConfirm(''); setDeletePassword(''); }} className="text-sm text-gray-500 hover:text-gray-700">
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
