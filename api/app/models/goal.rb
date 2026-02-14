@@ -5,6 +5,8 @@ class Goal < ApplicationRecord
 
   # Associations
   belongs_to :household
+  has_many :goal_accounts, dependent: :destroy
+  has_many :accounts, through: :goal_accounts
 
   # Money attributes
   monetize :target_amount_cents

@@ -204,6 +204,30 @@ FactoryBot.define do
     end
   end
 
+  factory :invitation do
+    association :household
+    association :invited_by, factory: :user
+
+    email { Faker::Internet.unique.email }
+    role { 'member' }
+    status { 'pending' }
+    token { SecureRandom.urlsafe_base64(32) }
+    expires_at { 7.days.from_now }
+
+    trait :accepted do
+      status { 'accepted' }
+      accepted_at { Time.current }
+    end
+
+    trait :expired do
+      expires_at { 1.day.ago }
+    end
+
+    trait :advisor do
+      role { 'advisor' }
+    end
+  end
+
   factory :security do
     symbol { Faker::Finance.ticker }
     name { Faker::Company.name }
