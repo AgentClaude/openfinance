@@ -121,7 +121,7 @@ const ImportPage: React.FC = () => {
         <div className="p-6 space-y-6">
           {/* Account selection */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 dark:text-gray-300 mb-1">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Import to Account
             </label>
             <Select value={accountId} onChange={(e) => setAccountId(e.target.value)} options={accountOptions} />
@@ -129,15 +129,15 @@ const ImportPage: React.FC = () => {
 
           {/* File upload */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               CSV File
             </label>
-            <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 dark:border-gray-600 dark:border-gray-600 rounded-lg cursor-pointer hover:border-indigo-400 hover:bg-indigo-50/50 dark:hover:bg-indigo-900/20 transition-colors">
+            <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer hover:border-indigo-400 hover:bg-indigo-50/50 dark:hover:bg-indigo-900/20 transition-colors">
               <div className="flex flex-col items-center">
                 {file ? (
                   <>
                     <DocumentTextIcon className="h-8 w-8 text-indigo-500 mb-1" />
-                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300 dark:text-gray-300">{file.name}</span>
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{file.name}</span>
                     <span className="text-xs text-gray-500 dark:text-gray-400">{(file.size / 1024).toFixed(1)} KB</span>
                   </>
                 ) : (
@@ -155,13 +155,13 @@ const ImportPage: React.FC = () => {
           {/* Column mapping preview */}
           {preview && (
             <div>
-              <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 dark:text-gray-300 mb-3">Column Mapping</h3>
+              <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Column Mapping</h3>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b dark:border-gray-700">
                       {preview.headers.map(h => (
-                        <th key={h} className="text-left py-2 px-2 font-medium text-gray-500 dark:text-gray-400 dark:text-gray-400">
+                        <th key={h} className="text-left py-2 px-2 font-medium text-gray-500 dark:text-gray-400">
                           <div className="mb-1 text-xs">{h}</div>
                           <Select
                             value={columnMapping[h] || ''}
@@ -176,7 +176,7 @@ const ImportPage: React.FC = () => {
                     {preview.rows.map((row, i) => (
                       <tr key={i} className="border-b dark:border-gray-700">
                         {preview.headers.map(h => (
-                          <td key={h} className="py-1.5 px-2 text-gray-600 dark:text-gray-400 dark:text-gray-400 truncate max-w-[150px]">
+                          <td key={h} className="py-1.5 px-2 text-gray-600 dark:text-gray-400 truncate max-w-[150px]">
                             {row[h]}
                           </td>
                         ))}

@@ -13,8 +13,10 @@ class AddIconColorToGoals < ActiveRecord::Migration[8.0]
       add_index :goal_accounts, :goal_id
       add_index :goal_accounts, :account_id
       add_index :goal_accounts, [:goal_id, :account_id], unique: true
-      add_foreign_key :goal_accounts, :goals
-      add_foreign_key :goal_accounts, :accounts
+      safety_assured do
+        add_foreign_key :goal_accounts, :goals
+        add_foreign_key :goal_accounts, :accounts
+      end
     end
   end
 end

@@ -65,7 +65,7 @@ export interface TransferCandidate {
   inflowAccount: string;
   outflowDate: string;
   inflowDate: string;
-  description: string;
+  description?: string;
 }
 
 export interface Category {

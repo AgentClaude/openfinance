@@ -51,7 +51,7 @@ const TransferDetection: React.FC<TransferDetectionProps> = ({ onLinked }) => {
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <ArrowsRightLeftIcon className="h-5 w-5 text-indigo-600" />
-          <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">Possible Transfers</h3>
+          <h3 className="text-sm font-semibold text-gray-900">Possible Transfers</h3>
         </div>
         <Button
           variant="secondary"
@@ -64,7 +64,7 @@ const TransferDetection: React.FC<TransferDetectionProps> = ({ onLinked }) => {
       </div>
 
       {detected && candidates.length === 0 && (
-        <p className="text-sm text-gray-500 dark:text-gray-400">No transfer candidates found.</p>
+        <p className="text-sm text-gray-500">No transfer candidates found.</p>
       )}
 
       {candidates.length > 0 && (
@@ -75,16 +75,16 @@ const TransferDetection: React.FC<TransferDetectionProps> = ({ onLinked }) => {
               <div
                 key={pairKey(c)}
                 className={`flex items-center justify-between p-3 rounded-lg border ${
-                  isLinked ? 'bg-green-50 border-green-200' : 'bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700'
+                  isLinked ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-200'
                 }`}
               >
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 text-sm">
-                    <span className="font-medium text-gray-900 dark:text-gray-100">{c.outflowAccount}</span>
+                    <span className="font-medium text-gray-900">{c.outflowAccount}</span>
                     <span className="text-gray-400">→</span>
-                    <span className="font-medium text-gray-900 dark:text-gray-100">{c.inflowAccount}</span>
+                    <span className="font-medium text-gray-900">{c.inflowAccount}</span>
                   </div>
-                  <div className="flex items-center gap-3 mt-1 text-xs text-gray-500 dark:text-gray-400">
+                  <div className="flex items-center gap-3 mt-1 text-xs text-gray-500">
                     <AmountDisplay amount={c.amount} size="sm" />
                     <span>{format(new Date(c.outflowDate), 'MMM d')} → {format(new Date(c.inflowDate), 'MMM d')}</span>
                     {c.description && <span className="truncate">{c.description}</span>}
