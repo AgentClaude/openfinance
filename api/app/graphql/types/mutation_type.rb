@@ -42,5 +42,6 @@ module Types
     field :update_notification_preference, mutation: Mutations::UpdateNotificationPreference
     field :update_tag, mutation: Mutations::UpdateTag
     field :delete_tag, mutation: Mutations::DeleteTag
+    field :share_account, mutation: Mutations::ShareAccount
   end
 end
