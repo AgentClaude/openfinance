@@ -407,7 +407,6 @@ export const GET_GOALS = gql`
       isOverdue
       isOnTrack
       monthlyTarget
-      linkedAccountIds
       createdAt
     }
   }
