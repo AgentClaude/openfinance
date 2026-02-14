@@ -1,8 +1,9 @@
 import { test, expect } from '@playwright/test';
-import { EMAIL, PASSWORD, login, takeScreenshot } from './helpers';
+import { EMAIL, PASSWORD, loginViaApi, loginViaUi } from './helpers/auth';
+import { takeScreenshot } from './helpers';
 
 test.describe('Authentication', () => {
-  test.describe('Login', () => {
+  test.describe('Login Page', () => {
     test('shows login form with all fields', async ({ page }) => {
       await page.goto('/login');
       await expect(page.getByLabel(/email/i)).toBeVisible();
@@ -17,9 +18,8 @@ test.describe('Authentication', () => {
     });
 
     test('logs in with valid credentials and redirects to dashboard', async ({ page }) => {
-      await login(page);
+      await loginViaUi(page);
       await expect(page).toHaveURL(/dashboard/);
-      await takeScreenshot(page, 'auth-login-success');
     });
 
     test('shows error for invalid email', async ({ page }) => {
@@ -43,20 +43,28 @@ test.describe('Authentication', () => {
       const emailInput = page.getByLabel(/email/i);
       await expect(emailInput).toHaveAttribute('required', '');
     });
+
+    test('password field is masked', async ({ page }) => {
+      await page.goto('/login');
+      const passwordInput = page.getByLabel(/password/i);
+      await expect(passwordInput).toHaveAttribute('type', 'password');
+    });
   });
 
   test.describe('Session Persistence', () => {
     test('maintains session after page reload', async ({ page }) => {
-      await login(page);
+      await loginViaApi(page);
       await page.reload();
       await page.waitForLoadState('networkidle');
-      // Should still be on dashboard, not redirected to login
       await expect(page).toHaveURL(/dashboard/);
     });
 
-    test('maintains session when navigating', async ({ page }) => {
-      await login(page);
+    test('maintains session when navigating between pages', async ({ page }) => {
+      await loginViaApi(page);
       await page.goto('/transactions');
+      await page.waitForLoadState('networkidle');
+      await expect(page).not.toHaveURL(/login/);
+      await page.goto('/accounts');
       await page.waitForLoadState('networkidle');
       await expect(page).not.toHaveURL(/login/);
     });
@@ -64,12 +72,13 @@ test.describe('Authentication', () => {
 
   test.describe('Logout', () => {
     test('can log out and redirects to login', async ({ page }) => {
-      await login(page);
-      // Try various logout patterns
+      await loginViaApi(page);
+
+      // Look for logout in various places
       const logoutBtn = page.getByRole('button', { name: /log\s*out|sign\s*out/i }).first();
       const logoutLink = page.getByRole('link', { name: /log\s*out|sign\s*out/i }).first();
       const logoutText = page.getByText(/log\s*out|sign\s*out/i).first();
-      
+
       if (await logoutBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
         await logoutBtn.click();
       } else if (await logoutLink.isVisible({ timeout: 1000 }).catch(() => false)) {
@@ -77,7 +86,7 @@ test.describe('Authentication', () => {
       } else if (await logoutText.isVisible({ timeout: 1000 }).catch(() => false)) {
         await logoutText.click();
       } else {
-        // Try settings/profile link which might have logout
+        // Try settings page
         await page.goto('/settings');
         await page.waitForTimeout(1000);
         const logoutInSettings = page.getByText(/log\s*out|sign\s*out/i).first();
@@ -85,8 +94,15 @@ test.describe('Authentication', () => {
           await logoutInSettings.click();
         }
       }
-      // If logout worked, should redirect
       await page.waitForTimeout(2000);
+    });
+
+    test('after logout, accessing protected route redirects to login', async ({ page }) => {
+      await loginViaApi(page);
+      // Clear token to simulate logout
+      await page.evaluate(() => localStorage.removeItem('access_token'));
+      await page.goto('/dashboard');
+      await expect(page).toHaveURL(/login/, { timeout: 10000 });
     });
   });
 
@@ -95,7 +111,7 @@ test.describe('Authentication', () => {
       await page.goto('/register');
       await expect(page.getByLabel(/name/i).first()).toBeVisible();
       await expect(page.getByLabel(/email/i)).toBeVisible();
-      await expect(page.getByLabel(/^password$/i).or(page.getByLabel(/password/i).first())).toBeVisible();
+      await expect(page.getByLabel(/password/i).first()).toBeVisible();
       await takeScreenshot(page, 'auth-register-form');
     });
 
@@ -108,7 +124,6 @@ test.describe('Authentication', () => {
       await page.goto('/register');
       await page.getByLabel(/name/i).first().fill('Test User');
       await page.getByLabel(/email/i).fill('test-mismatch@test.com');
-      // Fill password fields
       const passwordFields = page.getByLabel(/password/i);
       const count = await passwordFields.count();
       if (count >= 2) {
@@ -119,7 +134,7 @@ test.describe('Authentication', () => {
       await expect(page.getByText(/match|mismatch/i).first()).toBeAttached({ timeout: 10000 });
     });
 
-    test('can submit registration form', async ({ page }) => {
+    test('can submit registration form with unique email', async ({ page }) => {
       const uniqueEmail = `test-${Date.now()}@test.com`;
       await page.goto('/register');
       await page.getByLabel(/name/i).first().fill('E2E Test User');
@@ -132,23 +147,46 @@ test.describe('Authentication', () => {
       } else {
         await passwordFields.first().fill('password123');
       }
-      const submitBtn = page.getByRole('button', { name: /sign up|register|create/i });
-      await expect(submitBtn).toBeEnabled();
-      await submitBtn.click();
-      // Wait for either redirect or success/error message
+      await page.getByRole('button', { name: /sign up|register|create/i }).click();
       await page.waitForTimeout(3000);
       await takeScreenshot(page, 'auth-register-submitted');
+    });
+
+    test('shows error for duplicate email', async ({ page }) => {
+      await page.goto('/register');
+      await page.getByLabel(/name/i).first().fill('Duplicate User');
+      await page.getByLabel(/email/i).fill(EMAIL); // already exists
+      const passwordFields = page.getByLabel(/password/i);
+      const count = await passwordFields.count();
+      if (count >= 2) {
+        await passwordFields.nth(0).fill('password123');
+        await passwordFields.nth(1).fill('password123');
+      } else {
+        await passwordFields.first().fill('password123');
+      }
+      await page.getByRole('button', { name: /sign up|register|create/i }).click();
+      await expect(page.getByText(/already|exists|duplicate|error/i).first()).toBeAttached({ timeout: 10000 });
     });
   });
 
   test.describe('Route Protection', () => {
-    test('redirects unauthenticated users to login', async ({ page }) => {
+    test('redirects unauthenticated users from dashboard to login', async ({ page }) => {
       await page.goto('/dashboard');
       await expect(page).toHaveURL(/login/, { timeout: 10000 });
     });
 
-    test('redirects unauthenticated users from transactions', async ({ page }) => {
+    test('redirects unauthenticated users from transactions to login', async ({ page }) => {
       await page.goto('/transactions');
+      await expect(page).toHaveURL(/login/, { timeout: 10000 });
+    });
+
+    test('redirects unauthenticated users from accounts to login', async ({ page }) => {
+      await page.goto('/accounts');
+      await expect(page).toHaveURL(/login/, { timeout: 10000 });
+    });
+
+    test('redirects unauthenticated users from settings to login', async ({ page }) => {
+      await page.goto('/settings');
       await expect(page).toHaveURL(/login/, { timeout: 10000 });
     });
   });
