@@ -80,6 +80,9 @@ export const useAccounts = () => {
     const result = await exchangePlaidTokenMutation({
       variables: { publicToken, metadata },
     });
+    if (!result.data?.exchangePlaidToken) {
+      throw new Error(result.errors?.[0]?.message || 'Failed to exchange Plaid token');
+    }
     return result.data.exchangePlaidToken;
   };
 
