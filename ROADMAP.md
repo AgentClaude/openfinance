@@ -216,6 +216,21 @@ _Backend partially exists: reports query returns monthly_summary, spending_by_ca
 - ⬚ Component documentation with props/variants/examples
 - ⬚ Storybook deploy script (static build)
 
+## Phase 19b: Deep Component Consolidation — HIGH PRIORITY
+- ⬚ Single Button component (variants: primary, secondary, danger, ghost, link, sizes: sm/md/lg) — replace ALL ad-hoc buttons
+- ⬚ Single Modal component (title, body, footer slots, sizes, close on escape/overlay) — replace ALL inline modals
+- ⬚ Single Sidebar/AppLayout component — one source of truth for navigation
+- ⬚ Single Table/DataTable component — sortable, filterable, paginated — replace all inline tables
+- ⬚ Single Card component (header, body, footer slots) — replace all inline card divs
+- ⬚ Single Select/Dropdown component — replace all inline selects
+- ⬚ Single Input component (text, number, currency, date, search) — replace all inline inputs
+- ⬚ Single Badge component (status, category, tag variants)
+- ⬚ Single EmptyState component — used on every page when no data
+- ⬚ Single LoadingSpinner/Skeleton component
+- ⬚ All shared components in Storybook with full variant coverage
+- ⬚ Audit EVERY page to use shared components — zero ad-hoc UI elements
+- ⬚ Consistent spacing, sizing, and color tokens via Tailwind config
+
 ## Phase 20: Provider Adapter Pattern (Plaid/MX/Finicity)
 - ⬚ Create `FinancialProvider` adapter interface (abstract base)
 - ⬚ Methods: create_link_token, exchange_token, sync_transactions, get_accounts, get_balances
