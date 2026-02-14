@@ -19,6 +19,8 @@ class User < ApplicationRecord
   has_many :notifications, dependent: :destroy
   has_many :notification_preferences, dependent: :destroy
   has_many :sent_invitations, class_name: 'Invitation', foreign_key: :invited_by_id, dependent: :destroy
+  has_many :shared_accounts_received, class_name: 'SharedAccount', foreign_key: :shared_with_user_id, dependent: :destroy
+  has_many :shared_accounts_given, class_name: 'SharedAccount', foreign_key: :shared_by_user_id, dependent: :destroy
 
   # Validations
   validates :email, presence: true, uniqueness: true, format: { with: URI::MailTo::EMAIL_REGEXP }

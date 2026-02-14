@@ -9,6 +9,8 @@ class Account < ApplicationRecord
   has_many :transactions, dependent: :destroy
   has_many :holdings, dependent: :destroy
   has_many :balance_histories, class_name: 'AccountBalanceHistory', dependent: :destroy
+  has_many :shared_accounts, dependent: :destroy
+  has_many :shared_with_users, through: :shared_accounts, source: :shared_with_user
 
   # Money attributes
   monetize :current_balance_cents

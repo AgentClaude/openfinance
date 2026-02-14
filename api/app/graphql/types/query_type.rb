@@ -44,7 +44,8 @@ module Types
     field :accounts, [Types::AccountType], null: false
     def accounts
       return [] unless context[:current_user]&.household
-      context[:current_user].household.accounts.where(is_hidden: false).order(:display_order, :name)
+      AccountPolicy::Scope.new(context[:current_user], Account).resolve
+        .where(is_hidden: false).order(:display_order, :name)
     end
 
     field :transactions, Types::TransactionPageType, null: false do
@@ -210,7 +211,8 @@ module Types
     field :categorization_rules, [Types::CategorizationRuleType], null: false
     def categorization_rules
       return [] unless context[:current_user]&.household
-      context[:current_user].household.categorization_rules.by_priority.includes(:category)
+      CategorizationRulePolicy::Scope.new(context[:current_user], CategorizationRule).resolve
+        .by_priority.includes(:category)
     end
 
     field :recurring_items, [Types::RecurringItemType], null: false do
@@ -218,7 +220,8 @@ module Types
     end
     def recurring_items(active_only: false)
       return [] unless context[:current_user]&.household
-      scope = context[:current_user].household.recurring_items.includes(:category, :account).order(:next_occurrence)
+      scope = RecurringItemPolicy::Scope.new(context[:current_user], RecurringItem).resolve
+        .includes(:category, :account).order(:next_occurrence)
       scope = scope.active if active_only
       scope
     end
