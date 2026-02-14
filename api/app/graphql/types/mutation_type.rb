@@ -30,6 +30,9 @@ module Types
     field :delete_goal, mutation: Mutations::DeleteGoal
     field :update_profile, mutation: Mutations::UpdateProfile
     field :change_password, mutation: Mutations::ChangePassword
+    field :invite_to_household, mutation: Mutations::InviteToHousehold
+    field :accept_invitation, mutation: Mutations::AcceptInvitation
+    field :remove_household_member, mutation: Mutations::RemoveHouseholdMember
     field :import_csv, mutation: Mutations::ImportCsv
     field :bulk_transaction_action, mutation: Mutations::BulkTransactionAction
     field :split_transaction, mutation: Mutations::SplitTransaction

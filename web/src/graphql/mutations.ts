@@ -596,3 +596,61 @@ export const MARK_RECURRING_ITEM_PAID = gql`
     }
   }
 `;
+
+export const CREATE_GOAL = gql`
+  mutation CreateGoal($name: String!, $targetAmount: Float!, $goalType: String, $targetDate: String, $currentAmount: Float, $description: String, $icon: String, $color: String) {
+    createGoal(name: $name, targetAmount: $targetAmount, goalType: $goalType, targetDate: $targetDate, currentAmount: $currentAmount, description: $description, icon: $icon, color: $color) {
+      id
+      name
+      description
+      goalType
+      icon
+      color
+      targetAmount
+      currentAmount
+      targetDate
+      progressPercentage
+      amountRemaining
+      daysRemaining
+      isOverdue
+      isOnTrack
+      monthlyTarget
+      isAchieved
+      isActive
+      createdAt
+    }
+  }
+`;
+
+export const UPDATE_GOAL = gql`
+  mutation UpdateGoal($id: ID!, $name: String, $targetAmount: Float, $currentAmount: Float, $goalType: String, $targetDate: String, $description: String, $icon: String, $color: String, $isActive: Boolean) {
+    updateGoal(id: $id, name: $name, targetAmount: $targetAmount, currentAmount: $currentAmount, goalType: $goalType, targetDate: $targetDate, description: $description, icon: $icon, color: $color, isActive: $isActive) {
+      id
+      name
+      description
+      goalType
+      icon
+      color
+      targetAmount
+      currentAmount
+      targetDate
+      progressPercentage
+      amountRemaining
+      daysRemaining
+      isOverdue
+      isOnTrack
+      monthlyTarget
+      isAchieved
+      isActive
+      createdAt
+    }
+  }
+`;
+
+export const DELETE_GOAL = gql`
+  mutation DeleteGoal($id: ID!) {
+    deleteGoal(id: $id) {
+      success
+    }
+  }
+`;

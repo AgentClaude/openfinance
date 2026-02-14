@@ -5,6 +5,32 @@ module Types
       context[:current_user]
     end
 
+    field :household_members, [Types::HouseholdMemberType], null: false
+    def household_members
+      return [] unless context[:current_user]&.household
+
+      household = context[:current_user].household
+      members = []
+
+      # Primary users (users table household_id)
+      household.users.each do |u|
+        members << OpenStruct.new(id: "primary-#{u.id}", user: u, role: u.role, joined_at: u.created_at, is_primary: true)
+      end
+
+      # Membership users
+      household.household_memberships.includes(:user).each do |m|
+        members << OpenStruct.new(id: m.id, user: m.user, role: m.role, joined_at: m.joined_at, is_primary: false)
+      end
+
+      members
+    end
+
+    field :household_invitations, [Types::InvitationType], null: false
+    def household_invitations
+      return [] unless context[:current_user]&.household
+      context[:current_user].household.invitations.pending.where('expires_at > ?', Time.current).order(created_at: :desc)
+    end
+
     field :goals, [Types::GoalType], null: false do
       argument :active_only, Boolean, required: false, default_value: false
     end

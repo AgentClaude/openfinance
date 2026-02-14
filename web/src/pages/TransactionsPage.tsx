@@ -23,6 +23,7 @@ import AmountDisplay from '@/components/ui/AmountDisplay';
 import Card from '@/components/ui/Card';
 import BulkActionToolbar from '@/components/BulkActionToolbar';
 import TransactionDetailPanel from '@/components/TransactionDetailPanel';
+import TransferDetection from '@/components/TransferDetection';
 import { BULK_TRANSACTION_ACTION } from '@/graphql/mutations';
 import { format } from 'date-fns';
 
@@ -378,6 +379,9 @@ const TransactionsPage: React.FC = () => {
         onClearSelection={() => setSelectedTransactionIds([])}
         loading={bulkLoading}
       />
+
+      {/* Transfer Detection */}
+      <TransferDetection onLinked={() => {/* refetch handled by cache */}} />
 
       {/* Mobile: Card Layout */}
       <div className="md:hidden">

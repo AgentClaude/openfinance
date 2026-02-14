@@ -13,6 +13,7 @@ import {
   ArrowPathIcon,
   ChartPieIcon,
   ArrowUpTrayIcon,
+  FlagIcon,
 } from '@heroicons/react/24/outline';
 import { useAuth } from '@/hooks/useAuth';
 import Sidebar from '@/components/ui/Sidebar';

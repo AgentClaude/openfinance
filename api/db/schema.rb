@@ -193,6 +193,15 @@ ActiveRecord::Schema[8.0].define(version: 2026_02_13_100001) do
     t.index ["household_id"], name: "index_csv_imports_on_household_id"
   end
 
+  create_table "goal_accounts", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "goal_id", null: false
+    t.uuid "account_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_goal_accounts_on_account_id"
+    t.index ["goal_id", "account_id"], name: "index_goal_accounts_on_goal_id_and_account_id", unique: true
+  end
+
   create_table "goals", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "household_id", null: false
     t.uuid "target_account_id"
@@ -210,6 +219,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_02_13_100001) do
     t.jsonb "metadata", default: {}
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "icon", default: "🎯"
+    t.string "color", default: "#4ECDC4"
     t.index ["achieved_at"], name: "index_goals_on_achieved_at"
     t.index ["goal_type"], name: "index_goals_on_goal_type"
     t.index ["household_id"], name: "index_goals_on_household_id"

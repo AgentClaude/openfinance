@@ -1,19 +1,12 @@
-import React, { Fragment, useState, useEffect } from 'react';
+import React, { Fragment, useState } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
 import { XMarkIcon, PlusIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { useMutation } from '@apollo/client';
+import { SPLIT_TRANSACTION } from '@/graphql/mutations';
 import { Transaction, Category } from '@/types';
 import Button from '@/components/ui/Button';
 import Select from '@/components/ui/Select';
 import Input from '@/components/ui/Input';
-import AmountDisplay from '@/components/ui/AmountDisplay';
-
-interface SplitTransactionModalProps {
-  transaction: Transaction | null;
-  isOpen: boolean;
-  onClose: () => void;
-  categories: Category[];
-  onSplit: (transactionId: string, splits: Array<{ amount: number; categoryId?: string; description?: string }>) => Promise<any>;
-}
 
 interface SplitRow {
   amount: string;
@@ -21,84 +14,75 @@ interface SplitRow {
   description: string;
 }
 
+interface SplitTransactionModalProps {
+  transaction: Transaction;
+  categories: Category[];
+  isOpen: boolean;
+  onClose: () => void;
+  onSuccess: () => void;
+}
+
 const SplitTransactionModal: React.FC<SplitTransactionModalProps> = ({
   transaction,
+  categories,
   isOpen,
   onClose,
-  categories,
-  onSplit,
+  onSuccess,
 }) => {
-  const [splits, setSplits] = useState<SplitRow[]>([
-    { amount: '', categoryId: '', description: '' },
+  const absAmount = Math.abs(transaction.amount);
+  const [rows, setRows] = useState<SplitRow[]>([
+    { amount: '', categoryId: transaction.categoryId || '', description: '' },
     { amount: '', categoryId: '', description: '' },
   ]);
-  const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (transaction && isOpen) {
-      const halfAmount = (Math.abs(transaction.amount) / 2).toFixed(2);
-      setSplits([
-        { amount: halfAmount, categoryId: transaction.categoryId || '', description: '' },
-        { amount: halfAmount, categoryId: '', description: '' },
-      ]);
-      setError(null);
-    }
-  }, [transaction, isOpen]);
-
-  if (!transaction) return null;
-
-  const totalAmount = Math.abs(transaction.amount);
-  const splitTotal = splits.reduce((sum, s) => sum + (parseFloat(s.amount) || 0), 0);
-  const remaining = totalAmount - splitTotal;
-  const isBalanced = Math.abs(remaining) < 0.01;
-
-  const flatCategories = categories.flatMap(cat => [
-    cat,
-    ...(cat.children || []),
-  ]);
+  const [splitTransaction, { loading }] = useMutation(SPLIT_TRANSACTION);
 
   const categoryOptions = [
     { value: '', label: 'Uncategorized' },
-    ...flatCategories.map(c => ({ value: c.id, label: c.name })),
+    ...categories.filter(c => !c.parentId).map(c => ({
+      value: c.id,
+      label: c.name,
+    })),
   ];
 
-  const addSplit = () => {
-    setSplits([...splits, { amount: '', categoryId: '', description: '' }]);
+  const rowsTotal = rows.reduce((sum, r) => sum + (parseFloat(r.amount) || 0), 0);
+  const remaining = Math.round((absAmount - rowsTotal) * 100) / 100;
+
+  const updateRow = (index: number, field: keyof SplitRow, value: string) => {
+    setRows(prev => prev.map((r, i) => i === index ? { ...r, [field]: value } : r));
   };
 
-  const removeSplit = (index: number) => {
-    if (splits.length <= 2) return;
-    setSplits(splits.filter((_, i) => i !== index));
+  const addRow = () => {
+    setRows(prev => [...prev, { amount: remaining > 0 ? remaining.toFixed(2) : '', categoryId: '', description: '' }]);
   };
 
-  const updateSplit = (index: number, field: keyof SplitRow, value: string) => {
-    const updated = [...splits];
-    updated[index] = { ...updated[index], [field]: value };
-    setSplits(updated);
+  const removeRow = (index: number) => {
+    if (rows.length <= 2) return;
+    setRows(prev => prev.filter((_, i) => i !== index));
   };
 
-  const handleSave = async () => {
-    if (!isBalanced) {
-      setError(`Splits must total ${totalAmount.toFixed(2)}. Currently ${splitTotal.toFixed(2)} (${remaining > 0 ? `$${remaining.toFixed(2)} remaining` : `$${Math.abs(remaining).toFixed(2)} over`})`);
-      return;
-    }
-
-    setSaving(true);
+  const handleSubmit = async () => {
     setError(null);
+    const sign = transaction.amount < 0 ? -1 : 1;
+    const splits = rows.map(r => ({
+      amount: parseFloat(r.amount) * sign,
+      categoryId: r.categoryId || null,
+      description: r.description || null,
+    }));
+
     try {
-      const sign = transaction.amount < 0 ? -1 : 1;
-      const splitData = splits.map(s => ({
-        amount: parseFloat(s.amount) * sign,
-        categoryId: s.categoryId || undefined,
-        description: s.description || undefined,
-      }));
-      await onSplit(transaction.id, splitData);
-      onClose();
+      const { data } = await splitTransaction({
+        variables: { transactionId: transaction.id, splits },
+      });
+      if (data?.splitTransaction?.errors?.length) {
+        setError(data.splitTransaction.errors.join(', '));
+      } else {
+        onSuccess();
+        onClose();
+      }
     } catch (e: any) {
-      setError(e.message || 'Failed to split transaction');
-    } finally {
-      setSaving(false);
+      setError(e.message);
     }
   };
 
@@ -107,12 +91,8 @@ const SplitTransactionModal: React.FC<SplitTransactionModalProps> = ({
       <Dialog as="div" className="relative z-50" onClose={onClose}>
         <Transition.Child
           as={Fragment}
-          enter="ease-out duration-300"
-          enterFrom="opacity-0"
-          enterTo="opacity-100"
-          leave="ease-in duration-200"
-          leaveFrom="opacity-100"
-          leaveTo="opacity-0"
+          enter="ease-out duration-300" enterFrom="opacity-0" enterTo="opacity-100"
+          leave="ease-in duration-200" leaveFrom="opacity-100" leaveTo="opacity-0"
         >
           <div className="fixed inset-0 bg-black bg-opacity-25" />
         </Transition.Child>
@@ -121,90 +101,85 @@ const SplitTransactionModal: React.FC<SplitTransactionModalProps> = ({
           <div className="flex min-h-full items-center justify-center p-4">
             <Transition.Child
               as={Fragment}
-              enter="ease-out duration-300"
-              enterFrom="opacity-0 scale-95"
-              enterTo="opacity-100 scale-100"
-              leave="ease-in duration-200"
-              leaveFrom="opacity-100 scale-100"
-              leaveTo="opacity-0 scale-95"
+              enter="ease-out duration-300" enterFrom="opacity-0 scale-95" enterTo="opacity-100 scale-100"
+              leave="ease-in duration-200" leaveFrom="opacity-100 scale-100" leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className="w-full max-w-lg transform overflow-hidden rounded-2xl bg-white dark:bg-gray-800 p-6 shadow-xl transition-all">
+              <Dialog.Panel className="w-full max-w-lg transform overflow-hidden rounded-2xl bg-white p-6 shadow-xl transition-all">
                 <div className="flex items-center justify-between mb-4">
-                  <Dialog.Title className="text-lg font-medium text-gray-900 dark:text-white">
+                  <Dialog.Title className="text-lg font-semibold text-gray-900">
                     Split Transaction
                   </Dialog.Title>
-                  <button onClick={onClose} className="text-gray-400 hover:text-gray-500">
+                  <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
                     <XMarkIcon className="h-5 w-5" />
                   </button>
                 </div>
 
-                <div className="mb-4 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <p className="font-medium text-gray-900 dark:text-white">{transaction.description}</p>
-                      <p className="text-sm text-gray-500">{transaction.merchantName}</p>
-                    </div>
-                    <AmountDisplay amount={transaction.amount} className="text-lg font-semibold" />
-                  </div>
-                </div>
+                <p className="text-sm text-gray-600 mb-1">
+                  {transaction.description} — <span className="font-semibold">${absAmount.toFixed(2)}</span>
+                </p>
 
-                <div className="space-y-3 mb-4">
-                  {splits.map((split, idx) => (
-                    <div key={idx} className="flex gap-2 items-start">
+                {error && (
+                  <div className="bg-red-50 text-red-700 text-sm rounded-md p-3 mb-4">{error}</div>
+                )}
+
+                <div className="space-y-3 mt-4">
+                  {rows.map((row, i) => (
+                    <div key={i} className="flex items-start gap-2">
                       <div className="w-24">
                         <Input
+                          label={i === 0 ? 'Amount' : undefined}
                           type="number"
                           step="0.01"
-                          placeholder="Amount"
-                          value={split.amount}
-                          onChange={(e) => updateSplit(idx, 'amount', e.target.value)}
+                          min="0"
+                          placeholder="0.00"
+                          value={row.amount}
+                          onChange={e => updateRow(i, 'amount', e.target.value)}
                         />
                       </div>
                       <div className="flex-1">
                         <Select
-                          value={split.categoryId}
-                          onChange={(e) => updateSplit(idx, 'categoryId', e.target.value)}
+                          label={i === 0 ? 'Category' : undefined}
                           options={categoryOptions}
+                          value={row.categoryId}
+                          onChange={e => updateRow(i, 'categoryId', e.target.value)}
                         />
                       </div>
                       <div className="flex-1">
                         <Input
-                          placeholder="Description"
-                          value={split.description}
-                          onChange={(e) => updateSplit(idx, 'description', e.target.value)}
+                          label={i === 0 ? 'Description' : undefined}
+                          placeholder="Optional"
+                          value={row.description}
+                          onChange={e => updateRow(i, 'description', e.target.value)}
                         />
                       </div>
-                      {splits.length > 2 && (
-                        <button
-                          onClick={() => removeSplit(idx)}
-                          className="p-2 text-red-400 hover:text-red-600"
-                        >
-                          <TrashIcon className="h-4 w-4" />
-                        </button>
-                      )}
+                      <button
+                        onClick={() => removeRow(i)}
+                        disabled={rows.length <= 2}
+                        className={`mt-${i === 0 ? '6' : '0'} p-1.5 text-gray-400 hover:text-red-500 disabled:opacity-30`}
+                      >
+                        <TrashIcon className="h-4 w-4" />
+                      </button>
                     </div>
                   ))}
                 </div>
 
-                <div className="flex justify-between items-center mb-4">
-                  <button
-                    onClick={addSplit}
-                    className="flex items-center gap-1 text-sm text-indigo-600 hover:text-indigo-700"
-                  >
-                    <PlusIcon className="h-4 w-4" /> Add split
-                  </button>
-                  <div className={`text-sm font-medium ${isBalanced ? 'text-green-600' : 'text-red-600'}`}>
-                    {isBalanced ? '✓ Balanced' : `$${Math.abs(remaining).toFixed(2)} ${remaining > 0 ? 'remaining' : 'over'}`}
-                  </div>
+                <div className="flex items-center justify-between mt-4">
+                  <Button variant="secondary" size="sm" onClick={addRow}>
+                    <PlusIcon className="h-4 w-4 mr-1" /> Add Row
+                  </Button>
+                  <span className={`text-sm font-medium ${Math.abs(remaining) < 0.01 ? 'text-green-600' : 'text-amber-600'}`}>
+                    {Math.abs(remaining) < 0.01 ? '✓ Balanced' : `$${remaining.toFixed(2)} remaining`}
+                  </span>
                 </div>
 
-                {error && (
-                  <div className="mb-4 p-2 bg-red-50 text-red-700 text-sm rounded">{error}</div>
-                )}
-
-                <div className="flex gap-3 justify-end">
-                  <Button variant="secondary" onClick={onClose}>Cancel</Button>
-                  <Button onClick={handleSave} loading={saving} disabled={!isBalanced}>
+                <div className="flex gap-3 mt-6">
+                  <Button variant="secondary" onClick={onClose} className="flex-1">Cancel</Button>
+                  <Button
+                    onClick={handleSubmit}
+                    loading={loading}
+                    disabled={Math.abs(remaining) >= 0.01}
+                    className="flex-1"
+                  >
                     Split Transaction
                   </Button>
                 </div>
