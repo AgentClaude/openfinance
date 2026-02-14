@@ -123,18 +123,18 @@ module PlaidHelpers
 
   # Mock Plaid error
   def mock_plaid_error(error_type = 'INVALID_INPUT', error_code = 'INVALID_PUBLIC_TOKEN')
+    body_json = {
+      'error_type' => error_type,
+      'error_code' => error_code,
+      'error_message' => 'Invalid public token',
+      'display_message' => 'Unable to connect account',
+      'request_id' => 'req_error_123'
+    }.to_json
+
     Plaid::ApiError.new(
-      double(
-        'HTTP::Response',
-        code: 400,
-        body: {
-          'error_type' => error_type,
-          'error_code' => error_code,
-          'error_message' => 'Invalid public token',
-          'display_message' => 'Unable to connect account',
-          'request_id' => 'req_error_123'
-        }.to_json
-      )
+      code: 400,
+      response_body: body_json,
+      message: "Plaid error: #{error_code}"
     )
   end
 
