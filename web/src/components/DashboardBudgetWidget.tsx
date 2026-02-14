@@ -24,7 +24,7 @@ const DashboardBudgetWidget: React.FC = () => {
         title="Budget"
         subtitle={format(new Date(), 'MMMM yyyy')}
         actions={
-          <Link to="/budget" className="text-indigo-600 hover:text-indigo-700 text-sm font-medium flex items-center">
+          <Link to="/budget" className="text-brand-700 hover:text-brand-800 text-sm font-medium flex items-center">
             Set up budget <ArrowRightIcon className="h-4 w-4 ml-1" />
           </Link>
         }
@@ -53,7 +53,7 @@ const DashboardBudgetWidget: React.FC = () => {
       title="Budget"
       subtitle={format(new Date(), 'MMMM yyyy')}
       actions={
-        <Link to="/budget" className="text-indigo-600 hover:text-indigo-700 text-sm font-medium flex items-center">
+        <Link to="/budget" className="text-brand-700 hover:text-brand-800 text-sm font-medium flex items-center">
           View budget <ArrowRightIcon className="h-4 w-4 ml-1" />
         </Link>
       }

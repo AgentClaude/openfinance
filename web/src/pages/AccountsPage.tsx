@@ -285,7 +285,7 @@ const AccountsPage: React.FC = () => {
               className={clsx(
                 'whitespace-nowrap pb-2 px-1 border-b-2 font-medium text-sm',
                 activeTab === 'manual'
-                  ? 'border-indigo-500 text-indigo-600'
+                  ? 'border-brand-500 text-brand-700'
                   : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:border-gray-600'
               )}
             >
@@ -296,7 +296,7 @@ const AccountsPage: React.FC = () => {
               className={clsx(
                 'whitespace-nowrap pb-2 px-1 border-b-2 font-medium text-sm',
                 activeTab === 'connect'
-                  ? 'border-indigo-500 text-indigo-600'
+                  ? 'border-brand-500 text-brand-700'
                   : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:border-gray-600'
               )}
             >

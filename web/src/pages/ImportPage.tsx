@@ -132,11 +132,11 @@ const ImportPage: React.FC = () => {
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               CSV File
             </label>
-            <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer hover:border-indigo-400 hover:bg-indigo-50/50 dark:hover:bg-indigo-900/20 transition-colors">
+            <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer hover:border-brand-400 hover:bg-brand-50/50 dark:hover:bg-indigo-900/20 transition-colors">
               <div className="flex flex-col items-center">
                 {file ? (
                   <>
-                    <DocumentTextIcon className="h-8 w-8 text-indigo-500 mb-1" />
+                    <DocumentTextIcon className="h-8 w-8 text-brand-500 mb-1" />
                     <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{file.name}</span>
                     <span className="text-xs text-gray-500 dark:text-gray-400">{(file.size / 1024).toFixed(1)} KB</span>
                   </>

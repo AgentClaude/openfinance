@@ -50,7 +50,7 @@ const TransferDetection: React.FC<TransferDetectionProps> = ({ onLinked }) => {
     <Card className="mb-6">
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
-          <ArrowsRightLeftIcon className="h-5 w-5 text-indigo-600" />
+          <ArrowsRightLeftIcon className="h-5 w-5 text-brand-700" />
           <h3 className="text-sm font-semibold text-gray-900">Possible Transfers</h3>
         </div>
         <Button

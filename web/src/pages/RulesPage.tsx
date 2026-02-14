@@ -182,7 +182,7 @@ const RulesPage: React.FC = () => {
                     <button
                       onClick={() => handleToggle(rule)}
                       className={`w-10 h-5 rounded-full transition-colors relative ${
-                        rule.isActive ? 'bg-indigo-600' : 'bg-gray-300'
+                        rule.isActive ? 'bg-brand-700' : 'bg-gray-300'
                       }`}
                     >
                       <span
@@ -194,7 +194,7 @@ const RulesPage: React.FC = () => {
                     <div>
                       <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
                         When{' '}
-                        <span className="text-indigo-600">
+                        <span className="text-brand-700">
                           {rule.matchField === 'merchant_name' ? 'merchant name' : 'description'}
                         </span>{' '}
                         <span className="text-gray-500 dark:text-gray-400">{rule.matchType.replace('_', ' ')}</span>{' '}

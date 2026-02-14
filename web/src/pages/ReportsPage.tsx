@@ -63,7 +63,7 @@ const ReportsPage: React.FC = () => {
                 onClick={() => setDateRangeMode('preset')}
                 className={`px-3 py-1.5 text-xs font-medium rounded-l-md border ${
                   dateRangeMode === 'preset'
-                    ? 'bg-indigo-50 border-indigo-300 text-indigo-700'
+                    ? 'bg-brand-50 border-brand-300 text-brand-800'
                     : 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:bg-gray-900'
                 }`}
               >
@@ -73,7 +73,7 @@ const ReportsPage: React.FC = () => {
                 onClick={() => setDateRangeMode('custom')}
                 className={`px-3 py-1.5 text-xs font-medium rounded-r-md border-t border-r border-b ${
                   dateRangeMode === 'custom'
-                    ? 'bg-indigo-50 border-indigo-300 text-indigo-700'
+                    ? 'bg-brand-50 border-brand-300 text-brand-800'
                     : 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:bg-gray-900'
                 }`}
               >
@@ -84,7 +84,7 @@ const ReportsPage: React.FC = () => {
               <select
                 value={months}
                 onChange={(e) => setMonths(parseInt(e.target.value))}
-                className="rounded-md border-gray-300 dark:border-gray-600 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                className="rounded-md border-gray-300 dark:border-gray-600 text-sm shadow-sm focus:border-brand-500 focus:ring-brand-500"
               >
                 <option value={3}>Last 3 months</option>
                 <option value={6}>Last 6 months</option>
@@ -97,14 +97,14 @@ const ReportsPage: React.FC = () => {
                   type="date"
                   value={customFrom}
                   onChange={(e) => setCustomFrom(e.target.value)}
-                  className="rounded-md border-gray-300 dark:border-gray-600 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                  className="rounded-md border-gray-300 dark:border-gray-600 text-sm shadow-sm focus:border-brand-500 focus:ring-brand-500"
                 />
                 <span className="text-gray-400 text-sm">to</span>
                 <input
                   type="date"
                   value={customTo}
                   onChange={(e) => setCustomTo(e.target.value)}
-                  className="rounded-md border-gray-300 dark:border-gray-600 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                  className="rounded-md border-gray-300 dark:border-gray-600 text-sm shadow-sm focus:border-brand-500 focus:ring-brand-500"
                 />
               </div>
             )}
@@ -121,7 +121,7 @@ const ReportsPage: React.FC = () => {
               onClick={() => setActiveTab(tab.id)}
               className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors whitespace-nowrap ${
                 activeTab === tab.id
-                  ? 'border-indigo-500 text-indigo-600'
+                  ? 'border-brand-500 text-brand-700'
                   : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:border-gray-600'
               }`}
             >
@@ -592,7 +592,7 @@ const CashFlowReport: React.FC<{ reports: any }> = ({ reports }) => {
                   <td className={`px-4 py-3 text-sm text-right font-medium ${m.cashFlow >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                     {formatCurrency(m.cashFlow)}
                   </td>
-                  <td className={`px-4 py-3 text-sm text-right ${m.runningBalance >= 0 ? 'text-indigo-600' : 'text-red-600'}`}>
+                  <td className={`px-4 py-3 text-sm text-right ${m.runningBalance >= 0 ? 'text-brand-700' : 'text-red-600'}`}>
                     {formatCurrency(m.runningBalance)}
                   </td>
                 </tr>

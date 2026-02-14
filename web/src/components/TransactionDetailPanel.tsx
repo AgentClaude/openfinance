@@ -136,14 +136,14 @@ const TransactionDetailPanel: React.FC<TransactionDetailPanelProps> = ({
                 <Dialog.Panel className="pointer-events-auto w-screen max-w-md">
                   <div className="flex h-full flex-col overflow-y-scroll bg-white shadow-xl">
                     {/* Header */}
-                    <div className="bg-indigo-600 px-4 py-6 sm:px-6">
+                    <div className="bg-brand-700 px-4 py-6 sm:px-6">
                       <div className="flex items-center justify-between">
                         <Dialog.Title className="text-lg font-semibold text-white">
                           Transaction Details
                         </Dialog.Title>
                         <button
                           type="button"
-                          className="rounded-md text-indigo-200 hover:text-white focus:outline-none"
+                          className="rounded-md text-brand-200 hover:text-white focus:outline-none"
                           onClick={onClose}
                         >
                           <XMarkIcon className="h-6 w-6" />
@@ -232,7 +232,7 @@ const TransactionDetailPanel: React.FC<TransactionDetailPanelProps> = ({
                             onChange={(e) => setTagInput(e.target.value)}
                             onKeyDown={handleTagKeyDown}
                             placeholder="Add tag..."
-                            className="flex-1 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm"
+                            className="flex-1 rounded-md border-gray-300 shadow-sm focus:border-brand-500 focus:ring-brand-500 text-sm"
                           />
                           <Button size="sm" variant="secondary" onClick={handleAddTag}>Add</Button>
                         </div>
@@ -266,7 +266,7 @@ const TransactionDetailPanel: React.FC<TransactionDetailPanelProps> = ({
                           onChange={(e) => setNotes(e.target.value)}
                           placeholder="Add notes..."
                           rows={3}
-                          className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm"
+                          className="w-full rounded-md border-gray-300 shadow-sm focus:border-brand-500 focus:ring-brand-500 text-sm"
                         />
                       </div>
 
@@ -284,7 +284,7 @@ const TransactionDetailPanel: React.FC<TransactionDetailPanelProps> = ({
                         </div>
                         <button
                           onClick={() => setNeedsReview(!needsReview)}
-                          className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 ${needsReview ? 'bg-amber-500' : 'bg-green-500'}`}
+                          className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 ${needsReview ? 'bg-amber-500' : 'bg-green-500'}`}
                         >
                           <span
                             className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${needsReview ? 'translate-x-5' : 'translate-x-0'}`}

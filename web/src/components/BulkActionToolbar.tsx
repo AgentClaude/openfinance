@@ -48,8 +48,8 @@ const BulkActionToolbar: React.FC<BulkActionToolbarProps> = ({
   };
 
   return (
-    <div className="sticky top-0 z-10 flex items-center gap-3 px-4 py-3 bg-indigo-50 dark:bg-indigo-900/30 border border-indigo-200 dark:border-indigo-700 rounded-lg mb-4">
-      <span className="text-sm font-medium text-indigo-700 dark:text-indigo-300">
+    <div className="sticky top-0 z-10 flex items-center gap-3 px-4 py-3 bg-brand-50 dark:bg-brand-900/30 border border-brand-200 dark:border-brand-800 rounded-lg mb-4">
+      <span className="text-sm font-medium text-brand-800 dark:text-brand-300">
         {selectedCount} selected
       </span>
 

@@ -16,7 +16,7 @@ export const Default: Story = {
       <input
         type="email"
         placeholder="you@example.com"
-        className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+        className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-brand-500 focus:ring-brand-500 sm:text-sm"
       />
     ),
   },
@@ -42,7 +42,7 @@ export const WithHelperText: Story = {
     children: (
       <input
         type="text"
-        className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+        className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-brand-500 focus:ring-brand-500 sm:text-sm"
       />
     ),
   },
@@ -55,7 +55,7 @@ export const Required: Story = {
     children: (
       <input
         type="text"
-        className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+        className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-brand-500 focus:ring-brand-500 sm:text-sm"
       />
     ),
   },
