@@ -1,5 +1,4 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { CurrencyDollarIcon, BanknotesIcon } from '@heroicons/react/24/outline';
 import StatCard from '../components/shared/StatCard';
 
 const meta: Meta<typeof StatCard> = {

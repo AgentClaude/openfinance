@@ -8,8 +8,8 @@ import {
 } from 'recharts';
 import { useReports } from '@/hooks/useReports';
 import PageHeader from '@/components/ui/PageHeader';
-import Card from '@/components/ui/Card';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import { StatCard, ChartCard } from '@/components/shared';
 
 const COLORS = [
   '#6366f1', '#ec4899', '#f59e0b', '#10b981', '#3b82f6',
@@ -159,35 +159,15 @@ const OverviewReport: React.FC<{ reports: any }> = ({ reports }) => {
     <div className="space-y-6">
       {/* Summary cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-        <Card className="p-4">
-          <p className="text-sm text-gray-500 dark:text-gray-400">Total Income</p>
-          <p className="text-2xl font-bold text-green-600">{formatCurrency(totalIncome)}</p>
-        </Card>
-        <Card className="p-4">
-          <p className="text-sm text-gray-500 dark:text-gray-400">Total Expenses</p>
-          <p className="text-2xl font-bold text-red-600">{formatCurrency(totalExpenses)}</p>
-        </Card>
-        <Card className="p-4">
-          <p className="text-sm text-gray-500 dark:text-gray-400">Net Cash Flow</p>
-          <p className={`text-2xl font-bold ${totalIncome - totalExpenses >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-            {formatCurrency(totalIncome - totalExpenses)}
-          </p>
-        </Card>
-        <Card className="p-4">
-          <p className="text-sm text-gray-500 dark:text-gray-400">Avg Monthly Expenses</p>
-          <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{formatCurrency(avgMonthlyExpenses)}</p>
-        </Card>
-        <Card className="p-4">
-          <p className="text-sm text-gray-500 dark:text-gray-400">Savings Rate</p>
-          <p className={`text-2xl font-bold ${savingsRate >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-            {savingsRate.toFixed(1)}%
-          </p>
-        </Card>
+        <StatCard label="Total Income" value={formatCurrency(totalIncome)} valueClassName="text-green-600" />
+        <StatCard label="Total Expenses" value={formatCurrency(totalExpenses)} valueClassName="text-red-600" />
+        <StatCard label="Net Cash Flow" value={formatCurrency(totalIncome - totalExpenses)} valueClassName={totalIncome - totalExpenses >= 0 ? 'text-green-600' : 'text-red-600'} />
+        <StatCard label="Avg Monthly Expenses" value={formatCurrency(avgMonthlyExpenses)} />
+        <StatCard label="Savings Rate" value={`${savingsRate.toFixed(1)}%`} valueClassName={savingsRate >= 0 ? 'text-green-600' : 'text-red-600'} />
       </div>
 
       {/* Income vs Expenses bar chart */}
-      <Card className="p-6">
-        <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Income vs Expenses</h3>
+      <ChartCard title="Income vs Expenses">
         <ResponsiveContainer width="100%" height={300}>
           <BarChart data={monthlySummary}>
             <CartesianGrid strokeDasharray="3 3" />
@@ -199,11 +179,10 @@ const OverviewReport: React.FC<{ reports: any }> = ({ reports }) => {
             <Bar dataKey="expenses" name="Expenses" fill="#ef4444" radius={[4, 4, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
-      </Card>
+      </ChartCard>
 
       {/* Spending by category donut */}
-      <Card className="p-6">
-        <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Spending by Category</h3>
+      <ChartCard title="Spending by Category">
         <div className="flex flex-col md:flex-row items-center gap-8">
           <ResponsiveContainer width="100%" height={300} className="max-w-sm">
             <PieChart>
@@ -243,7 +222,7 @@ const OverviewReport: React.FC<{ reports: any }> = ({ reports }) => {
             ))}
           </div>
         </div>
-      </Card>
+      </ChartCard>
     </div>
   );
 };
@@ -279,8 +258,7 @@ const SpendingReport: React.FC<{ reports: any }> = ({ reports }) => {
   return (
     <div className="space-y-6">
       {/* Donut chart */}
-      <Card className="p-6">
-        <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Spending by Category</h3>
+      <ChartCard title="Spending by Category">
         <div className="flex flex-col lg:flex-row items-center gap-8">
           <div className="w-full max-w-xs">
             <ResponsiveContainer width="100%" height={320}>
@@ -329,11 +307,10 @@ const SpendingReport: React.FC<{ reports: any }> = ({ reports }) => {
             </div>
           </div>
         </div>
-      </Card>
+      </ChartCard>
 
       {/* Stacked bar - spending over time */}
-      <Card className="p-6">
-        <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Spending Over Time</h3>
+      <ChartCard title="Spending Over Time">
         <ResponsiveContainer width="100%" height={400}>
           <BarChart data={stackedData}>
             <CartesianGrid strokeDasharray="3 3" />
@@ -346,11 +323,10 @@ const SpendingReport: React.FC<{ reports: any }> = ({ reports }) => {
             ))}
           </BarChart>
         </ResponsiveContainer>
-      </Card>
+      </ChartCard>
 
       {/* Category breakdown table */}
-      <Card className="p-6">
-        <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Category Breakdown</h3>
+      <ChartCard title="Category Breakdown">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead>
@@ -394,7 +370,7 @@ const SpendingReport: React.FC<{ reports: any }> = ({ reports }) => {
             </tbody>
           </table>
         </div>
-      </Card>
+      </ChartCard>
     </div>
   );
 };
@@ -423,31 +399,14 @@ const IncomeExpensesReport: React.FC<{ reports: any }> = ({ reports }) => {
     <div className="space-y-6">
       {/* Summary stats */}
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-        <Card className="p-4">
-          <p className="text-sm text-gray-500 dark:text-gray-400">Total Income</p>
-          <p className="text-2xl font-bold text-green-600">{formatCurrency(totalIncome)}</p>
-        </Card>
-        <Card className="p-4">
-          <p className="text-sm text-gray-500 dark:text-gray-400">Total Expenses</p>
-          <p className="text-2xl font-bold text-red-600">{formatCurrency(totalExpenses)}</p>
-        </Card>
-        <Card className="p-4">
-          <p className="text-sm text-gray-500 dark:text-gray-400">Net Savings</p>
-          <p className={`text-2xl font-bold ${netSavings >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-            {formatCurrency(netSavings)}
-          </p>
-        </Card>
-        <Card className="p-4">
-          <p className="text-sm text-gray-500 dark:text-gray-400">Savings Rate</p>
-          <p className={`text-2xl font-bold ${savingsRate >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-            {savingsRate.toFixed(1)}%
-          </p>
-        </Card>
+        <StatCard label="Total Income" value={formatCurrency(totalIncome)} valueClassName="text-green-600" />
+        <StatCard label="Total Expenses" value={formatCurrency(totalExpenses)} valueClassName="text-red-600" />
+        <StatCard label="Net Savings" value={formatCurrency(netSavings)} valueClassName={netSavings >= 0 ? 'text-green-600' : 'text-red-600'} />
+        <StatCard label="Savings Rate" value={`${savingsRate.toFixed(1)}%`} valueClassName={savingsRate >= 0 ? 'text-green-600' : 'text-red-600'} />
       </div>
 
       {/* Dual bar chart */}
-      <Card className="p-6">
-        <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Monthly Income vs Expenses</h3>
+      <ChartCard title="Monthly Income vs Expenses">
         <ResponsiveContainer width="100%" height={400}>
           <BarChart data={monthlySummary} barCategoryGap="20%">
             <CartesianGrid strokeDasharray="3 3" />
@@ -523,7 +482,7 @@ const IncomeExpensesReport: React.FC<{ reports: any }> = ({ reports }) => {
             </tbody>
           </table>
         </div>
-      </Card>
+      </ChartCard>
     </div>
   );
 };
@@ -552,8 +511,7 @@ const CashFlowReport: React.FC<{ reports: any }> = ({ reports }) => {
   return (
     <div className="space-y-6">
       {/* Income vs Expenses area */}
-      <Card className="p-6">
-        <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Cash Flow Over Time</h3>
+      <ChartCard title="Cash Flow Over Time">
         <ResponsiveContainer width="100%" height={350}>
           <AreaChart data={monthlySummary}>
             <CartesianGrid strokeDasharray="3 3" />
@@ -565,11 +523,10 @@ const CashFlowReport: React.FC<{ reports: any }> = ({ reports }) => {
             <Area type="monotone" dataKey="expenses" name="Expenses" stroke="#ef4444" fill="#ef444433" />
           </AreaChart>
         </ResponsiveContainer>
-      </Card>
+      </ChartCard>
 
       {/* Waterfall-style cash flow */}
-      <Card className="p-6">
-        <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Monthly Cash Flow</h3>
+      <ChartCard title="Monthly Cash Flow">
         <ResponsiveContainer width="100%" height={300}>
           <BarChart data={monthlySummary}>
             <CartesianGrid strokeDasharray="3 3" />
@@ -588,11 +545,10 @@ const CashFlowReport: React.FC<{ reports: any }> = ({ reports }) => {
             </Bar>
           </BarChart>
         </ResponsiveContainer>
-      </Card>
+      </ChartCard>
 
       {/* Running balance line */}
-      <Card className="p-6">
-        <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Cumulative Cash Flow</h3>
+      <ChartCard title="Cumulative Cash Flow">
         <ResponsiveContainer width="100%" height={300}>
           <LineChart data={waterfallData}>
             <CartesianGrid strokeDasharray="3 3" />
@@ -611,11 +567,10 @@ const CashFlowReport: React.FC<{ reports: any }> = ({ reports }) => {
             />
           </LineChart>
         </ResponsiveContainer>
-      </Card>
+      </ChartCard>
 
       {/* Monthly breakdown table */}
-      <Card className="p-6">
-        <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Monthly Summary</h3>
+      <ChartCard title="Monthly Summary">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead>
@@ -645,7 +600,7 @@ const CashFlowReport: React.FC<{ reports: any }> = ({ reports }) => {
             </tbody>
           </table>
         </div>
-      </Card>
+      </ChartCard>
     </div>
   );
 };
@@ -658,8 +613,7 @@ const MerchantReport: React.FC<{ reports: any }> = ({ reports }) => {
 
   return (
     <div className="space-y-6">
-      <Card className="p-6">
-        <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Top Merchants by Spending</h3>
+      <ChartCard title="Top Merchants by Spending">
         {topMerchants.length === 0 ? (
           <p className="text-gray-500 dark:text-gray-400 text-sm">No merchant data available for this period.</p>
         ) : (
@@ -693,7 +647,7 @@ const MerchantReport: React.FC<{ reports: any }> = ({ reports }) => {
             })}
           </div>
         )}
-      </Card>
+      </ChartCard>
     </div>
   );
 };

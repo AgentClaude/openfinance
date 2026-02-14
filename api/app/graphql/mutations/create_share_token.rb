@@ -12,11 +12,7 @@ module Mutations
       return { share_token: nil, errors: ['Not authenticated'] } unless user
 
       expires_at = expires_in_days ? expires_in_days.days.from_now : nil
-      token = user.share_tokens.create!(
-        widget_type: widget_type,
-        config: config,
-        expires_at: expires_at
-      )
+      token = user.share_tokens.create!(widget_type: widget_type, config: config, expires_at: expires_at)
       { share_token: token, errors: [] }
     rescue ActiveRecord::RecordInvalid => e
       { share_token: nil, errors: e.record.errors.full_messages }
