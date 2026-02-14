@@ -8,11 +8,12 @@ RSpec.describe Plaid::SyncTransactionsService, type: :service do
   let(:account) { create(:account, household: household, connection: connection, plaid_account_id: 'acc_123456') }
   let(:category) { create(:category, household: household, name: 'Food & Dining') }
 
+  let(:plaid_client) { double('Plaid::PlaidApi') }
   let(:service) { described_class.new(connection: connection) }
 
   before do
     allow(PlaidConfig).to receive(:enabled?).and_return(true)
-    allow(PlaidConfig).to receive(:client).and_return(double('Plaid::PlaidApi'))
+    allow(PlaidConfig).to receive(:client).and_return(plaid_client)
 
     # Ensure account exists
     account
@@ -72,7 +73,7 @@ RSpec.describe Plaid::SyncTransactionsService, type: :service do
       end
 
       before do
-        allow_any_instance_of(Plaid::PlaidApi).to receive(:transactions_sync)
+        allow(plaid_client).to receive(:transactions_sync)
           .and_return(mock_sync_response)
 
         # Create a transaction to be modified
@@ -174,7 +175,7 @@ RSpec.describe Plaid::SyncTransactionsService, type: :service do
         end
 
         before do
-          allow_any_instance_of(Plaid::PlaidApi).to receive(:transactions_sync)
+          allow(plaid_client).to receive(:transactions_sync)
             .and_return(mock_first_response, mock_second_response)
         end
 
@@ -220,7 +221,7 @@ RSpec.describe Plaid::SyncTransactionsService, type: :service do
 
     context 'with Plaid API errors' do
       before do
-        allow_any_instance_of(Plaid::PlaidApi).to receive(:transactions_sync)
+        allow(plaid_client).to receive(:transactions_sync)
           .and_raise(mock_plaid_error('ITEM_ERROR', 'ITEM_LOGIN_REQUIRED'))
       end
 
@@ -240,7 +241,7 @@ RSpec.describe Plaid::SyncTransactionsService, type: :service do
 
     context 'with generic errors' do
       before do
-        allow_any_instance_of(Plaid::PlaidApi).to receive(:transactions_sync)
+        allow(plaid_client).to receive(:transactions_sync)
           .and_raise(StandardError, 'Network timeout')
       end
 
@@ -281,7 +282,7 @@ RSpec.describe Plaid::SyncTransactionsService, type: :service do
       end
 
       before do
-        allow_any_instance_of(Plaid::PlaidApi).to receive(:transactions_sync)
+        allow(plaid_client).to receive(:transactions_sync)
           .and_return(mock_sync_response_with_orphan)
       end
 
