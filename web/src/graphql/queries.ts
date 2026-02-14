@@ -438,3 +438,20 @@ export const GET_BALANCE_ADJUSTMENTS = gql`
     }
   }
 `;
+
+export const GET_NOTIFICATIONS = gql`
+  query GetNotifications($unreadOnly: Boolean, $limit: Int) {
+    notifications(unreadOnly: $unreadOnly, limit: $limit) {
+      id
+      title
+      body
+      notificationType
+      priority
+      isRead
+      readAt
+      data
+      createdAt
+    }
+    unreadNotificationCount
+  }
+`;

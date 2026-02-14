@@ -40,6 +40,8 @@ module Types
     field :link_transfer, mutation: Mutations::LinkTransfer
     field :update_household, mutation: Mutations::UpdateHousehold
     field :update_notification_preference, mutation: Mutations::UpdateNotificationPreference
+    field :mark_notification_read, mutation: Mutations::MarkNotificationRead
+    field :mark_all_notifications_read, mutation: Mutations::MarkAllNotificationsRead
     field :update_tag, mutation: Mutations::UpdateTag
     field :delete_tag, mutation: Mutations::DeleteTag
     field :share_account, mutation: Mutations::ShareAccount
