@@ -207,7 +207,74 @@ _Backend partially exists: reports query returns monthly_summary, spending_by_ca
 - ⬚ SEO meta tags, Open Graph images
 - ⬚ Script runs as part of CI or on-demand to keep screenshots current
 
-## Phase 19: Deploy
+## Phase 19: Storybook & Component Library
+- ⬚ Install Storybook for React
+- ⬚ Create stories for all shared components (Button, Modal, Card, Badge, ProgressBar, etc.)
+- ⬚ Audit all pages for duplicate UI patterns — extract into reusable components
+- ⬚ Shared components: DataTable, StatCard, ChartCard, EmptyState, FormField, FilterBar, DateRangePicker
+- ⬚ Design tokens: consistent spacing, colors, typography via Tailwind config
+- ⬚ Component documentation with props/variants/examples
+- ⬚ Storybook deploy script (static build)
+
+## Phase 20: Provider Adapter Pattern (Plaid/MX/Finicity)
+- ⬚ Create `FinancialProvider` adapter interface (abstract base)
+- ⬚ Methods: create_link_token, exchange_token, sync_transactions, get_accounts, get_balances
+- ⬚ Refactor Plaid services into `Providers::Plaid` adapter implementing the interface
+- ⬚ Create `Providers::Mx` adapter (stubbed, same interface)
+- ⬚ Create `Providers::Finicity` adapter (stubbed, same interface)
+- ⬚ Provider config per AccountConnection (provider_type column)
+- ⬚ Factory pattern: `ProviderFactory.for(connection)` returns correct adapter
+- ⬚ All sync/link code goes through adapter — never calls Plaid directly
+- ⬚ Easy to add new providers: implement interface, register in factory
+- ⬚ RSpec shared examples for provider interface compliance
+
+## Phase 21: Custom File Uploads & Manual Balance Management
+- ⬚ File upload for statements (PDF, CSV, OFX/QFX)
+- ⬚ Parse uploaded files into transactions (CSV parser exists, extend for OFX/PDF)
+- ⬚ Manual balance adjustment: set current balance on any account with date
+- ⬚ Balance history from manual adjustments (BalanceAdjustment model)
+- ⬚ Upload attachments to transactions (receipts, invoices)
+- ⬚ ActiveStorage for file management
+- ⬚ File preview in transaction detail
+- ⬚ Bulk import from uploaded files with preview/mapping step
+
+## Phase 22: Notifications System (Modular)
+- ⬚ NotificationType registry: budget_exceeded, bill_due, large_transaction, weekly_digest, goal_milestone, account_sync_error
+- ⬚ NotificationPreference model (user_id, notification_type, channel, enabled)
+- ⬚ Channels: in_app, email, push (extensible)
+- ⬚ NotificationService: checks preferences before sending
+- ⬚ In-app notification bell with unread count + dropdown
+- ⬚ Notification center page (all notifications, mark read, filter by type)
+- ⬚ Settings UI: toggle each notification type per channel (matrix grid)
+- ⬚ Modular: new notification types register themselves, auto-appear in preferences
+- ⬚ Sidekiq jobs for async delivery
+- ⬚ Email templates (ActionMailer) for each type
+
+## Phase 23: Referral Program
+- ⬚ Referral model (referrer_id, code, custom_link, clicks, conversions)
+- ⬚ Auto-generate unique referral code per user on signup
+- ⬚ Referral landing page: /r/:code — tracks click, redirects to register
+- ⬚ On registration with referral code: link referral, increment conversion
+- ⬚ Reward: 3 months free for referrer (and optionally referee)
+- ⬚ Subscription/billing model (even if free tier for now — prep for monetization)
+- ⬚ Referral dashboard: see your link, clicks, conversions, rewards earned
+- ⬚ Settings > Referral tab with shareable link + copy button
+- ⬚ Click tracking (ReferralClick model: ip, user_agent, timestamp)
+- ⬚ Admin analytics: top referrers, conversion rate, growth attribution
+
+## Phase 24: Embeddable Widgets & Public API
+- ⬚ Public API: REST endpoints for net_worth, daily_spend, monthly_summary, account_balances
+- ⬚ API key management (ApiKey model, generate/revoke in settings)
+- ⬚ Rate limiting per API key
+- ⬚ Embeddable widgets: iframe-ready pages for net_worth_chart, spending_summary, account_balance
+- ⬚ Widget customization: theme (light/dark), size, date range, which accounts
+- ⬚ Embed code generator in Settings > Widgets (copy HTML snippet)
+- ⬚ CORS config for widget domains (user specifies allowed origins)
+- ⬚ Public share links: /share/:token — read-only view of specific dashboard/widget
+- ⬚ oEmbed support for auto-embedding in blogs/Notion
+- ⬚ Webhook support: push events to external URLs (new transaction, budget exceeded, etc.)
+
+## Phase 25: Deploy
 - ⬚ Production Docker config
 - ⬚ Tailscale Serve or cloud hosting
 - ⬚ SSL/TLS
