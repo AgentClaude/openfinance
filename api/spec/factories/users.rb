@@ -177,33 +177,6 @@ FactoryBot.define do
     end
   end
 
-  factory :goal do
-    association :household
-
-    name { "#{Faker::Commerce.product_name} Fund" }
-    goal_type { 'savings' }
-    target_amount_cents { 500000 }
-    current_amount_cents { 100000 }
-    currency { 'USD' }
-    target_date { rand(30..365).days.from_now.to_date }
-    start_date { Date.current }
-    is_active { true }
-    is_achieved { false }
-    icon { '🎯' }
-    color { '#4ECDC4' }
-
-    trait :achieved do
-      is_achieved { true }
-      achieved_at { Time.current }
-      current_amount_cents { 500000 }
-    end
-
-    trait :debt_payoff do
-      goal_type { 'debt_payoff' }
-      icon { '💳' }
-    end
-  end
-
   factory :invitation do
     association :household
     association :invited_by, factory: :user
