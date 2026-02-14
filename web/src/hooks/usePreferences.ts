@@ -7,6 +7,7 @@ export interface Preferences {
   firstDayOfWeek: 'sunday' | 'monday';
   numberFormat: 'comma-dot' | 'dot-comma' | 'space-comma';
   currency: string;
+  defaultAccountId: string;
 }
 
 const DEFAULT_PREFERENCES: Preferences = {
@@ -14,6 +15,7 @@ const DEFAULT_PREFERENCES: Preferences = {
   firstDayOfWeek: 'sunday',
   numberFormat: 'comma-dot',
   currency: 'USD',
+  defaultAccountId: '',
 };
 
 function loadPreferences(): Preferences {

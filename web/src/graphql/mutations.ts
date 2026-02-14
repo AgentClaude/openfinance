@@ -816,6 +816,15 @@ export const UPDATE_MEMBER_ROLE = gql`
   }
 `;
 
+export const DELETE_ACCOUNT = gql`
+  mutation DeleteAccount($password: String!) {
+    deleteAccount(password: $password) {
+      success
+      errors
+    }
+  }
+`;
+
 export const REDEEM_REFERRAL = gql`
   mutation RedeemReferral($referralCode: String!) {
     redeemReferral(referralCode: $referralCode) {

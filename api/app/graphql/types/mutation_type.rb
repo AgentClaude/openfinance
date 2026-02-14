@@ -50,5 +50,7 @@ module Types
     field :upload_statement, mutation: Mutations::UploadStatement
     field :update_member_role, mutation: Mutations::UpdateMemberRole
     field :redeem_referral, mutation: Mutations::RedeemReferral
+    field :export_data, mutation: Mutations::ExportData
+    field :delete_account, mutation: Mutations::DeleteAccount
   end
 end
