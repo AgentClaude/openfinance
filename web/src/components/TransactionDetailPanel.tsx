@@ -1,5 +1,4 @@
-import React, { Fragment, useState, useEffect } from 'react';
-import { Dialog, Transition } from '@headlessui/react';
+import React, { useState, useEffect, useRef } from 'react';
 import { XMarkIcon, CheckIcon, ExclamationTriangleIcon, ScissorsIcon } from '@heroicons/react/24/outline';
 import { Transaction, Category, Tag } from '@/types';
 import AmountDisplay from '@/components/ui/AmountDisplay';
@@ -50,7 +49,21 @@ const TransactionDetailPanel: React.FC<TransactionDetailPanelProps> = ({
     }
   }, [transaction]);
 
-  if (!transaction) return null;
+  const overlayRef = useRef<HTMLDivElement>(null);
+
+  // Close on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isOpen) onClose();
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
+
+  // Close on overlay click
+  const handleOverlayClick = (e: React.MouseEvent) => {
+    if (e.target === overlayRef.current) onClose();
+  };
 
   const categoryOptions = [
     { value: '', label: 'Uncategorized' },
@@ -62,6 +75,7 @@ const TransactionDetailPanel: React.FC<TransactionDetailPanelProps> = ({
 
   const handleSave = async () => {
     try {
+      if (!transaction) return;
       await onSave(transaction.id, {
         categoryId: categoryId || undefined,
         needsReview,
@@ -110,40 +124,25 @@ const TransactionDetailPanel: React.FC<TransactionDetailPanelProps> = ({
 
   return (
     <>
-    <Transition appear show={isOpen} as={Fragment}>
-      <Dialog as="div" className="relative z-50" onClose={onClose}>
-        <Transition.Child
-          as={Fragment}
-          enter="ease-out duration-300"
-          enterFrom="opacity-0"
-          enterTo="opacity-100"
-          leave="ease-in duration-200"
-          leaveFrom="opacity-100"
-          leaveTo="opacity-0"
-        >
-          <div className="fixed inset-0 bg-black bg-opacity-25" />
-        </Transition.Child>
-
-        <div className="fixed inset-0 overflow-hidden">
-          <div className="absolute inset-0 overflow-hidden">
-            <div className="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10 md:pl-16">
-              <Transition.Child
-                as={Fragment}
-                enter="transform transition ease-in-out duration-300"
-                enterFrom="translate-x-full"
-                enterTo="translate-x-0"
-                leave="transform transition ease-in-out duration-200"
-                leaveFrom="translate-x-0"
-                leaveTo="translate-x-full"
-              >
-                <Dialog.Panel className="pointer-events-auto w-screen max-w-md">
+    {/* Overlay */}
+    <div
+      ref={overlayRef}
+      className={`fixed inset-0 z-50 transition-opacity duration-300 ${isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
+      style={{ backgroundColor: 'rgba(0,0,0,0.25)' }}
+      onClick={handleOverlayClick}
+    >
+      {/* Slide-over panel */}
+      <div
+        className={`fixed inset-y-0 right-0 w-full max-w-md transform transition-transform duration-300 ease-in-out ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}
+      >
+        {transaction ? (
                   <div className="flex h-full flex-col overflow-y-scroll bg-white shadow-xl">
                     {/* Header */}
                     <div className="bg-brand-700 px-4 py-6 sm:px-6">
                       <div className="flex items-center justify-between">
-                        <Dialog.Title className="text-lg font-semibold text-white">
-                          Transaction Details
-                        </Dialog.Title>
+                        <h2 className="text-lg font-semibold text-white">
+                          {transaction ? 'Transaction Details' : 'Add Transaction'}
+                        </h2>
                         <button
                           type="button"
                           className="rounded-md text-brand-200 hover:text-white focus:outline-none"
@@ -329,13 +328,13 @@ const TransactionDetailPanel: React.FC<TransactionDetailPanelProps> = ({
                       </div>
                     </div>
                   </div>
-                </Dialog.Panel>
-              </Transition.Child>
-            </div>
+        ) : (
+          <div className="flex h-full flex-col bg-white shadow-xl items-center justify-center">
+            <p className="text-gray-500">No transaction selected</p>
           </div>
-        </div>
-      </Dialog>
-    </Transition>
+        )}
+      </div>
+    </div>
 
     {transaction && (
       <SplitTransactionModal
