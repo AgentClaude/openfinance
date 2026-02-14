@@ -274,7 +274,43 @@ _Backend partially exists: reports query returns monthly_summary, spending_by_ca
 - ⬚ oEmbed support for auto-embedding in blogs/Notion
 - ⬚ Webhook support: push events to external URLs (new transaction, budget exceeded, etc.)
 
-## Phase 25: Deploy
+## Phase 25: Full QA — Playwright E2E + Manual Browser Audit
+- ⬚ Comprehensive Playwright test suite covering EVERY page and feature:
+  - Auth: login, register, logout, password change, session persistence
+  - Dashboard: all widgets load, click-through to detail pages
+  - Accounts: list, add manual, edit, delete, balance history, share
+  - Transactions: list, filter, sort, search, add, edit, delete, split, transfer detect/link, bulk actions, inline edit
+  - Budget: create, edit, delete items, month navigation, copy/fill, progress bars, category groups
+  - Recurring: list, detect, mark paid, CRUD
+  - Reports: all chart types, date range filters, account filters, export
+  - Goals: create, edit, delete, progress tracking, link accounts
+  - Investments: holdings list, portfolio chart, allocation
+  - Rules: create, edit, delete, apply, create-from-transaction, suggested rules
+  - Categories: CRUD, reorder, icons
+  - Import: CSV upload, column mapping, preview, confirm
+  - Settings: profile update, password change, preferences, dark mode toggle, notifications, API keys, widgets, members/invites
+  - Referral: link generation, copy, dashboard
+  - Net Worth: chart, time ranges, account breakdown
+  - Collaboration: invite, accept, shared accounts, permissions
+  - Marketing: landing page renders, CTAs work, responsive
+  - Embeds: widget renders, public API returns data
+  - Dark mode: every page renders correctly in both themes
+- ⬚ Manual browser QA via OpenClaw browser MCP:
+  - Click every button on every page
+  - Submit every form with valid AND invalid data
+  - Test every filter, sort, and pagination
+  - Test every modal open/close/submit
+  - Test responsive: mobile, tablet, desktop viewports
+  - Test error states: network errors, empty states, loading states
+  - Test edge cases: very long text, special characters, zero amounts, negative amounts
+  - Verify all toasts/notifications appear correctly
+  - Check all links navigate correctly
+  - Verify dark mode on every component
+- ⬚ Accessibility audit: keyboard navigation, screen reader, ARIA labels, color contrast
+- ⬚ Fix all bugs found during QA
+- ⬚ QA report: document all findings in AUDIT.md
+
+## Phase 26: Deploy
 - ⬚ Production Docker config
 - ⬚ Tailscale Serve or cloud hosting
 - ⬚ SSL/TLS
