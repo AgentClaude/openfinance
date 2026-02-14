@@ -93,6 +93,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
         variables: { name, email, password },
       })
 
+      const errors = result.data?.register?.errors
+      if (errors && errors.length > 0) {
+        throw new Error(errors.join(', '))
+      }
+
       if (!result.data?.register?.token) {
         throw new Error('Registration failed')
       }
