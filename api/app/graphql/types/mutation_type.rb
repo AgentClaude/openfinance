@@ -48,5 +48,6 @@ module Types
     field :adjust_balance, mutation: Mutations::AdjustBalance
     field :upload_receipt, mutation: Mutations::UploadReceipt
     field :upload_statement, mutation: Mutations::UploadStatement
+    field :update_member_role, mutation: Mutations::UpdateMemberRole
   end
 end
