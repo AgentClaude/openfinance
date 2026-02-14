@@ -20,6 +20,8 @@ module Types
     field :excluded, Boolean, null: false
     field :parent_transaction_id, ID, null: true
     field :transfer_pair_id, ID, null: true
+    field :receipt_url, String, null: true
+    field :has_receipt, Boolean, null: false
 
     def amount
       object.amount_cents / 100.0
@@ -43,6 +45,15 @@ module Types
 
     def tags
       object.tags
+    end
+
+    def receipt_url
+      return nil unless object.receipt.attached?
+      Rails.application.routes.url_helpers.rails_blob_url(object.receipt, only_path: true)
+    end
+
+    def has_receipt
+      object.receipt.attached?
     end
   end
 end

@@ -12,6 +12,7 @@ import { useAccounts } from '@/hooks/useAccounts';
 import { useCategories } from '@/hooks/useCategories';
 import { useTags } from '@/hooks/useTags';
 import { Transaction, TransactionFilters } from '@/types';
+import ReceiptUploadButton from '@/components/ReceiptUploadButton';
 import PageHeader from '@/components/ui/PageHeader';
 import SearchBar from '@/components/ui/SearchBar';
 import Button from '@/components/ui/Button';
@@ -191,6 +192,17 @@ const TransactionsPage: React.FC = () => {
       sortable: true,
       render: (transaction: Transaction) => (
         <AmountDisplay amount={transaction.amount} size="sm" />
+      ),
+    },
+    {
+      key: 'receipt',
+      label: '',
+      render: (transaction: Transaction) => (
+        <ReceiptUploadButton
+          transactionId={transaction.id}
+          hasReceipt={transaction.hasReceipt}
+          receiptUrl={transaction.receiptUrl}
+        />
       ),
     },
   ];

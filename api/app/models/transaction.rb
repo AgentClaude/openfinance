@@ -10,6 +10,7 @@ class Transaction < ApplicationRecord
   belongs_to :reviewed_by, class_name: 'User', optional: true
   has_many :transaction_tags, dependent: :destroy
   has_many :tags, through: :transaction_tags
+  has_one_attached :receipt
 
   # Money attributes
   monetize :amount_cents

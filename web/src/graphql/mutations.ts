@@ -708,3 +708,47 @@ export const EXPORT_DATA = gql`
     }
   }
 `;
+
+export const ADJUST_BALANCE = gql`
+  mutation AdjustBalance($accountId: ID!, $amount: Float!, $adjustedAt: String, $notes: String) {
+    adjustBalance(accountId: $accountId, amount: $amount, adjustedAt: $adjustedAt, notes: $notes) {
+      balanceAdjustment {
+        id
+        accountId
+        amount
+        currency
+        adjustedAt
+        notes
+        createdByName
+        createdAt
+      }
+      account {
+        id
+        balance
+      }
+      errors
+    }
+  }
+`;
+
+export const UPLOAD_RECEIPT = gql`
+  mutation UploadReceipt($transactionId: ID!, $fileData: String!, $filename: String!, $contentType: String) {
+    uploadReceipt(transactionId: $transactionId, fileData: $fileData, filename: $filename, contentType: $contentType) {
+      transaction {
+        id
+        hasReceipt
+        receiptUrl
+      }
+      errors
+    }
+  }
+`;
+
+export const UPLOAD_STATEMENT = gql`
+  mutation UploadStatement($accountId: ID!, $fileData: String!, $filename: String!, $contentType: String) {
+    uploadStatement(accountId: $accountId, fileData: $fileData, filename: $filename, contentType: $contentType) {
+      success
+      errors
+    }
+  }
+`;

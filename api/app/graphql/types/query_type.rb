@@ -208,6 +208,16 @@ module Types
       NotificationPreference.defaults_for(context[:current_user])
     end
 
+    field :balance_adjustments, [Types::BalanceAdjustmentType], null: false do
+      argument :account_id, ID, required: true
+    end
+    def balance_adjustments(account_id:)
+      return [] unless context[:current_user]&.household
+      account = AccountPolicy::Scope.new(context[:current_user], Account).resolve.find_by(id: account_id)
+      return [] unless account
+      account.balance_adjustments.ordered
+    end
+
     field :categorization_rules, [Types::CategorizationRuleType], null: false
     def categorization_rules
       return [] unless context[:current_user]&.household

@@ -51,6 +51,8 @@ export interface Transaction {
   excluded: boolean;
   parentTransactionId?: string;
   transferPairId?: string;
+  hasReceipt?: boolean;
+  receiptUrl?: string;
   account: Account;
   category?: Category;
   subcategory?: Category;
@@ -244,4 +246,15 @@ export interface PortfolioSummary {
   totalGainLossPercentage: number;
   totalHoldingsCount: number;
   allocations: PortfolioAllocation[];
+}
+
+export interface BalanceAdjustment {
+  id: string;
+  accountId: string;
+  amount: number;
+  currency: string;
+  adjustedAt: string;
+  notes?: string;
+  createdByName?: string;
+  createdAt: string;
 }
