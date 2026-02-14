@@ -107,7 +107,7 @@ const AppLayout: React.FC = () => {
                   </button>
                 </div>
               </Transition.Child>
-              <Sidebar navigation={navigation} />
+              <Sidebar navigation={navigation} onItemClick={() => setSidebarOpen(false)} />
             </div>
           </Transition.Child>
         </div>

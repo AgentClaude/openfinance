@@ -13,12 +13,14 @@ interface SidebarProps {
   navigation: NavItem[];
   isCollapsed?: boolean;
   onToggle?: () => void;
+  onItemClick?: () => void;
   className?: string;
 }
 
 const Sidebar: React.FC<SidebarProps> = ({
   navigation,
   isCollapsed = false,
+  onItemClick,
   className,
 }) => {
   const location = useLocation();
@@ -61,6 +63,7 @@ const Sidebar: React.FC<SidebarProps> = ({
               <Link
                 key={item.name}
                 to={item.href}
+                onClick={onItemClick}
                 className={clsx(
                   item.current
                     ? 'bg-brand-900/30 text-brand-400'
