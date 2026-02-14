@@ -760,6 +760,16 @@ export const MARK_NOTIFICATION_READ = gql`
         id
         isRead
         readAt
+export const INVITE_TO_HOUSEHOLD = gql`
+  mutation InviteToHousehold($email: String!, $role: String) {
+    inviteToHousehold(input: { email: $email, role: $role }) {
+      invitation {
+        id
+        email
+        role
+        status
+        expiresAt
+        createdAt
       }
       errors
     }
@@ -770,6 +780,28 @@ export const MARK_ALL_NOTIFICATIONS_READ = gql`
   mutation MarkAllNotificationsRead {
     markAllNotificationsRead {
       count
+export const ACCEPT_INVITATION = gql`
+  mutation AcceptInvitation($token: String!) {
+    acceptInvitation(input: { token: $token }) {
+      success
+      errors
+    }
+  }
+`;
+
+export const REMOVE_HOUSEHOLD_MEMBER = gql`
+  mutation RemoveHouseholdMember($userId: ID!) {
+    removeHouseholdMember(input: { userId: $userId }) {
+      success
+      errors
+    }
+  }
+`;
+
+export const UPDATE_MEMBER_ROLE = gql`
+  mutation UpdateMemberRole($userId: ID!, $role: String!) {
+    updateMemberRole(input: { userId: $userId, role: $role }) {
+      success
       errors
     }
   }

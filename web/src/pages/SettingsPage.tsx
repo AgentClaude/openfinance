@@ -5,8 +5,8 @@ import { useThemeContext } from '@/components/ThemeProvider';
 import { usePreferences } from '@/hooks/usePreferences';
 import { useTags } from '@/hooks/useTags';
 import { useQuery, useMutation } from '@apollo/client';
-import { GET_NOTIFICATION_PREFERENCES } from '@/graphql/queries';
-import { UPDATE_HOUSEHOLD, UPDATE_NOTIFICATION_PREFERENCE, UPDATE_TAG, DELETE_TAG, EXPORT_DATA } from '@/graphql/mutations';
+import { GET_NOTIFICATION_PREFERENCES, GET_HOUSEHOLD_MEMBERS, GET_HOUSEHOLD_INVITATIONS } from '@/graphql/queries';
+import { UPDATE_HOUSEHOLD, UPDATE_NOTIFICATION_PREFERENCE, UPDATE_TAG, DELETE_TAG, EXPORT_DATA, INVITE_TO_HOUSEHOLD, REMOVE_HOUSEHOLD_MEMBER, UPDATE_MEMBER_ROLE } from '@/graphql/mutations';
 import { NotificationPreference } from '@/types';
 import toast from 'react-hot-toast';
 
@@ -37,7 +37,7 @@ const CHANNELS = [
   { key: 'push', label: 'Push' },
 ];
 
-type TabId = 'profile' | 'preferences' | 'household' | 'notifications' | 'tags' | 'data';
+type TabId = 'profile' | 'preferences' | 'household' | 'members' | 'notifications' | 'tags' | 'data';
 
 export default function SettingsPage() {
   const { user } = useAuth();
@@ -71,6 +71,65 @@ export default function SettingsPage() {
   const [updateTagMutation] = useMutation(UPDATE_TAG);
   const [deleteTagMutation] = useMutation(DELETE_TAG);
   const [exportDataMutation, { loading: exporting }] = useMutation(EXPORT_DATA);
+
+  // Members
+  const [inviteEmail, setInviteEmail] = useState('');
+  const [inviteRole, setInviteRole] = useState('member');
+  const { data: membersData, refetch: refetchMembers } = useQuery(GET_HOUSEHOLD_MEMBERS, { skip: activeTab !== 'members' });
+  const { data: invitationsData, refetch: refetchInvitations } = useQuery(GET_HOUSEHOLD_INVITATIONS, { skip: activeTab !== 'members' });
+  const [inviteMutation, { loading: inviting }] = useMutation(INVITE_TO_HOUSEHOLD);
+  const [removeMemberMutation] = useMutation(REMOVE_HOUSEHOLD_MEMBER);
+  const [updateRoleMutation] = useMutation(UPDATE_MEMBER_ROLE);
+
+  const members = membersData?.householdMembers || [];
+  const invitations = invitationsData?.householdInvitations || [];
+  const isOwner = user?.role === 'owner';
+
+  const handleInvite = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const { data } = await inviteMutation({ variables: { email: inviteEmail, role: inviteRole } });
+      if (data.inviteToHousehold.errors?.length) {
+        toast.error(data.inviteToHousehold.errors[0]);
+      } else {
+        toast.success(`Invitation sent to ${inviteEmail}`);
+        setInviteEmail('');
+        setInviteRole('member');
+        refetchInvitations();
+      }
+    } catch (err: unknown) {
+      toast.error((err as Error).message || 'Failed to send invitation');
+    }
+  };
+
+  const handleRemoveMember = async (userId: string, memberName: string) => {
+    if (!confirm(`Remove ${memberName} from this household?`)) return;
+    try {
+      const { data } = await removeMemberMutation({ variables: { userId } });
+      if (data.removeHouseholdMember.errors?.length) {
+        toast.error(data.removeHouseholdMember.errors[0]);
+      } else {
+        toast.success('Member removed');
+        refetchMembers();
+      }
+    } catch (err: unknown) {
+      toast.error((err as Error).message || 'Failed to remove member');
+    }
+  };
+
+  const handleUpdateRole = async (userId: string, role: string) => {
+    try {
+      const { data } = await updateRoleMutation({ variables: { userId, role } });
+      if (data.updateMemberRole.errors?.length) {
+        toast.error(data.updateMemberRole.errors[0]);
+      } else {
+        toast.success('Role updated');
+        refetchMembers();
+      }
+    } catch (err: unknown) {
+      toast.error((err as Error).message || 'Failed to update role');
+    }
+  };
 
   // Notification preferences query
   const { data: notifData, refetch: refetchNotifs } = useQuery(GET_NOTIFICATION_PREFERENCES, {
@@ -193,6 +252,7 @@ export default function SettingsPage() {
     { id: 'profile' as const, label: 'Profile', icon: '👤' },
     { id: 'preferences' as const, label: 'Preferences', icon: '⚙️' },
     { id: 'household' as const, label: 'Household', icon: '🏠' },
+    { id: 'members' as const, label: 'Members', icon: '👥' },
     { id: 'notifications' as const, label: 'Notifications', icon: '🔔' },
     { id: 'tags' as const, label: 'Tags', icon: '🏷️' },
     { id: 'data' as const, label: 'Data', icon: '📦' },
@@ -356,25 +416,117 @@ export default function SettingsPage() {
 
           <div className={cardClasses}>
             <h2 className={headingClasses}>Members</h2>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              Manage household members in the <button onClick={() => setActiveTab('members')} className="text-indigo-600 dark:text-indigo-400 hover:underline font-medium">Members tab</button>.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Members Tab */}
+      {activeTab === 'members' && (
+        <div className="space-y-6">
+          {/* Invite Form (owners only) */}
+          {isOwner && (
+            <form onSubmit={handleInvite} className={cardClasses}>
+              <h2 className={headingClasses}>Invite Member</h2>
+              <div className="flex flex-col sm:flex-row gap-3">
+                <div className="flex-1">
+                  <input
+                    type="email"
+                    placeholder="Email address"
+                    value={inviteEmail}
+                    onChange={(e) => setInviteEmail(e.target.value)}
+                    className={inputClasses}
+                    required
+                  />
+                </div>
+                <div>
+                  <select value={inviteRole} onChange={(e) => setInviteRole(e.target.value)} className={inputClasses}>
+                    <option value="member">Member</option>
+                    <option value="advisor">Advisor (view only)</option>
+                    <option value="owner">Owner</option>
+                  </select>
+                </div>
+                <button type="submit" disabled={inviting} className={btnPrimary}>
+                  {inviting ? 'Sending...' : 'Send Invite'}
+                </button>
+              </div>
+            </form>
+          )}
+
+          {/* Members List */}
+          <div className={cardClasses}>
+            <h2 className={headingClasses}>Household Members</h2>
             <div className="space-y-3">
-              <div className="flex items-center justify-between py-3 border-b border-gray-100 dark:border-gray-700">
-                <div className="flex items-center space-x-3">
-                  <div className="h-10 w-10 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center">
-                    <span className="text-sm font-medium text-indigo-600 dark:text-indigo-400">
-                      {(user?.name || 'U').charAt(0).toUpperCase()}
-                    </span>
+              {members.map((m: { id: string; role: string; isPrimary: boolean; user: { id: string; name: string; email: string } }) => (
+                <div key={m.id} className="flex items-center justify-between py-3 border-b border-gray-100 dark:border-gray-700 last:border-0">
+                  <div className="flex items-center space-x-3">
+                    <div className="h-10 w-10 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center">
+                      <span className="text-sm font-medium text-indigo-600 dark:text-indigo-400">
+                        {(m.user.name || m.user.email || 'U').charAt(0).toUpperCase()}
+                      </span>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{m.user.name || 'Unnamed'}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">{m.user.email}</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{user?.name || 'You'}</p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">{user?.email}</p>
+                  <div className="flex items-center space-x-3">
+                    {isOwner && m.user.id !== user?.id ? (
+                      <select
+                        value={m.role}
+                        onChange={(e) => handleUpdateRole(m.user.id, e.target.value)}
+                        className="text-xs rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 px-2 py-1 border"
+                      >
+                        <option value="owner">Owner</option>
+                        <option value="member">Member</option>
+                        <option value="advisor">Advisor</option>
+                      </select>
+                    ) : (
+                      <span className={`text-xs font-medium px-2 py-1 rounded-full ${
+                        m.role === 'owner' ? 'text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/20' :
+                        m.role === 'advisor' ? 'text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20' :
+                        'text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20'
+                      }`}>
+                        {m.role.charAt(0).toUpperCase() + m.role.slice(1)}
+                      </span>
+                    )}
+                    {isOwner && m.user.id !== user?.id && (
+                      <button onClick={() => handleRemoveMember(m.user.id, m.user.name || m.user.email)} className={btnDanger}>
+                        Remove
+                      </button>
+                    )}
                   </div>
                 </div>
-                <span className="text-xs font-medium text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/20 px-2 py-1 rounded-full">
-                  Owner
-                </span>
-              </div>
+              ))}
+              {members.length === 0 && (
+                <p className="text-sm text-gray-400 italic">No members found.</p>
+              )}
             </div>
           </div>
+
+          {/* Pending Invitations */}
+          {isOwner && invitations.length > 0 && (
+            <div className={cardClasses}>
+              <h2 className={headingClasses}>Pending Invitations</h2>
+              <div className="space-y-3">
+                {invitations.map((inv: { id: string; email: string; role: string; expiresAt: string; createdAt: string }) => (
+                  <div key={inv.id} className="flex items-center justify-between py-3 border-b border-gray-100 dark:border-gray-700 last:border-0">
+                    <div>
+                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{inv.email}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        Invited as {inv.role} · Expires {new Date(inv.expiresAt).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <span className="text-xs font-medium text-yellow-600 dark:text-yellow-400 bg-yellow-50 dark:bg-yellow-900/20 px-2 py-1 rounded-full">
+                      Pending
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
 

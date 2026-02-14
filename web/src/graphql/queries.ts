@@ -453,5 +453,35 @@ export const GET_NOTIFICATIONS = gql`
       createdAt
     }
     unreadNotificationCount
+export const GET_HOUSEHOLD_MEMBERS = gql`
+  query GetHouseholdMembers {
+    householdMembers {
+      id
+      role
+      joinedAt
+      isPrimary
+      user {
+        id
+        name
+        email
+      }
+    }
+  }
+`;
+
+export const GET_HOUSEHOLD_INVITATIONS = gql`
+  query GetHouseholdInvitations {
+    householdInvitations {
+      id
+      email
+      role
+      status
+      expiresAt
+      createdAt
+      invitedBy {
+        id
+        name
+      }
+    }
   }
 `;
