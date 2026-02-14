@@ -15,23 +15,21 @@ class Goal < ApplicationRecord
   validates :name, presence: true, length: { minimum: 1, maximum: 255 }
   validates :target_amount, presence: true, numericality: { greater_than: 0 }
   validates :current_amount, numericality: { greater_than_or_equal_to: 0 }
-  validates :target_date, presence: true
+  validates :goal_type, presence: true
   validates :icon, length: { maximum: 50 }, allow_blank: true
   validates :color, format: { with: /\A#[0-9a-fA-F]{6}\z/ }, allow_blank: true
 
   validate :target_date_in_future
 
-  # Enums removed - currency is now just a string field
-
   # Scopes
-  scope :active, -> { where(is_completed: false) }
-  scope :completed, -> { where(is_completed: true) }
+  scope :active, -> { where(is_active: true, is_achieved: false) }
+  scope :achieved, -> { where(is_achieved: true) }
   scope :by_target_date, -> { order(:target_date) }
-  scope :overdue, -> { where(is_completed: false).where('target_date < ?', Date.current) }
+  scope :overdue, -> { where(is_achieved: false).where('target_date < ?', Date.current) }
 
   # Callbacks
   before_validation :set_defaults
-  before_save :check_completion_status
+  before_save :check_achievement_status
 
   # Helper methods
   def progress_percentage
@@ -44,28 +42,31 @@ class Goal < ApplicationRecord
   end
 
   def days_remaining
-    return 0 if target_date < Date.current
+    return 0 if target_date.blank? || target_date < Date.current
     (target_date - Date.current).to_i
   end
 
   def overdue?
-    !is_completed? && target_date < Date.current
+    !is_achieved? && target_date.present? && target_date < Date.current
   end
 
   def on_track?
-    return true if completed_at.present?
+    return true if achieved_at.present?
     return false if overdue?
-    
-    days_total = (target_date - created_at.to_date).to_i
-    days_elapsed = (Date.current - created_at.to_date).to_i
+    return true if target_date.blank?
+
+    days_total = (target_date - (start_date || created_at.to_date)).to_i
+    return true if days_total <= 0
+
+    days_elapsed = (Date.current - (start_date || created_at.to_date)).to_i
     expected_progress = days_elapsed.to_f / days_total * 100
-    
+
     progress_percentage >= expected_progress
   end
 
   def monthly_target_to_complete
-    return 0 if is_completed? || days_remaining.zero?
-    
+    return 0 if is_achieved? || days_remaining.zero?
+
     months_remaining = days_remaining / 30.0
     amount_remaining / months_remaining
   end
@@ -83,20 +84,22 @@ class Goal < ApplicationRecord
   private
 
   def set_defaults
-    self.current_amount ||= 0
-    self.currency ||= household&.users&.first&.get_preference('default_currency') || 'USD'
+    self.current_amount_cents ||= 0
+    self.currency ||= 'USD'
     self.color ||= generate_color
     self.icon ||= '🎯'
+    self.start_date ||= Date.current
+    self.goal_type ||= 'savings'
   end
 
-  def check_completion_status
-    was_completed = is_completed?
-    self.is_completed = current_amount >= target_amount
-    
-    if is_completed? && !was_completed
-      self.completed_at = Time.current
-    elsif !is_completed? && was_completed
-      self.completed_at = nil
+  def check_achievement_status
+    was_achieved = is_achieved?
+    self.is_achieved = current_amount_cents >= target_amount_cents
+
+    if is_achieved? && !was_achieved
+      self.achieved_at = Time.current
+    elsif !is_achieved? && was_achieved
+      self.achieved_at = nil
     end
   end
 

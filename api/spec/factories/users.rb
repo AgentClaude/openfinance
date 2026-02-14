@@ -204,11 +204,6 @@ FactoryBot.define do
     end
   end
 
-  factory :goal_account do
-    association :goal
-    association :account
-  end
-
   factory :security do
     symbol { Faker::Finance.ticker }
     name { Faker::Company.name }
