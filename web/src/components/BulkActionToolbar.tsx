@@ -102,7 +102,7 @@ const BulkActionToolbar: React.FC<BulkActionToolbarProps> = ({
 
         <button
           onClick={onClearSelection}
-          className="p-1 text-gray-400 hover:text-gray-600"
+          className="p-1 text-gray-400 hover:text-gray-600 dark:text-gray-400"
         >
           <XMarkIcon className="h-5 w-5" />
         </button>

@@ -11,6 +11,8 @@ export { useReports } from './useReports';
 export { useRules } from './useRules';
 export { useSettings } from './useSettings';
 export { useTags } from './useTags';
+export { useTheme } from './useTheme';
+export { usePreferences } from './usePreferences';
 export { useTransactions, cleanFilters } from './useTransactions';
 
 // Re-export types

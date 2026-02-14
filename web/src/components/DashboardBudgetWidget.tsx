@@ -29,7 +29,7 @@ const DashboardBudgetWidget: React.FC = () => {
           </Link>
         }
       >
-        <p className="text-sm text-gray-500 py-4">
+        <p className="text-sm text-gray-500 dark:text-gray-400 py-4">
           No budget set for this month. Set up your budget to track spending.
         </p>
       </Card>
@@ -62,15 +62,15 @@ const DashboardBudgetWidget: React.FC = () => {
         {/* Main progress */}
         <div>
           <div className="flex justify-between text-sm mb-1">
-            <span className="text-gray-600">
+            <span className="text-gray-600 dark:text-gray-400">
               <AmountDisplay amount={totalSpent} size="sm" colorize={false} className="inline font-medium" /> spent
             </span>
-            <span className="text-gray-500">
+            <span className="text-gray-500 dark:text-gray-400">
               of <AmountDisplay amount={totalBudgeted} size="sm" colorize={false} className="inline" />
             </span>
           </div>
           <ProgressBar value={totalSpent} max={totalBudgeted || 1} color={getColor()} size="md" />
-          <div className="mt-1 text-xs text-gray-500">
+          <div className="mt-1 text-xs text-gray-500 dark:text-gray-400">
             {remaining >= 0 ? (
               <span className="text-green-600 font-medium">${remaining.toFixed(0)} remaining</span>
             ) : (
@@ -86,7 +86,7 @@ const DashboardBudgetWidget: React.FC = () => {
               const pct = item.budgeted > 0 ? (item.spent / item.budgeted) * 100 : 0;
               return (
                 <div key={item.id} className="flex items-center gap-3">
-                  <span className="text-xs text-gray-600 w-24 truncate">{item.category?.name}</span>
+                  <span className="text-xs text-gray-600 dark:text-gray-400 w-24 truncate">{item.category?.name}</span>
                   <div className="flex-1">
                     <ProgressBar
                       value={item.spent}
@@ -96,7 +96,7 @@ const DashboardBudgetWidget: React.FC = () => {
                       showPercentage={false}
                     />
                   </div>
-                  <span className="text-xs text-gray-500 w-12 text-right">{Math.round(pct)}%</span>
+                  <span className="text-xs text-gray-500 dark:text-gray-400 w-12 text-right">{Math.round(pct)}%</span>
                 </div>
               );
             })}

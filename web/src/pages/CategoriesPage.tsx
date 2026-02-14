@@ -237,7 +237,7 @@ const CategoriesPage: React.FC = () => {
                   return (
                     <div
                       key={category.id}
-                      className="p-4 border border-gray-200 rounded-lg hover:shadow-md transition-shadow"
+                      className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:shadow-md transition-shadow"
                     >
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center space-x-2">
@@ -246,7 +246,7 @@ const CategoriesPage: React.FC = () => {
                             className="w-3 h-3 rounded-full"
                             style={{ backgroundColor: category.color }}
                           />
-                          <span className="font-medium text-gray-900">{category.name}</span>
+                          <span className="font-medium text-gray-900 dark:text-gray-100">{category.name}</span>
                           {category.isSystem && (
                             <LockClosedIcon className="h-4 w-4 text-gray-400" title="System category" />
                           )}
@@ -267,7 +267,7 @@ const CategoriesPage: React.FC = () => {
 
                       {subcategories.length > 0 && (
                         <div className="mt-3 space-y-1">
-                          <div className="text-xs text-gray-500 font-medium">Subcategories:</div>
+                          <div className="text-xs text-gray-500 dark:text-gray-400 font-medium">Subcategories:</div>
                           <div className="flex flex-wrap gap-1">
                             {subcategories.map(subcategory => (
                               <Badge
@@ -286,7 +286,7 @@ const CategoriesPage: React.FC = () => {
                         </div>
                       )}
 
-                      <div className="mt-3 text-sm text-gray-500">
+                      <div className="mt-3 text-sm text-gray-500 dark:text-gray-400">
                         {/* Transaction count and monthly spend would go here */}
                         0 transactions this month
                       </div>
@@ -339,7 +339,7 @@ const CategoriesPage: React.FC = () => {
           />
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Color
             </label>
             <div className="flex flex-wrap gap-2">
@@ -351,7 +351,7 @@ const CategoriesPage: React.FC = () => {
                     'w-8 h-8 rounded-full border-2 transition-all',
                     formData.color === color
                       ? 'border-gray-400 scale-110'
-                      : 'border-gray-200 hover:border-gray-300'
+                      : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:border-gray-600'
                   )}
                   style={{ backgroundColor: color }}
                   onClick={() => handleFormChange('color', color)}

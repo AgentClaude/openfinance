@@ -90,13 +90,13 @@ const AllocationPieChart: React.FC<{ allocations: PortfolioAllocation[] }> = ({ 
       <div className="flex flex-col gap-1.5 min-w-0 flex-1">
         {slices.map((s) => (
           <div key={s.index}
-            className={`flex items-center gap-2 text-sm rounded px-2 py-1 transition-colors ${hovered === s.index ? 'bg-gray-100' : ''}`}
+            className={`flex items-center gap-2 text-sm rounded px-2 py-1 transition-colors ${hovered === s.index ? 'bg-gray-100 dark:bg-gray-700' : ''}`}
             onMouseEnter={() => setHovered(s.index)}
             onMouseLeave={() => setHovered(null)}
           >
             <span className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: s.color }} />
-            <span className="truncate font-medium text-gray-700">{s.symbol}</span>
-            <span className="ml-auto text-gray-500 tabular-nums">{s.percentage.toFixed(1)}%</span>
+            <span className="truncate font-medium text-gray-700 dark:text-gray-300">{s.symbol}</span>
+            <span className="ml-auto text-gray-500 dark:text-gray-400 tabular-nums">{s.percentage.toFixed(1)}%</span>
           </div>
         ))}
       </div>
@@ -112,23 +112,23 @@ const HoldingRow: React.FC<{ holding: Holding }> = ({ holding }) => {
   return (
     <>
       <tr
-        className="hover:bg-gray-50 cursor-pointer border-b border-gray-100"
+        className="hover:bg-gray-50 dark:bg-gray-900 cursor-pointer border-b border-gray-100"
         onClick={() => setExpanded(!expanded)}
       >
         <td className="px-4 py-3">
           <div className="flex items-center gap-2">
             {expanded ? <ChevronUpIcon className="h-4 w-4 text-gray-400" /> : <ChevronDownIcon className="h-4 w-4 text-gray-400" />}
             <div>
-              <div className="font-medium text-gray-900">{holding.security.symbol}</div>
-              <div className="text-xs text-gray-500 truncate max-w-[200px]">{holding.security.name}</div>
+              <div className="font-medium text-gray-900 dark:text-gray-100">{holding.security.symbol}</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400 truncate max-w-[200px]">{holding.security.name}</div>
             </div>
           </div>
         </td>
-        <td className="px-4 py-3 text-right tabular-nums text-gray-700">{holding.quantity.toFixed(4)}</td>
-        <td className="px-4 py-3 text-right tabular-nums text-gray-700">
+        <td className="px-4 py-3 text-right tabular-nums text-gray-700 dark:text-gray-300">{holding.quantity.toFixed(4)}</td>
+        <td className="px-4 py-3 text-right tabular-nums text-gray-700 dark:text-gray-300">
           {holding.currentPrice != null ? formatCurrency(holding.currentPrice) : '—'}
         </td>
-        <td className="px-4 py-3 text-right tabular-nums font-medium text-gray-900">{formatCurrency(holding.currentValue)}</td>
+        <td className="px-4 py-3 text-right tabular-nums font-medium text-gray-900 dark:text-gray-100">{formatCurrency(holding.currentValue)}</td>
         <td className={`px-4 py-3 text-right tabular-nums font-medium ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
           <div className="flex items-center justify-end gap-1">
             {isPositive ? <ArrowTrendingUpIcon className="h-4 w-4" /> : <ArrowTrendingDownIcon className="h-4 w-4" />}
@@ -136,34 +136,34 @@ const HoldingRow: React.FC<{ holding: Holding }> = ({ holding }) => {
           </div>
           <div className="text-xs">{formatPercent(holding.unrealizedGainLossPercentage)}</div>
         </td>
-        <td className="px-4 py-3 text-right tabular-nums text-gray-500">{holding.weightInAccount.toFixed(1)}%</td>
+        <td className="px-4 py-3 text-right tabular-nums text-gray-500 dark:text-gray-400">{holding.weightInAccount.toFixed(1)}%</td>
       </tr>
       {expanded && (
-        <tr className="bg-gray-50">
+        <tr className="bg-gray-50 dark:bg-gray-900">
           <td colSpan={6} className="px-8 py-4">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
               <div>
-                <div className="text-gray-500">Cost Basis (per share)</div>
+                <div className="text-gray-500 dark:text-gray-400">Cost Basis (per share)</div>
                 <div className="font-medium">{holding.costBasis != null ? formatCurrency(holding.costBasis) : '—'}</div>
               </div>
               <div>
-                <div className="text-gray-500">Total Cost Basis</div>
+                <div className="text-gray-500 dark:text-gray-400">Total Cost Basis</div>
                 <div className="font-medium">{formatCurrency(holding.costBasisTotal)}</div>
               </div>
               <div>
-                <div className="text-gray-500">Market Value</div>
+                <div className="text-gray-500 dark:text-gray-400">Market Value</div>
                 <div className="font-medium">{holding.marketValue != null ? formatCurrency(holding.marketValue) : '—'}</div>
               </div>
               <div>
-                <div className="text-gray-500">Security Type</div>
+                <div className="text-gray-500 dark:text-gray-400">Security Type</div>
                 <div className="font-medium capitalize">{holding.security.securityType?.replace('_', ' ') || '—'}</div>
               </div>
               <div>
-                <div className="text-gray-500">As of Date</div>
+                <div className="text-gray-500 dark:text-gray-400">As of Date</div>
                 <div className="font-medium">{new Date(holding.asOfDate).toLocaleDateString()}</div>
               </div>
               <div>
-                <div className="text-gray-500">Currency</div>
+                <div className="text-gray-500 dark:text-gray-400">Currency</div>
                 <div className="font-medium">{holding.currency}</div>
               </div>
             </div>
@@ -189,10 +189,10 @@ const InvestmentsPage: React.FC = () => {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h1 className="text-2xl font-bold text-gray-900">Investments</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Investments</h1>
         {investmentAccounts.length > 1 && (
           <select
-            className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             value={selectedAccountId || ''}
             onChange={(e) => setSelectedAccountId(e.target.value || undefined)}
           >
@@ -212,22 +212,22 @@ const InvestmentsPage: React.FC = () => {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
-          <div className="flex items-center gap-2 text-sm text-gray-500 mb-1">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-5">
+          <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-1">
             <CurrencyDollarIcon className="h-4 w-4" />
             Portfolio Value
           </div>
-          <div className="text-2xl font-bold text-gray-900">{formatCurrency(summary.totalValue)}</div>
+          <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">{formatCurrency(summary.totalValue)}</div>
         </div>
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
-          <div className="flex items-center gap-2 text-sm text-gray-500 mb-1">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-5">
+          <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-1">
             <ScaleIcon className="h-4 w-4" />
             Cost Basis
           </div>
-          <div className="text-2xl font-bold text-gray-900">{formatCurrency(summary.totalCostBasis)}</div>
+          <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">{formatCurrency(summary.totalCostBasis)}</div>
         </div>
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
-          <div className="flex items-center gap-2 text-sm text-gray-500 mb-1">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-5">
+          <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-1">
             {isPositive ? <ArrowTrendingUpIcon className="h-4 w-4 text-green-500" /> : <ArrowTrendingDownIcon className="h-4 w-4 text-red-500" />}
             Total Gain/Loss
           </div>
@@ -238,27 +238,27 @@ const InvestmentsPage: React.FC = () => {
             {formatPercent(summary.totalGainLossPercentage)}
           </div>
         </div>
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
-          <div className="flex items-center gap-2 text-sm text-gray-500 mb-1">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-5">
+          <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-1">
             <ChartPieIcon className="h-4 w-4" />
             Holdings
           </div>
-          <div className="text-2xl font-bold text-gray-900">{summary.totalHoldingsCount}</div>
+          <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">{summary.totalHoldingsCount}</div>
         </div>
       </div>
 
       {/* Allocation Chart + Holdings Table */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Pie Chart */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Asset Allocation</h2>
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-5">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Asset Allocation</h2>
           <AllocationPieChart allocations={summary.allocations} />
         </div>
 
         {/* Holdings Table */}
-        <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-          <div className="px-5 py-4 border-b border-gray-200">
-            <h2 className="text-lg font-semibold text-gray-900">Holdings</h2>
+        <div className="lg:col-span-2 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+          <div className="px-5 py-4 border-b border-gray-200 dark:border-gray-700">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Holdings</h2>
           </div>
           {holdings.length === 0 ? (
             <div className="p-8 text-center text-gray-400">
@@ -267,7 +267,7 @@ const InvestmentsPage: React.FC = () => {
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-gray-50 text-xs text-gray-500 uppercase tracking-wider">
+                <thead className="bg-gray-50 dark:bg-gray-900 text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                   <tr>
                     <th className="px-4 py-3 text-left">Security</th>
                     <th className="px-4 py-3 text-right">Shares</th>

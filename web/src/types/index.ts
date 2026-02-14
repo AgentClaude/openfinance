@@ -55,11 +55,6 @@ export interface Transaction {
   category?: Category;
   subcategory?: Category;
   tags: Tag[];
-  isSplit?: boolean;
-  isTransfer?: boolean;
-  excluded?: boolean;
-  parentTransactionId?: string;
-  transferPairId?: string;
 }
 
 export interface TransferCandidate {
@@ -71,17 +66,6 @@ export interface TransferCandidate {
   outflowDate: string;
   inflowDate: string;
   description: string;
-}
-
-export interface TransferCandidate {
-  outflowId: string;
-  inflowId: string;
-  amount: number;
-  outflowAccount: string;
-  inflowAccount: string;
-  outflowDate: string;
-  inflowDate: string;
-  description?: string;
 }
 
 export interface Category {

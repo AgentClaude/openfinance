@@ -134,7 +134,7 @@ const TransactionDetailPanel: React.FC<TransactionDetailPanelProps> = ({
                 leaveTo="translate-x-full"
               >
                 <Dialog.Panel className="pointer-events-auto w-screen max-w-md">
-                  <div className="flex h-full flex-col overflow-y-scroll bg-white shadow-xl">
+                  <div className="flex h-full flex-col overflow-y-scroll bg-white dark:bg-gray-800 shadow-xl">
                     {/* Header */}
                     <div className="bg-indigo-600 px-4 py-6 sm:px-6">
                       <div className="flex items-center justify-between">
@@ -166,25 +166,25 @@ const TransactionDetailPanel: React.FC<TransactionDetailPanelProps> = ({
                       {/* Basic Info */}
                       <div className="space-y-3">
                         <div>
-                          <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Description</label>
-                          <p className="text-sm text-gray-900 mt-1">{transaction.description}</p>
+                          <label className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Description</label>
+                          <p className="text-sm text-gray-900 dark:text-gray-100 mt-1">{transaction.description}</p>
                         </div>
                         {transaction.merchantName && (
                           <div>
-                            <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Merchant</label>
-                            <p className="text-sm text-gray-900 mt-1">{transaction.merchantName}</p>
+                            <label className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Merchant</label>
+                            <p className="text-sm text-gray-900 dark:text-gray-100 mt-1">{transaction.merchantName}</p>
                           </div>
                         )}
                         <div className="grid grid-cols-2 gap-4">
                           <div>
-                            <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Date</label>
-                            <p className="text-sm text-gray-900 mt-1">{format(new Date(transaction.date), 'MMM d, yyyy')}</p>
+                            <label className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Date</label>
+                            <p className="text-sm text-gray-900 dark:text-gray-100 mt-1">{format(new Date(transaction.date), 'MMM d, yyyy')}</p>
                           </div>
                           <div>
-                            <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Account</label>
-                            <p className="text-sm text-gray-900 mt-1">
+                            <label className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Account</label>
+                            <p className="text-sm text-gray-900 dark:text-gray-100 mt-1">
                               {transaction.account.name}
-                              {transaction.account.mask && <span className="text-gray-500"> •••{transaction.account.mask}</span>}
+                              {transaction.account.mask && <span className="text-gray-500 dark:text-gray-400"> •••{transaction.account.mask}</span>}
                             </p>
                           </div>
                         </div>
@@ -207,7 +207,7 @@ const TransactionDetailPanel: React.FC<TransactionDetailPanelProps> = ({
 
                       {/* Tags */}
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Tags</label>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Tags</label>
                         <div className="flex flex-wrap gap-2 mb-2">
                           {transactionTags.map(tag => (
                             <span
@@ -218,7 +218,7 @@ const TransactionDetailPanel: React.FC<TransactionDetailPanelProps> = ({
                               {tag.name}
                               <button
                                 onClick={() => handleRemoveTag(tag.id)}
-                                className="hover:bg-white/20 rounded-full p-0.5"
+                                className="hover:bg-white dark:bg-gray-800/20 rounded-full p-0.5"
                               >
                                 <XMarkIcon className="h-3 w-3" />
                               </button>
@@ -232,7 +232,7 @@ const TransactionDetailPanel: React.FC<TransactionDetailPanelProps> = ({
                             onChange={(e) => setTagInput(e.target.value)}
                             onKeyDown={handleTagKeyDown}
                             placeholder="Add tag..."
-                            className="flex-1 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm"
+                            className="flex-1 rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm"
                           />
                           <Button size="sm" variant="secondary" onClick={handleAddTag}>Add</Button>
                         </div>
@@ -249,7 +249,7 @@ const TransactionDetailPanel: React.FC<TransactionDetailPanelProps> = ({
                                     setTransactionTags(prev => [...prev, tag]);
                                     setTagInput('');
                                   }}
-                                  className="px-2 py-0.5 rounded-full text-xs border border-gray-300 hover:bg-gray-100 text-gray-700"
+                                  className="px-2 py-0.5 rounded-full text-xs border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
                                 >
                                   {tag.name}
                                 </button>
@@ -260,13 +260,13 @@ const TransactionDetailPanel: React.FC<TransactionDetailPanelProps> = ({
 
                       {/* Notes */}
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Notes</label>
                         <textarea
                           value={notes}
                           onChange={(e) => setNotes(e.target.value)}
                           placeholder="Add notes..."
                           rows={3}
-                          className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm"
+                          className="w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm"
                         />
                       </div>
 
@@ -278,7 +278,7 @@ const TransactionDetailPanel: React.FC<TransactionDetailPanelProps> = ({
                           ) : (
                             <CheckIcon className="h-5 w-5 text-green-500" />
                           )}
-                          <span className="text-sm text-gray-700">
+                          <span className="text-sm text-gray-700 dark:text-gray-300">
                             {needsReview ? 'Needs Review' : 'Reviewed'}
                           </span>
                         </div>
@@ -287,14 +287,14 @@ const TransactionDetailPanel: React.FC<TransactionDetailPanelProps> = ({
                           className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 ${needsReview ? 'bg-amber-500' : 'bg-green-500'}`}
                         >
                           <span
-                            className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${needsReview ? 'translate-x-5' : 'translate-x-0'}`}
+                            className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white dark:bg-gray-800 shadow ring-0 transition duration-200 ease-in-out ${needsReview ? 'translate-x-5' : 'translate-x-0'}`}
                           />
                         </button>
                       </div>
                     </div>
 
                     {/* Footer */}
-                    <div className="border-t border-gray-200 px-4 py-4 sm:px-6 space-y-3">
+                    <div className="border-t border-gray-200 dark:border-gray-700 px-4 py-4 sm:px-6 space-y-3">
                       {!transaction.isSplit && !transaction.parentTransactionId && (
                         <Button
                           variant="secondary"

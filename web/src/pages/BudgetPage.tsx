@@ -136,12 +136,12 @@ const BudgetPage: React.FC = () => {
       {/* Header with Month Navigation */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Budget</h1>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Budget</h1>
           <div className="flex items-center mt-1 space-x-4">
             <Button variant="ghost" size="sm" onClick={() => navigateMonth('prev')} className="p-2">
               <ChevronLeftIcon className="h-4 w-4" />
             </Button>
-            <h2 className="text-lg font-medium text-gray-700 min-w-32 text-center">
+            <h2 className="text-lg font-medium text-gray-700 dark:text-gray-300 min-w-32 text-center">
               {format(currentDate, 'MMMM yyyy')}
             </h2>
             <Button variant="ghost" size="sm" onClick={() => navigateMonth('next')} className="p-2">
@@ -177,7 +177,7 @@ const BudgetPage: React.FC = () => {
           <AmountDisplay amount={getTotalBudgeted()} size="lg" colorize={false} className="text-blue-600" />
         </Card>
         <Card title="Total Spent">
-          <AmountDisplay amount={getTotalSpent()} size="lg" colorize={false} className="text-gray-900" />
+          <AmountDisplay amount={getTotalSpent()} size="lg" colorize={false} className="text-gray-900 dark:text-gray-100" />
         </Card>
         <Card title="Left to Budget">
           <AmountDisplay amount={leftToBudget} size="lg" />
@@ -186,7 +186,7 @@ const BudgetPage: React.FC = () => {
           <div>
             <AmountDisplay amount={summary?.incomeActual ?? 0} size="lg" colorize={false} className="text-green-600" />
             {summary?.totalIncome ? (
-              <div className="text-xs text-gray-500 mt-1">
+              <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                 of <AmountDisplay amount={summary.totalIncome} size="sm" colorize={false} className="inline" /> planned
               </div>
             ) : null}
@@ -194,7 +194,7 @@ const BudgetPage: React.FC = () => {
         </Card>
         <Card title="Progress">
           <div className="space-y-2">
-            <div className="text-2xl font-semibold text-gray-900">
+            <div className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
               {Math.round(getBudgetProgress())}%
             </div>
             <ProgressBar
@@ -237,14 +237,14 @@ const BudgetPage: React.FC = () => {
         Object.entries(groupedItems).map(([groupName, group]) => (
           <Card key={groupName} className="mb-4">
             {/* Group Header */}
-            <div className="flex items-center justify-between mb-4 pb-2 border-b border-gray-200">
+            <div className="flex items-center justify-between mb-4 pb-2 border-b border-gray-200 dark:border-gray-700">
               <h3 className="text-lg font-semibold text-gray-800">{groupName}</h3>
               <div className="flex items-center space-x-6 text-sm">
-                <span className="text-gray-500">
-                  Budgeted: <span className="font-medium text-gray-900">${group.totalBudgeted.toFixed(2)}</span>
+                <span className="text-gray-500 dark:text-gray-400">
+                  Budgeted: <span className="font-medium text-gray-900 dark:text-gray-100">${group.totalBudgeted.toFixed(2)}</span>
                 </span>
-                <span className="text-gray-500">
-                  Spent: <span className="font-medium text-gray-900">${group.totalSpent.toFixed(2)}</span>
+                <span className="text-gray-500 dark:text-gray-400">
+                  Spent: <span className="font-medium text-gray-900 dark:text-gray-100">${group.totalSpent.toFixed(2)}</span>
                 </span>
                 <span className={`font-medium ${group.totalBudgeted - group.totalSpent >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                   ${(group.totalBudgeted - group.totalSpent).toFixed(2)} remaining
@@ -260,7 +260,7 @@ const BudgetPage: React.FC = () => {
                 const isEditing = editingCategory === item.categoryId;
 
                 return (
-                  <div key={item.id} className="flex items-center gap-4 py-2 hover:bg-gray-50 rounded-lg px-2">
+                  <div key={item.id} className="flex items-center gap-4 py-2 hover:bg-gray-50 dark:bg-gray-900 rounded-lg px-2">
                     {/* Category Name */}
                     <div className="w-48 flex-shrink-0">
                       <button
@@ -272,7 +272,7 @@ const BudgetPage: React.FC = () => {
                         }}
                       >
                         {item.category?.icon && <CategoryIcon icon={item.category.icon} className="mr-2" />}
-                        <span className="text-sm font-medium text-gray-900 group-hover:text-indigo-600">{item.category?.name}</span>
+                        <span className="text-sm font-medium text-gray-900 dark:text-gray-100 group-hover:text-indigo-600">{item.category?.name}</span>
                       </button>
                     </div>
 
@@ -304,7 +304,7 @@ const BudgetPage: React.FC = () => {
                           onClick={() => handleEditStart(item.categoryId, item.budgeted)}
                           className="flex items-center space-x-1 group"
                         >
-                          <span className="text-sm text-gray-900">${item.budgeted.toFixed(2)}</span>
+                          <span className="text-sm text-gray-900 dark:text-gray-100">${item.budgeted.toFixed(2)}</span>
                           <PencilIcon className="h-3 w-3 text-gray-400 opacity-0 group-hover:opacity-100" />
                         </button>
                       )}
@@ -312,7 +312,7 @@ const BudgetPage: React.FC = () => {
 
                     {/* Actual Spent */}
                     <div className="w-28 flex-shrink-0">
-                      <span className="text-sm text-gray-700">${item.spent.toFixed(2)}</span>
+                      <span className="text-sm text-gray-700 dark:text-gray-300">${item.spent.toFixed(2)}</span>
                     </div>
 
                     {/* Remaining */}
@@ -331,7 +331,7 @@ const BudgetPage: React.FC = () => {
                         showPercentage={false}
                         size="sm"
                       />
-                      <div className="text-xs text-gray-500 mt-0.5">{Math.round(progress)}%</div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{Math.round(progress)}%</div>
                     </div>
 
                     {/* Delete */}
