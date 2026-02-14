@@ -107,7 +107,6 @@ Rails.application.configure do
   }
 
   # Database query timeout
-  config.active_record.query_timeout = 30.seconds
 
   # Instrumentation
   if ENV['NEW_RELIC_LICENSE_KEY'].present?
