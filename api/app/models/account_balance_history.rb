@@ -7,7 +7,7 @@ class AccountBalanceHistory < ApplicationRecord
   belongs_to :account
 
   # Money attributes
-  monetize :balance_cents
+  monetize :current_balance_cents, as: :balance
 
   # Validations
   validates :account, presence: true
