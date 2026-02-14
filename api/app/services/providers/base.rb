@@ -1,5 +1,8 @@
 # Abstract base class for financial data provider adapters
 
+# Ensure ServiceResult is available (defined in application_service.rb)
+ApplicationService # trigger autoload
+
 module Providers
   class Base
     attr_reader :connection

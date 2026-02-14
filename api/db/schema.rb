@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_02_14_020000) do
+ActiveRecord::Schema[8.0].define(version: 2026_02_14_100001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -348,6 +348,17 @@ ActiveRecord::Schema[8.0].define(version: 2026_02_14_020000) do
     t.index ["household_id"], name: "index_merchant_mappings_on_household_id"
   end
 
+  create_table "notification_preferences", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "user_id", null: false
+    t.string "notification_type", null: false
+    t.string "channel", default: "in_app", null: false
+    t.boolean "enabled", default: true, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id", "notification_type", "channel"], name: "idx_notif_prefs_user_type_channel", unique: true
+    t.index ["user_id"], name: "index_notification_preferences_on_user_id"
+  end
+
   create_table "notification_rules", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "user_id", null: false
     t.uuid "household_id", null: false
@@ -625,6 +636,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_02_14_020000) do
   add_foreign_key "household_memberships", "households"
   add_foreign_key "household_memberships", "users"
   add_foreign_key "household_memberships", "users", column: "invited_by_id"
+  add_foreign_key "notification_preferences", "users"
   add_foreign_key "notification_rules", "households"
   add_foreign_key "notification_rules", "users"
   add_foreign_key "notifications", "households"

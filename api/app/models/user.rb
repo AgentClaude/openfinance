@@ -17,6 +17,7 @@ class User < ApplicationRecord
   has_many :transactions, through: :household, dependent: :destroy
   has_many :notification_rules, dependent: :destroy
   has_many :notifications, dependent: :destroy
+  has_many :notification_preferences, dependent: :destroy
   has_many :sent_invitations, class_name: 'Invitation', foreign_key: :invited_by_id, dependent: :destroy
 
   # Validations

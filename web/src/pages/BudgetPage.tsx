@@ -14,10 +14,10 @@ import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import ProgressBar from '@/components/ui/ProgressBar';
-import AmountDisplay from '@/components/ui/AmountDisplay';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import EmptyState from '@/components/ui/EmptyState';
 import { useToast } from '@/components/ui/Toast';
+import { StatCard } from '@/components/shared';
 import CategoryIcon from '@/components/ui/CategoryIcon';
 import { useNavigate } from 'react-router-dom';
 import { format, addMonths, subMonths, startOfMonth, endOfMonth } from 'date-fns';
@@ -173,25 +173,10 @@ const BudgetPage: React.FC = () => {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
-        <Card title="Total Budgeted">
-          <AmountDisplay amount={getTotalBudgeted()} size="lg" colorize={false} className="text-blue-600" />
-        </Card>
-        <Card title="Total Spent">
-          <AmountDisplay amount={getTotalSpent()} size="lg" colorize={false} className="text-gray-900 dark:text-gray-100" />
-        </Card>
-        <Card title="Left to Budget">
-          <AmountDisplay amount={leftToBudget} size="lg" />
-        </Card>
-        <Card title="Income">
-          <div>
-            <AmountDisplay amount={summary?.incomeActual ?? 0} size="lg" colorize={false} className="text-green-600" />
-            {summary?.totalIncome ? (
-              <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                of <AmountDisplay amount={summary.totalIncome} size="sm" colorize={false} className="inline" /> planned
-              </div>
-            ) : null}
-          </div>
-        </Card>
+        <StatCard label="Total Budgeted" value={`$${getTotalBudgeted().toFixed(2)}`} valueClassName="text-blue-600" />
+        <StatCard label="Total Spent" value={`$${getTotalSpent().toFixed(2)}`} />
+        <StatCard label="Left to Budget" value={`$${leftToBudget.toFixed(2)}`} valueClassName={leftToBudget >= 0 ? 'text-green-600' : 'text-red-600'} />
+        <StatCard label="Income" value={`$${(summary?.incomeActual ?? 0).toFixed(2)}`} valueClassName="text-green-600" />
         <Card title="Progress">
           <div className="space-y-2">
             <div className="text-2xl font-semibold text-gray-900 dark:text-gray-100">

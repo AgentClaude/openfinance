@@ -14,6 +14,7 @@ import Badge from '@/components/ui/Badge';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import EmptyState from '@/components/ui/EmptyState';
 import PageHeader from '@/components/ui/PageHeader';
+import { StatCard } from '@/components/shared';
 import DashboardBudgetWidget from '@/components/DashboardBudgetWidget';
 import DashboardBillsWidget from '@/components/DashboardBillsWidget';
 import { format } from 'date-fns';
@@ -89,33 +90,25 @@ const DashboardPage: React.FC = () => {
         </Card>
 
         {/* Monthly Income */}
-        <Card title="Monthly Income">
-          <AmountDisplay 
-            amount={summary.monthlyIncome} 
-            size="lg" 
-            colorize={false} 
-            className="text-green-600" 
-          />
-        </Card>
+        <StatCard
+          label="Monthly Income"
+          value={new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(summary.monthlyIncome)}
+          valueClassName="text-green-600"
+        />
 
         {/* Monthly Expenses */}
-        <Card title="Monthly Expenses">
-          <AmountDisplay 
-            amount={summary.monthlyExpenses} 
-            size="lg" 
-            colorize={false} 
-            className="text-red-600" 
-          />
-        </Card>
+        <StatCard
+          label="Monthly Expenses"
+          value={new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(summary.monthlyExpenses)}
+          valueClassName="text-red-600"
+        />
 
         {/* Cash Flow */}
-        <Card title="Cash Flow">
-          <AmountDisplay 
-            amount={summary.cashFlow} 
-            size="lg" 
-            colorize={true}
-          />
-        </Card>
+        <StatCard
+          label="Cash Flow"
+          value={new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(summary.cashFlow)}
+          valueClassName={summary.cashFlow >= 0 ? 'text-green-600' : 'text-red-600'}
+        />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">

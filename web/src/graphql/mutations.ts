@@ -654,3 +654,57 @@ export const DELETE_GOAL = gql`
     }
   }
 `;
+
+export const UPDATE_HOUSEHOLD = gql`
+  mutation UpdateHousehold($name: String, $currency: String) {
+    updateHousehold(name: $name, currency: $currency) {
+      household {
+        id
+        name
+        currency
+      }
+      errors
+    }
+  }
+`;
+
+export const UPDATE_NOTIFICATION_PREFERENCE = gql`
+  mutation UpdateNotificationPreference($notificationType: String!, $channel: String!, $enabled: Boolean!) {
+    updateNotificationPreference(notificationType: $notificationType, channel: $channel, enabled: $enabled) {
+      notificationPreference {
+        id
+        notificationType
+        channel
+        enabled
+      }
+      errors
+    }
+  }
+`;
+
+export const UPDATE_TAG = gql`
+  mutation UpdateTag($id: ID!, $name: String, $colorHex: String, $isActive: Boolean) {
+    updateTag(id: $id, name: $name, colorHex: $colorHex, isActive: $isActive) {
+      id
+      name
+      colorHex
+      isActive
+    }
+  }
+`;
+
+export const DELETE_TAG = gql`
+  mutation DeleteTag($id: ID!) {
+    deleteTag(id: $id) {
+      success
+    }
+  }
+`;
+
+export const EXPORT_DATA = gql`
+  mutation ExportData {
+    exportData {
+      jsonData
+    }
+  }
+`;

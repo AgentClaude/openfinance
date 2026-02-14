@@ -38,5 +38,9 @@ module Types
     field :split_transaction, mutation: Mutations::SplitTransaction
     field :detect_transfers, mutation: Mutations::DetectTransfers
     field :link_transfer, mutation: Mutations::LinkTransfer
+    field :update_household, mutation: Mutations::UpdateHousehold
+    field :update_notification_preference, mutation: Mutations::UpdateNotificationPreference
+    field :update_tag, mutation: Mutations::UpdateTag
+    field :delete_tag, mutation: Mutations::DeleteTag
   end
 end

@@ -410,3 +410,14 @@ export const GET_GOALS = gql`
     }
   }
 `;
+
+export const GET_NOTIFICATION_PREFERENCES = gql`
+  query GetNotificationPreferences {
+    notificationPreferences {
+      id
+      notificationType
+      channel
+      enabled
+    }
+  }
+`;

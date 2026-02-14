@@ -33,14 +33,6 @@ export const WithTrendDown: Story = {
   },
 };
 
-export const WithIcon: Story = {
-  args: {
-    label: 'Savings',
-    value: '$9,250',
-    icon: <BanknotesIcon className="h-6 w-6" />,
-    trend: { direction: 'up', value: '+12%' },
-  },
-};
 
 export const CustomColor: Story = {
   args: {

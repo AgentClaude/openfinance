@@ -84,7 +84,16 @@ export interface Tag {
   id: string;
   name: string;
   color?: string;
+  colorHex?: string;
+  isActive?: boolean;
   householdId: string;
+}
+
+export interface NotificationPreference {
+  id: string;
+  notificationType: string;
+  channel: string;
+  enabled: boolean;
 }
 
 export interface BudgetItem {

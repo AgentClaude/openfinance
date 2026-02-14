@@ -201,6 +201,12 @@ module Types
       }
     end
 
+    field :notification_preferences, [Types::NotificationPreferenceType], null: false
+    def notification_preferences
+      return [] unless context[:current_user]
+      NotificationPreference.defaults_for(context[:current_user])
+    end
+
     field :categorization_rules, [Types::CategorizationRuleType], null: false
     def categorization_rules
       return [] unless context[:current_user]&.household
