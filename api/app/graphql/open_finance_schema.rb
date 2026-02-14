@@ -6,10 +6,7 @@ class OpenFinanceSchema < GraphQL::Schema
   query(Types::QueryType)
   mutation(Types::MutationType)
 
-  # Schema configuration
-  use GraphQL::Pagination::Connections
-  use GraphQL::Analysis::AST
-  use GraphQL::Subscriptions::ActionCableSubscriptions if defined?(ActionCable)
+  # Schema configuration — Connections and AST Analysis are built-in in graphql-ruby 2.x
 
   # Authentication and authorization
   def self.unauthorized_object(error)
@@ -33,10 +30,10 @@ class OpenFinanceSchema < GraphQL::Schema
     raise GraphQL::ExecutionError, "You don't have permission to perform this action"
   end
 
-  # Query analysis and security
-  query_analyzer GraphQL::Analysis::QueryDepth.new(max_depth: Rails.application.config.graphql_max_depth)
-  query_analyzer GraphQL::Analysis::QueryComplexity.new(max_complexity: Rails.application.config.graphql_max_complexity)
-  
+  # Query depth and complexity limits
+  max_depth Rails.application.config.graphql_max_depth
+  max_complexity Rails.application.config.graphql_max_complexity
+
   # Timeout for long-running queries
   def self.execute(query_str = nil, **kwargs)
     timeout = Rails.application.config.graphql_timeout
@@ -58,11 +55,6 @@ class OpenFinanceSchema < GraphQL::Schema
   # Development introspection
   def self.introspection_enabled?
     Rails.application.config.graphql_introspection_enabled
-  end
-
-  # Tracing for performance monitoring
-  if Rails.env.development?
-    tracer GraphQL::Tracing::PlatformTracing
   end
 
   # Context helpers

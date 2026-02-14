@@ -23,7 +23,7 @@ module AuthHelper
     post '/graphql', params: {
       query: query,
       variables: variables
-    }.to_json, headers: headers
+    }, headers: headers, as: :json
 
     begin
       JSON.parse(response.body)

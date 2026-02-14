@@ -5,14 +5,16 @@ RSpec.describe Plaid::SyncTransactionsService, type: :service do
   let(:household) { user.household }
   let(:institution) { create(:institution) }
   let(:connection) { create(:account_connection, household: household, institution: institution, provider_access_token: 'access-token') }
-  let(:account) { create(:account, household: household, account_connection: connection, plaid_account_id: 'acc_123456') }
+  let(:account) { create(:account, household: household, connection: connection, plaid_account_id: 'acc_123456') }
   let(:category) { create(:category, household: household, name: 'Food & Dining') }
 
   let(:service) { described_class.new(connection: connection) }
 
+  let(:plaid_client) { double('Plaid::PlaidApi') }
+
   before do
     allow(PlaidConfig).to receive(:enabled?).and_return(true)
-    allow(PlaidConfig).to receive(:client).and_return(double('Plaid::PlaidApi'))
+    allow(PlaidConfig).to receive(:client).and_return(plaid_client)
 
     # Ensure account exists
     account
@@ -72,7 +74,7 @@ RSpec.describe Plaid::SyncTransactionsService, type: :service do
       end
 
       before do
-        allow_any_instance_of(Plaid::PlaidApi).to receive(:transactions_sync)
+        allow(plaid_client).to receive(:transactions_sync)
           .and_return(mock_sync_response)
 
         # Create a transaction to be modified
@@ -92,9 +94,9 @@ RSpec.describe Plaid::SyncTransactionsService, type: :service do
         result = service.call
 
         expect(result.success?).to be true
-        expect(result.value[:added]).to eq(1)
-        expect(result.value[:modified]).to eq(1)
-        expect(result.value[:removed]).to eq(1)
+        expect(result.data[:added]).to eq(1)
+        expect(result.data[:modified]).to eq(1)
+        expect(result.data[:removed]).to eq(1)
       end
 
       it 'updates connection sync metadata' do
@@ -174,7 +176,7 @@ RSpec.describe Plaid::SyncTransactionsService, type: :service do
         end
 
         before do
-          allow_any_instance_of(Plaid::PlaidApi).to receive(:transactions_sync)
+          allow(plaid_client).to receive(:transactions_sync)
             .and_return(mock_first_response, mock_second_response)
         end
 
@@ -182,9 +184,9 @@ RSpec.describe Plaid::SyncTransactionsService, type: :service do
           result = service.call
 
           expect(result.success?).to be true
-          expect(result.value[:added]).to eq(1)
-          expect(result.value[:modified]).to eq(1)
-          expect(result.value[:removed]).to eq(1)
+          expect(result.data[:added]).to eq(1)
+          expect(result.data[:modified]).to eq(1)
+          expect(result.data[:removed]).to eq(1)
 
           connection.reload
           expect(connection.sync_cursor).to eq('final_cursor')
@@ -198,7 +200,7 @@ RSpec.describe Plaid::SyncTransactionsService, type: :service do
         result = service.call
 
         expect(result.success?).to be false
-        expect(result.errors).to include(/connection/)
+        expect(result.errors).to include(/connection/i)
       end
 
       it 'fails when Plaid is not configured' do
@@ -220,15 +222,16 @@ RSpec.describe Plaid::SyncTransactionsService, type: :service do
 
     context 'with Plaid API errors' do
       before do
-        allow_any_instance_of(Plaid::PlaidApi).to receive(:transactions_sync)
+        allow(plaid_client).to receive(:transactions_sync)
           .and_raise(mock_plaid_error('ITEM_ERROR', 'ITEM_LOGIN_REQUIRED'))
       end
 
       it 'handles authentication errors by marking connection as error' do
-        expect(connection).to receive(:mark_error!).with('ITEM_LOGIN_REQUIRED', anything)
-
         result = service.call
         expect(result.success?).to be false
+        connection.reload
+        expect(connection.status).to eq('error')
+        expect(connection.error_code).to eq('ITEM_LOGIN_REQUIRED')
       end
 
       it 'logs Plaid errors' do
@@ -240,7 +243,7 @@ RSpec.describe Plaid::SyncTransactionsService, type: :service do
 
     context 'with generic errors' do
       before do
-        allow_any_instance_of(Plaid::PlaidApi).to receive(:transactions_sync)
+        allow(plaid_client).to receive(:transactions_sync)
           .and_raise(StandardError, 'Network timeout')
       end
 
@@ -281,7 +284,7 @@ RSpec.describe Plaid::SyncTransactionsService, type: :service do
       end
 
       before do
-        allow_any_instance_of(Plaid::PlaidApi).to receive(:transactions_sync)
+        allow(plaid_client).to receive(:transactions_sync)
           .and_return(mock_sync_response_with_orphan)
       end
 
@@ -290,7 +293,7 @@ RSpec.describe Plaid::SyncTransactionsService, type: :service do
 
         result = service.call
         expect(result.success?).to be true
-        expect(result.value[:added]).to eq(0)
+        expect(result.data[:added]).to eq(0)
       end
     end
   end

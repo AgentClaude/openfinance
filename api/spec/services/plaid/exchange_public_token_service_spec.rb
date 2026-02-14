@@ -13,11 +13,12 @@ RSpec.describe Plaid::ExchangePublicTokenService, type: :service do
     }
   end
 
+  let(:plaid_client) { double('Plaid::PlaidApi') }
   let(:service) { described_class.new(public_token: public_token, user: user, metadata: metadata) }
 
   before do
     allow(PlaidConfig).to receive(:enabled?).and_return(true)
-    allow(PlaidConfig).to receive(:client).and_return(double('Plaid::PlaidApi'))
+    allow(PlaidConfig).to receive(:client).and_return(plaid_client)
   end
 
   describe '#call' do
@@ -35,9 +36,9 @@ RSpec.describe Plaid::ExchangePublicTokenService, type: :service do
         result = service.call
 
         expect(result.success?).to be true
-        expect(result.value[:connection]).to be_a(AccountConnection)
-        expect(result.value[:accounts]).to be_an(Array)
-        expect(result.value[:institution]).to be_a(Institution)
+        expect(result.data[:connection]).to be_a(AccountConnection)
+        expect(result.data[:accounts]).to be_an(Array)
+        expect(result.data[:institution]).to be_a(Institution)
       end
 
       it 'creates an institution from metadata' do
@@ -128,7 +129,7 @@ RSpec.describe Plaid::ExchangePublicTokenService, type: :service do
 
         result = service.call
         expect(result.success?).to be true
-        expect(result.value[:institution]).to be_nil
+        expect(result.data[:institution]).to be_nil
       end
 
       it 'handles accounts fetch error' do
