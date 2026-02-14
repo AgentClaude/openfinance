@@ -71,6 +71,11 @@ export const GET_TRANSACTIONS = gql`
         subcategoryId
         merchantName
         plaidTransactionId
+        isSplit
+        isTransfer
+        excluded
+        parentTransactionId
+        transferPairId
         account {
           id
           name
@@ -329,6 +334,49 @@ export const GET_BUDGET_SUMMARY = gql`
             groupName
           }
         }
+      }
+    }
+  }
+`;
+export const GET_HOLDINGS = gql`
+  query GetHoldings($accountId: ID) {
+    holdings(accountId: $accountId) {
+      id
+      quantity
+      currentPrice
+      marketValue
+      costBasis
+      costBasisTotal
+      currentValue
+      unrealizedGainLoss
+      unrealizedGainLossPercentage
+      weightInAccount
+      asOfDate
+      currency
+      security {
+        id
+        symbol
+        name
+        securityType
+      }
+    }
+  }
+`;
+
+export const GET_PORTFOLIO_SUMMARY = gql`
+  query GetPortfolioSummary($accountId: ID) {
+    portfolioSummary(accountId: $accountId) {
+      totalValue
+      totalCostBasis
+      totalGainLoss
+      totalGainLossPercentage
+      totalHoldingsCount
+      allocations {
+        securityName
+        symbol
+        securityType
+        value
+        percentage
       }
     }
   }

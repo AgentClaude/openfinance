@@ -26,6 +26,7 @@ const navigation = [
   { name: 'Budget', href: '/budget', icon: ChartBarIcon },
   { name: 'Recurring', href: '/recurring', icon: ArrowPathIcon },
   { name: 'Categories', href: '/categories', icon: TagIcon },
+  { name: 'Investments', href: '/investments', icon: ChartBarIcon },
   { name: 'Reports', href: '/reports', icon: ChartPieIcon },
   { name: 'Rules', href: '/rules', icon: BoltIcon },
   { name: 'Settings', href: '/settings', icon: CogIcon },

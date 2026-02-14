@@ -4,6 +4,7 @@ export { useBudget } from './useBudget';
 export { useCategories } from './useCategories';
 export { useDashboard } from './useDashboard';
 export { useDebounce } from './useDebounce';
+export { useInvestments } from './useInvestments';
 export { useLocalStorage } from './useLocalStorage';
 export { useRecurring } from './useRecurring';
 export { useReports } from './useReports';

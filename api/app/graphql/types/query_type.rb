@@ -113,6 +113,56 @@ module Types
       }
     end
 
+    field :holdings, [Types::HoldingType], null: false do
+      argument :account_id, ID, required: false
+    end
+    def holdings(account_id: nil)
+      return [] unless context[:current_user]&.household
+
+      latest_holdings(account_id: account_id).order(market_value_cents: :desc)
+    end
+
+    field :portfolio_summary, Types::PortfolioSummaryType, null: false do
+      argument :account_id, ID, required: false
+    end
+    def portfolio_summary(account_id: nil)
+      return empty_portfolio unless context[:current_user]&.household
+
+      latest = latest_holdings(account_id: account_id)
+
+      total_value_cents = 0
+      total_cost_cents = 0
+      alloc_map = {}
+
+      latest.each do |h|
+        val = h.current_value.cents
+        cost = h.cost_basis_total.cents
+        total_value_cents += val
+        total_cost_cents += cost
+
+        key = h.security_id
+        alloc_map[key] ||= { security_name: h.security.name, symbol: h.security.symbol, security_type: h.security.security_type, value_cents: 0 }
+        alloc_map[key][:value_cents] += val
+      end
+
+      gain_loss = total_value_cents - total_cost_cents
+      gain_pct = total_cost_cents > 0 ? (gain_loss.to_f / total_cost_cents * 100).round(2) : 0.0
+
+      allocations = alloc_map.values.map do |a|
+        pct = total_value_cents > 0 ? (a[:value_cents].to_f / total_value_cents * 100).round(2) : 0.0
+        { security_name: a[:security_name], symbol: a[:symbol], security_type: a[:security_type], value: a[:value_cents] / 100.0, percentage: pct }
+      end.sort_by { |a| -a[:percentage] }
+
+      {
+        total_value: total_value_cents / 100.0,
+        total_cost_basis: total_cost_cents / 100.0,
+        total_gain_loss: gain_loss / 100.0,
+        total_gain_loss_percentage: gain_pct,
+        total_holdings_count: latest.size,
+        allocations: allocations
+      }
+    end
+
     field :categorization_rules, [Types::CategorizationRuleType], null: false
     def categorization_rules
       return [] unless context[:current_user]&.household
@@ -335,6 +385,23 @@ module Types
     end
 
     private
+
+    def latest_holdings(account_id: nil)
+      household = context[:current_user].household
+      scope = Holding.joins(:account)
+                     .where(accounts: { household_id: household.id })
+                     .where('quantity > 0')
+      scope = scope.where(account_id: account_id) if account_id.present?
+
+      latest_ids = scope.select('DISTINCT ON (holdings.account_id, holdings.security_id) holdings.id')
+                        .order('holdings.account_id, holdings.security_id, holdings.as_of_date DESC')
+
+      Holding.where(id: latest_ids).includes(:security, :account)
+    end
+
+    def empty_portfolio
+      { total_value: 0.0, total_cost_basis: 0.0, total_gain_loss: 0.0, total_gain_loss_percentage: 0.0, total_holdings_count: 0, allocations: [] }
+    end
 
     def empty_reports
       { monthly_summary: [], spending_by_category: [], monthly_spending_by_category: [], top_merchants: [] }
