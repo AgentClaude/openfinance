@@ -23,6 +23,7 @@ import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import EmptyState from '@/components/ui/EmptyState';
 import { useToast } from '@/components/ui/Toast';
 import { usePlaidLink } from 'react-plaid-link';
+import { useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
 import clsx from 'clsx';
 
@@ -71,6 +72,7 @@ const AccountsPage: React.FC = () => {
     getAccountsByType, getNetWorth,
   } = useAccounts();
   const { addToast } = useToast();
+  const navigate = useNavigate();
 
   const onPlaidSuccess = useCallback(async (publicToken: string, metadata: any) => {
     try {
@@ -211,7 +213,13 @@ const AccountsPage: React.FC = () => {
                     <div key={account.id}>
                     <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => setExpandedAccountId(expandedAccountId === account.id ? null : account.id)}>
                       <div className="flex items-center justify-between mb-3">
-                        <h3 className="font-medium text-gray-900 dark:text-gray-100">{account.name}</h3>
+                        <h3
+                          className="font-medium text-gray-900 dark:text-gray-100 hover:text-brand-700 cursor-pointer"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(`/transactions?accountId=${account.id}`);
+                          }}
+                        >{account.name}</h3>
                         <div className="flex items-center gap-2">
                           {!account.isActive && (
                             <Badge variant="secondary" size="sm">Inactive</Badge>

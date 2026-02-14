@@ -17,7 +17,7 @@ module Types
     ACCOUNT_TYPE_MAP = {
       'checking' => 'DEPOSITORY', 'savings' => 'DEPOSITORY', 'money_market' => 'DEPOSITORY', 'cd' => 'DEPOSITORY',
       'credit_card' => 'CREDIT',
-      'mortgage' => 'LOAN', 'auto_loan' => 'LOAN', 'student_loan' => 'LOAN', 'personal_loan' => 'LOAN', 'heloc' => 'LOAN',
+      'mortgage' => 'LOAN', 'loan' => 'LOAN', 'auto_loan' => 'LOAN', 'student_loan' => 'LOAN', 'personal_loan' => 'LOAN', 'heloc' => 'LOAN',
       'investment' => 'INVESTMENT', 'brokerage' => 'INVESTMENT', 'retirement' => 'INVESTMENT', '401k' => 'INVESTMENT', 'ira' => 'INVESTMENT', 'roth_ira' => 'INVESTMENT', '529' => 'INVESTMENT', 'hsa' => 'INVESTMENT',
       'crypto' => 'INVESTMENT', 'real_estate' => 'OTHER', 'vehicle' => 'OTHER', 'other_asset' => 'OTHER', 'other_liability' => 'LOAN'
     }.freeze

@@ -19,17 +19,19 @@ const AmountDisplay: React.FC<AmountDisplayProps> = ({
   className,
 }) => {
   const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('en-US', {
+    const formatted = new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency,
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     }).format(Math.abs(value));
+    if (value < 0) return `-${formatted}`;
+    return formatted;
   };
 
   const getSignPrefix = () => {
     if (!showSign) return '';
-    return amount >= 0 ? '+' : '-';
+    return amount >= 0 ? '+' : '';
   };
 
   const getColorClass = () => {

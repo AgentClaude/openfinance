@@ -118,7 +118,7 @@ module Types
       household = context[:current_user].household
       accounts = household.accounts.where(is_hidden: false)
 
-      liability_types = %w[credit_card loan mortgage auto_loan student_loan personal_loan heloc other_liability]
+      liability_types = %w[credit credit_card loan mortgage auto_loan student_loan personal_loan heloc other_liability]
       asset_cents = accounts.reject { |a| liability_types.include?(a.account_type) }.sum(&:current_balance_cents)
       liability_cents = accounts.select { |a| liability_types.include?(a.account_type) }.sum(&:current_balance_cents)
       net_worth = (asset_cents - liability_cents) / 100.0
@@ -131,20 +131,21 @@ module Types
       expense_cents = month_txns.where("amount_cents < 0").sum(:amount_cents).abs
 
       # Spending by category
-      spending = month_txns.where("amount_cents < 0")
-        .joins("LEFT JOIN categories ON categories.id = transactions.category_id")
-        .group("categories.id, categories.name, categories.color, categories.color_hex")
-        .sum(:amount_cents)
-        .map do |(cat_id, cat_name, cat_color, cat_color_hex), cents|
-          {
-            category_id: cat_id,
-            category_name: cat_name || "Uncategorized",
-            amount: cents.abs / 100.0,
-            percentage: expense_cents > 0 ? (cents.abs.to_f / expense_cents * 100).round(1) : 0,
-            color: cat_color.presence || cat_color_hex
-          }
-        end
-        .sort_by { |s| -s[:amount] }
+      expense_txns = month_txns.where("amount_cents < 0")
+      spent_by_cat = expense_txns.group(:category_id).sum(:amount_cents)
+      cat_ids = spent_by_cat.keys.compact
+      cats_by_id = Category.where(id: cat_ids).index_by(&:id)
+
+      spending = spent_by_cat.map do |cat_id, cents|
+        cat = cats_by_id[cat_id]
+        {
+          category_id: cat_id,
+          category_name: cat&.name || "Uncategorized",
+          amount: cents.abs / 100.0,
+          percentage: expense_cents > 0 ? (cents.abs.to_f / expense_cents * 100).round(1) : 0,
+          color: cat&.color.presence || cat&.color_hex
+        }
+      end.sort_by { |s| -s[:amount] }
 
       recent = household.transactions.includes(:account, :category).order(date: :desc).limit(5)
 
@@ -407,22 +408,21 @@ module Types
       # Spending by category (total for period)
       expense_txns = txns.where("amount_cents < 0")
       total_expense_cents = expense_txns.sum(:amount_cents).abs
-      spending_by_cat = expense_txns
-        .joins("LEFT JOIN categories ON categories.id = transactions.category_id")
-        .group("categories.id, categories.name, categories.icon, categories.color, categories.color_hex")
-        .select("categories.id as cat_id, categories.name as cat_name, categories.icon as cat_icon, categories.color as cat_color, categories.color_hex as cat_color_hex, SUM(ABS(amount_cents)) as total_cents, COUNT(*) as txn_count")
-        .map do |row|
-          {
-            category_id: row.cat_id,
-            category_name: row.cat_name || "Uncategorized",
-            category_icon: row.cat_icon,
-            category_color: row.cat_color.presence || row.cat_color_hex,
-            amount: row.total_cents.to_i / 100.0,
-            percentage: total_expense_cents > 0 ? (row.total_cents.to_i.to_f / total_expense_cents * 100).round(1) : 0,
-            transaction_count: row.txn_count.to_i
-          }
-        end
-        .sort_by { |s| -s[:amount] }
+      spent_by_cat_report = expense_txns.group(:category_id).pluck(:category_id, Arel.sql('SUM(ABS(amount_cents))'), Arel.sql('COUNT(*)'))
+      report_cat_ids = spent_by_cat_report.map(&:first).compact
+      report_cats = Category.where(id: report_cat_ids).index_by(&:id)
+      spending_by_cat = spent_by_cat_report.map do |cat_id, total_cents, txn_count|
+        cat = report_cats[cat_id]
+        {
+          category_id: cat_id,
+          category_name: cat&.name || "Uncategorized",
+          category_icon: cat&.icon,
+          category_color: cat&.color.presence || cat&.color_hex,
+          amount: total_cents.to_i / 100.0,
+          percentage: total_expense_cents > 0 ? (total_cents.to_i.to_f / total_expense_cents * 100).round(1) : 0,
+          transaction_count: txn_count.to_i
+        }
+      end.sort_by { |s| -s[:amount] }
 
       # Monthly spending by category (for stacked chart)
       monthly_by_cat = []
@@ -430,21 +430,18 @@ module Types
       while current <= end_date
         month_end = current.end_of_month
         month_expenses = expense_txns.where(date: current..month_end)
-        cats = month_expenses
-          .joins("LEFT JOIN categories ON categories.id = transactions.category_id")
-          .group("categories.id, categories.name, categories.icon, categories.color, categories.color_hex")
-          .select("categories.id as cat_id, categories.name as cat_name, categories.icon as cat_icon, categories.color as cat_color, categories.color_hex as cat_color_hex, SUM(ABS(amount_cents)) as total_cents, COUNT(*) as txn_count")
-          .map do |row|
-            {
-              category_id: row.cat_id,
-              category_name: row.cat_name || "Uncategorized",
-              category_icon: row.cat_icon,
-              category_color: row.cat_color.presence || row.cat_color_hex,
-              amount: row.total_cents.to_i / 100.0,
-              percentage: 0,
-              transaction_count: row.txn_count.to_i
-            }
-          end
+        month_by_cat = month_expenses.group(:category_id).pluck(:category_id, Arel.sql('SUM(ABS(amount_cents))'))
+        month_cat_ids = month_by_cat.map(&:first).compact
+        month_cats = Category.where(id: month_cat_ids).index_by(&:id)
+        cats = month_by_cat.map do |cat_id, total_cents|
+          cat = month_cats[cat_id]
+          {
+            category_id: cat_id,
+            category_name: cat&.name || "Uncategorized",
+            category_color: cat&.color.presence || cat&.color_hex,
+            amount: total_cents.to_i / 100.0
+          }
+        end
         monthly_by_cat << { month: current.strftime("%Y-%m"), categories: cats }
         current = current.next_month
       end
