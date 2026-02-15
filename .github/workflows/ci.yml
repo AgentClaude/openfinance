@@ -133,6 +133,7 @@ jobs:
       VITE_API_URL: http://localhost:3001
       VITE_GRAPHQL_URL: http://localhost:3001/graphql
       BUNDLE_WITHOUT: development
+      FORCE_SSL: 'false'
 
     steps:
       - uses: actions/checkout@v4
