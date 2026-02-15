@@ -217,6 +217,7 @@ type ImportCsvPayload {
 
 type ExportDataPayload {
   jsonData: String!
+}
 
 type PlaidLinkToken {
   expiration: String!
