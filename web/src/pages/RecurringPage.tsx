@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useQuery } from '@apollo/client';
 import {
   ArrowPathIcon,
@@ -11,6 +11,8 @@ import {
   TrashIcon,
   EyeSlashIcon,
   EyeIcon,
+  ListBulletIcon,
+  CalendarDaysIcon,
 } from '@heroicons/react/24/outline';
 import { useRecurring, RecurringItem, RecurringItemInput } from '@/hooks/useRecurring';
 import { GET_CATEGORIES, GET_ACCOUNTS } from '@/graphql/queries';
@@ -61,6 +63,7 @@ const RecurringPage: React.FC = () => {
   } = useRecurring();
 
   const [showInactive, setShowInactive] = useState(false);
+  const [view, setView] = useState<'list' | 'upcoming'>('list');
   const [modalOpen, setModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<RecurringItem | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
@@ -70,6 +73,26 @@ const RecurringPage: React.FC = () => {
   const totalMonthlyExpenses = getTotalMonthlyExpenses();
   const totalMonthlyIncome = getTotalMonthlyIncome();
   const activeItems = items.filter(i => showInactive || i.isActive);
+
+  // Upcoming bills: next 30 days, grouped by week
+  const upcomingBills = useMemo(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const thirtyDays = new Date(today);
+    thirtyDays.setDate(thirtyDays.getDate() + 30);
+
+    return items
+      .filter(i => i.isActive && !i.isIncome && i.nextOccurrence)
+      .filter(i => {
+        const d = new Date(i.nextOccurrence! + 'T00:00:00');
+        return d <= thirtyDays;
+      })
+      .sort((a, b) => {
+        const da = new Date(a.nextOccurrence! + 'T00:00:00').getTime();
+        const db = new Date(b.nextOccurrence! + 'T00:00:00').getTime();
+        return da - db;
+      });
+  }, [items]);
 
   const handleDetect = async () => {
     try {
@@ -153,6 +176,23 @@ const RecurringPage: React.FC = () => {
         subtitle="Track subscriptions, bills, and recurring income"
         actions={
           <div className="flex items-center gap-2">
+            {/* View toggle */}
+            <div className="flex rounded-md border border-gray-300 dark:border-gray-600 overflow-hidden">
+              <button
+                onClick={() => setView('list')}
+                className={`px-2.5 py-1.5 text-sm ${view === 'list' ? 'bg-brand-50 dark:bg-brand-900/30 text-brand-700 dark:text-brand-300' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'}`}
+                title="List view"
+              >
+                <ListBulletIcon className="h-4 w-4" />
+              </button>
+              <button
+                onClick={() => setView('upcoming')}
+                className={`px-2.5 py-1.5 text-sm border-l border-gray-300 dark:border-gray-600 ${view === 'upcoming' ? 'bg-brand-50 dark:bg-brand-900/30 text-brand-700 dark:text-brand-300' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'}`}
+                title="Upcoming view"
+              >
+                <CalendarDaysIcon className="h-4 w-4" />
+              </button>
+            </div>
             <button
               onClick={() => setShowInactive(!showInactive)}
               className="inline-flex items-center text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:text-gray-300"
@@ -198,7 +238,87 @@ const RecurringPage: React.FC = () => {
         </div>
       )}
 
-      {activeItems.length === 0 ? (
+      {view === 'upcoming' ? (
+        /* Upcoming Bills Timeline — next 30 days */
+        <div>
+          <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">
+            Upcoming Bills — Next 30 Days
+          </h3>
+          {upcomingBills.length === 0 ? (
+            <EmptyState
+              icon={<CalendarDaysIcon className="h-12 w-12" />}
+              title="No upcoming bills"
+              description="No bills due in the next 30 days. Add recurring expenses to track them here."
+            />
+          ) : (
+            <div className="relative">
+              {/* Timeline line */}
+              <div className="absolute left-5 top-0 bottom-0 w-px bg-gray-200 dark:bg-gray-700" />
+              <div className="space-y-3">
+                {upcomingBills.map((item) => {
+                  const dueDate = new Date(item.nextOccurrence! + 'T00:00:00');
+                  const isToday = item.daysUntilDue === 0;
+                  const isPast = item.overdue;
+                  return (
+                    <div key={item.id} className="relative flex items-start gap-4 pl-2">
+                      {/* Timeline dot */}
+                      <div className={`relative z-10 w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 ${
+                        isPast ? 'bg-red-100 dark:bg-red-900/30' : isToday ? 'bg-amber-100 dark:bg-amber-900/30' : 'bg-gray-100 dark:bg-gray-700'
+                      }`}>
+                        {isPast ? (
+                          <ExclamationTriangleIcon className="h-4 w-4 text-red-600" />
+                        ) : isToday ? (
+                          <ClockIcon className="h-4 w-4 text-amber-600" />
+                        ) : (
+                          <CalendarIcon className="h-3.5 w-3.5 text-gray-400" />
+                        )}
+                      </div>
+                      <Card className="flex-1 p-3">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                              {item.merchantName || item.name}
+                            </p>
+                            <p className={`text-xs ${isPast ? 'text-red-500' : isToday ? 'text-amber-500' : 'text-gray-400'}`}>
+                              {isPast ? 'Overdue — ' : isToday ? 'Due today — ' : ''}
+                              {dueDate.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
+                              {!isPast && !isToday && item.daysUntilDue !== null && ` (${item.daysUntilDue}d)`}
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                              {formatCurrency(item.amount)}
+                            </span>
+                            {(item.dueSoon || item.overdue) && (
+                              <button
+                                onClick={() => handleMarkPaid(item.id)}
+                                disabled={markingPaid}
+                                className="p-1 rounded text-green-600 hover:bg-green-50 transition-colors"
+                                title="Mark as paid"
+                              >
+                                <CheckCircleIcon className="h-4 w-4" />
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      </Card>
+                    </div>
+                  );
+                })}
+              </div>
+              {/* 30-day total */}
+              <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 flex justify-between items-center">
+                <span className="text-sm text-gray-500 dark:text-gray-400">
+                  {upcomingBills.length} bill{upcomingBills.length !== 1 ? 's' : ''} in next 30 days
+                </span>
+                <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                  Total: {formatCurrency(upcomingBills.reduce((s, i) => s + i.amount, 0))}
+                </span>
+              </div>
+            </div>
+          )}
+        </div>
+      ) : activeItems.length === 0 ? (
         <EmptyState
           icon={<CalendarIcon className="h-12 w-12" />}
           title="No recurring transactions"
