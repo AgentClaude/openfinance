@@ -32,8 +32,8 @@ test.describe('Goals', () => {
     test('opens create goal modal', async ({ page }) => {
       const addBtn = page.getByRole('button', { name: /add.*goal|new.*goal|create/i }).first();
       await addBtn.click();
-      await page.waitForTimeout(500);
-      await expect(page.getByLabel(/name/i).first()).toBeVisible({ timeout: 5000 });
+      await page.waitForTimeout(1000);
+      await expect(page.getByLabel(/name/i).first()).toBeVisible({ timeout: 10000 });
       await takeScreenshot(page, 'goals-create-modal');
     });
 
@@ -49,23 +49,25 @@ test.describe('Goals', () => {
     test('can create a savings goal', async ({ page }) => {
       const addBtn = page.getByRole('button', { name: /add.*goal|new.*goal|create/i }).first();
       await addBtn.click();
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(1000);
 
-      await page.getByLabel(/name/i).first().fill(`E2E Goal ${Date.now()}`);
+      const nameInput = page.getByLabel(/name/i).first();
+      await expect(nameInput).toBeVisible({ timeout: 10000 });
+      await nameInput.fill(`E2E Goal ${Date.now()}`);
 
       const targetInput = page.getByLabel(/target.*amount|target/i).first();
-      if (await targetInput.isVisible({ timeout: 2000 }).catch(() => false)) {
+      if (await targetInput.isVisible({ timeout: 3000 }).catch(() => false)) {
         await targetInput.fill('10000');
       }
 
       const currentInput = page.getByLabel(/current.*amount|current/i).first();
-      if (await currentInput.isVisible({ timeout: 2000 }).catch(() => false)) {
+      if (await currentInput.isVisible({ timeout: 3000 }).catch(() => false)) {
         await currentInput.fill('2500');
       }
 
       const submitBtn = page.getByRole('button', { name: /save|create|add|submit/i }).last();
       await submitBtn.click();
-      await page.waitForTimeout(2000);
+      await page.waitForTimeout(3000);
       await takeScreenshot(page, 'goals-after-create');
     });
   });

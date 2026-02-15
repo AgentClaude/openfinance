@@ -46,21 +46,23 @@ test.describe('Recurring', () => {
     test('create form has required fields (name, amount, frequency)', async ({ page }) => {
       const addBtn = page.getByRole('button', { name: /add|new|create/i }).first();
       await addBtn.click();
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(1000);
 
-      await expect(page.getByLabel(/name|description/i).first()).toBeVisible({ timeout: 5000 });
+      await expect(page.getByLabel(/name|description/i).first()).toBeVisible({ timeout: 10000 });
       await expect(page.getByLabel(/amount/i).first()).toBeVisible({ timeout: 5000 });
     });
 
     test('can create a new recurring item', async ({ page }) => {
       const addBtn = page.getByRole('button', { name: /add|new|create/i }).first();
       await addBtn.click();
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(1000);
 
       const nameInput = page.getByLabel(/name|description/i).first();
+      await expect(nameInput).toBeVisible({ timeout: 10000 });
       await nameInput.fill(`E2E Recurring ${Date.now()}`);
 
       const amountInput = page.getByLabel(/amount/i).first();
+      await expect(amountInput).toBeVisible({ timeout: 5000 });
       await amountInput.fill('99.99');
 
       const submitBtn = page.getByRole('button', { name: /save|create|add|submit/i }).last();

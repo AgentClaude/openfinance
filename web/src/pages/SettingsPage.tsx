@@ -324,12 +324,12 @@ export default function SettingsPage() {
               <h2 className={headingClasses}>Profile Information</h2>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
-                  <label className={labelClasses}>Name</label>
-                  <input type="text" value={name} onChange={(e) => setName(e.target.value)} className={inputClasses} />
+                  <label htmlFor="settings-name" className={labelClasses}>Name</label>
+                  <input id="settings-name" type="text" value={name} onChange={(e) => setName(e.target.value)} className={inputClasses} />
                 </div>
                 <div>
-                  <label className={labelClasses}>Email</label>
-                  <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className={inputClasses} />
+                  <label htmlFor="settings-email" className={labelClasses}>Email</label>
+                  <input id="settings-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} className={inputClasses} />
                 </div>
               </div>
               <div className="mt-4 flex justify-end">
