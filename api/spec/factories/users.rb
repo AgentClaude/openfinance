@@ -60,7 +60,7 @@ FactoryBot.define do
   factory :category do
     association :household
     
-    name { Faker::Commerce.department }
+    sequence(:name) { |n| "#{Faker::Commerce.department} #{n}" }
     is_income { false }
     is_system { false }
     is_active { true }
