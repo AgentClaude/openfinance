@@ -161,6 +161,62 @@ type Mutation {
   updateBudgetItem(budgeted: Float!, categoryId: ID!, month: String!): BudgetItem
   updateCategory(id: ID!, input: CategoryInput!): Category
   updateTransaction(id: ID!, input: TransactionInput!): Transaction
+  bulkTransactionAction(transactionIds: [ID!]!, action: String!, categoryId: ID): BulkTransactionActionPayload
+  splitTransaction(transactionId: ID!, splits: [SplitInput!]!): SplitTransactionPayload
+  detectTransfers: DetectTransfersPayload
+  linkTransfer(transactionAId: ID!, transactionBId: ID!): LinkTransferPayload
+  importCsv(accountId: ID!, csvContent: String!, filename: String, columnMapping: JSON, formatType: String): ImportCsvPayload
+  exportData: ExportDataPayload
+}
+
+input SplitInput {
+  amount: Float!
+  categoryId: ID
+  description: String
+}
+
+type BulkTransactionActionPayload {
+  transactions: [Transaction!]
+  count: Int!
+  errors: [String!]
+}
+
+type SplitTransactionPayload {
+  transaction: Transaction
+  splits: [Transaction!]
+  errors: [String!]
+}
+
+type DetectTransfersPayload {
+  candidates: [TransferCandidate!]!
+}
+
+type TransferCandidate {
+  outflowId: ID!
+  inflowId: ID!
+  amount: Float!
+  outflowAccount: String!
+  inflowAccount: String!
+  outflowDate: ISO8601Date!
+  inflowDate: ISO8601Date!
+  description: String
+}
+
+type LinkTransferPayload {
+  transactionA: Transaction
+  transactionB: Transaction
+  errors: [String!]
+}
+
+type ImportCsvPayload {
+  imported: Int!
+  skipped: Int!
+  errors: [String!]
+  importId: ID
+}
+
+type ExportDataPayload {
+  jsonData: String!
 }
 
 type PlaidLinkToken {
@@ -207,14 +263,22 @@ type Transaction {
   categoryId: ID
   date: ISO8601Date!
   description: String!
+  excluded: Boolean!
+  hasReceipt: Boolean!
   id: ID!
+  isSplit: Boolean!
+  isTransfer: Boolean!
   merchantName: String
   needsReview: Boolean!
+  notes: String
+  parentTransactionId: ID
   pending: Boolean!
   plaidTransactionId: String
+  receiptUrl: String
   subcategory: Category
   subcategoryId: ID
   tags: [Tag!]!
+  transferPairId: ID
 }
 
 input TransactionInput {

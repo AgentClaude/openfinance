@@ -54,6 +54,7 @@ export interface Transaction {
   transferPairId?: string;
   hasReceipt?: boolean;
   receiptUrl?: string;
+  notes?: string;
   account: Account;
   category?: Category;
   subcategory?: Category;

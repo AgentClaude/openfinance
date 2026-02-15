@@ -1,10 +1,14 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import {
   PlusIcon,
   EyeIcon,
+  EyeSlashIcon,
   FunnelIcon,
   ChevronDownIcon,
   ChevronUpIcon,
+  ArrowDownTrayIcon,
+  ArrowUpTrayIcon,
+  ArrowsRightLeftIcon,
 } from '@heroicons/react/24/outline';
 import { useMutation } from '@apollo/client';
 import { useTransactions } from '@/hooks/useTransactions';
@@ -13,6 +17,7 @@ import { useCategories } from '@/hooks/useCategories';
 import { useTags } from '@/hooks/useTags';
 import { Transaction, TransactionFilters } from '@/types';
 import ReceiptUploadButton from '@/components/ReceiptUploadButton';
+import InlineEditableCell from '@/components/transactions/InlineEditableCell';
 import PageHeader from '@/components/ui/PageHeader';
 import SearchBar from '@/components/ui/SearchBar';
 import Button from '@/components/ui/Button';
@@ -25,10 +30,12 @@ import Card from '@/components/ui/Card';
 import BulkActionToolbar from '@/components/BulkActionToolbar';
 import TransactionDetailPanel from '@/components/TransactionDetailPanel';
 import TransferDetection from '@/components/TransferDetection';
-import { BULK_TRANSACTION_ACTION } from '@/graphql/mutations';
+import { BULK_TRANSACTION_ACTION, EXPORT_DATA } from '@/graphql/mutations';
 import { format } from 'date-fns';
+import { useNavigate } from 'react-router-dom';
 
 const TransactionsPage: React.FC = () => {
+  const navigate = useNavigate();
   const [filters, setFilters] = useState<TransactionFilters>({
     page: 1,
     limit: 20,
@@ -42,6 +49,8 @@ const TransactionsPage: React.FC = () => {
   const [filtersExpanded, setFiltersExpanded] = useState(false);
   const [sortKey, setSortKey] = useState<string | undefined>(undefined);
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
+  const [showTransfers, setShowTransfers] = useState(false);
+  const [exporting, setExporting] = useState(false);
 
   const { transactions, loading, totalCount, updateTransaction, updating, createTransaction } = useTransactions(filters);
   const { accounts } = useAccounts();
@@ -49,6 +58,7 @@ const TransactionsPage: React.FC = () => {
   const { tags, createTag } = useTags();
 
   const [bulkAction, { loading: bulkLoading }] = useMutation(BULK_TRANSACTION_ACTION);
+  const [exportData] = useMutation(EXPORT_DATA);
 
   const handleBulkAction = async (action: string, categoryId?: string) => {
     await bulkAction({
@@ -59,11 +69,62 @@ const TransactionsPage: React.FC = () => {
       },
     });
     setSelectedTransactionIds([]);
-    // Refetch by toggling a filter
     setFilters(prev => ({ ...prev }));
   };
 
-  const handleFilterChange = (key: keyof TransactionFilters, value: any) => {
+  const handleExport = useCallback(async () => {
+    setExporting(true);
+    try {
+      const { data } = await exportData();
+      const jsonStr = data?.exportData?.jsonData;
+      if (jsonStr) {
+        // Parse and re-format with indentation
+        const parsed = JSON.parse(jsonStr);
+        const blob = new Blob([JSON.stringify(parsed, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `openfinance-export-${format(new Date(), 'yyyy-MM-dd')}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }
+    } catch (e) {
+      console.error('Export failed:', e);
+    } finally {
+      setExporting(false);
+    }
+  }, [exportData]);
+
+  const handleExportCSV = useCallback(() => {
+    if (!transactions.length) return;
+    const headers = ['Date', 'Description', 'Merchant', 'Amount', 'Category', 'Account', 'Tags', 'Notes', 'Excluded', 'Pending'];
+    const rows = transactions.map(t => [
+      t.date,
+      `"${(t.description || '').replace(/"/g, '""')}"`,
+      `"${(t.merchantName || '').replace(/"/g, '""')}"`,
+      t.amount.toFixed(2),
+      `"${t.category?.name || ''}"`,
+      `"${t.account?.name || ''}"`,
+      `"${(t.tags || []).map(tag => tag.name).join(', ')}"`,
+      `"${(t.notes || '').replace(/"/g, '""')}"`,
+      t.excluded ? 'Yes' : 'No',
+      t.pending ? 'Yes' : 'No',
+    ]);
+    const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `transactions-${format(new Date(), 'yyyy-MM-dd')}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }, [transactions]);
+
+  const handleFilterChange = (key: keyof TransactionFilters, value: TransactionFilters[keyof TransactionFilters]) => {
     setFilters(prev => ({
       ...prev,
       [key]: value,
@@ -73,16 +134,12 @@ const TransactionsPage: React.FC = () => {
 
   const handleSelectRow = (id: string) => {
     setSelectedTransactionIds(prev =>
-      prev.includes(id)
-        ? prev.filter(tid => tid !== id)
-        : [...prev, id]
+      prev.includes(id) ? prev.filter(tid => tid !== id) : [...prev, id]
     );
   };
 
   const handleSelectAll = (selected: boolean) => {
-    setSelectedTransactionIds(
-      selected ? transactions.map(t => t.id) : []
-    );
+    setSelectedTransactionIds(selected ? transactions.map(t => t.id) : []);
   };
 
   const handleTransactionClick = (transaction: Transaction) => {
@@ -119,26 +176,37 @@ const TransactionsPage: React.FC = () => {
     setSortDirection(direction);
   };
 
-  const handleSaveTransaction = async (id: string, input: any) => {
+  const handleSaveTransaction = async (id: string, input: Record<string, unknown>) => {
     const result = await updateTransaction(id, input);
     setDetailOpen(false);
     return result;
   };
 
+  const handleInlineUpdate = useCallback(async (transactionId: string, field: string, value: string) => {
+    const input: Record<string, unknown> = {};
+    if (field === 'categoryId') {
+      input.categoryId = value || undefined;
+    } else if (field === 'amount') {
+      input.amount = parseFloat(value);
+    } else if (field === 'notes') {
+      input.notes = value;
+    }
+    await updateTransaction(transactionId, input);
+  }, [updateTransaction]);
+
   const accountOptions = [
     { value: '', label: 'All accounts' },
-    ...accounts.map(account => ({
-      value: account.id,
-      label: account.name,
-    })),
+    ...accounts.map(account => ({ value: account.id, label: account.name })),
   ];
 
   const categoryOptions = [
     { value: '', label: 'All categories' },
-    ...categories.filter(cat => !cat.parentId).map(category => ({
-      value: category.id,
-      label: category.name,
-    })),
+    ...categories.filter(cat => !cat.parentId).map(category => ({ value: category.id, label: category.name })),
+  ];
+
+  const inlineCategoryOptions = [
+    { value: '', label: 'Uncategorized' },
+    ...categories.filter(cat => !cat.parentId).map(category => ({ value: category.id, label: category.name })),
   ];
 
   const columns = [
@@ -161,18 +229,27 @@ const TransactionsPage: React.FC = () => {
             {transaction.description}
           </div>
           {transaction.merchantName && (
-            <div className="text-xs text-gray-500">
-              {transaction.merchantName}
-            </div>
+            <div className="text-xs text-gray-500">{transaction.merchantName}</div>
           )}
           <div className="flex items-center mt-1 space-x-2 flex-wrap gap-y-1">
-            {transaction.pending && (
-              <Badge variant="warning" size="sm">Pending</Badge>
-            )}
+            {transaction.pending && <Badge variant="warning" size="sm">Pending</Badge>}
             {transaction.needsReview && (
               <Badge variant="info" size="sm" className="flex items-center gap-1">
                 <EyeIcon className="h-3 w-3" />
                 Review
+              </Badge>
+            )}
+            {transaction.excluded && (
+              <Badge variant="secondary" size="sm" className="flex items-center gap-1 !bg-gray-100 !text-gray-500">
+                <EyeSlashIcon className="h-3 w-3" />
+                Excluded
+              </Badge>
+            )}
+            {transaction.isSplit && <Badge variant="info" size="sm">Split</Badge>}
+            {transaction.isTransfer && (
+              <Badge variant="secondary" size="sm" className="flex items-center gap-1">
+                <ArrowsRightLeftIcon className="h-3 w-3" />
+                Transfer
               </Badge>
             )}
             {transaction.tags?.map(tag => (
@@ -185,6 +262,11 @@ const TransactionsPage: React.FC = () => {
               </span>
             ))}
           </div>
+          {transaction.notes && (
+            <div className="text-xs text-gray-400 mt-1 truncate max-w-[250px]" title={transaction.notes}>
+              📝 {transaction.notes}
+            </div>
+          )}
         </div>
       ),
     },
@@ -192,20 +274,28 @@ const TransactionsPage: React.FC = () => {
       key: 'category',
       label: 'Category',
       render: (transaction: Transaction) => (
-        transaction.category ? (
-          <Badge
-            variant="secondary"
-            size="sm"
-            style={{
-              backgroundColor: transaction.category.color + '20',
-              color: transaction.category.color,
-            }}
-          >
-            {transaction.category.name}
-          </Badge>
-        ) : (
-          <span className="text-xs text-gray-400">Uncategorized</span>
-        )
+        <InlineEditableCell
+          value={transaction.categoryId || ''}
+          type="select"
+          options={inlineCategoryOptions}
+          onSave={(value) => handleInlineUpdate(transaction.id, 'categoryId', value)}
+          displayRender={() =>
+            transaction.category ? (
+              <Badge
+                variant="secondary"
+                size="sm"
+                style={{
+                  backgroundColor: transaction.category.color + '20',
+                  color: transaction.category.color,
+                }}
+              >
+                {transaction.category.name}
+              </Badge>
+            ) : (
+              <span className="text-xs text-gray-400 italic">Uncategorized</span>
+            )
+          }
+        />
       ),
     },
     {
@@ -215,9 +305,7 @@ const TransactionsPage: React.FC = () => {
         <div className="text-sm text-gray-900">
           <div>{transaction.account.name}</div>
           {transaction.account.mask && (
-            <div className="text-xs text-gray-500">
-              •••{transaction.account.mask}
-            </div>
+            <div className="text-xs text-gray-500">•••{transaction.account.mask}</div>
           )}
         </div>
       ),
@@ -227,7 +315,12 @@ const TransactionsPage: React.FC = () => {
       label: 'Amount',
       sortable: true,
       render: (transaction: Transaction) => (
-        <AmountDisplay amount={transaction.amount} size="sm" />
+        <InlineEditableCell
+          value={transaction.amount.toFixed(2)}
+          type="number"
+          onSave={(value) => handleInlineUpdate(transaction.id, 'amount', value)}
+          displayRender={() => <AmountDisplay amount={transaction.amount} size="sm" />}
+        />
       ),
     },
     {
@@ -243,11 +336,10 @@ const TransactionsPage: React.FC = () => {
     },
   ];
 
-  // Sort transactions client-side
   const sortedTransactions = useMemo(() => {
     if (!sortKey) return transactions;
     return [...transactions].sort((a, b) => {
-      let aVal: any, bVal: any;
+      let aVal: string | number, bVal: string | number;
       switch (sortKey) {
         case 'date':
           aVal = a.date;
@@ -270,7 +362,6 @@ const TransactionsPage: React.FC = () => {
     });
   }, [transactions, sortKey, sortDirection]);
 
-  // Mobile transaction card
   const TransactionCard = ({ transaction }: { transaction: Transaction }) => (
     <button
       onClick={() => handleTransactionClick(transaction)}
@@ -279,19 +370,13 @@ const TransactionsPage: React.FC = () => {
       <div className="flex items-start justify-between gap-3">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <span className="text-xs text-gray-500">
-              {format(new Date(transaction.date), 'MMM d')}
-            </span>
-            {transaction.pending && (
-              <Badge variant="warning" size="sm">Pending</Badge>
-            )}
-            {transaction.needsReview && (
-              <span className="h-2 w-2 rounded-full bg-amber-400 flex-shrink-0" />
-            )}
+            <span className="text-xs text-gray-500">{format(new Date(transaction.date), 'MMM d')}</span>
+            {transaction.pending && <Badge variant="warning" size="sm">Pending</Badge>}
+            {transaction.needsReview && <span className="h-2 w-2 rounded-full bg-amber-400 flex-shrink-0" />}
+            {transaction.excluded && <EyeSlashIcon className="h-3 w-3 text-gray-400" />}
+            {transaction.isTransfer && <ArrowsRightLeftIcon className="h-3 w-3 text-brand-500" />}
           </div>
-          <p className="text-sm font-medium text-gray-900 truncate mt-0.5">
-            {transaction.description}
-          </p>
+          <p className="text-sm font-medium text-gray-900 truncate mt-0.5">{transaction.description}</p>
           {transaction.merchantName && transaction.merchantName !== transaction.description && (
             <p className="text-xs text-gray-500 truncate">{transaction.merchantName}</p>
           )}
@@ -304,10 +389,7 @@ const TransactionsPage: React.FC = () => {
                   color: transaction.category.color || '#6b7280',
                 }}
               >
-                <span
-                  className="h-1.5 w-1.5 rounded-full"
-                  style={{ backgroundColor: transaction.category.color || '#6b7280' }}
-                />
+                <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: transaction.category.color || '#6b7280' }} />
                 {transaction.category.name}
               </span>
             ) : (
@@ -323,6 +405,9 @@ const TransactionsPage: React.FC = () => {
               </span>
             ))}
           </div>
+          {transaction.notes && (
+            <p className="text-[11px] text-gray-400 mt-0.5 truncate">📝 {transaction.notes}</p>
+          )}
           <p className="text-[11px] text-gray-400 mt-0.5">{transaction.account.name}</p>
         </div>
         <div className="flex-shrink-0 text-right">
@@ -338,12 +423,22 @@ const TransactionsPage: React.FC = () => {
         title="Transactions"
         subtitle={`${totalCount} transactions`}
         actions={
-          <div className="flex items-center space-x-3">
-            {selectedTransactionIds.length > 0 && (
-              <Button variant="secondary" size="sm">
-                Categorize {selectedTransactionIds.length} transactions
+          <div className="flex items-center space-x-2 flex-wrap gap-y-2">
+            {/* Export buttons */}
+            <div className="flex items-center">
+              <Button variant="secondary" size="sm" onClick={handleExportCSV}>
+                <ArrowDownTrayIcon className="h-4 w-4 mr-1" />
+                <span className="hidden sm:inline">CSV</span>
               </Button>
-            )}
+              <Button variant="secondary" size="sm" onClick={handleExport} loading={exporting} className="ml-1">
+                <ArrowDownTrayIcon className="h-4 w-4 mr-1" />
+                <span className="hidden sm:inline">JSON</span>
+              </Button>
+            </div>
+            <Button variant="secondary" size="sm" onClick={() => navigate('/import')}>
+              <ArrowUpTrayIcon className="h-4 w-4 mr-1" />
+              <span className="hidden sm:inline">Import</span>
+            </Button>
             <Button size="sm" onClick={handleAddTransaction}>
               <PlusIcon className="h-4 w-4 mr-2" />
               Add Transaction
@@ -352,9 +447,8 @@ const TransactionsPage: React.FC = () => {
         }
       />
 
-      {/* Filters - Collapsible on mobile */}
+      {/* Filters */}
       <Card className="mb-6">
-        {/* Mobile filter toggle */}
         <button
           className="md:hidden w-full flex items-center justify-between py-2"
           onClick={() => setFiltersExpanded(!filtersExpanded)}
@@ -363,14 +457,9 @@ const TransactionsPage: React.FC = () => {
             <FunnelIcon className="h-4 w-4" />
             Filters
           </div>
-          {filtersExpanded ? (
-            <ChevronUpIcon className="h-4 w-4 text-gray-500" />
-          ) : (
-            <ChevronDownIcon className="h-4 w-4 text-gray-500" />
-          )}
+          {filtersExpanded ? <ChevronUpIcon className="h-4 w-4 text-gray-500" /> : <ChevronDownIcon className="h-4 w-4 text-gray-500" />}
         </button>
 
-        {/* Search always visible */}
         <div className="mb-3">
           <SearchBar
             query={filters.search || ''}
@@ -379,24 +468,20 @@ const TransactionsPage: React.FC = () => {
           />
         </div>
 
-        {/* Filter fields - hidden on mobile unless expanded */}
         <div className={`${filtersExpanded ? 'block' : 'hidden'} md:block`}>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-
             <Select
               label="Account"
               options={accountOptions}
               value={filters.accountId || ''}
               onChange={(e) => handleFilterChange('accountId', e.target.value || undefined)}
             />
-
             <Select
               label="Category"
               options={categoryOptions}
               value={filters.categoryId || ''}
               onChange={(e) => handleFilterChange('categoryId', e.target.value || undefined)}
             />
-
             <div className="flex items-center">
               <input
                 type="checkbox"
@@ -418,14 +503,12 @@ const TransactionsPage: React.FC = () => {
               value={filters.dateFrom || ''}
               onChange={(e) => handleFilterChange('dateFrom', e.target.value || undefined)}
             />
-
             <Input
               label="Date To"
               type="date"
               value={filters.dateTo || ''}
               onChange={(e) => handleFilterChange('dateTo', e.target.value || undefined)}
             />
-
             <div className="grid grid-cols-2 gap-2">
               <Input
                 label="Min Amount"
@@ -450,13 +533,24 @@ const TransactionsPage: React.FC = () => {
       <BulkActionToolbar
         selectedCount={selectedTransactionIds.length}
         categories={categories}
+        tags={tags}
         onAction={handleBulkAction}
         onClearSelection={() => setSelectedTransactionIds([])}
         loading={bulkLoading}
       />
 
-      {/* Transfer Detection */}
-      <TransferDetection onLinked={() => {/* refetch handled by cache */}} />
+      {/* Transfer Detection - Collapsible */}
+      <div className="mb-6">
+        <button
+          onClick={() => setShowTransfers(!showTransfers)}
+          className="flex items-center gap-2 text-sm font-medium text-brand-700 hover:text-brand-800 mb-2"
+        >
+          <ArrowsRightLeftIcon className="h-4 w-4" />
+          Transfer Detection
+          {showTransfers ? <ChevronUpIcon className="h-3 w-3" /> : <ChevronDownIcon className="h-3 w-3" />}
+        </button>
+        {showTransfers && <TransferDetection />}
+      </div>
 
       {/* Mobile: Card Layout */}
       <div className="md:hidden">

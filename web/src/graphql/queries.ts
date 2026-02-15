@@ -78,6 +78,7 @@ export const GET_TRANSACTIONS = gql`
         transferPairId
         hasReceipt
         receiptUrl
+        notes
         account {
           id
           name
