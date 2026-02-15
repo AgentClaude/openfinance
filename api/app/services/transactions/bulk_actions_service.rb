@@ -25,6 +25,10 @@ module Transactions
         txns.update_all(excluded: true)
       when "include"
         txns.update_all(excluded: false)
+      when "delete"
+        count = txns.count
+        txns.destroy_all
+        return success(transactions: [], count: count)
       else
         raise ArgumentError, "Unknown action: #{action}"
       end
