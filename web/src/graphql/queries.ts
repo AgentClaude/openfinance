@@ -313,6 +313,17 @@ export const GET_REPORTS = gql`
   }
 `;
 
+export const GET_NET_WORTH_HISTORY = gql`
+  query GetNetWorthHistory($months: Int) {
+    netWorthHistory(months: $months) {
+      date
+      assets
+      liabilities
+      netWorth
+    }
+  }
+`;
+
 export const GET_BUDGET = gql`
   query GetBudget($month: String!) {
     budget(month: $month) {
