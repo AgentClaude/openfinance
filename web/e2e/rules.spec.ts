@@ -77,8 +77,8 @@ test.describe('Rules', () => {
       await page.waitForTimeout(1000);
 
       // Fill match value
-      const matchInput = page.locator('input[type="text"]').first();
-      await expect(matchInput).toBeVisible({ timeout: 10000 });
+      const matchInput = page.getByLabel(/match value/i);
+      await expect(matchInput).toBeVisible({ timeout: 5000 });
       await matchInput.fill('E2E Test Merchant');
 
       // Submit

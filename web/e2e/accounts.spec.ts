@@ -70,7 +70,7 @@ test.describe('Accounts', () => {
         await page.waitForTimeout(500);
       }
 
-      const nameInput = page.getByLabel(/account name|name/i).first();
+      const nameInput = page.getByLabel(/account name/i).first();
       await expect(nameInput).toBeVisible({ timeout: 5000 });
       await nameInput.fill(`E2E Test Account ${Date.now()}`);
 
