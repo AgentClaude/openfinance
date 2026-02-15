@@ -128,7 +128,10 @@ jobs:
       DATABASE_URL: postgresql://openfinance:password@localhost:5432/openfinance_production
       REDIS_URL: redis://localhost:6379/1
       SECRET_KEY_BASE: ci-test-secret-key-base-not-real
+      FORCE_SSL: "false"
+      CORS_ORIGINS: http://localhost:3002
       VITE_API_URL: http://localhost:3001
+      VITE_GRAPHQL_URL: http://localhost:3001/graphql
       BUNDLE_WITHOUT: development
 
     steps:
@@ -157,6 +160,12 @@ jobs:
         working-directory: api
         run: |
           bundle exec rails server -p 3001 -d
+          # Wait for API to be ready
+          for i in $(seq 1 30); do
+            curl -sf http://localhost:3001/graphql -X POST -H 'Content-Type: application/json' -d '{"query":"{ __typename }"}' && break
+            echo "Waiting for API... ($i)"
+            sleep 2
+          done
 
       - name: Install frontend deps & build
         working-directory: web
