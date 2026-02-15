@@ -27,6 +27,7 @@ import InvestmentsPage from '@/pages/InvestmentsPage';
 import ImportPage from '@/pages/ImportPage';
 import SettingsPage from '@/pages/SettingsPage';
 import DocsPage from '@/pages/DocsPage';
+import NetWorthPage from '@/pages/NetWorthPage';
 
 function App() {
   return (
@@ -52,6 +53,7 @@ function App() {
                   <Route path="rules" element={<RulesPage />} />
                   <Route path="recurring" element={<RecurringPage />} />
                   <Route path="reports" element={<ReportsPage />} />
+                  <Route path="net-worth" element={<NetWorthPage />} />
                   <Route path="investments" element={<InvestmentsPage />} />
                   <Route path="import" element={<ImportPage />} />
                   <Route path="goals" element={<GoalsPage />} />

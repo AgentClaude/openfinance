@@ -570,6 +570,7 @@ type Query {
   budgetSummary(month: String!): BudgetSummary
 
   reports(months: Int = 6, dateFrom: String, dateTo: String): Reports!
+  netWorthHistory(months: Int = 12): [NetWorthSnapshot!]!
 }
 
 # ─── Mutation Type ───────────────────────────────────────────────────────────

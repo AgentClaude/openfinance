@@ -31,6 +31,7 @@ const navigation = [
   { name: 'Recurring', href: '/recurring', icon: ArrowPathIcon },
   { name: 'Categories', href: '/categories', icon: TagIcon },
   { name: 'Investments', href: '/investments', icon: ChartBarIcon },
+  { name: 'Net Worth', href: '/net-worth', icon: ChartPieIcon },
   { name: 'Reports', href: '/reports', icon: ChartPieIcon },
   { name: 'Import', href: '/import', icon: ArrowUpTrayIcon },
   { name: 'Rules', href: '/rules', icon: BoltIcon },
