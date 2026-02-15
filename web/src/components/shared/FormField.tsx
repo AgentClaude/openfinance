@@ -18,13 +18,26 @@ const FormField: React.FC<FormFieldProps> = ({
   children,
   className,
 }) => {
+  const fieldId = React.useId();
+
+  // Clone child to inject id if it's a single input/select/textarea element
+  const enhancedChildren = React.Children.map(children, (child) => {
+    if (React.isValidElement(child)) {
+      const tagName = typeof child.type === 'string' ? child.type : '';
+      if (['input', 'select', 'textarea'].includes(tagName)) {
+        return React.cloneElement(child as React.ReactElement<any>, { id: fieldId });
+      }
+    }
+    return child;
+  });
+
   return (
     <div className={clsx('space-y-1', className)}>
-      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+      <label htmlFor={fieldId} className="block text-sm font-medium text-gray-700 dark:text-gray-300">
         {label}
         {required && <span className="text-red-500 ml-0.5">*</span>}
       </label>
-      {children}
+      {enhancedChildren}
       {error && (
         <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
       )}

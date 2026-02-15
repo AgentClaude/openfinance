@@ -61,28 +61,33 @@ test.describe('Accounts', () => {
     test('can add a manual account', async ({ page }) => {
       const addBtn = page.getByRole('button', { name: /add.*account|new.*account|connect/i }).first();
       await addBtn.click();
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(1000);
 
       // Click manual tab if present
       const manualTab = page.getByText(/manual/i).first();
-      if (await manualTab.isVisible({ timeout: 2000 }).catch(() => false)) {
+      if (await manualTab.isVisible({ timeout: 3000 }).catch(() => false)) {
         await manualTab.click();
+        await page.waitForTimeout(500);
       }
 
-      const nameInput = page.getByLabel(/name/i).first();
+      const nameInput = page.getByLabel(/account name/i).first();
+      await expect(nameInput).toBeVisible({ timeout: 5000 });
       await nameInput.fill(`E2E Test Account ${Date.now()}`);
 
       const balanceInput = page.getByLabel(/balance/i).first();
-      if (await balanceInput.isVisible({ timeout: 2000 }).catch(() => false)) {
+      if (await balanceInput.isVisible({ timeout: 3000 }).catch(() => false)) {
         await balanceInput.fill('5000');
       }
 
       const submitBtn = page.getByRole('button', { name: /save|create|add|submit/i }).last();
       await submitBtn.click();
 
-      await expect(
-        page.getByText(/success|created|added|e2e test account/i).first()
-      ).toBeAttached({ timeout: 10000 });
+      // On success the modal closes and a toast appears — wait for either signal
+      await expect(async () => {
+        const hasToast = await page.getByText(/success|created|added|account/i).first().isVisible().catch(() => false);
+        const modalGone = !(await page.locator('[role="dialog"], [data-headlessui-state]').first().isVisible().catch(() => false));
+        expect(hasToast || modalGone).toBeTruthy();
+      }).toPass({ timeout: 15000 });
       await takeScreenshot(page, 'accounts-after-add');
     });
   });

@@ -35,16 +35,20 @@ test.describe('Settings', () => {
 
   test.describe('Profile Tab', () => {
     test('shows name and email fields', async ({ page }) => {
+      // Wait for profile tab content to render
+      await expect(page.getByText(/profile information/i).first()).toBeVisible({ timeout: 10000 });
       await expect(page.getByLabel(/name/i).first()).toBeVisible({ timeout: 10000 });
       await expect(page.getByLabel(/email/i).first()).toBeVisible({ timeout: 10000 });
     });
 
     test('can update profile name', async ({ page }) => {
+      await expect(page.getByText(/profile information/i).first()).toBeVisible({ timeout: 10000 });
       const nameInput = page.getByLabel(/name/i).first();
+      await expect(nameInput).toBeVisible({ timeout: 10000 });
       await nameInput.clear();
       await nameInput.fill('E2E Updated Name');
       const saveBtn = page.getByRole('button', { name: /save|update/i }).first();
-      if (await saveBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
+      if (await saveBtn.isVisible({ timeout: 5000 }).catch(() => false)) {
         await saveBtn.click();
         await page.waitForTimeout(2000);
       }

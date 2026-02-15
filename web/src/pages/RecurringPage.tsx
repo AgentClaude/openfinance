@@ -512,8 +512,9 @@ const RecurringItemModal: React.FC<RecurringItemModalProps> = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Name *</label>
+          <label htmlFor="recurring-name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Name *</label>
           <input
+            id="recurring-name"
             type="text"
             required
             value={form.name}
@@ -524,8 +525,9 @@ const RecurringItemModal: React.FC<RecurringItemModalProps> = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Merchant Name</label>
+          <label htmlFor="recurring-merchant" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Merchant Name</label>
           <input
+            id="recurring-merchant"
             type="text"
             value={form.merchantName}
             onChange={e => setForm(f => ({ ...f, merchantName: e.target.value }))}
@@ -536,8 +538,9 @@ const RecurringItemModal: React.FC<RecurringItemModalProps> = ({
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Amount *</label>
+            <label htmlFor="recurring-amount" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Amount *</label>
             <input
+              id="recurring-amount"
               type="number"
               required
               min="0.01"

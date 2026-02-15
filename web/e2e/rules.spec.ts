@@ -74,16 +74,17 @@ test.describe('Rules', () => {
     test('can create a new rule', async ({ page }) => {
       const addBtn = page.getByRole('button', { name: /add.*rule|new.*rule|create/i }).first();
       await addBtn.click();
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(1000);
 
       // Fill match value
-      const matchInput = page.locator('input[type="text"]').first();
+      const matchInput = page.getByLabel(/match value/i);
+      await expect(matchInput).toBeVisible({ timeout: 5000 });
       await matchInput.fill('E2E Test Merchant');
 
       // Submit
       const submitBtn = page.getByRole('button', { name: /save|create|add|submit/i }).last();
       await submitBtn.click();
-      await page.waitForTimeout(2000);
+      await page.waitForTimeout(3000);
       await takeScreenshot(page, 'rules-after-create');
     });
   });

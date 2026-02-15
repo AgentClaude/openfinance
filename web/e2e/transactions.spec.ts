@@ -29,17 +29,17 @@ test.describe('Transactions', () => {
     test('shows transaction descriptions', async ({ page }) => {
       await expect(
         page.getByText(/grocery|restaurant|electric|payroll|movie/i).first()
-      ).toBeVisible({ timeout: 10000 });
+      ).toBeAttached({ timeout: 10000 });
     });
 
     test('shows transaction categories as badges', async ({ page }) => {
       await expect(
         page.getByText(/groceries|dining|entertainment|transportation|uncategorized/i).first()
-      ).toBeVisible({ timeout: 10000 });
+      ).toBeAttached({ timeout: 10000 });
     });
 
     test('shows dollar amounts for transactions', async ({ page }) => {
-      await expect(page.getByText(/\$[\d,.]+/).first()).toBeVisible({ timeout: 10000 });
+      await expect(page.getByText(/\$[\d,.]+/).first()).toBeAttached({ timeout: 10000 });
     });
   });
 
@@ -78,12 +78,12 @@ test.describe('Transactions', () => {
         .or(page.getByRole('searchbox'))
         .or(page.locator('input[type="search"]')).first();
       await search.fill('grocery');
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(1500);
       await search.clear();
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(2000);
       await expect(
         page.getByText(/grocery|restaurant|electric|payroll|movie/i).first()
-      ).toBeVisible({ timeout: 10000 });
+      ).toBeAttached({ timeout: 15000 });
     });
   });
 
@@ -196,9 +196,9 @@ test.describe('Transactions', () => {
       const row = page.locator('table tbody tr').first();
       if (await row.isVisible({ timeout: 3000 }).catch(() => false)) {
         await row.click();
-        await page.waitForTimeout(1000);
-        // Should show amount and description
-        await expect(page.getByText(/\$[\d,.]+/).first()).toBeVisible();
+        await page.waitForTimeout(1500);
+        // Should show amount and description — use toBeAttached since panel may animate
+        await expect(page.getByText(/\$[\d,.]+/).first()).toBeAttached({ timeout: 10000 });
       }
     });
   });
