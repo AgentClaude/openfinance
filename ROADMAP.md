@@ -95,15 +95,15 @@ _Backend partially exists: RecurringItem model, recurring_items query, detectRec
 
 ## Phase 8: Reports & Analytics — MEDIUM PRIORITY → Sprint 3
 _Backend partially exists: reports query returns monthly_summary, spending_by_category, monthly_spending_by_category, top_merchants_
-- 🔧 Reports page with report type selector (basic shell exists, 393 LOC)
-- ⬚ Spending by Category (donut chart + table, date range filter)
-- ⬚ Spending Over Time (monthly bar chart, stacked by category)
-- ⬚ Income vs Expenses (dual bar chart)
-- ⬚ Cash Flow (monthly waterfall)
-- ⬚ Net Worth Over Time (line chart from AccountBalanceHistory)
-- ⬚ Category Trends (line chart per category over months)
-- ⬚ Merchant Spending (top merchants)
-- ⬚ Report filters (date range, accounts, categories, tags)
+- ✅ Reports page with report type selector (7 tabs: Overview, Spending, Income vs Expenses, Cash Flow, Merchants, Category Trends, Net Worth)
+- ✅ Spending by Category (donut chart + table, date range filter with preset/custom)
+- ✅ Spending Over Time (monthly stacked bar chart by top 6 categories)
+- ✅ Income vs Expenses (dual bar chart + cumulative savings + monthly comparison table)
+- ✅ Cash Flow (area chart, monthly bar, cumulative line + summary table)
+- ✅ Net Worth Over Time (area chart with assets/liabilities + net worth line)
+- ✅ Category Trends (line chart per category + month-over-month table)
+- ✅ Merchant Spending (ranked list with progress bars, transaction counts, percentages)
+- ⬚ Report filters (accounts, categories, tags) — date range done
 - ⬚ Sankey diagram (income flow to categories)
 
 ## Phase 9: Net Worth Page — MEDIUM PRIORITY
