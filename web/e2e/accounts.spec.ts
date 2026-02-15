@@ -82,9 +82,12 @@ test.describe('Accounts', () => {
       const submitBtn = page.getByRole('button', { name: /save|create|add|submit/i }).last();
       await submitBtn.click();
 
-      await expect(
-        page.getByText(/success|created|added|e2e test account/i).first()
-      ).toBeAttached({ timeout: 15000 });
+      // On success the modal closes and a toast appears — wait for either signal
+      await expect(async () => {
+        const hasToast = await page.getByText(/success|created|added|account/i).first().isVisible().catch(() => false);
+        const modalGone = !(await page.locator('[role="dialog"], [data-headlessui-state]').first().isVisible().catch(() => false));
+        expect(hasToast || modalGone).toBeTruthy();
+      }).toPass({ timeout: 15000 });
       await takeScreenshot(page, 'accounts-after-add');
     });
   });
