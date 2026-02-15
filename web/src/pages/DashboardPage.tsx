@@ -17,6 +17,7 @@ import PageHeader from '@/components/ui/PageHeader';
 import { StatCard } from '@/components/shared';
 import DashboardBudgetWidget from '@/components/DashboardBudgetWidget';
 import DashboardBillsWidget from '@/components/DashboardBillsWidget';
+import DashboardGoalsWidget from '@/components/DashboardGoalsWidget';
 import { format } from 'date-fns';
 import clsx from 'clsx';
 
@@ -221,10 +222,11 @@ const DashboardPage: React.FC = () => {
         </Card>
       </div>
 
-      {/* Budget & Bills Widgets */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+      {/* Budget, Bills & Goals Widgets */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
         <DashboardBudgetWidget />
         <DashboardBillsWidget />
+        <DashboardGoalsWidget />
       </div>
 
       {/* Recent Transactions */}
