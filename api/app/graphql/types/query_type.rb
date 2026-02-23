@@ -374,6 +374,99 @@ module Types
       }
     end
 
+    field :net_worth_history, [Types::NetWorthSnapshotType], null: false do
+      argument :months, Integer, required: false, default_value: 12
+    end
+    def net_worth_history(months: 12)
+      return [] unless context[:current_user]&.household
+
+      household = context[:current_user].household
+      accounts = household.accounts.where(is_hidden: false)
+      liability_types = %w[credit credit_card loan mortgage auto_loan student_loan personal_loan heloc other_liability]
+
+      # Try AccountBalanceHistory first
+      histories = AccountBalanceHistory.where(account: accounts)
+        .where('date >= ?', months.months.ago.to_date.beginning_of_month)
+        .order(:date)
+
+      if histories.exists?
+        # Group by month (use last snapshot of each month)
+        by_month = histories.group_by { |h| h.date.beginning_of_month }
+        by_month.sort.map do |month_date, month_histories|
+          # Get latest snapshot per account in this month
+          latest_per_account = month_histories.group_by(&:account_id).transform_values(&:last)
+          asset_cents = 0
+          liability_cents = 0
+          latest_per_account.each do |account_id, hist|
+            acct = accounts.find { |a| a.id == account_id }
+            next unless acct
+            if liability_types.include?(acct.account_type)
+              liability_cents += hist.balance_cents
+            else
+              asset_cents += hist.balance_cents
+            end
+          end
+          {
+            date: month_date.strftime('%Y-%m'),
+            assets: asset_cents / 100.0,
+            liabilities: liability_cents / 100.0,
+            net_worth: (asset_cents - liability_cents) / 100.0
+          }
+        end
+      else
+        # Fallback: compute from current balances (single point)
+        asset_cents = accounts.reject { |a| liability_types.include?(a.account_type) }.sum(&:current_balance_cents)
+        liability_cents = accounts.select { |a| liability_types.include?(a.account_type) }.sum(&:current_balance_cents)
+        [{
+          date: Date.current.strftime('%Y-%m'),
+          assets: asset_cents / 100.0,
+          liabilities: liability_cents / 100.0,
+          net_worth: (asset_cents - liability_cents) / 100.0
+        }]
+      end
+    end
+
+    field :category_trends, [Types::CategoryTrendPointType], null: false do
+      argument :category_ids, [ID], required: true
+      argument :months, Integer, required: false, default_value: 6
+    end
+    def category_trends(category_ids:, months: 6)
+      return [] unless context[:current_user]&.household
+
+      household = context[:current_user].household
+      end_date = Date.current.end_of_month
+      start_date = (end_date - months.months).beginning_of_month
+
+      categories = Category.where(id: category_ids, household_id: household.id).index_by(&:id)
+      return [] if categories.empty?
+
+      txns = household.transactions
+        .where(category_id: category_ids, date: start_date..end_date)
+        .where('amount_cents < 0')
+
+      results = []
+      current = start_date
+      while current <= end_date
+        month_end = current.end_of_month
+        month_txns = txns.where(date: current..month_end)
+        by_cat = month_txns.group(:category_id).sum('ABS(amount_cents)')
+
+        category_ids.each do |cat_id|
+          cat = categories[cat_id]
+          next unless cat
+          results << {
+            month: current.strftime('%Y-%m'),
+            category_id: cat_id,
+            category_name: cat.name,
+            amount: (by_cat[cat_id] || 0) / 100.0
+          }
+        end
+        current = current.next_month
+      end
+
+      results
+    end
+
     field :reports, Types::ReportsType, null: false do
       argument :months, Integer, required: false, default_value: 6
       argument :date_from, String, required: false

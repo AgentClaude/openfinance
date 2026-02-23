@@ -8,7 +8,7 @@ import {
 } from 'recharts';
 import { useQuery } from '@apollo/client';
 import { useReports } from '@/hooks/useReports';
-import { GET_NET_WORTH_HISTORY } from '@/graphql/queries';
+import { GET_NET_WORTH_HISTORY, GET_CATEGORY_TRENDS, GET_CATEGORIES } from '@/graphql/queries';
 import PageHeader from '@/components/ui/PageHeader';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import { StatCard, ChartCard } from '@/components/shared';
@@ -28,7 +28,7 @@ const formatMonth = (month: string) => {
   return date.toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
 };
 
-type ReportTab = 'overview' | 'spending' | 'income-expenses' | 'cashflow' | 'merchants' | 'category-trends' | 'net-worth';
+type ReportTab = 'overview' | 'spending' | 'income-expenses' | 'cashflow' | 'merchants' | 'net-worth' | 'category-trends';
 
 type DateRangeMode = 'preset' | 'custom';
 
@@ -51,8 +51,8 @@ const ReportsPage: React.FC = () => {
     { id: 'income-expenses', label: 'Income vs Expenses', icon: '⚖️' },
     { id: 'cashflow', label: 'Cash Flow', icon: '💰' },
     { id: 'merchants', label: 'Top Merchants', icon: '🏪' },
-    { id: 'category-trends', label: 'Category Trends', icon: '📈' },
-    { id: 'net-worth', label: 'Net Worth', icon: '💎' },
+    { id: 'net-worth', label: 'Net Worth', icon: '📈' },
+    { id: 'category-trends', label: 'Category Trends', icon: '📉' },
   ];
 
   return (
@@ -144,8 +144,8 @@ const ReportsPage: React.FC = () => {
           {activeTab === 'income-expenses' && <IncomeExpensesReport reports={reports} />}
           {activeTab === 'cashflow' && <CashFlowReport reports={reports} />}
           {activeTab === 'merchants' && <MerchantReport reports={reports} />}
-          {activeTab === 'category-trends' && <CategoryTrendsReport reports={reports} />}
-          {activeTab === 'net-worth' && <NetWorthReport months={dateRangeMode === 'preset' ? months : 12} />}
+          {activeTab === 'net-worth' && <NetWorthReport months={months} />}
+          {activeTab === 'category-trends' && <CategoryTrendsReport months={months} />}
         </>
       )}
     </div>
@@ -658,134 +658,29 @@ const MerchantReport: React.FC<{ reports: any }> = ({ reports }) => {
   );
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const CategoryTrendsReport: React.FC<{ reports: any }> = ({ reports }) => {
-  const { monthlySpendingByCategory, spendingByCategory } = reports;
-
-  // Get top 8 categories for trend lines
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const topCats = spendingByCategory.slice(0, 8).map((c: any) => c.categoryName);
-
-  // Transform data: each month as a row with category amounts as columns
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const trendData = monthlySpendingByCategory.map((m: any) => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const row: any = { month: m.month };
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    m.categories.forEach((c: any) => {
-      if (topCats.includes(c.categoryName)) {
-        row[c.categoryName] = c.amount;
-      }
-    });
-    // Fill missing categories with 0
-    topCats.forEach((name: string) => {
-      if (row[name] === undefined) row[name] = 0;
-    });
-    return row;
-  });
-
-  return (
-    <div className="space-y-6">
-      <ChartCard title="Category Spending Trends">
-        <ResponsiveContainer width="100%" height={400}>
-          <LineChart data={trendData}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="month" tickFormatter={formatMonth} />
-            <YAxis tickFormatter={(v) => formatCurrency(v)} />
-            <Tooltip formatter={(v: number) => formatCurrency(v)} labelFormatter={formatMonth} />
-            <Legend />
-            {topCats.map((name: string, i: number) => (
-              <Line
-                key={name}
-                type="monotone"
-                dataKey={name}
-                stroke={COLORS[i % COLORS.length]}
-                strokeWidth={2}
-                dot={{ r: 3 }}
-                activeDot={{ r: 5 }}
-              />
-            ))}
-          </LineChart>
-        </ResponsiveContainer>
-      </ChartCard>
-
-      {/* Month-over-month change table */}
-      <ChartCard title="Month-over-Month Changes">
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead>
-              <tr>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Category</th>
-                {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                {trendData.slice(-3).map((m: any) => (
-                  <th key={m.month} className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
-                    {formatMonth(m.month)}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {topCats.map((name: string, i: number) => (
-                <tr key={name} className="hover:bg-gray-50 dark:hover:bg-slate-700/50">
-                  <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100 flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: COLORS[i % COLORS.length] }} />
-                    {name}
-                  </td>
-                  {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                  {trendData.slice(-3).map((m: any) => (
-                    <td key={m.month} className="px-4 py-3 text-sm text-right text-gray-900 dark:text-gray-100">
-                      {formatCurrency(m[name] || 0)}
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </ChartCard>
-    </div>
-  );
-};
-
-interface NetWorthSnapshot {
-  date: string;
-  assets: number;
-  liabilities: number;
-  netWorth: number;
-}
-
 const NetWorthReport: React.FC<{ months: number }> = ({ months }) => {
   const { data, loading } = useQuery(GET_NET_WORTH_HISTORY, {
     variables: { months },
   });
 
+  const history = data?.netWorthHistory ?? [];
+
   if (loading) return <LoadingSpinner />;
-
-  const history: NetWorthSnapshot[] = data?.netWorthHistory || [];
-
-  if (history.length === 0) {
-    return (
-      <ChartCard title="Net Worth Over Time">
-        <p className="text-gray-500 dark:text-gray-400 text-sm py-8 text-center">
-          No balance history data available. Net worth tracking requires account balance snapshots.
-        </p>
-      </ChartCard>
-    );
-  }
+  if (history.length === 0) return <p className="text-gray-500 text-sm">No net worth data available yet.</p>;
 
   const latest = history[history.length - 1];
-  const earliest = history[0];
-  const change = latest.netWorth - earliest.netWorth;
-  const changePct = earliest.netWorth !== 0 ? (change / Math.abs(earliest.netWorth) * 100) : 0;
+  const first = history[0];
+  const change = latest.netWorth - first.netWorth;
+  const changePct = first.netWorth !== 0 ? (change / Math.abs(first.netWorth) * 100) : 0;
 
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-        <StatCard label="Current Net Worth" value={formatCurrency(latest.netWorth)} valueClassName={latest.netWorth >= 0 ? 'text-green-600' : 'text-red-600'} />
-        <StatCard label="Total Assets" value={formatCurrency(latest.assets)} valueClassName="text-green-600" />
-        <StatCard label="Total Liabilities" value={formatCurrency(latest.liabilities)} valueClassName="text-red-600" />
+        <StatCard label="Net Worth" value={formatCurrency(latest.netWorth)} valueClassName={latest.netWorth >= 0 ? 'text-brand-700' : 'text-red-600'} />
+        <StatCard label="Assets" value={formatCurrency(latest.assets)} valueClassName="text-green-600" />
+        <StatCard label="Liabilities" value={formatCurrency(latest.liabilities)} valueClassName="text-red-600" />
         <StatCard
-          label={`Change (${history.length} mo)`}
+          label={`Change (${months}mo)`}
           value={`${change >= 0 ? '+' : ''}${formatCurrency(change)} (${changePct >= 0 ? '+' : ''}${changePct.toFixed(1)}%)`}
           valueClassName={change >= 0 ? 'text-green-600' : 'text-red-600'}
         />
@@ -799,14 +694,14 @@ const NetWorthReport: React.FC<{ months: number }> = ({ months }) => {
             <YAxis tickFormatter={(v) => formatCurrency(v)} />
             <Tooltip formatter={(v: number) => formatCurrency(v)} labelFormatter={formatMonth} />
             <Legend />
-            <Area type="monotone" dataKey="assets" name="Assets" stroke="#059669" fill="#05966920" stackId="1" />
-            <Area type="monotone" dataKey="liabilities" name="Liabilities" stroke="#DC2626" fill="#DC262620" />
-            <Line type="monotone" dataKey="netWorth" name="Net Worth" stroke="#0D9488" strokeWidth={3} dot={{ r: 4 }} />
+            <Area type="monotone" dataKey="assets" name="Assets" stroke="#059669" fill="#05966930" stackId="1" />
+            <Area type="monotone" dataKey="liabilities" name="Liabilities" stroke="#DC2626" fill="#DC262630" stackId="2" />
+            <Line type="monotone" dataKey="netWorth" name="Net Worth" stroke="#0D9488" strokeWidth={3} dot={{ fill: '#0D9488', r: 4 }} />
           </AreaChart>
         </ResponsiveContainer>
       </ChartCard>
 
-      <ChartCard title="Monthly Net Worth">
+      <ChartCard title="Monthly Breakdown">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead>
@@ -815,31 +710,161 @@ const NetWorthReport: React.FC<{ months: number }> = ({ months }) => {
                 <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Assets</th>
                 <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Liabilities</th>
                 <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Net Worth</th>
-                <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Change</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {[...history].reverse().map((h, i) => {
-                const prev = history[history.length - 1 - i - 1];
-                const monthChange = prev ? h.netWorth - prev.netWorth : 0;
-                return (
-                  <tr key={h.date} className="hover:bg-gray-50 dark:hover:bg-slate-700/50">
-                    <td className="px-4 py-3 text-sm font-medium text-gray-900 dark:text-gray-100">{formatMonth(h.date)}</td>
-                    <td className="px-4 py-3 text-sm text-right text-green-600">{formatCurrency(h.assets)}</td>
-                    <td className="px-4 py-3 text-sm text-right text-red-600">{formatCurrency(h.liabilities)}</td>
-                    <td className={`px-4 py-3 text-sm text-right font-medium ${h.netWorth >= 0 ? 'text-brand-700' : 'text-red-600'}`}>
-                      {formatCurrency(h.netWorth)}
-                    </td>
-                    <td className={`px-4 py-3 text-sm text-right ${monthChange >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                      {i < history.length - 1 ? `${monthChange >= 0 ? '+' : ''}${formatCurrency(monthChange)}` : '—'}
-                    </td>
-                  </tr>
-                );
-              })}
+              {[...history].reverse().map((h: { date: string; assets: number; liabilities: number; netWorth: number }) => (
+                <tr key={h.date} className="hover:bg-gray-50 dark:hover:bg-slate-700/50">
+                  <td className="px-4 py-3 text-sm font-medium text-gray-900 dark:text-gray-100">{formatMonth(h.date)}</td>
+                  <td className="px-4 py-3 text-sm text-right text-green-600">{formatCurrency(h.assets)}</td>
+                  <td className="px-4 py-3 text-sm text-right text-red-600">{formatCurrency(h.liabilities)}</td>
+                  <td className={`px-4 py-3 text-sm text-right font-medium ${h.netWorth >= 0 ? 'text-brand-700' : 'text-red-600'}`}>
+                    {formatCurrency(h.netWorth)}
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
       </ChartCard>
+    </div>
+  );
+};
+
+const CategoryTrendsReport: React.FC<{ months: number }> = ({ months }) => {
+  const { data: catData } = useQuery(GET_CATEGORIES);
+  const categories = catData?.categories ?? [];
+
+  const [selectedCatIds, setSelectedCatIds] = useState<string[]>([]);
+
+  // Flatten categories (parents + children)
+  const allCategories = useMemo(() => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const flat: { id: string; name: string; icon?: string }[] = [];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    categories.forEach((cat: any) => {
+      flat.push({ id: cat.id, name: cat.name, icon: cat.icon });
+      if (cat.subcategories) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        cat.subcategories.forEach((sub: any) => {
+          flat.push({ id: sub.id, name: `${cat.name} > ${sub.name}`, icon: sub.icon });
+        });
+      }
+    });
+    return flat;
+  }, [categories]);
+
+  const { data: trendsData, loading } = useQuery(GET_CATEGORY_TRENDS, {
+    variables: { categoryIds: selectedCatIds, months },
+    skip: selectedCatIds.length === 0,
+  });
+
+  const trends = trendsData?.categoryTrends ?? [];
+
+  // Transform trends into chart-friendly format: [{month, Cat1: amount, Cat2: amount}]
+  const chartData = useMemo(() => {
+    if (trends.length === 0) return [];
+    const byMonth: Record<string, Record<string, number>> = {};
+    trends.forEach((t: { month: string; categoryName: string; amount: number }) => {
+      if (!byMonth[t.month]) byMonth[t.month] = { month: t.month as unknown as number } as unknown as Record<string, number>;
+      byMonth[t.month][t.categoryName] = t.amount;
+    });
+    return Object.values(byMonth).sort((a, b) => (a.month as unknown as string).localeCompare(b.month as unknown as string));
+  }, [trends]);
+
+  const categoryNames = useMemo(() => {
+    const names = new Set<string>();
+    trends.forEach((t: { categoryName: string }) => names.add(t.categoryName));
+    return Array.from(names);
+  }, [trends]);
+
+  const toggleCategory = (id: string) => {
+    setSelectedCatIds(prev =>
+      prev.includes(id) ? prev.filter(c => c !== id) : prev.length < 5 ? [...prev, id] : prev
+    );
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Category selector */}
+      <ChartCard title="Select Categories (up to 5)">
+        <div className="flex flex-wrap gap-2 max-h-48 overflow-y-auto">
+          {allCategories.map((cat) => (
+            <button
+              key={cat.id}
+              onClick={() => toggleCategory(cat.id)}
+              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                selectedCatIds.includes(cat.id)
+                  ? 'bg-brand-100 text-brand-800 border border-brand-300'
+                  : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-600'
+              }`}
+            >
+              {cat.icon} {cat.name}
+            </button>
+          ))}
+        </div>
+      </ChartCard>
+
+      {selectedCatIds.length === 0 && (
+        <p className="text-gray-500 dark:text-gray-400 text-sm text-center py-8">Select categories above to see spending trends over time.</p>
+      )}
+
+      {loading && <LoadingSpinner />}
+
+      {chartData.length > 0 && (
+        <>
+          <ChartCard title="Category Spending Trends">
+            <ResponsiveContainer width="100%" height={400}>
+              <LineChart data={chartData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="month" tickFormatter={formatMonth} />
+                <YAxis tickFormatter={(v) => formatCurrency(v)} />
+                <Tooltip formatter={(v: number) => formatCurrency(v)} labelFormatter={formatMonth} />
+                <Legend />
+                {categoryNames.map((name, i) => (
+                  <Line
+                    key={name}
+                    type="monotone"
+                    dataKey={name}
+                    stroke={COLORS[i % COLORS.length]}
+                    strokeWidth={2}
+                    dot={{ fill: COLORS[i % COLORS.length], r: 4 }}
+                    connectNulls
+                  />
+                ))}
+              </LineChart>
+            </ResponsiveContainer>
+          </ChartCard>
+
+          <ChartCard title="Monthly Data">
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead>
+                  <tr>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Month</th>
+                    {categoryNames.map(name => (
+                      <th key={name} className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">{name}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+                  {[...chartData].reverse().map((row: any) => (
+                    <tr key={row.month} className="hover:bg-gray-50 dark:hover:bg-slate-700/50">
+                      <td className="px-4 py-3 text-sm font-medium text-gray-900 dark:text-gray-100">{formatMonth(row.month)}</td>
+                      {categoryNames.map(name => (
+                        <td key={name} className="px-4 py-3 text-sm text-right text-gray-900 dark:text-gray-100">
+                          {row[name] != null ? formatCurrency(row[name]) : '—'}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </ChartCard>
+        </>
+      )}
     </div>
   );
 };
