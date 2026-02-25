@@ -516,6 +516,28 @@ export const GET_HOUSEHOLD_INVITATIONS = gql`
   }
 `;
 
+export const GET_NET_WORTH_HISTORY = gql`
+  query GetNetWorthHistory($months: Int) {
+    netWorthHistory(months: $months) {
+      date
+      assets
+      liabilities
+      netWorth
+    }
+  }
+`;
+
+export const GET_CATEGORY_TRENDS = gql`
+  query GetCategoryTrends($categoryIds: [ID!]!, $months: Int) {
+    categoryTrends(categoryIds: $categoryIds, months: $months) {
+      month
+      categoryId
+      categoryName
+      amount
+    }
+  }
+`;
+
 export const GET_MY_REFERRAL_CODE = gql`
   query GetMyReferralCode {
     myReferralCode

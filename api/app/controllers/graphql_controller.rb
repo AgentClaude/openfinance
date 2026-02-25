@@ -2,7 +2,6 @@ class GraphqlController < ApplicationController
   include Pundit::Authorization
 
   # Disable CSRF for GraphQL API
-
   before_action :authenticate_user_from_token
 
   def execute

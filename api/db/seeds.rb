@@ -628,6 +628,52 @@ end
 puts "✅ #{rules_data.size} categorization rules"
 
 # ==============================================================================
+# BALANCE HISTORY (for Net Worth chart)
+# ==============================================================================
+
+puts "\n📈 Seeding balance history for net worth tracking..."
+
+# Generate 12 months of daily balance snapshots for each account
+accounts_for_history = household.accounts.where(is_hidden: false)
+today = Date.current
+start_date = today - 365
+
+accounts_for_history.each do |account|
+  base_balance = account.current_balance_cents
+  # Work backwards from current balance with some random walk
+  balance = base_balance
+  snapshots = []
+
+  (start_date..today).each do |date|
+    # Add slight daily variation (random walk towards current balance)
+    days_left = (today - date).to_i
+    if days_left > 0
+      # Random daily change: ±0.5% of balance, trending toward current
+      drift = (base_balance - balance) / days_left.to_f * 0.1
+      noise = balance * rand(-0.005..0.005)
+      balance = (balance + drift + noise).round
+    else
+      balance = base_balance
+    end
+
+    snapshots << {
+      id: SecureRandom.uuid,
+      account_id: account.id,
+      date: date,
+      current_balance_cents: balance,
+      currency: account.currency || 'USD',
+      created_at: Time.current,
+      updated_at: Time.current
+    }
+  end
+
+  # Bulk insert for performance
+  AccountBalanceHistory.upsert_all(snapshots, unique_by: [:account_id, :date]) if snapshots.any?
+end
+
+puts "✅ Balance history seeded for #{accounts_for_history.count} accounts (#{(today - start_date).to_i} days each)"
+
+# ==============================================================================
 # SUMMARY
 # ==============================================================================
 

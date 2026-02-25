@@ -6,7 +6,10 @@ import {
   LineChart, Line,
   ComposedChart,
 } from 'recharts';
+import { useQuery } from '@apollo/client';
 import { useReports } from '@/hooks/useReports';
+import { useCategories } from '@/hooks/useCategories';
+import { GET_NET_WORTH_HISTORY, GET_CATEGORY_TRENDS } from '@/graphql/queries';
 import PageHeader from '@/components/ui/PageHeader';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import { StatCard, ChartCard } from '@/components/shared';
@@ -26,7 +29,7 @@ const formatMonth = (month: string) => {
   return date.toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
 };
 
-type ReportTab = 'overview' | 'spending' | 'income-expenses' | 'cashflow' | 'merchants';
+type ReportTab = 'overview' | 'spending' | 'income-expenses' | 'cashflow' | 'merchants' | 'net-worth' | 'category-trends';
 
 type DateRangeMode = 'preset' | 'custom';
 
@@ -49,6 +52,8 @@ const ReportsPage: React.FC = () => {
     { id: 'income-expenses', label: 'Income vs Expenses', icon: '⚖️' },
     { id: 'cashflow', label: 'Cash Flow', icon: '💰' },
     { id: 'merchants', label: 'Top Merchants', icon: '🏪' },
+    { id: 'net-worth', label: 'Net Worth', icon: '📈' },
+    { id: 'category-trends', label: 'Category Trends', icon: '📉' },
   ];
 
   return (
@@ -142,6 +147,8 @@ const ReportsPage: React.FC = () => {
           {activeTab === 'merchants' && <MerchantReport reports={reports} />}
         </>
       )}
+      {activeTab === 'net-worth' && <NetWorthReport months={months} />}
+      {activeTab === 'category-trends' && <CategoryTrendsReport months={months} />}
     </div>
   );
 };
@@ -648,6 +655,178 @@ const MerchantReport: React.FC<{ reports: any }> = ({ reports }) => {
           </div>
         )}
       </ChartCard>
+    </div>
+  );
+};
+
+// Net Worth History Report
+const NetWorthReport: React.FC<{ months: number }> = ({ months }) => {
+  const { data, loading } = useQuery(GET_NET_WORTH_HISTORY, {
+    variables: { months },
+  });
+
+  if (loading) return <LoadingSpinner />;
+
+  const history = data?.netWorthHistory || [];
+
+  if (history.length === 0) {
+    return (
+      <ChartCard title="Net Worth Over Time">
+        <div className="text-center py-12">
+          <p className="text-gray-500 dark:text-gray-400 text-lg mb-2">No balance history data yet</p>
+          <p className="text-gray-400 dark:text-gray-500 text-sm">
+            Balance snapshots are captured daily. Check back tomorrow for your first data point.
+          </p>
+        </div>
+      </ChartCard>
+    );
+  }
+
+  const latest = history[history.length - 1];
+  const first = history[0];
+  const change = latest.netWorth - first.netWorth;
+  const changePct = first.netWorth !== 0 ? (change / Math.abs(first.netWorth)) * 100 : 0;
+
+  // Sample data for chart performance (max ~90 points)
+  const step = Math.max(1, Math.floor(history.length / 90));
+  const chartData = history.filter((_: unknown, i: number) => i % step === 0 || i === history.length - 1);
+
+  const formatDate = (date: string) => {
+    const d = new Date(date);
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+        <StatCard label="Net Worth" value={formatCurrency(latest.netWorth)} valueClassName={latest.netWorth >= 0 ? 'text-green-600' : 'text-red-600'} />
+        <StatCard label="Assets" value={formatCurrency(latest.assets)} valueClassName="text-green-600" />
+        <StatCard label="Liabilities" value={formatCurrency(latest.liabilities)} valueClassName="text-red-600" />
+        <StatCard
+          label={`Change (${months}mo)`}
+          value={`${change >= 0 ? '+' : ''}${formatCurrency(change)} (${changePct >= 0 ? '+' : ''}${changePct.toFixed(1)}%)`}
+          valueClassName={change >= 0 ? 'text-green-600' : 'text-red-600'}
+        />
+      </div>
+
+      <ChartCard title="Net Worth Over Time">
+        <ResponsiveContainer width="100%" height={400}>
+          <AreaChart data={chartData}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="date" tickFormatter={formatDate} />
+            <YAxis tickFormatter={(v) => formatCurrency(v)} />
+            <Tooltip
+              formatter={(v: number) => formatCurrency(v)}
+              labelFormatter={(label: string) => new Date(label).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+            />
+            <Legend />
+            <Area type="monotone" dataKey="assets" name="Assets" stroke="#059669" fill="#05966930" stackId="1" />
+            <Area type="monotone" dataKey="liabilities" name="Liabilities" stroke="#DC2626" fill="#DC262630" />
+            <Line type="monotone" dataKey="netWorth" name="Net Worth" stroke="#0D9488" strokeWidth={3} dot={false} />
+          </AreaChart>
+        </ResponsiveContainer>
+      </ChartCard>
+    </div>
+  );
+};
+
+// Category Trends Report
+const CategoryTrendsReport: React.FC<{ months: number }> = ({ months }) => {
+  const { categories } = useCategories();
+  const [selectedCatIds, setSelectedCatIds] = useState<string[]>([]);
+
+  const { data, loading } = useQuery(GET_CATEGORY_TRENDS, {
+    variables: { categoryIds: selectedCatIds, months },
+    skip: selectedCatIds.length === 0,
+  });
+
+  const trendPoints = data?.categoryTrends || [];
+
+  // Group by month for chart
+  const chartData = useMemo(() => {
+    if (trendPoints.length === 0) return [];
+    const byMonth: Record<string, Record<string, string | number>> = {};
+    trendPoints.forEach((p: { month: string; categoryName: string; amount: number }) => {
+      if (!byMonth[p.month]) byMonth[p.month] = { month: p.month };
+      byMonth[p.month][p.categoryName] = p.amount;
+    });
+    return Object.values(byMonth).sort((a, b) => String(a.month).localeCompare(String(b.month)));
+  }, [trendPoints]);
+
+  // Get unique category names for lines
+  const catNames = useMemo(() => {
+    const names = new Set<string>();
+    trendPoints.forEach((p: { categoryName: string }) => names.add(p.categoryName));
+    return Array.from(names);
+  }, [trendPoints]);
+
+  const toggleCategory = (id: string) => {
+    setSelectedCatIds((prev) =>
+      prev.includes(id) ? prev.filter((c) => c !== id) : prev.length < 5 ? [...prev, id] : prev
+    );
+  };
+
+  // Filter to expense categories only (skip Income group)
+  const expenseCategories = (categories || []).filter(
+    (c: { groupName?: string }) => c.groupName !== 'Income'
+  );
+
+  return (
+    <div className="space-y-6">
+      {/* Category selector */}
+      <ChartCard title="Select Categories (up to 5)">
+        <div className="flex flex-wrap gap-2">
+          {expenseCategories.map((cat: { id: string; name: string; icon?: string }) => {
+            const isSelected = selectedCatIds.includes(cat.id);
+            return (
+              <button
+                key={cat.id}
+                onClick={() => toggleCategory(cat.id)}
+                className={`px-3 py-1.5 text-sm rounded-full border transition-colors ${
+                  isSelected
+                    ? 'bg-brand-100 border-brand-400 text-brand-800 dark:bg-brand-900/30 dark:border-brand-500 dark:text-brand-300'
+                    : 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-slate-700/50'
+                }`}
+              >
+                {cat.icon} {cat.name}
+              </button>
+            );
+          })}
+        </div>
+      </ChartCard>
+
+      {selectedCatIds.length === 0 ? (
+        <ChartCard title="Category Spending Trends">
+          <div className="text-center py-12">
+            <p className="text-gray-500 dark:text-gray-400">Select up to 5 categories above to compare spending trends</p>
+          </div>
+        </ChartCard>
+      ) : loading ? (
+        <LoadingSpinner />
+      ) : (
+        <ChartCard title="Spending Trends by Category">
+          <ResponsiveContainer width="100%" height={400}>
+            <LineChart data={chartData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="month" tickFormatter={formatMonth} />
+              <YAxis tickFormatter={(v) => formatCurrency(v)} />
+              <Tooltip formatter={(v: number) => formatCurrency(v)} labelFormatter={formatMonth} />
+              <Legend />
+              {catNames.map((name, i) => (
+                <Line
+                  key={name}
+                  type="monotone"
+                  dataKey={name}
+                  stroke={COLORS[i % COLORS.length]}
+                  strokeWidth={2}
+                  dot={{ fill: COLORS[i % COLORS.length], r: 4 }}
+                  connectNulls
+                />
+              ))}
+            </LineChart>
+          </ResponsiveContainer>
+        </ChartCard>
+      )}
     </div>
   );
 };

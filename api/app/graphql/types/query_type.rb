@@ -374,6 +374,89 @@ module Types
       }
     end
 
+    field :net_worth_history, [Types::NetWorthSnapshotType], null: false do
+      argument :months, Integer, required: false, default_value: 12
+    end
+    def net_worth_history(months: 12)
+      return [] unless context[:current_user]&.household
+
+      household = context[:current_user].household
+      accounts = household.accounts.where(is_hidden: false)
+      end_date = Date.current
+      start_date = (end_date - months.months).beginning_of_month
+
+      # Get all balance history entries for household accounts in the date range
+      histories = AccountBalanceHistory
+        .where(account_id: accounts.pluck(:id))
+        .where(date: start_date..end_date)
+        .order(:date)
+
+      # Group by date and compute assets/liabilities
+      account_types = accounts.pluck(:id, :account_type).to_h
+      asset_types = %w[checking savings investment retirement crypto real_estate vehicle other_asset cash manual]
+
+      by_date = histories.group_by(&:date)
+      by_date.map do |date, entries|
+        assets_cents = 0
+        liabilities_cents = 0
+        entries.each do |entry|
+          acct_type = account_types[entry.account_id]
+          if asset_types.include?(acct_type)
+            assets_cents += entry.current_balance_cents
+          else
+            liabilities_cents += entry.current_balance_cents.abs
+          end
+        end
+        {
+          date: date.iso8601,
+          assets: assets_cents / 100.0,
+          liabilities: liabilities_cents / 100.0,
+          net_worth: (assets_cents - liabilities_cents) / 100.0
+        }
+      end
+    end
+
+    field :category_trends, [Types::CategoryTrendPointType], null: false do
+      argument :category_ids, [ID], required: true
+      argument :months, Integer, required: false, default_value: 6
+    end
+    def category_trends(category_ids:, months: 6)
+      return [] unless context[:current_user]&.household
+
+      household = context[:current_user].household
+      end_date = Date.current.end_of_month
+      start_date = (end_date - months.months).beginning_of_month
+
+      # Validate categories belong to household
+      categories = household.categories.where(id: category_ids).index_by(&:id)
+      return [] if categories.empty?
+
+      txns = household.transactions
+        .where(category_id: categories.keys)
+        .where(date: start_date..end_date)
+        .where("amount_cents < 0")
+
+      results = []
+      current = start_date.beginning_of_month
+      while current <= end_date
+        month_end = current.end_of_month
+        month_txns = txns.where(date: current..month_end)
+        by_cat = month_txns.group(:category_id).sum(Arel.sql('ABS(amount_cents)'))
+
+        categories.each do |cat_id, cat|
+          results << {
+            month: current.strftime("%Y-%m"),
+            category_id: cat_id,
+            category_name: cat.name,
+            amount: (by_cat[cat_id] || 0) / 100.0
+          }
+        end
+        current = current.next_month
+      end
+
+      results
+    end
+
     field :reports, Types::ReportsType, null: false do
       argument :months, Integer, required: false, default_value: 6
       argument :date_from, String, required: false
