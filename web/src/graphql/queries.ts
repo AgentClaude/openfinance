@@ -551,17 +551,6 @@ export const GET_REFERRALS = gql`
   }
 `;
 
-export const GET_NET_WORTH_HISTORY = gql`
-  query GetNetWorthHistory($months: Int) {
-    netWorthHistory(months: $months) {
-      date
-      assets
-      liabilities
-      netWorth
-    }
-  }
-`;
-
 export const GET_CATEGORY_TRENDS = gql`
   query GetCategoryTrends($categoryIds: [ID!]!, $months: Int) {
     categoryTrends(categoryIds: $categoryIds, months: $months) {
