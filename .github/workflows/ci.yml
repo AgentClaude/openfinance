@@ -100,6 +100,7 @@ jobs:
   web-e2e:
     name: React Frontend — E2E Tests
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     needs: [api-test, web-build]
 
     services:
@@ -133,7 +134,6 @@ jobs:
       VITE_API_URL: http://localhost:3001
       VITE_GRAPHQL_URL: http://localhost:3001/graphql
       BUNDLE_WITHOUT: development
-      FORCE_SSL: 'false'
 
     steps:
       - uses: actions/checkout@v4
@@ -186,4 +186,5 @@ jobs:
 
       - name: Run E2E tests
         working-directory: web
-        run: npx playwright test
+        timeout-minutes: 10
+        run: npx playwright test --reporter=list

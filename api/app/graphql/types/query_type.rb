@@ -561,62 +561,6 @@ module Types
         top_merchants: top_merchants
       }
     end
-
-    field :net_worth_history, [Types::NetWorthSnapshotType], null: false do
-      argument :months, Integer, required: false, default_value: 12
-    end
-    def net_worth_history(months: 12)
-      return [] unless context[:current_user]&.household
-
-      household = context[:current_user].household
-      start_date = months.months.ago.to_date.beginning_of_month
-      account_ids = household.accounts.pluck(:id)
-
-      # Get asset and liability account IDs
-      asset_ids = household.accounts.select(&:asset?).map(&:id)
-      liability_ids = household.accounts.select(&:liability?).map(&:id)
-
-      # Group balance histories by month, summing assets and liabilities
-      histories = AccountBalanceHistory
-        .where(account_id: account_ids)
-        .where('date >= ?', start_date)
-        .order(:date)
-
-      # Build monthly snapshots using last balance per account per month
-      monthly = {}
-      histories.each do |h|
-        month_key = h.date.strftime("%Y-%m")
-        monthly[month_key] ||= {}
-        monthly[month_key][h.account_id] = h.current_balance_cents
-      end
-
-      # Fill forward: carry previous month's balance for accounts without data
-      all_months = []
-      current = start_date.beginning_of_month
-      while current <= Date.current
-        all_months << current.strftime("%Y-%m")
-        current = current.next_month
-      end
-
-      prev_balances = {}
-      all_months.map do |month|
-        # Update with any new data for this month
-        if monthly[month]
-          monthly[month].each { |aid, bal| prev_balances[aid] = bal }
-        end
-
-        assets = prev_balances.select { |aid, _| asset_ids.include?(aid) }.values.sum
-        liabilities = prev_balances.select { |aid, _| liability_ids.include?(aid) }.values.sum.abs
-
-        {
-          date: month,
-          assets: assets / 100.0,
-          liabilities: liabilities / 100.0,
-          net_worth: (assets - liabilities) / 100.0
-        }
-      end
-    end
-
     private
 
     def latest_holdings(account_id: nil)
