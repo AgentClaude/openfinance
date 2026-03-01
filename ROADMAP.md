@@ -1,6 +1,6 @@
 # OpenFinance Roadmap
 
-_Last updated: 2026-02-13_
+_Last updated: 2026-03-01_
 _See MONARCH_FEATURES.md for detailed feature spec and data fields_
 _See SPRINT.md for prioritized sprint plan (Sprints 1-3)_
 
@@ -48,30 +48,31 @@ _See SPRINT.md for prioritized sprint plan (Sprints 1-3)_
 - ✅ Request specs for GraphQL mutations — 11 specs (login, createManualAccount, createTransaction, updateTransaction, createCategory, deleteCategory)
 - ✅ Request specs for GraphQL queries — 10 specs (me, accounts, transactions, categories, dashboardSummary)
 
-## Phase 4: Plaid Integration
+## Phase 4: Plaid Integration ✅
 - ✅ Plaid gem installed, config modules
 - ✅ Link token creation + exchange services + mutations
 - ✅ Transaction sync service
 - ✅ Fix Institution model
 - ✅ Make job scheduling graceful when Sidekiq unavailable (all jobs use safe_perform_later)
-- ⬚ Webhook endpoint for real-time transaction updates (TRANSACTIONS.SYNC_UPDATES_AVAILABLE, ITEM.ERROR)
-- ⬚ Connection management UI (reconnect, disconnect, status, error banners)
+- ✅ Webhook endpoint for real-time transaction updates (PR #60)
+- ✅ Connection management UI — reconnect, disconnect, status, error banners (PR #60)
 - ⬚ Plaid category → OpenFinance category mapping
-- ⬚ Update mode for broken connections (ITEM_LOGIN_REQUIRED)
+- ✅ Update mode for broken connections — ITEM_LOGIN_REQUIRED (PR #60)
 
-## Phase 5: Budget System — HIGH PRIORITY → Sprint 1
-_Backend partially exists: budget query, BudgetItem CRUD, copyBudgetFromMonth, fillBudgetFromAverages mutations_
-- ⬚ Budget page UI (monthly view with category groups, progress bars)
-- ⬚ Month navigation (prev/next arrows, month picker)
-- ⬚ Budget vs actual per category (progress bars: green/yellow/red)
-- ⬚ Category group subtotals (Housing total, Food total, etc.)
-- ⬚ Income tracking in budget (planned vs actual)
-- ⬚ "Left to budget" calculation
-- ⬚ Copy budget from previous month / fill from averages
-- ⬚ Budget rollover (unspent carries forward)
+## Phase 5: Budget System ✅
+_Full budget system with backend + frontend_
+- ✅ Budget page UI (monthly view with category groups, progress bars)
+- ✅ Month navigation (prev/next arrows)
+- ✅ Budget vs actual per category (progress bars: green/yellow/red)
+- ✅ Category group subtotals (Housing total, Food total, etc.)
+- ✅ Income tracking in budget (planned vs actual)
+- ✅ "Left to budget" calculation
+- ✅ Copy budget from previous month / fill from averages
+- ✅ Budget rollover (backend: rollover_cents column + GraphQL field)
+- ⬚ Budget rollover UI (display rollover amounts in frontend)
 - ⬚ Flex budget mode (total spending target vs per-category)
-- ⬚ Over-budget alerts/notifications
-- ⬚ Dashboard budget summary widget
+- ✅ Over-budget alerts (inline red indicators)
+- ✅ Dashboard budget summary widget
 
 ## Phase 6: Rules Engine ✅
 - ✅ CategorizationRule model → exposed via GraphQL
@@ -82,16 +83,15 @@ _Backend partially exists: budget query, BudgetItem CRUD, copyBudgetFromMonth, f
 - ⬚ Merchant name mapping (raw description → clean name)
 - ⬚ Suggested rules based on manual categorization patterns
 
-## Phase 7: Recurring Transactions — HIGH PRIORITY → Sprint 2
-_Backend partially exists: RecurringItem model, recurring_items query, detectRecurringTransactions mutation_
-- ✅ RecurringItem model (exists) → exposed via GraphQL (query + detect mutation exist)
-- ⬚ Auto-detection from transaction history (pattern matching)
-- ⬚ Recurring transactions page (list view)
-- ⬚ Upcoming bills view / calendar
-- ⬚ Mark as paid/unpaid per month
-- ⬚ Total monthly recurring calculation
-- ⬚ Dashboard "upcoming bills" widget
-- ⬚ Bill reminder notifications
+## Phase 7: Recurring Transactions ✅
+- ✅ RecurringItem model → exposed via GraphQL (CRUD + detect mutations)
+- ✅ Auto-detection from transaction history (detectRecurringTransactions mutation)
+- ✅ Recurring transactions page (748 LOC — list view with status badges)
+- ✅ Upcoming bills timeline view (PR #51)
+- ✅ Mark as paid/unpaid per month (markRecurringItemPaid mutation)
+- ✅ Total monthly recurring calculation
+- ✅ Dashboard "upcoming bills" widget
+- ⬚ Bill reminder notifications (email/push)
 
 ## Phase 8: Reports & Analytics — MEDIUM PRIORITY → Sprint 3
 _Backend partially exists: reports query returns monthly_summary, spending_by_category, monthly_spending_by_category, top_merchants_
@@ -106,44 +106,43 @@ _Backend partially exists: reports query returns monthly_summary, spending_by_ca
 - ⬚ Report filters (accounts, categories, tags) — date range done
 - ⬚ Sankey diagram (income flow to categories)
 
-## Phase 9: Net Worth Page — MEDIUM PRIORITY
-- ⬚ Dedicated Net Worth page
-- ⬚ Net worth line chart (all-time, 1Y, 6M, 3M, 1M)
-- ⬚ Assets vs Liabilities stacked chart
-- ⬚ Account contribution breakdown
-- ⬚ Daily/weekly balance snapshots (cron job)
-- ⬚ Manual balance update for manual accounts
+## Phase 9: Net Worth Page ✅
+- ✅ Dedicated Net Worth page (PR #55)
+- ✅ Net worth line chart with time range filters
+- ✅ Assets vs Liabilities stacked chart
+- ✅ Account contribution breakdown
+- ✅ Net worth history query + balance snapshots (PR #57)
+- ✅ Manual balance update for manual accounts (PR #55)
 
-## Phase 10: Goals — MEDIUM PRIORITY
-- ⬚ Goal model (exists) → expose via GraphQL + CRUD mutations
-- ⬚ Goals page with progress bars
-- ⬚ Link accounts to goals
-- ⬚ Savings goals (target amount, target date)
-- ⬚ Debt payoff goals (decreasing balance tracking)
-- ⬚ Monthly contribution tracking
-- ⬚ Dashboard goals summary widget
+## Phase 10: Goals ✅
+- ✅ Goal model → exposed via GraphQL + CRUD mutations
+- ✅ Goals page with progress bars
+- ✅ Link accounts to goals
+- ✅ Savings goals (target amount, target date)
+- ✅ Debt payoff goals
+- ✅ Goal edit with icon/color
+- ✅ Dashboard goals summary widget (PR #54)
 - ⬚ Goal milestones & notifications
 
-## Phase 11: Investment Tracking — MEDIUM PRIORITY
-- ⬚ Holdings model (exists) → expose via GraphQL
-- ⬚ Security model (exists) → price data sync
-- ⬚ Investments page with holdings table
-- ⬚ Portfolio performance chart
-- ⬚ Asset allocation pie chart
-- ⬚ Per-holding detail (cost basis, return)
+## Phase 11: Investment Tracking ✅
+- ✅ Holdings model → exposed via GraphQL
+- ✅ Security model → price data
+- ✅ Investments page (294 LOC — holdings table, portfolio chart, allocation)
+- ✅ Design QA fixes (PR #49)
 - ⬚ Benchmark comparison (S&P 500)
 - ⬚ Dividend tracking
 
-## Phase 12: Transaction Enhancements — MEDIUM PRIORITY
-- ⬚ Split transactions (divide into multiple categories)
-- ⬚ Transfer detection (auto-link matching transactions)
-- ⬚ Mark as transfer manually
-- ⬚ Transaction exclusions (from budget, from reports)
-- ⬚ Inline editing in transaction table
+## Phase 12: Transaction Enhancements ✅
+_PR #56_
+- ✅ Split transactions (divide into multiple categories)
+- ✅ Transfer detection (auto-link matching transactions)
+- ✅ Mark as transfer manually
+- ✅ Transaction exclusions (from budget, from reports)
+- ✅ Inline editing in transaction table
 - ⬚ Receipt/attachment upload
-- ⬚ CSV import (Mint format, generic bank CSV)
-- ⬚ CSV/data export
-- ⬚ Bulk actions (mark reviewed, tag, exclude, delete)
+- ✅ CSV import (ImportPage — 237 LOC)
+- ✅ CSV/data export
+- ✅ Bulk actions (mark reviewed, tag, exclude, delete)
 
 ## Phase 13: Collaboration — LOWER PRIORITY
 - ⬚ Invite partner to household (email invitation flow)
@@ -153,8 +152,8 @@ _Backend partially exists: reports query returns monthly_summary, spending_by_ca
 - ⬚ Activity feed (who categorized what)
 - ⬚ Per-user notification preferences
 
-## Phase 14: Settings & Notifications — LOWER PRIORITY
-- ⬚ Settings page (profile, password change)
+## Phase 14: Settings & Notifications — Partially Done
+- ✅ Settings page (867 LOC — profile, password, preferences, dark mode, etc.)
 - ⬚ Household settings (name, currency, members)
 - ⬚ Preferences (date format, first day of week, number format)
 - ⬚ Notification preferences UI
@@ -173,14 +172,14 @@ _Backend partially exists: reports query returns monthly_summary, spending_by_ca
 - ⬚ Add NetWorthSnapshot type to schema
 - ⬚ Expand default category seed data to match Monarch's full set
 
-## Phase 16: Polish & UX
-- ⬚ Dark mode
+## Phase 16: Polish & UX — Partially Done
+- ✅ Dark mode (implemented across all pages)
 - ⬚ Customizable dashboard widget layout
 - ⬚ Account detail page (balance history, filtered transactions)
 - ✅ Global search — Cmd+K command palette (transactions, pages, actions) (PR #69)
 - ✅ Keyboard shortcuts — Cmd+K, arrow keys, Enter, Escape (PR #69)
 - ⬚ Onboarding flow (guided setup)
-- ⬚ Empty states with guidance
+- ✅ Empty states with guidance (EmptyState component used throughout)
 
 ## Phase 17: Authorization & Account Sharing — HIGH PRIORITY
 - ⬚ Add Pundit gem for policy-based authorization
@@ -195,8 +194,8 @@ _Backend partially exists: reports query returns monthly_summary, spending_by_ca
 - ⬚ Audit trail: who changed what on shared accounts
 - ⬚ RSpec policy specs for every policy
 
-## Phase 18: Public Marketing Site
-- ⬚ Static marketing landing page (React route, no auth required)
+## Phase 18: Public Marketing Site — Partially Done
+- ✅ Landing page (LandingPage.tsx, live at redcanyonlabs.com)
 - ⬚ Hero section with app screenshots, feature highlights, pricing comparison vs Monarch ($99/yr)
 - ⬚ Feature sections: budgeting, recurring detection, reports, collaboration, dark mode
 - ⬚ Real screenshots generated via Playwright script (login → navigate → screenshot each page)
