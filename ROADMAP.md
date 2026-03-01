@@ -177,8 +177,8 @@ _Backend partially exists: reports query returns monthly_summary, spending_by_ca
 - ⬚ Dark mode
 - ⬚ Customizable dashboard widget layout
 - ⬚ Account detail page (balance history, filtered transactions)
-- ⬚ Global search (transactions, accounts, merchants)
-- ⬚ Keyboard shortcuts
+- ✅ Global search — Cmd+K command palette (transactions, pages, actions) (PR #69)
+- ✅ Keyboard shortcuts — Cmd+K, arrow keys, Enter, Escape (PR #69)
 - ⬚ Onboarding flow (guided setup)
 - ⬚ Empty states with guidance
 
