@@ -21,6 +21,8 @@ import Avatar from '@/components/ui/Avatar';
 import Dropdown from '@/components/ui/Dropdown';
 import NotificationBell from '@/components/NotificationBell';
 import GlobalSearch from '@/components/GlobalSearch';
+import KeyboardShortcutsModal from '@/components/KeyboardShortcutsModal';
+import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { Transition } from '@headlessui/react';
 
 const navigation = [
@@ -42,6 +44,8 @@ const navigation = [
 const AppLayout: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [shortcutsOpen, setShortcutsOpen] = useState(false);
+  const shortcuts = useKeyboardShortcuts(() => setShortcutsOpen(true));
   const { user, logout } = useAuth();
 
   const userMenuItems = [
@@ -183,6 +187,12 @@ const AppLayout: React.FC = () => {
           </div>
         </main>
       </div>
+
+      <KeyboardShortcutsModal
+        isOpen={shortcutsOpen}
+        onClose={() => setShortcutsOpen(false)}
+        shortcuts={shortcuts}
+      />
     </div>
   );
 };

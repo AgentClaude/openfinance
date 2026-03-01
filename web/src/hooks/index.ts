@@ -19,3 +19,4 @@ export { useTransactions, cleanFilters } from './useTransactions';
 export type { Rule } from './useRules';
 export type { RecurringItem } from './useRecurring';
 export type { Reports, MonthlySummary, SpendingByCategory, TopMerchant } from './useReports';
+export { useKeyboardShortcuts } from './useKeyboardShortcuts';
