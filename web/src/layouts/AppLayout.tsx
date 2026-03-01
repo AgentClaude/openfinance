@@ -14,12 +14,14 @@ import {
   ChartPieIcon,
   ArrowUpTrayIcon,
   FlagIcon,
+  MagnifyingGlassIcon,
 } from '@heroicons/react/24/outline';
 import { useAuth } from '@/hooks/useAuth';
 import Sidebar from '@/components/ui/Sidebar';
 import Avatar from '@/components/ui/Avatar';
 import Dropdown from '@/components/ui/Dropdown';
 import NotificationBell from '@/components/NotificationBell';
+import CommandPalette from '@/components/CommandPalette';
 import { Transition } from '@headlessui/react';
 
 const navigation = [
@@ -64,6 +66,7 @@ const AppLayout: React.FC = () => {
 
   return (
     <div className="h-screen flex overflow-hidden bg-slate-50 dark:bg-slate-900">
+      <CommandPalette />
       {/* Mobile sidebar */}
       <Transition show={sidebarOpen}>
         <div className="relative z-40 md:hidden">
@@ -136,8 +139,18 @@ const AppLayout: React.FC = () => {
           </button>
           
           <div className="flex-1 px-4 flex justify-between">
-            <div className="flex-1 flex">
-              {/* Search bar could go here */}
+            <div className="flex-1 flex items-center">
+              <button
+                onClick={() => {
+                  // Trigger Cmd+K
+                  window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true }));
+                }}
+                className="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-400 bg-gray-100 dark:bg-slate-700 rounded-lg hover:bg-gray-200 dark:hover:bg-slate-600 transition-colors"
+              >
+                <MagnifyingGlassIcon className="h-4 w-4" />
+                <span className="hidden sm:inline">Search...</span>
+                <kbd className="hidden sm:inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-white dark:bg-slate-600 shadow-sm">⌘K</kbd>
+              </button>
             </div>
             
             <div className="ml-4 flex items-center md:ml-6 space-x-4">
