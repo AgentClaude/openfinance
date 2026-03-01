@@ -16,10 +16,12 @@ import {
   FlagIcon,
 } from '@heroicons/react/24/outline';
 import { useAuth } from '@/hooks/useAuth';
+import { useAccounts } from '@/hooks/useAccounts';
 import Sidebar from '@/components/ui/Sidebar';
 import Avatar from '@/components/ui/Avatar';
 import Dropdown from '@/components/ui/Dropdown';
 import NotificationBell from '@/components/NotificationBell';
+import OnboardingWizard from '@/components/OnboardingWizard';
 import { Transition } from '@headlessui/react';
 
 const navigation = [
@@ -41,7 +43,23 @@ const navigation = [
 const AppLayout: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [onboardingDismissed, setOnboardingDismissed] = useState(
+    () => localStorage.getItem('onboarding_completed') === 'true'
+  );
   const { user, logout } = useAuth();
+  const { accounts, loading: accountsLoading } = useAccounts();
+
+  // Show onboarding wizard for new users (no accounts, hasn't dismissed)
+  const showOnboarding = !onboardingDismissed && !accountsLoading && accounts.length === 0;
+
+  if (showOnboarding) {
+    return (
+      <OnboardingWizard
+        userName={user?.name || 'there'}
+        onComplete={() => setOnboardingDismissed(true)}
+      />
+    );
+  }
 
   const userMenuItems = [
     {
