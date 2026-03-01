@@ -1,6 +1,8 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import clsx from 'clsx';
+import { SunIcon, MoonIcon } from '@heroicons/react/24/outline';
+import { useThemeContext } from '@/components/ThemeProvider';
 
 interface NavItem {
   name: string;
@@ -24,6 +26,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   className,
 }) => {
   const location = useLocation();
+  const { isDark, toggleTheme } = useThemeContext();
 
   const navigationWithCurrent = navigation.map(item => ({
     ...item,
@@ -87,6 +90,28 @@ const Sidebar: React.FC<SidebarProps> = ({
             );
           })}
         </nav>
+
+        {/* Theme toggle */}
+        <div className="flex-shrink-0 px-2 pb-4">
+          <button
+            onClick={toggleTheme}
+            className={clsx(
+              'group flex items-center w-full px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-150',
+              'text-slate-400 hover:bg-slate-800 hover:text-slate-200',
+              isCollapsed ? 'justify-center' : ''
+            )}
+            title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+          >
+            {isDark ? (
+              <SunIcon className={clsx('flex-shrink-0 h-5 w-5 text-amber-400', !isCollapsed && 'mr-3')} />
+            ) : (
+              <MoonIcon className={clsx('flex-shrink-0 h-5 w-5 text-slate-500 group-hover:text-slate-300', !isCollapsed && 'mr-3')} />
+            )}
+            {!isCollapsed && (
+              <span className="truncate">{isDark ? 'Light Mode' : 'Dark Mode'}</span>
+            )}
+          </button>
+        </div>
       </div>
     </div>
   );
