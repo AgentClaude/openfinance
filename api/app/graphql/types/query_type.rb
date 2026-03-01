@@ -467,6 +467,49 @@ module Types
       results
     end
 
+    field :global_search, Types::GlobalSearchResultType, null: false do
+      argument :query, String, required: true
+      argument :limit, Integer, required: false, default_value: 5
+    end
+    def global_search(query:, limit: 5)
+      empty = { transactions: [], accounts: [], categories: [], merchants: [], tags: [] }
+      return empty unless context[:current_user]&.household
+      return empty if query.blank? || query.length < 2
+
+      household = context[:current_user].household
+      q = "%#{query}%"
+
+      transactions = TransactionPolicy::Scope.new(context[:current_user], Transaction).resolve
+        .includes(:account, :category, :tags)
+        .where("name ILIKE :q OR merchant_name ILIKE :q OR notes ILIKE :q", q: q)
+        .order(date: :desc)
+        .limit(limit)
+
+      accounts = AccountPolicy::Scope.new(context[:current_user], Account).resolve
+        .where("name ILIKE :q OR official_name ILIKE :q", q: q)
+        .where(is_hidden: false)
+        .limit(limit)
+
+      categories = CategoryPolicy::Scope.new(context[:current_user], Category).resolve
+        .where("name ILIKE :q", q: q)
+        .limit(limit)
+
+      merchants = household.transactions
+        .where("merchant_name ILIKE :q", q: q)
+        .where.not(merchant_name: [nil, ""])
+        .group(:merchant_name)
+        .select("merchant_name AS name, COUNT(*) AS transaction_count, SUM(ABS(amount_cents)) AS total_amount_cents")
+        .order("transaction_count DESC")
+        .limit(limit)
+        .map { |r| { name: r.name, transaction_count: r.transaction_count, total_amount: r.total_amount_cents.to_i / 100.0 } }
+
+      tags = TagPolicy::Scope.new(context[:current_user], Tag).resolve
+        .where("name ILIKE :q", q: q)
+        .limit(limit)
+
+      { transactions: transactions, accounts: accounts, categories: categories, merchants: merchants, tags: tags }
+    end
+
     field :reports, Types::ReportsType, null: false do
       argument :months, Integer, required: false, default_value: 6
       argument :date_from, String, required: false

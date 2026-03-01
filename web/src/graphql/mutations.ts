@@ -822,7 +822,7 @@ export const MARK_NOTIFICATION_READ = gql`
 
 export const INVITE_TO_HOUSEHOLD = gql`
   mutation InviteToHousehold($email: String!, $role: String) {
-    inviteToHousehold(input: { email: $email, role: $role }) {
+    inviteToHousehold(email: $email, role: $role) {
       invitation {
         id
         email
@@ -846,7 +846,7 @@ export const MARK_ALL_NOTIFICATIONS_READ = gql`
 
 export const ACCEPT_INVITATION = gql`
   mutation AcceptInvitation($token: String!) {
-    acceptInvitation(input: { token: $token }) {
+    acceptInvitation(token: $token) {
       success
       errors
     }
@@ -855,7 +855,7 @@ export const ACCEPT_INVITATION = gql`
 
 export const REMOVE_HOUSEHOLD_MEMBER = gql`
   mutation RemoveHouseholdMember($userId: ID!) {
-    removeHouseholdMember(input: { userId: $userId }) {
+    removeHouseholdMember(userId: $userId) {
       success
       errors
     }
@@ -864,7 +864,7 @@ export const REMOVE_HOUSEHOLD_MEMBER = gql`
 
 export const UPDATE_MEMBER_ROLE = gql`
   mutation UpdateMemberRole($userId: ID!, $role: String!) {
-    updateMemberRole(input: { userId: $userId, role: $role }) {
+    updateMemberRole(userId: $userId, role: $role) {
       success
       errors
     }
