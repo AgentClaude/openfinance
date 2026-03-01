@@ -20,6 +20,7 @@ import Sidebar from '@/components/ui/Sidebar';
 import Avatar from '@/components/ui/Avatar';
 import Dropdown from '@/components/ui/Dropdown';
 import NotificationBell from '@/components/NotificationBell';
+import GlobalSearch from '@/components/GlobalSearch';
 import { Transition } from '@headlessui/react';
 
 const navigation = [
@@ -136,8 +137,8 @@ const AppLayout: React.FC = () => {
           </button>
           
           <div className="flex-1 px-4 flex justify-between">
-            <div className="flex-1 flex">
-              {/* Search bar could go here */}
+            <div className="flex-1 flex items-center">
+              <GlobalSearch />
             </div>
             
             <div className="ml-4 flex items-center md:ml-6 space-x-4">
