@@ -60,7 +60,7 @@ class AccountConnection < ApplicationRecord
     accounts.update_all(is_hidden: true)
     
     # Cancel any pending sync jobs
-    SyncAccountsJob.cancel_for_connection(id)
+    SyncAccountsJob.cancel_for_connection(id) rescue nil
   end
 
   def reconnect!(new_access_token = nil)
@@ -253,7 +253,7 @@ class AccountConnection < ApplicationRecord
       when 'active'
         schedule_sync if provider_access_token.present?
       when 'disconnected', 'expired'
-        SyncAccountsJob.cancel_for_connection(id)
+        SyncAccountsJob.cancel_for_connection(id) rescue nil
       end
     end
   end
