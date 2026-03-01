@@ -23,6 +23,8 @@ import Dropdown from '@/components/ui/Dropdown';
 import NotificationBell from '@/components/NotificationBell';
 import GlobalSearch from '@/components/GlobalSearch';
 import OnboardingWizard from '@/components/OnboardingWizard';
+import KeyboardShortcutsModal from '@/components/KeyboardShortcutsModal';
+import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { Transition } from '@headlessui/react';
 
 const navigation = [
@@ -47,6 +49,8 @@ const AppLayout: React.FC = () => {
   const [onboardingDismissed, setOnboardingDismissed] = useState(
     () => localStorage.getItem('onboarding_completed') === 'true'
   );
+  const [shortcutsOpen, setShortcutsOpen] = useState(false);
+  const shortcuts = useKeyboardShortcuts(() => setShortcutsOpen(true));
   const { user, logout } = useAuth();
   const { accounts, loading: accountsLoading } = useAccounts();
 
@@ -201,6 +205,12 @@ const AppLayout: React.FC = () => {
           </div>
         </main>
       </div>
+
+      <KeyboardShortcutsModal
+        isOpen={shortcutsOpen}
+        onClose={() => setShortcutsOpen(false)}
+        shortcuts={shortcuts}
+      />
     </div>
   );
 };
