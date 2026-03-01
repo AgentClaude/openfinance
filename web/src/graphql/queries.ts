@@ -561,3 +561,33 @@ export const GET_CATEGORY_TRENDS = gql`
     }
   }
 `;
+
+export const GET_ACCOUNT_CONNECTIONS = gql`
+  query GetAccountConnections {
+    accountConnections {
+      id
+      provider
+      status
+      institutionName
+      institutionLogoUrl
+      errorCode
+      errorMessage
+      errorDisplayMessage
+      lastSyncedAt
+      consentExpiresAt
+      consentExpiresSoon
+      accountCount
+      totalBalance
+      needsReauth
+      syncInProgress
+      createdAt
+      accounts {
+        id
+        name
+        type
+        balance
+        mask
+      }
+    }
+  }
+`;

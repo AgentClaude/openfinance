@@ -52,5 +52,10 @@ module Types
     field :redeem_referral, mutation: Mutations::RedeemReferral
     field :export_data, mutation: Mutations::ExportData
     field :delete_account, mutation: Mutations::DeleteAccount
+
+    # Plaid connection management
+    field :disconnect_connection, mutation: Mutations::DisconnectConnection
+    field :retry_connection_sync, mutation: Mutations::RetryConnectionSync
+    field :create_update_link_token, mutation: Mutations::CreateUpdateLinkToken
   end
 end

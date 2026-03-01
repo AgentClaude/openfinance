@@ -26,6 +26,7 @@ import { usePlaidLink } from 'react-plaid-link';
 import { useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
 import clsx from 'clsx';
+import ConnectionManager from '@/components/ConnectionManager';
 
 const accountTypeIcons = {
   [AccountType.DEPOSITORY]: BanknotesIcon,
@@ -178,6 +179,8 @@ const AccountsPage: React.FC = () => {
           </Button>
         }
       />
+
+      <ConnectionManager />
 
       {accounts.length === 0 ? (
         <EmptyState

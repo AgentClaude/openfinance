@@ -891,3 +891,28 @@ export const REDEEM_REFERRAL = gql`
     }
   }
 `;
+
+export const DISCONNECT_CONNECTION = gql`
+  mutation DisconnectConnection($connectionId: ID!) {
+    disconnectConnection(connectionId: $connectionId) {
+      success
+    }
+  }
+`;
+
+export const RETRY_CONNECTION_SYNC = gql`
+  mutation RetryConnectionSync($connectionId: ID!) {
+    retryConnectionSync(connectionId: $connectionId) {
+      success
+    }
+  }
+`;
+
+export const CREATE_UPDATE_LINK_TOKEN = gql`
+  mutation CreateUpdateLinkToken($connectionId: ID!) {
+    createUpdateLinkToken(connectionId: $connectionId) {
+      linkToken
+      expiration
+    }
+  }
+`;

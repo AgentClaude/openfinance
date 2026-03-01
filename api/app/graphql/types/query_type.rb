@@ -61,6 +61,14 @@ module Types
         .where(is_hidden: false).order(:display_order, :name)
     end
 
+    field :account_connections, [Types::AccountConnectionType], null: false
+    def account_connections
+      return [] unless context[:current_user]&.household
+      context[:current_user].household.account_connections
+        .includes(:institution, :accounts)
+        .order(created_at: :desc)
+    end
+
     field :transactions, Types::TransactionPageType, null: false do
       argument :search, String, required: false
       argument :category_id, String, required: false
