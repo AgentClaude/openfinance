@@ -562,6 +562,52 @@ export const GET_CATEGORY_TRENDS = gql`
   }
 `;
 
+export const GLOBAL_SEARCH = gql`
+  query GlobalSearch($query: String!, $limit: Int) {
+    globalSearch(query: $query, limit: $limit) {
+      transactions {
+        id
+        description
+        merchantName
+        date
+        amount
+        account {
+          id
+          name
+        }
+        category {
+          id
+          name
+          icon
+          color
+        }
+      }
+      accounts {
+        id
+        name
+        type
+        balance
+      }
+      categories {
+        id
+        name
+        icon
+        color
+      }
+      merchants {
+        name
+        transactionCount
+        totalAmount
+      }
+      tags {
+        id
+        name
+        color
+      }
+    }
+  }
+`;
+
 export const GET_ACCOUNT_CONNECTIONS = gql`
   query GetAccountConnections {
     accountConnections {
