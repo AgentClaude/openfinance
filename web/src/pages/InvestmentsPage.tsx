@@ -1,8 +1,12 @@
-import React, { useState } from 'react';
-import { useInvestments } from '@/hooks/useInvestments';
+import React, { useState, useMemo } from 'react';
+import { useInvestments, PortfolioHistoryPoint } from '@/hooks/useInvestments';
 import { useAccounts } from '@/hooks/useAccounts';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { Holding, PortfolioAllocation } from '@/types';
+import {
+  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  PieChart, Pie, Cell, Legend,
+} from 'recharts';
 import {
   ArrowTrendingUpIcon,
   ArrowTrendingDownIcon,
@@ -11,6 +15,7 @@ import {
   CurrencyDollarIcon,
   ChartPieIcon,
   ScaleIcon,
+  ChartBarIcon,
 } from '@heroicons/react/24/outline';
 
 const COLORS = [
@@ -19,13 +24,30 @@ const COLORS = [
   '#06B6D4', '#D946EF',
 ];
 
+const TYPE_COLORS: Record<string, string> = {
+  stock: '#0D9488',
+  etf: '#F59E0B',
+  mutual_fund: '#7C3AED',
+  bond: '#0EA5E9',
+  cryptocurrency: '#E11D48',
+  other: '#6B7280',
+};
+
 const formatCurrency = (value: number) =>
   new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value);
+
+const formatCompact = (value: number) =>
+  new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', notation: 'compact', maximumFractionDigits: 1 }).format(value);
 
 const formatPercent = (value: number) =>
   `${value >= 0 ? '+' : ''}${value.toFixed(2)}%`;
 
-// Pie chart SVG component
+const formatDate = (dateStr: string) => {
+  const d = new Date(dateStr + 'T00:00:00');
+  return d.toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
+};
+
+// Pie chart SVG component (allocation by security)
 const AllocationPieChart: React.FC<{ allocations: PortfolioAllocation[] }> = ({ allocations }) => {
   const [hovered, setHovered] = useState<number | null>(null);
   if (!allocations.length) {
@@ -80,7 +102,6 @@ const AllocationPieChart: React.FC<{ allocations: PortfolioAllocation[] }> = ({ 
             />
           );
         })}
-        {/* Center hole for donut */}
         <circle cx={cx} cy={cy} r={45} className="fill-white dark:fill-slate-800" />
         <text x={cx} y={cy - 6} textAnchor="middle" className="text-xs fill-gray-500 dark:fill-gray-400">Total</text>
         <text x={cx} y={cy + 12} textAnchor="middle" className="text-sm font-semibold fill-gray-900 dark:fill-gray-100">
@@ -104,6 +125,133 @@ const AllocationPieChart: React.FC<{ allocations: PortfolioAllocation[] }> = ({ 
   );
 };
 
+// Portfolio Performance Chart
+const PerformanceChart: React.FC<{ history: PortfolioHistoryPoint[] }> = ({ history }) => {
+  if (history.length < 2) {
+    return (
+      <div className="flex items-center justify-center h-64 text-gray-400">
+        Not enough data for performance chart
+      </div>
+    );
+  }
+
+  const chartData = history.map((p) => ({
+    date: formatDate(p.date),
+    rawDate: p.date,
+    value: p.totalValue,
+    costBasis: p.totalCostBasis,
+  }));
+
+  const minVal = Math.min(...chartData.map((d) => Math.min(d.value, d.costBasis))) * 0.95;
+  const maxVal = Math.max(...chartData.map((d) => Math.max(d.value, d.costBasis))) * 1.02;
+
+  return (
+    <ResponsiveContainer width="100%" height={280}>
+      <AreaChart data={chartData} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
+        <defs>
+          <linearGradient id="valueGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="5%" stopColor="#0D9488" stopOpacity={0.3} />
+            <stop offset="95%" stopColor="#0D9488" stopOpacity={0} />
+          </linearGradient>
+        </defs>
+        <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
+        <XAxis dataKey="date" tick={{ fontSize: 12 }} className="text-gray-500" />
+        <YAxis
+          domain={[minVal, maxVal]}
+          tickFormatter={(v) => formatCompact(v)}
+          tick={{ fontSize: 12 }}
+          className="text-gray-500"
+          width={65}
+        />
+        <Tooltip
+          formatter={(value: number, name: string) => [formatCurrency(value), name === 'value' ? 'Market Value' : 'Cost Basis']}
+          labelStyle={{ fontWeight: 600 }}
+          contentStyle={{ borderRadius: 8, border: '1px solid #e5e7eb' }}
+        />
+        <Area
+          type="monotone"
+          dataKey="costBasis"
+          stroke="#9CA3AF"
+          strokeDasharray="5 5"
+          fill="none"
+          strokeWidth={1.5}
+          name="Cost Basis"
+        />
+        <Area
+          type="monotone"
+          dataKey="value"
+          stroke="#0D9488"
+          fill="url(#valueGrad)"
+          strokeWidth={2}
+          name="Market Value"
+        />
+      </AreaChart>
+    </ResponsiveContainer>
+  );
+};
+
+// Allocation by Asset Type chart
+const TypeAllocationChart: React.FC<{ allocations: PortfolioAllocation[] }> = ({ allocations }) => {
+  const byType = useMemo(() => {
+    const map: Record<string, { name: string; value: number }> = {};
+    allocations.forEach((a) => {
+      const type = a.securityType || 'other';
+      const label = type.replace('_', ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+      if (!map[type]) map[type] = { name: label, value: 0 };
+      map[type].value += a.value;
+    });
+    return Object.entries(map)
+      .map(([type, data]) => ({ ...data, type }))
+      .sort((a, b) => b.value - a.value);
+  }, [allocations]);
+
+  if (!byType.length) return null;
+
+  const total = byType.reduce((s, t) => s + t.value, 0);
+
+  return (
+    <div className="flex flex-col items-center gap-4">
+      <ResponsiveContainer width="100%" height={200}>
+        <PieChart>
+          <Pie
+            data={byType}
+            dataKey="value"
+            nameKey="name"
+            cx="50%"
+            cy="50%"
+            innerRadius={50}
+            outerRadius={80}
+            paddingAngle={2}
+          >
+            {byType.map((entry) => (
+              <Cell key={entry.type} fill={TYPE_COLORS[entry.type] || TYPE_COLORS.other} />
+            ))}
+          </Pie>
+          <Tooltip formatter={(value: number) => formatCurrency(value)} />
+          <Legend />
+        </PieChart>
+      </ResponsiveContainer>
+      <div className="w-full space-y-2">
+        {byType.map((t) => {
+          const pct = total > 0 ? (t.value / total * 100) : 0;
+          return (
+            <div key={t.type} className="flex items-center justify-between text-sm">
+              <div className="flex items-center gap-2">
+                <span className="w-3 h-3 rounded-full" style={{ backgroundColor: TYPE_COLORS[t.type] || TYPE_COLORS.other }} />
+                <span className="text-gray-700 dark:text-gray-300">{t.name}</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="text-gray-500 dark:text-gray-400 tabular-nums">{pct.toFixed(1)}%</span>
+                <span className="text-gray-700 dark:text-gray-200 font-medium tabular-nums">{formatCurrency(t.value)}</span>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
 // Expandable holding row
 const HoldingRow: React.FC<{ holding: Holding }> = ({ holding }) => {
   const [expanded, setExpanded] = useState(false);
@@ -112,7 +260,7 @@ const HoldingRow: React.FC<{ holding: Holding }> = ({ holding }) => {
   return (
     <>
       <tr
-        className="hover:bg-gray-50 dark:hover:bg-slate-700/50 cursor-pointer border-b border-gray-100"
+        className="hover:bg-gray-50 dark:hover:bg-slate-700/50 cursor-pointer border-b border-gray-100 dark:border-gray-700/50"
         onClick={() => setExpanded(!expanded)}
       >
         <td className="px-4 py-3">
@@ -144,27 +292,27 @@ const HoldingRow: React.FC<{ holding: Holding }> = ({ holding }) => {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
               <div>
                 <div className="text-gray-500 dark:text-gray-400">Cost Basis (per share)</div>
-                <div className="font-medium">{holding.costBasis != null ? formatCurrency(holding.costBasis) : '—'}</div>
+                <div className="font-medium text-gray-900 dark:text-gray-100">{holding.costBasis != null ? formatCurrency(holding.costBasis) : '—'}</div>
               </div>
               <div>
                 <div className="text-gray-500 dark:text-gray-400">Total Cost Basis</div>
-                <div className="font-medium">{formatCurrency(holding.costBasisTotal)}</div>
+                <div className="font-medium text-gray-900 dark:text-gray-100">{formatCurrency(holding.costBasisTotal)}</div>
               </div>
               <div>
                 <div className="text-gray-500 dark:text-gray-400">Market Value</div>
-                <div className="font-medium">{holding.marketValue != null ? formatCurrency(holding.marketValue) : '—'}</div>
+                <div className="font-medium text-gray-900 dark:text-gray-100">{holding.marketValue != null ? formatCurrency(holding.marketValue) : '—'}</div>
               </div>
               <div>
                 <div className="text-gray-500 dark:text-gray-400">Security Type</div>
-                <div className="font-medium capitalize">{holding.security.securityType?.replace('_', ' ') || '—'}</div>
+                <div className="font-medium text-gray-900 dark:text-gray-100 capitalize">{holding.security.securityType?.replace('_', ' ') || '—'}</div>
               </div>
               <div>
                 <div className="text-gray-500 dark:text-gray-400">As of Date</div>
-                <div className="font-medium">{new Date(holding.asOfDate).toLocaleDateString()}</div>
+                <div className="font-medium text-gray-900 dark:text-gray-100">{new Date(holding.asOfDate).toLocaleDateString()}</div>
               </div>
               <div>
                 <div className="text-gray-500 dark:text-gray-400">Currency</div>
-                <div className="font-medium">{holding.currency}</div>
+                <div className="font-medium text-gray-900 dark:text-gray-100">{holding.currency}</div>
               </div>
             </div>
           </td>
@@ -174,12 +322,15 @@ const HoldingRow: React.FC<{ holding: Holding }> = ({ holding }) => {
   );
 };
 
+type ViewTab = 'overview' | 'holdings';
+
 const InvestmentsPage: React.FC = () => {
   const { accounts } = useAccounts();
   const investmentAccounts = accounts.filter((a) => a.type === 'INVESTMENT');
   const [selectedAccountId, setSelectedAccountId] = useState<string | undefined>(undefined);
+  const [activeTab, setActiveTab] = useState<ViewTab>('overview');
 
-  const { holdings, summary, loading, error } = useInvestments(selectedAccountId);
+  const { holdings, summary, history, loading, error } = useInvestments(selectedAccountId);
 
   if (loading) return <LoadingSpinner />;
 
@@ -190,22 +341,47 @@ const InvestmentsPage: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 className="text-2xl font-bold tracking-heading text-gray-900 dark:text-gray-100">Investments</h1>
-        {investmentAccounts.length > 1 && (
-          <select
-            className="border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-slate-800 focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
-            value={selectedAccountId || ''}
-            onChange={(e) => setSelectedAccountId(e.target.value || undefined)}
-          >
-            <option value="">All Accounts</option>
-            {investmentAccounts.map((a) => (
-              <option key={a.id} value={a.id}>{a.name}</option>
-            ))}
-          </select>
-        )}
+        <div className="flex items-center gap-3">
+          {/* Tab Toggle */}
+          <div className="flex bg-gray-100 dark:bg-slate-700 rounded-lg p-0.5">
+            <button
+              onClick={() => setActiveTab('overview')}
+              className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                activeTab === 'overview'
+                  ? 'bg-white dark:bg-slate-600 text-gray-900 dark:text-gray-100 shadow-sm'
+                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700'
+              }`}
+            >
+              Overview
+            </button>
+            <button
+              onClick={() => setActiveTab('holdings')}
+              className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                activeTab === 'holdings'
+                  ? 'bg-white dark:bg-slate-600 text-gray-900 dark:text-gray-100 shadow-sm'
+                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700'
+              }`}
+            >
+              Holdings
+            </button>
+          </div>
+          {investmentAccounts.length > 1 && (
+            <select
+              className="border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-slate-800 focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+              value={selectedAccountId || ''}
+              onChange={(e) => setSelectedAccountId(e.target.value || undefined)}
+            >
+              <option value="">All Accounts</option>
+              {investmentAccounts.map((a) => (
+                <option key={a.id} value={a.id}>{a.name}</option>
+              ))}
+            </select>
+          )}
+        </div>
       </div>
 
       {error && (
-        <div className="bg-red-50 text-red-700 p-4 rounded-lg">
+        <div className="bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 p-4 rounded-lg">
           Error loading investments: {error.message}
         </div>
       )}
@@ -244,25 +420,58 @@ const InvestmentsPage: React.FC = () => {
             Holdings
           </div>
           <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">{summary.totalHoldingsCount}</div>
+          <div className="text-sm text-gray-500 dark:text-gray-400">
+            {investmentAccounts.length} account{investmentAccounts.length !== 1 ? 's' : ''}
+          </div>
         </div>
       </div>
 
-      {/* Allocation Chart + Holdings Table */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Pie Chart */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-5">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Asset Allocation</h2>
-          <AllocationPieChart allocations={summary.allocations} />
-        </div>
+      {activeTab === 'overview' ? (
+        <>
+          {/* Performance Chart */}
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-5">
+            <div className="flex items-center gap-2 mb-4">
+              <ChartBarIcon className="h-5 w-5 text-gray-400" />
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Portfolio Performance</h2>
+            </div>
+            <PerformanceChart history={history} />
+            {history.length >= 2 && (
+              <div className="mt-3 flex items-center gap-6 text-xs text-gray-500 dark:text-gray-400">
+                <div className="flex items-center gap-1.5">
+                  <span className="w-3 h-0.5 bg-teal-600 rounded" />
+                  Market Value
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <span className="w-3 h-0.5 bg-gray-400 rounded border-dashed" style={{ borderTop: '1px dashed #9CA3AF' }} />
+                  Cost Basis
+                </div>
+              </div>
+            )}
+          </div>
 
-        {/* Holdings Table */}
-        <div className="lg:col-span-2 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden min-w-0">
+          {/* Allocation Charts */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-5">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">By Security</h2>
+              <AllocationPieChart allocations={summary.allocations} />
+            </div>
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-5">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">By Asset Type</h2>
+              <TypeAllocationChart allocations={summary.allocations} />
+            </div>
+          </div>
+        </>
+      ) : (
+        /* Holdings Table */
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden min-w-0">
           <div className="px-5 py-4 border-b border-gray-200 dark:border-gray-700">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Holdings</h2>
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+              All Holdings ({holdings.length})
+            </h2>
           </div>
           {holdings.length === 0 ? (
             <div className="p-8 text-center text-gray-400">
-              No investment holdings found
+              No investment holdings found. Connect a brokerage account or add manual investment accounts.
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -286,7 +495,7 @@ const InvestmentsPage: React.FC = () => {
             </div>
           )}
         </div>
-      </div>
+      )}
     </div>
   );
 };
