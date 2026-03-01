@@ -312,6 +312,16 @@ const BudgetPage: React.FC = () => {
                       <span className="text-sm text-gray-700 dark:text-gray-300">{formatCurrency(item.spent)}</span>
                     </div>
 
+                    {/* Rollover */}
+                    {item.rollover !== 0 && (
+                      <div className="w-24 flex-shrink-0">
+                        <span className={`text-xs font-medium ${item.rollover >= 0 ? 'text-blue-500' : 'text-orange-500'}`}>
+                          {item.rollover >= 0 ? '+' : ''}{formatCurrency(item.rollover)} rollover
+                        </span>
+                      </div>
+                    )}
+                    {item.rollover === 0 && <div className="w-24 flex-shrink-0" />}
+
                     {/* Remaining */}
                     <div className="w-28 flex-shrink-0">
                       <span className={`text-sm font-medium ${remaining >= 0 ? 'text-green-600' : 'text-red-600'}`}>
