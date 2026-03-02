@@ -1,0 +1,13 @@
+OpenFinance — Budget Alert
+
+<%= @percentage >= 100 ? 'OVER BUDGET' : 'Budget Warning' %>: <%= @category_name %>
+
+Budgeted: $<%= '%.2f' % @budgeted %>
+Spent:    $<%= '%.2f' % @spent %> (<%= @percentage %>%)
+<% if @percentage >= 100 %>
+Over by:  $<%= '%.2f' % @over_amount %>
+<% else %>
+Left:     $<%= '%.2f' % (@budgeted - @spent) %>
+<% end %>
+
+— OpenFinance

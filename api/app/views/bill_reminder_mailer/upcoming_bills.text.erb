@@ -1,0 +1,11 @@
+OpenFinance — Upcoming Bills
+
+You have <%= @bills.size %> bill<%= @bills.size == 1 ? '' : 's' %> due in the next 3 days:
+
+<% @bills.each do |bill| %>
+  • <%= bill.name %> — $<%= '%.2f' % (bill.amount_cents.abs / 100.0) %> due <%= bill.next_occurrence.strftime('%b %d') %>
+<% end %>
+
+Total: $<%= '%.2f' % @total %>
+
+— OpenFinance

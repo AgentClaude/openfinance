@@ -1,0 +1,34 @@
+OpenFinance — Weekly Summary (<%= @summary[:week_start].strftime('%b %d') %> – <%= @summary[:week_end].strftime('%b %d, %Y') %>)
+
+Hi <%= @user.name.present? ? @user.name.split(' ').first : 'there' %>,
+
+=== This Week ===
+Income:   +$<%= '%.2f' % @summary[:total_income] %>
+Spending: -$<%= '%.2f' % @summary[:total_spending] %>
+Net:      <%= @summary[:net_change] >= 0 ? '+' : '-' %>$<%= '%.2f' % @summary[:net_change].abs %>
+Transactions: <%= @summary[:total_transactions] %>
+
+<% if @summary[:top_categories].any? %>
+=== Top Spending ===
+<% @summary[:top_categories].each do |cat| %>
+  <%= cat[:name] %>: $<%= '%.2f' % cat[:amount] %>
+<% end %>
+<% end %>
+
+<% if @summary[:budget_alerts].any? %>
+=== Budget Watch ===
+<% @summary[:budget_alerts].each do |b| %>
+  <%= b[:category] %>: $<%= '%.2f' % b[:spent] %> / $<%= '%.2f' % b[:budgeted] %> (<%= b[:pct] %>%)
+<% end %>
+<% end %>
+
+<% if @summary[:upcoming_bills].any? %>
+=== Upcoming Bills ===
+<% @summary[:upcoming_bills].each do |bill| %>
+  <%= bill[:name] %> — $<%= '%.2f' % bill[:amount] %> due <%= bill[:due].strftime('%b %d') %>
+<% end %>
+<% end %>
+
+Net Worth: $<%= '%.2f' % @summary[:net_worth] %>
+
+— OpenFinance

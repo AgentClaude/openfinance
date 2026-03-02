@@ -1,0 +1,83 @@
+<% @header_subtitle = "Your weekly summary — #{@summary[:week_start].strftime('%b %d')} to #{@summary[:week_end].strftime('%b %d, %Y')}" %>
+
+<h2 style="font-size: 18px; color: #18181b; margin: 0 0 16px;">Hi <%= @user.name.present? ? @user.name.split(' ').first : 'there' %> 👋</h2>
+
+<p style="color: #52525b; margin: 0 0 24px;">Here's how your finances looked this past week.</p>
+
+<!-- Summary Stats -->
+<table style="width: 100%; margin-bottom: 24px;">
+  <tr>
+    <td style="text-align: center; padding: 16px; background: #f0fdf4; border-radius: 8px; border: none;">
+      <div style="font-size: 24px; font-weight: 700; color: #16a34a;">+$<%= '%.2f' % @summary[:total_income] %></div>
+      <div style="font-size: 12px; color: #71717a; margin-top: 4px;">Income</div>
+    </td>
+    <td style="width: 12px; border: none;"></td>
+    <td style="text-align: center; padding: 16px; background: #fef2f2; border-radius: 8px; border: none;">
+      <div style="font-size: 24px; font-weight: 700; color: #dc2626;">-$<%= '%.2f' % @summary[:total_spending] %></div>
+      <div style="font-size: 12px; color: #71717a; margin-top: 4px;">Spending</div>
+    </td>
+    <td style="width: 12px; border: none;"></td>
+    <td style="text-align: center; padding: 16px; background: #f5f3ff; border-radius: 8px; border: none;">
+      <div style="font-size: 24px; font-weight: 700; color: <%= @summary[:net_change] >= 0 ? '#16a34a' : '#dc2626' %>;">
+        <%= @summary[:net_change] >= 0 ? '+' : '-' %>$<%= '%.2f' % @summary[:net_change].abs %>
+      </div>
+      <div style="font-size: 12px; color: #71717a; margin-top: 4px;">Net</div>
+    </td>
+  </tr>
+</table>
+
+<p style="color: #71717a; font-size: 13px; margin: 0 0 8px;"><%= @summary[:total_transactions] %> transactions this week</p>
+
+<% if @summary[:top_categories].any? %>
+  <!-- Top Spending Categories -->
+  <h3 style="font-size: 15px; color: #18181b; margin: 24px 0 12px; border-bottom: 1px solid #e4e4e7; padding-bottom: 8px;">Top Spending</h3>
+  <table>
+    <% @summary[:top_categories].each do |cat| %>
+      <tr>
+        <td style="font-size: 14px; color: #18181b; border-bottom: 1px solid #f4f4f5; padding: 8px 0;"><%= cat[:name] %></td>
+        <td style="font-size: 14px; color: #dc2626; text-align: right; font-weight: 500; border-bottom: 1px solid #f4f4f5; padding: 8px 0;">$<%= '%.2f' % cat[:amount] %></td>
+      </tr>
+    <% end %>
+  </table>
+<% end %>
+
+<% if @summary[:budget_alerts].any? %>
+  <!-- Budget Status -->
+  <h3 style="font-size: 15px; color: #18181b; margin: 24px 0 12px; border-bottom: 1px solid #e4e4e7; padding-bottom: 8px;">Budget Watch</h3>
+  <% @summary[:budget_alerts].each do |b| %>
+    <div style="margin-bottom: 12px;">
+      <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+        <span style="font-size: 13px; color: #18181b;"><%= b[:category] %></span>
+        <span style="font-size: 13px; color: <%= b[:pct] >= 100 ? '#dc2626' : '#ca8a04' %>; font-weight: 500;"><%= b[:pct] %>%</span>
+      </div>
+      <div class="progress-bg">
+        <div class="progress-bar" style="width: <%= [b[:pct], 100].min %>%; background: <%= b[:pct] >= 100 ? '#dc2626' : b[:pct] >= 80 ? '#ca8a04' : '#16a34a' %>;"></div>
+      </div>
+      <div style="font-size: 12px; color: #71717a; margin-top: 2px;">$<%= '%.2f' % b[:spent] %> of $<%= '%.2f' % b[:budgeted] %></div>
+    </div>
+  <% end %>
+<% end %>
+
+<% if @summary[:upcoming_bills].any? %>
+  <!-- Upcoming Bills -->
+  <h3 style="font-size: 15px; color: #18181b; margin: 24px 0 12px; border-bottom: 1px solid #e4e4e7; padding-bottom: 8px;">Upcoming Bills</h3>
+  <table>
+    <% @summary[:upcoming_bills].each do |bill| %>
+      <tr>
+        <td style="font-size: 14px; color: #18181b; border-bottom: 1px solid #f4f4f5; padding: 8px 0;"><%= bill[:name] %></td>
+        <td style="font-size: 13px; color: #71717a; border-bottom: 1px solid #f4f4f5; padding: 8px 0;"><%= bill[:due].strftime('%b %d') %></td>
+        <td style="font-size: 14px; color: #18181b; text-align: right; font-weight: 500; border-bottom: 1px solid #f4f4f5; padding: 8px 0;">$<%= '%.2f' % bill[:amount] %></td>
+      </tr>
+    <% end %>
+  </table>
+<% end %>
+
+<!-- Net Worth -->
+<div style="margin-top: 24px; padding: 16px; background: #fafafa; border: 1px solid #e4e4e7; border-radius: 8px; text-align: center;">
+  <div style="font-size: 12px; color: #71717a; text-transform: uppercase;">Net Worth</div>
+  <div style="font-size: 28px; font-weight: 700; color: #18181b; margin-top: 4px;">$<%= number_with_delimiter('%.2f' % @summary[:net_worth]) %></div>
+</div>
+
+<div style="text-align: center; margin-top: 24px;">
+  <a href="#" class="btn">View Dashboard →</a>
+</div>

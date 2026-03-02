@@ -2,6 +2,7 @@
 
 require 'sidekiq'
 require 'sidekiq/web'
+require 'sidekiq-cron'
 
 # Sidekiq Web UI authentication (production)
 if Rails.env.production?
