@@ -30,6 +30,7 @@ import SettingsPage from '@/pages/SettingsPage';
 import DocsPage from '@/pages/DocsPage';
 import NetWorthPage from '@/pages/NetWorthPage';
 import OnboardingPage from '@/pages/OnboardingPage';
+import MerchantMappingsPage from '@/pages/MerchantMappingsPage';
 
 function App() {
   return (
@@ -57,6 +58,7 @@ function App() {
                   <Route path="budget" element={<BudgetPage />} />
                   <Route path="categories" element={<CategoriesPage />} />
                   <Route path="rules" element={<RulesPage />} />
+                  <Route path="merchant-mappings" element={<MerchantMappingsPage />} />
                   <Route path="recurring" element={<RecurringPage />} />
                   <Route path="reports" element={<ReportsPage />} />
                   <Route path="net-worth" element={<NetWorthPage />} />

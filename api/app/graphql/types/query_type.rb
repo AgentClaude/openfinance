@@ -279,6 +279,12 @@ module Types
       account.balance_adjustments.ordered
     end
 
+    field :merchant_mappings, [Types::MerchantMappingType], null: false
+    def merchant_mappings
+      return [] unless context[:current_user]&.household
+      context[:current_user].household.merchant_mappings.order(created_at: :desc)
+    end
+
     field :categorization_rules, [Types::CategorizationRuleType], null: false
     def categorization_rules
       return [] unless context[:current_user]&.household

@@ -16,6 +16,11 @@ module Types
     field :fill_budget_from_averages, mutation: Mutations::FillBudgetFromAverages
     field :create_plaid_link_token, mutation: Mutations::CreatePlaidLinkToken
     field :exchange_plaid_token, mutation: Mutations::ExchangePlaidToken
+    field :create_merchant_mapping, mutation: Mutations::CreateMerchantMapping
+    field :update_merchant_mapping, mutation: Mutations::UpdateMerchantMapping
+    field :delete_merchant_mapping, mutation: Mutations::DeleteMerchantMapping
+    field :apply_merchant_mappings, mutation: Mutations::ApplyMerchantMappings
+    field :suggest_merchant_mappings, mutation: Mutations::SuggestMerchantMappings
     field :create_categorization_rule, mutation: Mutations::CreateCategorizationRule
     field :update_categorization_rule, mutation: Mutations::UpdateCategorizationRule
     field :delete_categorization_rule, mutation: Mutations::DeleteCategorizationRule

@@ -14,6 +14,7 @@ class Household < ApplicationRecord
   has_many :goals, dependent: :destroy
   has_many :recurring_items, dependent: :destroy
   has_many :categorization_rules, dependent: :destroy
+  has_many :merchant_mappings, dependent: :destroy
   has_many :tags, dependent: :destroy
   has_many :invitations, dependent: :destroy
 
