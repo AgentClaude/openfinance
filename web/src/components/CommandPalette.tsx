@@ -4,6 +4,7 @@ import { useLazyQuery } from '@apollo/client';
 import { gql } from '@apollo/client';
 import {
   MagnifyingGlassIcon,
+  BellIcon,
   HomeIcon,
   CreditCardIcon,
   BanknotesIcon,
@@ -116,6 +117,7 @@ export default function CommandPalette() {
     { id: 'nav-reports', label: 'Reports', description: 'Financial reports', icon: <ChartPieIcon className="h-5 w-5" />, action: () => go('/reports'), category: 'navigation' },
     { id: 'nav-import', label: 'Import', description: 'Import transactions', icon: <ArrowUpTrayIcon className="h-5 w-5" />, action: () => go('/import'), category: 'navigation' },
     { id: 'nav-rules', label: 'Rules', description: 'Categorization rules', icon: <BoltIcon className="h-5 w-5" />, action: () => go('/rules'), category: 'navigation' },
+    { id: 'nav-notifications', label: 'Notifications', description: 'View all notifications', icon: <BellIcon className="h-5 w-5" />, action: () => go('/notifications'), category: 'navigation' },
     { id: 'nav-settings', label: 'Settings', description: 'App settings', icon: <CogIcon className="h-5 w-5" />, action: () => go('/settings'), category: 'navigation' },
   ], [go]);
 

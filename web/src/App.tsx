@@ -31,6 +31,7 @@ import SettingsPage from '@/pages/SettingsPage';
 import DocsPage from '@/pages/DocsPage';
 import NetWorthPage from '@/pages/NetWorthPage';
 import OnboardingPage from '@/pages/OnboardingPage';
+import NotificationsPage from '@/pages/NotificationsPage';
 
 function App() {
   return (
@@ -65,6 +66,7 @@ function App() {
                   <Route path="investments" element={<InvestmentsPage />} />
                   <Route path="import" element={<ImportPage />} />
                   <Route path="goals" element={<GoalsPage />} />
+                  <Route path="notifications" element={<NotificationsPage />} />
                   <Route path="settings" element={<SettingsPage />} />
                 </Route>
 
