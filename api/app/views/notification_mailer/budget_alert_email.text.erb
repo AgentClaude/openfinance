@@ -1,0 +1,12 @@
+Budget Alert — <%= @category_name %>
+=====================================
+
+Hi <%= @user.name.present? ? @user.name.split(' ').first : 'there' %>,
+
+Your spending in <%= @category_name %> has reached <%= @pct_used %>% of your budget.
+
+  Budgeted:  <%= number_to_currency(@budgeted) %>
+  Spent:     <%= number_to_currency(@spent) %>
+  Remaining: <%= number_to_currency(@budgeted - @spent) %>
+
+View your budget: <%= app_url %>

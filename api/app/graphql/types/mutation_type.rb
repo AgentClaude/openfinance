@@ -54,6 +54,9 @@ module Types
     field :export_data, mutation: Mutations::ExportData
     field :delete_account, mutation: Mutations::DeleteAccount
 
+    # Email notifications
+    field :send_test_digest, mutation: Mutations::SendTestDigest
+
     # Plaid connection management
     field :disconnect_connection, mutation: Mutations::DisconnectConnection
     field :retry_connection_sync, mutation: Mutations::RetryConnectionSync

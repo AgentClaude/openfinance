@@ -6,7 +6,7 @@ import { usePreferences } from '@/hooks/usePreferences';
 import { useTags } from '@/hooks/useTags';
 import { useQuery, useMutation } from '@apollo/client';
 import { GET_ACCOUNTS, GET_NOTIFICATION_PREFERENCES, GET_HOUSEHOLD_MEMBERS, GET_HOUSEHOLD_INVITATIONS, GET_MY_REFERRAL_CODE, GET_REFERRALS } from '@/graphql/queries';
-import { UPDATE_HOUSEHOLD, UPDATE_NOTIFICATION_PREFERENCE, UPDATE_TAG, DELETE_TAG, EXPORT_DATA, DELETE_ACCOUNT, INVITE_TO_HOUSEHOLD, REMOVE_HOUSEHOLD_MEMBER, UPDATE_MEMBER_ROLE } from '@/graphql/mutations';
+import { UPDATE_HOUSEHOLD, UPDATE_NOTIFICATION_PREFERENCE, UPDATE_TAG, DELETE_TAG, EXPORT_DATA, DELETE_ACCOUNT, INVITE_TO_HOUSEHOLD, REMOVE_HOUSEHOLD_MEMBER, UPDATE_MEMBER_ROLE, SEND_TEST_DIGEST } from '@/graphql/mutations';
 import { NotificationPreference } from '@/types';
 import toast from 'react-hot-toast';
 
@@ -100,6 +100,7 @@ export default function SettingsPage() {
   const [inviteMutation, { loading: inviting }] = useMutation(INVITE_TO_HOUSEHOLD);
   const [removeMemberMutation] = useMutation(REMOVE_HOUSEHOLD_MEMBER);
   const [updateRoleMutation] = useMutation(UPDATE_MEMBER_ROLE);
+  const [sendTestDigest] = useMutation(SEND_TEST_DIGEST);
 
   // Accounts (for default account preference)
   const { data: accountsData } = useQuery(GET_ACCOUNTS);
@@ -634,6 +635,28 @@ export default function SettingsPage() {
                 ))}
               </tbody>
             </table>
+          </div>
+
+          <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+            <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">Test Email Digest</h3>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">Send a test weekly digest email to preview what it looks like.</p>
+            <button
+              onClick={async () => {
+                try {
+                  const { data } = await sendTestDigest();
+                  if (data?.sendTestDigest?.success) {
+                    toast.success('Test digest email queued! Check your inbox.');
+                  } else {
+                    toast.error(data?.sendTestDigest?.errors?.[0] || 'Failed to send test digest');
+                  }
+                } catch (err) {
+                  toast.error((err as Error).message || 'Failed to send test digest');
+                }
+              }}
+              className="px-4 py-2 text-sm font-medium text-brand-700 bg-brand-50 hover:bg-brand-100 dark:bg-brand-900/20 dark:hover:bg-brand-900/30 dark:text-brand-400 rounded-lg transition-colors"
+            >
+              📧 Send Test Digest
+            </button>
           </div>
         </div>
       )}

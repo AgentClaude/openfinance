@@ -1,0 +1,13 @@
+Upcoming Bills
+==============
+<%= @items.size %> bill<%= @items.size == 1 ? '' : 's' %> due soon — Total: <%= number_to_currency(@total) %>
+
+Hi <%= @user.name.present? ? @user.name.split(' ').first : 'there' %>,
+
+<% @items.each do |item| %>
+  • <%= item.name %>: <%= number_to_currency(item.amount_cents.abs / 100.0) %> — due <%= item.next_occurrence&.strftime('%b %d') || 'N/A' %>
+<% end %>
+
+Total: <%= number_to_currency(@total) %>
+
+View recurring bills: <%= app_url %>

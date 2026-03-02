@@ -1,0 +1,50 @@
+OpenFinance Weekly Digest
+=========================
+<%= @week_start.strftime('%b %d') %> – <%= @week_end.strftime('%b %d, %Y') %>
+
+Hi <%= @user.name.present? ? @user.name.split(' ').first : 'there' %>,
+
+CASH FLOW
+---------
+Income:     +<%= number_to_currency(@data[:income]) %>
+Expenses:   -<%= number_to_currency(@data[:expenses]) %>
+Net:        <%= @data[:cash_flow] >= 0 ? '+' : '' %><%= number_to_currency(@data[:cash_flow]) %>
+
+<% if @data[:net_worth].present? %>
+NET WORTH: <%= number_to_currency(@data[:net_worth]) %><%= @data[:net_worth_change] && @data[:net_worth_change] != 0 ? " (#{@data[:net_worth_change] >= 0 ? '+' : ''}#{number_to_currency(@data[:net_worth_change])} this week)" : '' %>
+
+<% end %>
+<% if @data[:top_categories].present? %>
+TOP SPENDING
+------------
+<% @data[:top_categories].each_with_index do |cat, i| %>
+<%= i + 1 %>. <%= cat[:name] %>: <%= number_to_currency(cat[:amount]) %> (<%= cat[:count] %> txns)
+<% end %>
+
+<% end %>
+<% if @data[:budget_status].present? %>
+BUDGET STATUS
+-------------
+Budgeted: <%= number_to_currency(@data[:budget_status][:budgeted]) %>
+Spent:    <%= number_to_currency(@data[:budget_status][:spent]) %>
+Left:     <%= number_to_currency(@data[:budget_status][:remaining]) %>
+<% if @data[:budget_status][:over_budget].present? %>
+
+Over budget:
+<% @data[:budget_status][:over_budget].each do |cat| %>
+  • <%= cat[:name] %>: <%= number_to_currency(cat[:spent]) %> / <%= number_to_currency(cat[:budgeted]) %> (<%= cat[:pct] %>%)
+<% end %>
+<% end %>
+
+<% end %>
+<% if @data[:upcoming_bills].present? %>
+UPCOMING BILLS
+--------------
+<% @data[:upcoming_bills].each do |bill| %>
+  • <%= bill[:name] %>: <%= number_to_currency(bill[:amount]) %> due <%= bill[:due_date].strftime('%b %d') %>
+<% end %>
+
+<% end %>
+Transactions this week: <%= @data[:transaction_count] %>
+
+View dashboard: <%= app_url %>

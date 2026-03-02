@@ -1,0 +1,144 @@
+<div style="max-width: 600px; margin: 0 auto; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #1a1a2e;">
+  <div style="background: linear-gradient(135deg, #6366f1, #8b5cf6); padding: 24px 32px; border-radius: 12px 12px 0 0;">
+    <h1 style="color: #fff; margin: 0; font-size: 20px;">📊 Weekly Financial Digest</h1>
+    <p style="color: #e0e7ff; margin: 8px 0 0; font-size: 14px;">
+      <%= @week_start.strftime('%b %d') %> – <%= @week_end.strftime('%b %d, %Y') %>
+    </p>
+  </div>
+
+  <div style="background: #fff; padding: 32px; border: 1px solid #e5e7eb; border-top: none;">
+    <p style="color: #6b7280; font-size: 15px; margin: 0 0 24px;">
+      Hi <%= @user.name.present? ? @user.name.split(' ').first : 'there' %>, here's your weekly financial summary.
+    </p>
+
+    <!-- Cash Flow Summary -->
+    <h2 style="font-size: 16px; color: #1a1a2e; margin: 0 0 12px; border-bottom: 2px solid #e5e7eb; padding-bottom: 8px;">
+      💰 Cash Flow
+    </h2>
+    <div style="display: flex; margin-bottom: 24px;">
+      <table style="width: 100%; border-collapse: collapse;">
+        <tr>
+          <td style="padding: 8px 0; color: #6b7280; font-size: 14px;">Income</td>
+          <td style="padding: 8px 0; text-align: right; font-size: 16px; font-weight: 600; color: #059669;">
+            +<%= number_to_currency(@data[:income]) %>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding: 8px 0; color: #6b7280; font-size: 14px;">Expenses</td>
+          <td style="padding: 8px 0; text-align: right; font-size: 16px; font-weight: 600; color: #dc2626;">
+            -<%= number_to_currency(@data[:expenses]) %>
+          </td>
+        </tr>
+        <tr style="border-top: 1px solid #e5e7eb;">
+          <td style="padding: 12px 0 8px; color: #1a1a2e; font-size: 14px; font-weight: 600;">Net Cash Flow</td>
+          <td style="padding: 12px 0 8px; text-align: right; font-size: 18px; font-weight: 700; color: <%= @data[:cash_flow] >= 0 ? '#059669' : '#dc2626' %>;">
+            <%= @data[:cash_flow] >= 0 ? '+' : '' %><%= number_to_currency(@data[:cash_flow]) %>
+          </td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- Net Worth -->
+    <% if @data[:net_worth].present? %>
+    <h2 style="font-size: 16px; color: #1a1a2e; margin: 0 0 12px; border-bottom: 2px solid #e5e7eb; padding-bottom: 8px;">
+      📈 Net Worth
+    </h2>
+    <div style="background: #f9fafb; border-radius: 8px; padding: 16px; margin-bottom: 24px;">
+      <span style="font-size: 24px; font-weight: 700; color: #1a1a2e;">
+        <%= number_to_currency(@data[:net_worth]) %>
+      </span>
+      <% if @data[:net_worth_change] && @data[:net_worth_change] != 0 %>
+        <span style="font-size: 14px; color: <%= @data[:net_worth_change] >= 0 ? '#059669' : '#dc2626' %>; margin-left: 8px;">
+          <%= @data[:net_worth_change] >= 0 ? '↑' : '↓' %> <%= number_to_currency(@data[:net_worth_change].abs) %> this week
+        </span>
+      <% end %>
+    </div>
+    <% end %>
+
+    <!-- Top Spending Categories -->
+    <% if @data[:top_categories].present? %>
+    <h2 style="font-size: 16px; color: #1a1a2e; margin: 0 0 12px; border-bottom: 2px solid #e5e7eb; padding-bottom: 8px;">
+      🏷️ Top Spending Categories
+    </h2>
+    <table style="width: 100%; border-collapse: collapse; margin-bottom: 24px;">
+      <% @data[:top_categories].each_with_index do |cat, i| %>
+      <tr>
+        <td style="padding: 8px 0; font-size: 14px; color: #374151;">
+          <%= i + 1 %>. <%= cat[:name] %>
+        </td>
+        <td style="padding: 8px 0; text-align: right; font-size: 14px; font-weight: 600; color: #1a1a2e;">
+          <%= number_to_currency(cat[:amount]) %>
+        </td>
+        <td style="padding: 8px 0; text-align: right; font-size: 12px; color: #9ca3af; width: 50px;">
+          <%= cat[:count] %> txns
+        </td>
+      </tr>
+      <% end %>
+    </table>
+    <% end %>
+
+    <!-- Budget Status -->
+    <% if @data[:budget_status].present? %>
+    <h2 style="font-size: 16px; color: #1a1a2e; margin: 0 0 12px; border-bottom: 2px solid #e5e7eb; padding-bottom: 8px;">
+      📋 Budget Status
+    </h2>
+    <table style="width: 100%; border-collapse: collapse; margin-bottom: 24px;">
+      <tr>
+        <td style="padding: 8px 0; color: #6b7280; font-size: 14px;">Total Budgeted</td>
+        <td style="padding: 8px 0; text-align: right; font-weight: 600;"><%= number_to_currency(@data[:budget_status][:budgeted]) %></td>
+      </tr>
+      <tr>
+        <td style="padding: 8px 0; color: #6b7280; font-size: 14px;">Total Spent</td>
+        <td style="padding: 8px 0; text-align: right; font-weight: 600;"><%= number_to_currency(@data[:budget_status][:spent]) %></td>
+      </tr>
+      <tr>
+        <td style="padding: 8px 0; color: #6b7280; font-size: 14px;">Remaining</td>
+        <td style="padding: 8px 0; text-align: right; font-weight: 600; color: <%= @data[:budget_status][:remaining] >= 0 ? '#059669' : '#dc2626' %>;">
+          <%= number_to_currency(@data[:budget_status][:remaining]) %>
+        </td>
+      </tr>
+    </table>
+
+    <% if @data[:budget_status][:over_budget].present? %>
+    <div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 12px 16px; margin-bottom: 24px;">
+      <p style="margin: 0 0 8px; font-size: 13px; font-weight: 600; color: #dc2626;">⚠️ Over budget categories:</p>
+      <% @data[:budget_status][:over_budget].each do |cat| %>
+        <p style="margin: 0; font-size: 13px; color: #7f1d1d;">
+          • <%= cat[:name] %>: <%= number_to_currency(cat[:spent]) %> / <%= number_to_currency(cat[:budgeted]) %> (<%= cat[:pct] %>%)
+        </p>
+      <% end %>
+    </div>
+    <% end %>
+    <% end %>
+
+    <!-- Upcoming Bills -->
+    <% if @data[:upcoming_bills].present? %>
+    <h2 style="font-size: 16px; color: #1a1a2e; margin: 0 0 12px; border-bottom: 2px solid #e5e7eb; padding-bottom: 8px;">
+      📅 Upcoming Bills (Next 7 Days)
+    </h2>
+    <table style="width: 100%; border-collapse: collapse; margin-bottom: 24px;">
+      <% @data[:upcoming_bills].each do |bill| %>
+      <tr>
+        <td style="padding: 8px 0; font-size: 14px; color: #374151;"><%= bill[:name] %></td>
+        <td style="padding: 8px 0; text-align: right; font-size: 14px; font-weight: 600;"><%= number_to_currency(bill[:amount]) %></td>
+        <td style="padding: 8px 0; text-align: right; font-size: 12px; color: #9ca3af; width: 80px;"><%= bill[:due_date].strftime('%b %d') %></td>
+      </tr>
+      <% end %>
+    </table>
+    <% end %>
+
+    <!-- Transaction Count -->
+    <div style="background: #f9fafb; border-radius: 8px; padding: 16px; margin-bottom: 24px; text-align: center;">
+      <span style="font-size: 28px; font-weight: 700; color: #6366f1;"><%= @data[:transaction_count] %></span>
+      <span style="display: block; font-size: 13px; color: #6b7280; margin-top: 4px;">transactions this week</span>
+    </div>
+
+    <a href="<%= app_url %>" style="display: inline-block; background: #6366f1; color: #fff; text-decoration: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; font-size: 14px;">
+      View Full Dashboard →
+    </a>
+  </div>
+
+  <p style="text-align: center; color: #9ca3af; font-size: 12px; margin-top: 24px;">
+    You received this weekly digest because it's enabled in your OpenFinance notification settings.
+  </p>
+</div>

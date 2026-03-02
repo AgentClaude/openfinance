@@ -79,7 +79,7 @@ end
 
 # Queue priorities and configurations
 Sidekiq.configure_server do |config|
-  config.queues = %w[critical high default low]
+  config.queues = %w[critical high default notifications low]
 end
 
 # Custom error handler for better error tracking

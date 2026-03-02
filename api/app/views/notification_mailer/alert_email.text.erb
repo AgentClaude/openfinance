@@ -1,0 +1,12 @@
+OpenFinance Alert
+=================
+
+<%= @notification.title %>
+
+<%= @notification.body %>
+
+Type: <%= @notification.notification_type.titleize %>
+Priority: <%= @notification.priority.titleize %>
+Time: <%= @notification.created_at.strftime('%B %d, %Y at %I:%M %p') %>
+
+View in OpenFinance: <%= app_url %>

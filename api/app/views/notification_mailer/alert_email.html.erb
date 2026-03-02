@@ -1,0 +1,40 @@
+<div style="max-width: 600px; margin: 0 auto; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #1a1a2e;">
+  <div style="background: linear-gradient(135deg, #6366f1, #8b5cf6); padding: 24px 32px; border-radius: 12px 12px 0 0;">
+    <h1 style="color: #fff; margin: 0; font-size: 20px;">📬 OpenFinance Alert</h1>
+  </div>
+
+  <div style="background: #fff; padding: 32px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 12px 12px;">
+    <h2 style="margin: 0 0 8px; font-size: 18px; color: #1a1a2e;"><%= @notification.title %></h2>
+
+    <% if @notification.body.present? %>
+      <p style="color: #6b7280; font-size: 15px; line-height: 1.6; margin: 0 0 24px;">
+        <%= @notification.body %>
+      </p>
+    <% end %>
+
+    <div style="background: #f9fafb; border-radius: 8px; padding: 16px; margin-bottom: 24px;">
+      <table style="width: 100%; border-collapse: collapse;">
+        <tr>
+          <td style="color: #6b7280; font-size: 13px; padding: 4px 0;">Type</td>
+          <td style="text-align: right; font-size: 13px; font-weight: 600;"><%= @notification.notification_type.titleize %></td>
+        </tr>
+        <tr>
+          <td style="color: #6b7280; font-size: 13px; padding: 4px 0;">Priority</td>
+          <td style="text-align: right; font-size: 13px; font-weight: 600;"><%= @notification.priority.titleize %></td>
+        </tr>
+        <tr>
+          <td style="color: #6b7280; font-size: 13px; padding: 4px 0;">Time</td>
+          <td style="text-align: right; font-size: 13px;"><%= @notification.created_at.strftime('%B %d, %Y at %I:%M %p') %></td>
+        </tr>
+      </table>
+    </div>
+
+    <a href="<%= app_url %>" style="display: inline-block; background: #6366f1; color: #fff; text-decoration: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; font-size: 14px;">
+      View in OpenFinance →
+    </a>
+  </div>
+
+  <p style="text-align: center; color: #9ca3af; font-size: 12px; margin-top: 24px;">
+    You received this because email notifications are enabled in your OpenFinance settings.
+  </p>
+</div>

@@ -1,0 +1,49 @@
+<div style="max-width: 600px; margin: 0 auto; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #1a1a2e;">
+  <div style="background: linear-gradient(135deg, #dc2626, #ef4444); padding: 24px 32px; border-radius: 12px 12px 0 0;">
+    <h1 style="color: #fff; margin: 0; font-size: 20px;">⚠️ Budget Alert</h1>
+  </div>
+
+  <div style="background: #fff; padding: 32px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 12px 12px;">
+    <p style="color: #6b7280; font-size: 15px; margin: 0 0 24px;">
+      Hi <%= @user.name.present? ? @user.name.split(' ').first : 'there' %>,
+      your spending in <strong><%= @category_name %></strong> has reached
+      <strong style="color: #dc2626;"><%= @pct_used %>%</strong> of your budget.
+    </p>
+
+    <div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 20px; margin-bottom: 24px;">
+      <table style="width: 100%; border-collapse: collapse;">
+        <tr>
+          <td style="padding: 6px 0; color: #6b7280; font-size: 14px;">Category</td>
+          <td style="padding: 6px 0; text-align: right; font-size: 14px; font-weight: 600;"><%= @category_name %></td>
+        </tr>
+        <tr>
+          <td style="padding: 6px 0; color: #6b7280; font-size: 14px;">Budgeted</td>
+          <td style="padding: 6px 0; text-align: right; font-size: 14px; font-weight: 600;"><%= number_to_currency(@budgeted) %></td>
+        </tr>
+        <tr>
+          <td style="padding: 6px 0; color: #6b7280; font-size: 14px;">Spent</td>
+          <td style="padding: 6px 0; text-align: right; font-size: 14px; font-weight: 600; color: #dc2626;"><%= number_to_currency(@spent) %></td>
+        </tr>
+        <tr style="border-top: 1px solid #fecaca;">
+          <td style="padding: 10px 0 6px; color: #6b7280; font-size: 14px;">Remaining</td>
+          <td style="padding: 10px 0 6px; text-align: right; font-size: 16px; font-weight: 700; color: <%= (@budgeted - @spent) >= 0 ? '#059669' : '#dc2626' %>;">
+            <%= number_to_currency(@budgeted - @spent) %>
+          </td>
+        </tr>
+      </table>
+
+      <!-- Progress bar -->
+      <div style="margin-top: 12px; background: #fee2e2; border-radius: 4px; height: 8px; overflow: hidden;">
+        <div style="background: <%= @pct_used >= 100 ? '#dc2626' : @pct_used >= 80 ? '#f59e0b' : '#059669' %>; height: 100%; width: <%= [@pct_used, 100].min %>%; border-radius: 4px;"></div>
+      </div>
+    </div>
+
+    <a href="<%= app_url %>" style="display: inline-block; background: #6366f1; color: #fff; text-decoration: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; font-size: 14px;">
+      View Budget →
+    </a>
+  </div>
+
+  <p style="text-align: center; color: #9ca3af; font-size: 12px; margin-top: 24px;">
+    You received this because budget alerts are enabled in your OpenFinance settings.
+  </p>
+</div>
