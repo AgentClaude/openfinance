@@ -711,12 +711,14 @@ export const DELETE_GOAL = gql`
 `;
 
 export const UPDATE_HOUSEHOLD = gql`
-  mutation UpdateHousehold($name: String, $currency: String) {
-    updateHousehold(name: $name, currency: $currency) {
+  mutation UpdateHousehold($name: String, $currency: String, $timezone: String, $preferences: JSON) {
+    updateHousehold(name: $name, currency: $currency, timezone: $timezone, preferences: $preferences) {
       household {
         id
         name
         currency
+        timezone
+        preferences
       }
       errors
     }
@@ -913,6 +915,62 @@ export const CREATE_UPDATE_LINK_TOKEN = gql`
     createUpdateLinkToken(connectionId: $connectionId) {
       linkToken
       expiration
+    }
+  }
+`;
+
+export const CREATE_MERCHANT_MAPPING = gql`
+  mutation CreateMerchantMapping($rawPattern: String!, $cleanName: String!, $matchType: String) {
+    createMerchantMapping(rawPattern: $rawPattern, cleanName: $cleanName, matchType: $matchType) {
+      id
+      rawPattern
+      cleanName
+      matchType
+      appliedCount
+      isActive
+      createdAt
+    }
+  }
+`;
+
+export const UPDATE_MERCHANT_MAPPING = gql`
+  mutation UpdateMerchantMapping($id: ID!, $rawPattern: String, $cleanName: String, $matchType: String, $isActive: Boolean) {
+    updateMerchantMapping(id: $id, rawPattern: $rawPattern, cleanName: $cleanName, matchType: $matchType, isActive: $isActive) {
+      id
+      rawPattern
+      cleanName
+      matchType
+      appliedCount
+      isActive
+      createdAt
+    }
+  }
+`;
+
+export const DELETE_MERCHANT_MAPPING = gql`
+  mutation DeleteMerchantMapping($id: ID!) {
+    deleteMerchantMapping(id: $id) {
+      success
+    }
+  }
+`;
+
+export const APPLY_MERCHANT_MAPPINGS = gql`
+  mutation ApplyMerchantMappings {
+    applyMerchantMappings {
+      updatedCount
+    }
+  }
+`;
+
+export const SUGGEST_MERCHANT_MAPPINGS = gql`
+  mutation SuggestMerchantMappings {
+    suggestMerchantMappings {
+      suggestions {
+        rawPattern
+        suggestedName
+        transactionCount
+      }
     }
   }
 `;

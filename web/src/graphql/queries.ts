@@ -11,6 +11,8 @@ export const ME = gql`
         id
         name
         currency
+        timezone
+        preferences
       }
     }
   }
@@ -588,6 +590,20 @@ export const GET_ACCOUNT_CONNECTIONS = gql`
         balance
         mask
       }
+    }
+  }
+`;
+
+export const GET_MERCHANT_MAPPINGS = gql`
+  query GetMerchantMappings {
+    merchantMappings {
+      id
+      rawPattern
+      cleanName
+      matchType
+      appliedCount
+      isActive
+      createdAt
     }
   }
 `;

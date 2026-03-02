@@ -187,4 +187,68 @@ RSpec.describe 'GraphQL Mutations', type: :request do
       expect(Category.find_by(id: cat_id)).to be_nil
     end
   end
+
+  describe 'updateHousehold' do
+    let(:query) do
+      <<~GRAPHQL
+        mutation($name: String, $currency: String, $timezone: String, $preferences: JSON) {
+          updateHousehold(name: $name, currency: $currency, timezone: $timezone, preferences: $preferences) {
+            household {
+              id
+              name
+              currency
+              timezone
+              preferences
+            }
+            errors
+          }
+        }
+      GRAPHQL
+    end
+
+    it 'updates household name and currency' do
+      result = graphql_query(query, variables: { name: 'Smith Family', currency: 'EUR' }, user: user)
+      data = result.dig('data', 'updateHousehold')
+      expect(data['errors']).to be_empty
+      expect(data['household']['name']).to eq('Smith Family')
+      expect(data['household']['currency']).to eq('EUR')
+    end
+
+    it 'updates household timezone' do
+      result = graphql_query(query, variables: { timezone: 'America/Denver' }, user: user)
+      data = result.dig('data', 'updateHousehold')
+      expect(data['errors']).to be_empty
+      expect(data['household']['timezone']).to eq('America/Denver')
+    end
+
+    it 'rejects invalid timezone' do
+      result = graphql_query(query, variables: { timezone: 'Invalid/Zone' }, user: user)
+      expect(result['errors']).to be_present
+      expect(result['errors'].first['message']).to include('Invalid timezone')
+    end
+
+    it 'updates preferences (merge)' do
+      household.update!(preferences: { 'dateFormat' => 'MM/DD/YYYY' })
+      result = graphql_query(query, variables: { preferences: { 'numberFormat' => 'dot-comma' } }, user: user)
+      data = result.dig('data', 'updateHousehold')
+      expect(data['errors']).to be_empty
+      prefs = data['household']['preferences']
+      expect(prefs['dateFormat']).to eq('MM/DD/YYYY')
+      expect(prefs['numberFormat']).to eq('dot-comma')
+    end
+
+    it 'strips unknown preference keys' do
+      result = graphql_query(query, variables: { preferences: { 'dateFormat' => 'YYYY-MM-DD', 'evil' => 'hacked' } }, user: user)
+      data = result.dig('data', 'updateHousehold')
+      expect(data['errors']).to be_empty
+      prefs = data['household']['preferences']
+      expect(prefs['dateFormat']).to eq('YYYY-MM-DD')
+      expect(prefs).not_to have_key('evil')
+    end
+
+    it 'returns error when not authenticated' do
+      result = graphql_query(query, variables: { name: 'Hacked' })
+      expect(result['errors']).to be_present
+    end
+  end
 end

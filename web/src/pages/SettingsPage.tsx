@@ -11,6 +11,18 @@ import { NotificationPreference } from '@/types';
 import toast from 'react-hot-toast';
 
 const CURRENCIES = ['USD', 'EUR', 'GBP', 'CAD', 'AUD', 'NZD', 'JPY', 'CHF'];
+const TIMEZONES = [
+  'America/New_York', 'America/Chicago', 'America/Denver', 'America/Los_Angeles',
+  'America/Anchorage', 'Pacific/Honolulu', 'America/Phoenix',
+  'America/Toronto', 'America/Vancouver', 'America/Edmonton',
+  'Europe/London', 'Europe/Paris', 'Europe/Berlin', 'Europe/Amsterdam',
+  'Europe/Rome', 'Europe/Madrid', 'Europe/Zurich', 'Europe/Stockholm',
+  'Asia/Tokyo', 'Asia/Shanghai', 'Asia/Hong_Kong', 'Asia/Singapore',
+  'Asia/Kolkata', 'Asia/Dubai', 'Asia/Seoul',
+  'Australia/Sydney', 'Australia/Melbourne', 'Australia/Perth',
+  'Pacific/Auckland', 'Africa/Johannesburg', 'America/Sao_Paulo',
+  'America/Mexico_City', 'America/Argentina/Buenos_Aires',
+];
 const DATE_FORMATS = [
   { value: 'MM/DD/YYYY', label: 'MM/DD/YYYY' },
   { value: 'DD/MM/YYYY', label: 'DD/MM/YYYY' },
@@ -59,6 +71,7 @@ export default function SettingsPage() {
   // Household form
   const [householdName, setHouseholdName] = useState(user?.household?.name || '');
   const [householdCurrency, setHouseholdCurrency] = useState(user?.household?.currency || 'USD');
+  const [householdTimezone, setHouseholdTimezone] = useState(user?.household?.timezone || 'America/New_York');
 
   // Tag editing
   const [editingTagId, setEditingTagId] = useState<string | null>(null);
@@ -201,7 +214,7 @@ export default function SettingsPage() {
     e.preventDefault();
     try {
       const { data } = await updateHouseholdMutation({
-        variables: { name: householdName, currency: householdCurrency },
+        variables: { name: householdName, currency: householdCurrency, timezone: householdTimezone },
       });
       if (data.updateHousehold.errors?.length) {
         toast.error(data.updateHousehold.errors[0]);
@@ -448,6 +461,13 @@ export default function SettingsPage() {
                 <select value={householdCurrency} onChange={(e) => setHouseholdCurrency(e.target.value)} className={inputClasses}>
                   {CURRENCIES.map((c) => <option key={c} value={c}>{c}</option>)}
                 </select>
+              </div>
+              <div>
+                <label className={labelClasses}>Timezone</label>
+                <select value={householdTimezone} onChange={(e) => setHouseholdTimezone(e.target.value)} className={inputClasses}>
+                  {TIMEZONES.map((tz) => <option key={tz} value={tz}>{tz.replace(/_/g, ' ')}</option>)}
+                </select>
+                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">Used for bill due dates and report date boundaries.</p>
               </div>
             </div>
             <div className="mt-4 flex justify-end">

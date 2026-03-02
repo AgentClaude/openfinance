@@ -11,6 +11,8 @@ export interface Household {
   id: string;
   name: string;
   currency: string;
+  timezone?: string;
+  preferences?: Record<string, unknown>;
 }
 
 export interface Account {
