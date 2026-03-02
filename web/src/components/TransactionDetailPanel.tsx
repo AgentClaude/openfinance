@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { XMarkIcon, CheckIcon, ExclamationTriangleIcon, ScissorsIcon, EyeSlashIcon, EyeIcon } from '@heroicons/react/24/outline';
+import { XMarkIcon, CheckIcon, ExclamationTriangleIcon, ScissorsIcon, EyeSlashIcon, EyeIcon, BoltIcon } from '@heroicons/react/24/outline';
 import { Transaction, Category, Tag } from '@/types';
 import AmountDisplay from '@/components/ui/AmountDisplay';
 import Badge from '@/components/ui/Badge';
 import Button from '@/components/ui/Button';
 import Select from '@/components/ui/Select';
 import SplitTransactionModal from '@/components/SplitTransactionModal';
+import CreateRuleFromTransactionModal from '@/components/CreateRuleFromTransactionModal';
 import { format } from 'date-fns';
 
 interface TransactionDetailPanelProps {
@@ -39,6 +40,7 @@ const TransactionDetailPanel: React.FC<TransactionDetailPanelProps> = ({
   const [tagInput, setTagInput] = useState('');
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const [splitOpen, setSplitOpen] = useState(false);
+  const [ruleOpen, setRuleOpen] = useState(false);
 
   useEffect(() => {
     if (transaction) {
@@ -325,6 +327,15 @@ const TransactionDetailPanel: React.FC<TransactionDetailPanelProps> = ({
 
             {/* Footer */}
             <div className="border-t border-gray-200 px-4 py-4 sm:px-6 space-y-3">
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => setRuleOpen(true)}
+                className="w-full"
+              >
+                <BoltIcon className="h-4 w-4 mr-2" />
+                Create Rule from Transaction
+              </Button>
               {!transaction.isSplit && !transaction.parentTransactionId && (
                 <Button
                   variant="secondary"
@@ -373,6 +384,18 @@ const TransactionDetailPanel: React.FC<TransactionDetailPanelProps> = ({
         onSuccess={() => {
           setFeedback({ type: 'success', message: 'Transaction split successfully!' });
           setSplitOpen(false);
+        }}
+      />
+    )}
+    {transaction && (
+      <CreateRuleFromTransactionModal
+        transaction={transaction}
+        categories={categories}
+        isOpen={ruleOpen}
+        onClose={() => setRuleOpen(false)}
+        onSuccess={() => {
+          setFeedback({ type: 'success', message: 'Rule created!' });
+          setRuleOpen(false);
         }}
       />
     )}
