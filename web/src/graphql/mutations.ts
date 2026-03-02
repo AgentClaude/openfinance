@@ -47,10 +47,7 @@ export const CREATE_MANUAL_ACCOUNT = gql`
       subtype
       balance
       balanceDate
-      mask
-      officialName
       isActive
-      plaidAccountId
       householdId
     }
   }
@@ -742,8 +739,7 @@ export const UPDATE_TAG = gql`
     updateTag(id: $id, name: $name, colorHex: $colorHex, isActive: $isActive) {
       id
       name
-      colorHex
-      isActive
+      color
     }
   }
 `;
@@ -822,7 +818,7 @@ export const MARK_NOTIFICATION_READ = gql`
 
 export const INVITE_TO_HOUSEHOLD = gql`
   mutation InviteToHousehold($email: String!, $role: String) {
-    inviteToHousehold(input: { email: $email, role: $role }) {
+    inviteToHousehold(email: $email, role: $role) {
       invitation {
         id
         email
@@ -846,7 +842,7 @@ export const MARK_ALL_NOTIFICATIONS_READ = gql`
 
 export const ACCEPT_INVITATION = gql`
   mutation AcceptInvitation($token: String!) {
-    acceptInvitation(input: { token: $token }) {
+    acceptInvitation(token: $token) {
       success
       errors
     }
@@ -855,7 +851,7 @@ export const ACCEPT_INVITATION = gql`
 
 export const REMOVE_HOUSEHOLD_MEMBER = gql`
   mutation RemoveHouseholdMember($userId: ID!) {
-    removeHouseholdMember(input: { userId: $userId }) {
+    removeHouseholdMember(userId: $userId) {
       success
       errors
     }
@@ -864,7 +860,7 @@ export const REMOVE_HOUSEHOLD_MEMBER = gql`
 
 export const UPDATE_MEMBER_ROLE = gql`
   mutation UpdateMemberRole($userId: ID!, $role: String!) {
-    updateMemberRole(input: { userId: $userId, role: $role }) {
+    updateMemberRole(userId: $userId, role: $role) {
       success
       errors
     }
@@ -913,6 +909,50 @@ export const CREATE_UPDATE_LINK_TOKEN = gql`
     createUpdateLinkToken(connectionId: $connectionId) {
       linkToken
       expiration
+    }
+  }
+`;
+
+export const CREATE_MERCHANT_MAPPING = gql`
+  mutation CreateMerchantMapping($rawPattern: String!, $cleanName: String!, $matchType: String) {
+    createMerchantMapping(rawPattern: $rawPattern, cleanName: $cleanName, matchType: $matchType) {
+      id
+      rawPattern
+      cleanName
+      matchType
+      appliedCount
+      isActive
+      createdAt
+    }
+  }
+`;
+
+export const UPDATE_MERCHANT_MAPPING = gql`
+  mutation UpdateMerchantMapping($id: ID!, $rawPattern: String, $cleanName: String, $matchType: String, $isActive: Boolean) {
+    updateMerchantMapping(id: $id, rawPattern: $rawPattern, cleanName: $cleanName, matchType: $matchType, isActive: $isActive) {
+      id
+      rawPattern
+      cleanName
+      matchType
+      appliedCount
+      isActive
+      createdAt
+    }
+  }
+`;
+
+export const DELETE_MERCHANT_MAPPING = gql`
+  mutation DeleteMerchantMapping($id: ID!) {
+    deleteMerchantMapping(id: $id) {
+      success
+    }
+  }
+`;
+
+export const APPLY_MERCHANT_MAPPINGS = gql`
+  mutation ApplyMerchantMappings {
+    applyMerchantMappings {
+      updatedCount
     }
   }
 `;

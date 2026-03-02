@@ -5,9 +5,19 @@ import {
   PencilIcon,
   PlayIcon,
   BoltIcon,
+  MapPinIcon,
 } from '@heroicons/react/24/outline';
 import { useRules, Rule } from '@/hooks/useRules';
 import { useCategories } from '@/hooks/useCategories';
+import {
+  useGetMerchantMappingsQuery,
+  useCreateMerchantMappingMutation,
+  useUpdateMerchantMappingMutation,
+  useDeleteMerchantMappingMutation,
+  useApplyMerchantMappingsMutation,
+  GetMerchantMappingsDocument,
+  MerchantMapping,
+} from '@/generated/graphql';
 import PageHeader from '@/components/ui/PageHeader';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
@@ -40,7 +50,50 @@ const matchTypeOptions = [
   { value: 'ends_with', label: 'Ends With' },
 ];
 
+const mappingMatchTypeOptions = [
+  { value: 'contains', label: 'Contains' },
+  { value: 'exact', label: 'Exact Match' },
+  { value: 'starts_with', label: 'Starts With' },
+];
+
+type TabId = 'rules' | 'mappings';
+
 const RulesPage: React.FC = () => {
+  const [activeTab, setActiveTab] = useState<TabId>('rules');
+
+  return (
+    <div>
+      {/* Tab Navigation */}
+      <div className="border-b border-gray-200 dark:border-gray-700 mb-6">
+        <nav className="flex gap-6" aria-label="Tabs">
+          {[
+            { id: 'rules' as TabId, label: 'Categorization Rules', icon: BoltIcon },
+            { id: 'mappings' as TabId, label: 'Merchant Mappings', icon: MapPinIcon },
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex items-center gap-2 pb-3 px-1 text-sm font-medium border-b-2 transition-colors ${
+                activeTab === tab.id
+                  ? 'border-brand-700 text-brand-700'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
+              }`}
+            >
+              <tab.icon className="h-4 w-4" />
+              {tab.label}
+            </button>
+          ))}
+        </nav>
+      </div>
+
+      {activeTab === 'rules' ? <CategorizationRulesTab /> : <MerchantMappingsTab />}
+    </div>
+  );
+};
+
+/* ======================== Categorization Rules Tab ======================== */
+
+const CategorizationRulesTab: React.FC = () => {
   const { addToast } = useToast();
   const [showModal, setShowModal] = useState(false);
   const [editingRule, setEditingRule] = useState<Rule | null>(null);
@@ -59,7 +112,6 @@ const RulesPage: React.FC = () => {
   } = useRules();
   const { categories } = useCategories();
 
-  // Flatten categories for select
   const allCategories: Category[] = [];
   (categories || []).forEach((cat: Category) => {
     allCategories.push(cat);
@@ -87,7 +139,6 @@ const RulesPage: React.FC = () => {
 
   const handleSubmit = async () => {
     if (!form.matchValue.trim() || !form.categoryId) return;
-
     const variables: Record<string, unknown> = {
       matchField: form.matchField,
       matchType: form.matchType,
@@ -96,7 +147,6 @@ const RulesPage: React.FC = () => {
       priority: form.priority,
     };
     if (form.renameTo.trim()) variables.renameTo = form.renameTo.trim();
-
     try {
       if (editingRule) {
         await updateRule(editingRule.id, variables);
@@ -185,18 +235,12 @@ const RulesPage: React.FC = () => {
                         rule.isActive ? 'bg-brand-700' : 'bg-gray-300'
                       }`}
                     >
-                      <span
-                        className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full transition-transform ${
-                          rule.isActive ? 'translate-x-5' : ''
-                        }`}
-                      />
+                      <span className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full transition-transform ${rule.isActive ? 'translate-x-5' : ''}`} />
                     </button>
                     <div>
                       <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
                         When{' '}
-                        <span className="text-brand-700">
-                          {rule.matchField === 'merchant_name' ? 'merchant name' : 'description'}
-                        </span>{' '}
+                        <span className="text-brand-700">{rule.matchField === 'merchant_name' ? 'merchant name' : 'description'}</span>{' '}
                         <span className="text-gray-500 dark:text-gray-400">{rule.matchType.replace('_', ' ')}</span>{' '}
                         "<span className="font-semibold">{rule.matchValue}</span>"
                       </p>
@@ -206,28 +250,18 @@ const RulesPage: React.FC = () => {
                           {rule.category.icon && <CategoryIcon icon={rule.category.icon} className="mr-1" />} {rule.category.name}
                         </Badge>
                         {rule.renameTo && (
-                          <span className="text-xs text-gray-400">
-                            → Rename to "{rule.renameTo}"
-                          </span>
+                          <span className="text-xs text-gray-400">→ Rename to "{rule.renameTo}"</span>
                         )}
                       </div>
                     </div>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="text-xs text-gray-400">
-                    {rule.matchesCount} match{rule.matchesCount !== 1 ? 'es' : ''}
-                  </span>
-                  <button
-                    onClick={() => openEdit(rule)}
-                    className="text-gray-400 hover:text-gray-600 dark:text-gray-400"
-                  >
+                  <span className="text-xs text-gray-400">{rule.matchesCount} match{rule.matchesCount !== 1 ? 'es' : ''}</span>
+                  <button onClick={() => openEdit(rule)} className="text-gray-400 hover:text-gray-600 dark:text-gray-400">
                     <PencilIcon className="h-4 w-4" />
                   </button>
-                  <button
-                    onClick={() => handleDelete(rule.id)}
-                    className="text-gray-400 hover:text-red-600"
-                  >
+                  <button onClick={() => handleDelete(rule.id)} className="text-gray-400 hover:text-red-600">
                     <TrashIcon className="h-4 w-4" />
                   </button>
                 </div>
@@ -237,54 +271,212 @@ const RulesPage: React.FC = () => {
         </div>
       )}
 
-      <Modal
-        isOpen={showModal}
-        onClose={() => { setShowModal(false); setEditingRule(null); }}
-        title={editingRule ? 'Edit Rule' : 'Create Rule'}
-      >
+      <Modal isOpen={showModal} onClose={() => { setShowModal(false); setEditingRule(null); }} title={editingRule ? 'Edit Rule' : 'Create Rule'}>
         <div className="space-y-4">
-          <Select
-            label="Match Field"
-            value={form.matchField}
-            onChange={(e) => setForm({ ...form, matchField: e.target.value })}
-            options={matchFieldOptions}
+          <Select label="Match Field" value={form.matchField} onChange={(e) => setForm({ ...form, matchField: e.target.value })} options={matchFieldOptions} />
+          <Select label="Match Type" value={form.matchType} onChange={(e) => setForm({ ...form, matchType: e.target.value })} options={matchTypeOptions} />
+          <Input label="Match Value" value={form.matchValue} onChange={(e) => setForm({ ...form, matchValue: e.target.value })} placeholder="e.g. starbucks, amazon, netflix" />
+          <Select label="Category" value={form.categoryId} onChange={(e) => setForm({ ...form, categoryId: e.target.value })} options={allCategories.map((c) => ({ value: c.id, label: c.name }))} />
+          <Input label="Rename Merchant To (optional)" value={form.renameTo} onChange={(e) => setForm({ ...form, renameTo: e.target.value })} placeholder="e.g. Starbucks" />
+          <Input label="Priority" type="number" value={form.priority.toString()} onChange={(e) => setForm({ ...form, priority: parseInt(e.target.value) || 0 })} />
+          <div className="flex justify-end gap-2 pt-2">
+            <Button variant="secondary" onClick={() => { setShowModal(false); setEditingRule(null); }}>Cancel</Button>
+            <Button onClick={handleSubmit} disabled={!form.matchValue.trim() || !form.categoryId}>{editingRule ? 'Update' : 'Create'}</Button>
+          </div>
+        </div>
+      </Modal>
+    </div>
+  );
+};
+
+/* ======================== Merchant Mappings Tab ======================== */
+
+const MerchantMappingsTab: React.FC = () => {
+  const { addToast } = useToast();
+  const [showModal, setShowModal] = useState(false);
+  const [editingMapping, setEditingMapping] = useState<MerchantMapping | null>(null);
+  const [form, setForm] = useState({
+    rawPattern: '',
+    cleanName: '',
+    matchType: 'contains',
+  });
+
+  const { data, loading } = useGetMerchantMappingsQuery();
+  const [createMapping] = useCreateMerchantMappingMutation({
+    refetchQueries: [{ query: GetMerchantMappingsDocument }],
+  });
+  const [updateMapping] = useUpdateMerchantMappingMutation({
+    refetchQueries: [{ query: GetMerchantMappingsDocument }],
+  });
+  const [deleteMapping] = useDeleteMerchantMappingMutation({
+    refetchQueries: [{ query: GetMerchantMappingsDocument }],
+  });
+  const [applyMappings, { loading: applying }] = useApplyMerchantMappingsMutation();
+
+  const mappings = (data?.merchantMappings || []) as MerchantMapping[];
+
+  const openCreate = () => {
+    setEditingMapping(null);
+    setForm({ rawPattern: '', cleanName: '', matchType: 'contains' });
+    setShowModal(true);
+  };
+
+  const openEdit = (mapping: MerchantMapping) => {
+    setEditingMapping(mapping);
+    setForm({
+      rawPattern: mapping.rawPattern,
+      cleanName: mapping.cleanName,
+      matchType: mapping.matchType,
+    });
+    setShowModal(true);
+  };
+
+  const handleSubmit = async () => {
+    if (!form.rawPattern.trim() || !form.cleanName.trim()) return;
+    try {
+      if (editingMapping) {
+        await updateMapping({
+          variables: { id: editingMapping.id, rawPattern: form.rawPattern.trim(), cleanName: form.cleanName.trim(), matchType: form.matchType },
+        });
+        addToast({ title: 'Mapping updated', type: 'success' });
+      } else {
+        await createMapping({
+          variables: { rawPattern: form.rawPattern.trim(), cleanName: form.cleanName.trim(), matchType: form.matchType },
+        });
+        addToast({ title: 'Mapping created', type: 'success' });
+      }
+      setShowModal(false);
+      setEditingMapping(null);
+    } catch (e: any) {
+      addToast({ title: e.message, type: 'error' });
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (confirm('Delete this merchant mapping?')) {
+      try {
+        await deleteMapping({ variables: { id } });
+        addToast({ title: 'Mapping deleted', type: 'success' });
+      } catch (e: any) {
+        addToast({ title: e.message, type: 'error' });
+      }
+    }
+  };
+
+  const handleToggle = async (mapping: MerchantMapping) => {
+    try {
+      await updateMapping({ variables: { id: mapping.id, isActive: !mapping.isActive } });
+    } catch (e: any) {
+      addToast({ title: e.message, type: 'error' });
+    }
+  };
+
+  const handleApply = async () => {
+    try {
+      const result = await applyMappings();
+      const count = result.data?.applyMerchantMappings?.updatedCount || 0;
+      addToast({ title: `Applied mappings to ${count} transaction${count !== 1 ? 's' : ''}`, type: 'success' });
+    } catch (e: any) {
+      addToast({ title: e.message, type: 'error' });
+    }
+  };
+
+  if (loading) return <LoadingSpinner />;
+
+  return (
+    <div>
+      <PageHeader
+        title="Merchant Name Mappings"
+        subtitle="Clean up raw bank descriptions into readable merchant names"
+        actions={
+          <div className="flex gap-2">
+            <Button onClick={handleApply} variant="secondary" disabled={applying || mappings.length === 0}>
+              <PlayIcon className="h-4 w-4 mr-1" />
+              {applying ? 'Applying...' : 'Apply All'}
+            </Button>
+            <Button onClick={openCreate}>
+              <PlusIcon className="h-4 w-4 mr-1" />
+              Add Mapping
+            </Button>
+          </div>
+        }
+      />
+
+      {mappings.length === 0 ? (
+        <EmptyState
+          icon={<MapPinIcon className="h-12 w-12" />}
+          title="No merchant mappings"
+          description="Create mappings to clean up raw bank transaction descriptions (e.g. 'AMZN MKTP US*2K1' → 'Amazon')."
+          actionLabel="Add Mapping"
+          onAction={openCreate}
+        />
+      ) : (
+        <div className="space-y-3">
+          {mappings.map((mapping) => (
+            <Card key={mapping.id} className="p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={() => handleToggle(mapping)}
+                      className={`w-10 h-5 rounded-full transition-colors relative ${
+                        mapping.isActive ? 'bg-brand-700' : 'bg-gray-300'
+                      }`}
+                    >
+                      <span className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full transition-transform ${mapping.isActive ? 'translate-x-5' : ''}`} />
+                    </button>
+                    <div>
+                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                        When name{' '}
+                        <span className="text-gray-500 dark:text-gray-400">{mapping.matchType.replace('_', ' ')}</span>{' '}
+                        "<span className="font-mono text-brand-700">{mapping.rawPattern}</span>"
+                      </p>
+                      <p className="text-sm mt-1">
+                        <span className="text-gray-500 dark:text-gray-400">→ Rename to</span>{' '}
+                        <span className="font-semibold text-gray-900 dark:text-gray-100">{mapping.cleanName}</span>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="text-xs text-gray-400">{mapping.appliedCount} applied</span>
+                  <button onClick={() => openEdit(mapping)} className="text-gray-400 hover:text-gray-600 dark:text-gray-400">
+                    <PencilIcon className="h-4 w-4" />
+                  </button>
+                  <button onClick={() => handleDelete(mapping.id)} className="text-gray-400 hover:text-red-600">
+                    <TrashIcon className="h-4 w-4" />
+                  </button>
+                </div>
+              </div>
+            </Card>
+          ))}
+        </div>
+      )}
+
+      <Modal isOpen={showModal} onClose={() => { setShowModal(false); setEditingMapping(null); }} title={editingMapping ? 'Edit Mapping' : 'Add Merchant Mapping'}>
+        <div className="space-y-4">
+          <Input
+            label="Raw Pattern"
+            value={form.rawPattern}
+            onChange={(e) => setForm({ ...form, rawPattern: e.target.value })}
+            placeholder="e.g. AMZN MKTP, SQ *COFFEE, UBER"
           />
           <Select
             label="Match Type"
             value={form.matchType}
             onChange={(e) => setForm({ ...form, matchType: e.target.value })}
-            options={matchTypeOptions}
+            options={mappingMatchTypeOptions}
           />
           <Input
-            label="Match Value"
-            value={form.matchValue}
-            onChange={(e) => setForm({ ...form, matchValue: e.target.value })}
-            placeholder="e.g. starbucks, amazon, netflix"
-          />
-          <Select
-            label="Category"
-            value={form.categoryId}
-            onChange={(e) => setForm({ ...form, categoryId: e.target.value })}
-            options={allCategories.map((c) => ({ value: c.id, label: c.name }))}
-          />
-          <Input
-            label="Rename Merchant To (optional)"
-            value={form.renameTo}
-            onChange={(e) => setForm({ ...form, renameTo: e.target.value })}
-            placeholder="e.g. Starbucks"
-          />
-          <Input
-            label="Priority"
-            type="number"
-            value={form.priority.toString()}
-            onChange={(e) => setForm({ ...form, priority: parseInt(e.target.value) || 0 })}
+            label="Clean Name"
+            value={form.cleanName}
+            onChange={(e) => setForm({ ...form, cleanName: e.target.value })}
+            placeholder="e.g. Amazon, Local Coffee Shop, Uber"
           />
           <div className="flex justify-end gap-2 pt-2">
-            <Button variant="secondary" onClick={() => { setShowModal(false); setEditingRule(null); }}>
-              Cancel
-            </Button>
-            <Button onClick={handleSubmit} disabled={!form.matchValue.trim() || !form.categoryId}>
-              {editingRule ? 'Update' : 'Create'}
+            <Button variant="secondary" onClick={() => { setShowModal(false); setEditingMapping(null); }}>Cancel</Button>
+            <Button onClick={handleSubmit} disabled={!form.rawPattern.trim() || !form.cleanName.trim()}>
+              {editingMapping ? 'Update' : 'Create'}
             </Button>
           </div>
         </div>

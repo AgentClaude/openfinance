@@ -8,7 +8,7 @@ module Rules
       return success(updated_count: 0) if mappings.empty?
       updated_count = 0
       household.transactions.find_each do |txn|
-        raw = txn.raw_description.presence || txn.name
+        raw = txn.name
         next if raw.blank?
         mappings.each do |mapping|
           if mapping.matches?(raw)

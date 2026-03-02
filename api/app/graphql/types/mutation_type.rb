@@ -57,5 +57,11 @@ module Types
     field :disconnect_connection, mutation: Mutations::DisconnectConnection
     field :retry_connection_sync, mutation: Mutations::RetryConnectionSync
     field :create_update_link_token, mutation: Mutations::CreateUpdateLinkToken
+
+    # Merchant mappings
+    field :create_merchant_mapping, mutation: Mutations::CreateMerchantMapping
+    field :update_merchant_mapping, mutation: Mutations::UpdateMerchantMapping
+    field :delete_merchant_mapping, mutation: Mutations::DeleteMerchantMapping
+    field :apply_merchant_mappings, mutation: Mutations::ApplyMerchantMappings
   end
 end
