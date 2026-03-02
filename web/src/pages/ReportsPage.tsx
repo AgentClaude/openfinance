@@ -8,7 +8,7 @@ import {
 } from 'recharts';
 import { useQuery } from '@apollo/client';
 import { useReports } from '@/hooks/useReports';
-import { GET_NET_WORTH_HISTORY, GET_CATEGORY_TRENDS, GET_CATEGORIES } from '@/graphql/queries';
+import { GET_NET_WORTH_HISTORY, GET_CATEGORY_TRENDS, GET_CATEGORIES, GET_ACCOUNTS } from '@/graphql/queries';
 import PageHeader from '@/components/ui/PageHeader';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import { StatCard, ChartCard } from '@/components/shared';
@@ -38,12 +38,26 @@ const ReportsPage: React.FC = () => {
   const [dateRangeMode, setDateRangeMode] = useState<DateRangeMode>('preset');
   const [customFrom, setCustomFrom] = useState('');
   const [customTo, setCustomTo] = useState('');
+  const [selectedAccountIds, setSelectedAccountIds] = useState<string[]>([]);
+  const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>([]);
+  const [excludeTransfers, setExcludeTransfers] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
 
-  const queryVars = dateRangeMode === 'custom' && customFrom && customTo
-    ? { dateFrom: customFrom, dateTo: customTo }
-    : { months };
+  const queryVars = {
+    ...(dateRangeMode === 'custom' && customFrom && customTo
+      ? { dateFrom: customFrom, dateTo: customTo }
+      : { months }),
+    ...(selectedAccountIds.length > 0 ? { accountIds: selectedAccountIds } : {}),
+    ...(selectedCategoryIds.length > 0 ? { categoryIds: selectedCategoryIds } : {}),
+    excludeTransfers,
+  };
 
   const { reports, loading } = useReports(queryVars);
+
+  const { data: accountsData } = useQuery(GET_ACCOUNTS);
+  const accounts = accountsData?.accounts || [];
+  const { data: categoriesData } = useQuery(GET_CATEGORIES);
+  const categories = categoriesData?.categories || [];
 
   const tabs: { id: ReportTab; label: string; icon: string }[] = [
     { id: 'overview', label: 'Overview', icon: '📊' },
@@ -115,6 +129,86 @@ const ReportsPage: React.FC = () => {
           </div>
         }
       />
+
+      {/* Filter bar */}
+      <div className="mb-4 flex items-center gap-3 flex-wrap">
+        <button
+          onClick={() => setShowFilters(!showFilters)}
+          className={`px-3 py-1.5 text-xs font-medium rounded-md border transition-colors ${
+            showFilters || selectedAccountIds.length > 0 || selectedCategoryIds.length > 0 || excludeTransfers
+              ? 'bg-brand-50 border-brand-300 text-brand-800'
+              : 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-slate-700/50'
+          }`}
+        >
+          🔽 Filters{(selectedAccountIds.length + selectedCategoryIds.length + (excludeTransfers ? 1 : 0)) > 0
+            ? ` (${selectedAccountIds.length + selectedCategoryIds.length + (excludeTransfers ? 1 : 0)})` : ''}
+        </button>
+        {(selectedAccountIds.length > 0 || selectedCategoryIds.length > 0 || excludeTransfers) && (
+          <button
+            onClick={() => { setSelectedAccountIds([]); setSelectedCategoryIds([]); setExcludeTransfers(false); }}
+            className="px-2 py-1 text-xs text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400"
+          >
+            Clear all
+          </button>
+        )}
+      </div>
+      {showFilters && (
+        <div className="mb-4 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700 grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Accounts</label>
+            <div className="max-h-40 overflow-y-auto space-y-1">
+              {accounts.map((acc: { id: string; name: string; accountType: string }) => (
+                <label key={acc.id} className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={selectedAccountIds.includes(acc.id)}
+                    onChange={(e) => {
+                      setSelectedAccountIds(e.target.checked
+                        ? [...selectedAccountIds, acc.id]
+                        : selectedAccountIds.filter(id => id !== acc.id));
+                    }}
+                    className="rounded border-gray-300 text-brand-600 focus:ring-brand-500"
+                  />
+                  {acc.name}
+                  <span className="text-xs text-gray-400">({acc.accountType})</span>
+                </label>
+              ))}
+            </div>
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Categories</label>
+            <div className="max-h-40 overflow-y-auto space-y-1">
+              {categories.map((cat: { id: string; name: string; icon: string }) => (
+                <label key={cat.id} className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={selectedCategoryIds.includes(cat.id)}
+                    onChange={(e) => {
+                      setSelectedCategoryIds(e.target.checked
+                        ? [...selectedCategoryIds, cat.id]
+                        : selectedCategoryIds.filter(id => id !== cat.id));
+                    }}
+                    className="rounded border-gray-300 text-brand-600 focus:ring-brand-500"
+                  />
+                  {cat.icon} {cat.name}
+                </label>
+              ))}
+            </div>
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Options</label>
+            <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={excludeTransfers}
+                onChange={(e) => setExcludeTransfers(e.target.checked)}
+                className="rounded border-gray-300 text-brand-600 focus:ring-brand-500"
+              />
+              Exclude transfers
+            </label>
+          </div>
+        </div>
+      )}
 
       {/* Tabs */}
       <div className="border-b border-gray-200 dark:border-gray-700 mb-6">
