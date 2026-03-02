@@ -10,7 +10,7 @@ import {
 import { useAccounts } from '@/hooks/useAccounts';
 import { AccountType } from '@/types';
 import AdjustBalanceModal from '@/components/AdjustBalanceModal';
-import BalanceHistory from '@/components/BalanceHistory';
+// BalanceHistory now shown in AccountDetailPage
 import PageHeader from '@/components/ui/PageHeader';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
@@ -65,7 +65,7 @@ const AccountsPage: React.FC = () => {
   const [linkToken, setLinkToken] = useState<string | null>(null);
   const [plaidLoading, setPlaidLoading] = useState(false);
   const [adjustAccount, setAdjustAccount] = useState<{ id: string; name: string; balance: number } | null>(null);
-  const [expandedAccountId, setExpandedAccountId] = useState<string | null>(null);
+  // Account detail now handled by AccountDetailPage route
 
   const {
     accounts, loading, creating,
@@ -214,13 +214,13 @@ const AccountsPage: React.FC = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {accountsOfType.map(account => (
                     <div key={account.id}>
-                    <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => setExpandedAccountId(expandedAccountId === account.id ? null : account.id)}>
+                    <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => navigate(`/accounts/${account.id}`)}>
                       <div className="flex items-center justify-between mb-3">
                         <h3
                           className="font-medium text-gray-900 dark:text-gray-100 hover:text-brand-700 cursor-pointer"
                           onClick={(e) => {
                             e.stopPropagation();
-                            navigate(`/transactions?accountId=${account.id}`);
+                            navigate(`/accounts/${account.id}`);
                           }}
                         >{account.name}</h3>
                         <div className="flex items-center gap-2">
@@ -271,11 +271,6 @@ const AccountsPage: React.FC = () => {
                         </div>
                       </div>
                     </Card>
-                    {expandedAccountId === account.id && (
-                      <div className="mt-2">
-                        <BalanceHistory accountId={account.id} />
-                      </div>
-                    )}
                     </div>
                   ))}
                 </div>
