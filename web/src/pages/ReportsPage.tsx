@@ -5,6 +5,7 @@ import {
   Area, AreaChart,
   LineChart, Line,
   ComposedChart,
+  Sankey as RechartsSankey, Rectangle, Layer,
 } from 'recharts';
 import { useQuery } from '@apollo/client';
 import { useReports } from '@/hooks/useReports';
@@ -28,7 +29,7 @@ const formatMonth = (month: string) => {
   return date.toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
 };
 
-type ReportTab = 'overview' | 'spending' | 'income-expenses' | 'cashflow' | 'merchants' | 'net-worth' | 'category-trends';
+type ReportTab = 'overview' | 'spending' | 'income-expenses' | 'cashflow' | 'merchants' | 'net-worth' | 'category-trends' | 'money-flow';
 
 type DateRangeMode = 'preset' | 'custom';
 
@@ -81,6 +82,7 @@ const ReportsPage: React.FC = () => {
     { id: 'merchants', label: 'Top Merchants', icon: '🏪' },
     { id: 'net-worth', label: 'Net Worth', icon: '📈' },
     { id: 'category-trends', label: 'Category Trends', icon: '📉' },
+    { id: 'money-flow', label: 'Money Flow', icon: '🌊' },
   ];
 
   return (
@@ -268,6 +270,7 @@ const ReportsPage: React.FC = () => {
           {activeTab === 'merchants' && <MerchantReport reports={reports} />}
           {activeTab === 'net-worth' && <NetWorthReport months={months} />}
           {activeTab === 'category-trends' && <CategoryTrendsReport months={months} />}
+          {activeTab === 'money-flow' && <MoneyFlowReport reports={reports} />}
         </>
       )}
     </div>
@@ -987,6 +990,222 @@ const CategoryTrendsReport: React.FC<{ months: number }> = ({ months }) => {
           </ChartCard>
         </>
       )}
+    </div>
+  );
+};
+
+// Sankey / Money Flow Report — shows income flowing into expense categories
+const SANKEY_COLORS = [
+  '#0D9488', '#F59E0B', '#7C3AED', '#E11D48', '#0EA5E9',
+  '#10B981', '#F97316', '#6366F1', '#84CC16', '#EC4899',
+  '#06B6D4', '#8B5CF6', '#14B8A6', '#A855F7', '#EF4444',
+];
+
+const SankeyNode = ({ x, y, width, height, index, payload }: any) => {
+  const isIncome = payload.depth === 0;
+  return (
+    <Layer key={`sankey-node-${index}`}>
+      <Rectangle
+        x={x}
+        y={y}
+        width={width}
+        height={height}
+        fill={isIncome ? '#10B981' : SANKEY_COLORS[index % SANKEY_COLORS.length]}
+        fillOpacity={0.9}
+        rx={3}
+        ry={3}
+      />
+      <text
+        x={isIncome ? x - 6 : x + width + 6}
+        y={y + height / 2}
+        textAnchor={isIncome ? 'end' : 'start'}
+        dominantBaseline="central"
+        className="fill-gray-700 dark:fill-gray-300"
+        fontSize={12}
+        fontWeight={500}
+      >
+        {payload.name}
+      </text>
+      <text
+        x={isIncome ? x - 6 : x + width + 6}
+        y={y + height / 2 + 16}
+        textAnchor={isIncome ? 'end' : 'start'}
+        dominantBaseline="central"
+        className="fill-gray-400 dark:fill-gray-500"
+        fontSize={10}
+      >
+        {formatCurrency(payload.value)}
+      </text>
+    </Layer>
+  );
+};
+
+const SankeyLink = (props: any) => {
+  const { sourceX, targetX, sourceY, targetY, sourceControlX, targetControlX, linkWidth, index } = props;
+  return (
+    <Layer key={`sankey-link-${index}`}>
+      <path
+        d={`
+          M${sourceX},${sourceY + linkWidth / 2}
+          C${sourceControlX},${sourceY + linkWidth / 2}
+           ${targetControlX},${targetY + linkWidth / 2}
+           ${targetX},${targetY + linkWidth / 2}
+          L${targetX},${targetY - linkWidth / 2}
+          C${targetControlX},${targetY - linkWidth / 2}
+           ${sourceControlX},${sourceY - linkWidth / 2}
+           ${sourceX},${sourceY - linkWidth / 2}
+          Z
+        `}
+        fill={SANKEY_COLORS[props.payload?.target?.index % SANKEY_COLORS.length] || '#94A3B8'}
+        fillOpacity={0.3}
+        strokeWidth={0}
+      />
+    </Layer>
+  );
+};
+
+const MoneyFlowReport: React.FC<{ reports: any }> = ({ reports }) => {
+  const sankeyData = useMemo(() => {
+    if (!reports) return null;
+
+    const { spendingByCategory, monthlySummary } = reports;
+    if (!spendingByCategory?.length || !monthlySummary?.length) return null;
+
+    // Calculate total income and total expenses
+    const totalIncome = monthlySummary.reduce((sum: number, m: any) => sum + m.income, 0);
+    const totalExpenses = monthlySummary.reduce((sum: number, m: any) => sum + m.expenses, 0);
+
+    if (totalIncome <= 0) return null;
+
+    // Build nodes: index 0 = "Income", then expense categories (top 12)
+    const sortedCategories = [...spendingByCategory]
+      .sort((a: any, b: any) => b.amount - a.amount)
+      .slice(0, 12);
+
+    // If there's a remainder (savings), add it
+    const categoryTotal = sortedCategories.reduce((sum: number, c: any) => sum + c.amount, 0);
+    const savings = totalIncome - totalExpenses;
+
+    const nodes: { name: string }[] = [
+      { name: 'Income' },
+      ...sortedCategories.map((c: any) => ({ name: c.categoryName })),
+    ];
+
+    // Group remaining categories into "Other"
+    const otherAmount = totalExpenses - categoryTotal;
+    if (otherAmount > 10) {
+      nodes.push({ name: 'Other Expenses' });
+    }
+    if (savings > 10) {
+      nodes.push({ name: 'Savings' });
+    }
+
+    const links: { source: number; target: number; value: number }[] = [];
+
+    // Income → each category
+    sortedCategories.forEach((c: any, i: number) => {
+      links.push({ source: 0, target: i + 1, value: Math.round(c.amount * 100) / 100 });
+    });
+
+    let nextIdx = sortedCategories.length + 1;
+    if (otherAmount > 10) {
+      links.push({ source: 0, target: nextIdx, value: Math.round(otherAmount * 100) / 100 });
+      nextIdx++;
+    }
+    if (savings > 10) {
+      links.push({ source: 0, target: nextIdx, value: Math.round(savings * 100) / 100 });
+    }
+
+    return { nodes, links };
+  }, [reports]);
+
+  if (!sankeyData) {
+    return (
+      <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+        <p className="text-lg font-medium">Not enough data for money flow</p>
+        <p className="mt-1 text-sm">Income and spending data is needed to generate this visualization.</p>
+      </div>
+    );
+  }
+
+  const totalIncome = reports.monthlySummary.reduce((s: number, m: any) => s + m.income, 0);
+  const totalExpenses = reports.monthlySummary.reduce((s: number, m: any) => s + m.expenses, 0);
+  const savings = totalIncome - totalExpenses;
+  const savingsRate = totalIncome > 0 ? (savings / totalIncome * 100) : 0;
+
+  return (
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <StatCard label="Total Income" value={formatCurrency(totalIncome)} valueClassName="text-green-600 dark:text-green-400" />
+        <StatCard label="Total Expenses" value={formatCurrency(totalExpenses)} valueClassName="text-red-600 dark:text-red-400" />
+        <StatCard label="Net Savings" value={formatCurrency(savings)} valueClassName={savings >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'} />
+        <StatCard label="Savings Rate" value={`${savingsRate.toFixed(1)}%`} valueClassName={savingsRate >= 20 ? 'text-green-600 dark:text-green-400' : savingsRate >= 0 ? 'text-yellow-600 dark:text-yellow-400' : 'text-red-600 dark:text-red-400'} />
+      </div>
+
+      <ChartCard title="Income → Expense Flow" subtitle="How your income flows into spending categories">
+        <div style={{ width: '100%', height: 500 }}>
+          <ResponsiveContainer>
+            <RechartsSankey
+              data={sankeyData}
+              nodeWidth={10}
+              nodePadding={24}
+              margin={{ top: 20, right: 160, bottom: 20, left: 160 }}
+              link={<SankeyLink />}
+              node={<SankeyNode />}
+            >
+              <Tooltip
+                formatter={(value: number) => formatCurrency(value)}
+              />
+            </RechartsSankey>
+          </ResponsiveContainer>
+        </div>
+      </ChartCard>
+
+      {/* Breakdown table */}
+      <ChartCard title="Flow Breakdown" subtitle="Detailed allocation of income">
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-gray-200 dark:border-gray-700">
+                <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Category</th>
+                <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Amount</th>
+                <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">% of Income</th>
+                <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Share</th>
+              </tr>
+            </thead>
+            <tbody>
+              {sankeyData.links.map((link, i) => {
+                const pct = totalIncome > 0 ? (link.value / totalIncome * 100) : 0;
+                const node = sankeyData.nodes[link.target];
+                return (
+                  <tr key={i} className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50">
+                    <td className="py-3 px-4 flex items-center gap-2">
+                      <span
+                        className="w-3 h-3 rounded-full inline-block"
+                        style={{ backgroundColor: SANKEY_COLORS[link.target % SANKEY_COLORS.length] }}
+                      />
+                      {node.name}
+                    </td>
+                    <td className="py-3 px-4 text-right font-medium">{formatCurrency(link.value)}</td>
+                    <td className="py-3 px-4 text-right text-gray-500 dark:text-gray-400">{pct.toFixed(1)}%</td>
+                    <td className="py-3 px-4">
+                      <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                        <div
+                          className="h-2 rounded-full"
+                          style={{
+                            width: `${Math.min(pct, 100)}%`,
+                            backgroundColor: SANKEY_COLORS[link.target % SANKEY_COLORS.length],
+                          }}
+                        />
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </ChartCard>
     </div>
   );
 };
