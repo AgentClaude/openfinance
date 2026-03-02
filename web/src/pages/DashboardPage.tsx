@@ -18,6 +18,7 @@ import { StatCard } from '@/components/shared';
 import DashboardBudgetWidget from '@/components/DashboardBudgetWidget';
 import DashboardBillsWidget from '@/components/DashboardBillsWidget';
 import DashboardGoalsWidget from '@/components/DashboardGoalsWidget';
+import DashboardInvestmentsWidget from '@/components/DashboardInvestmentsWidget';
 import { format } from 'date-fns';
 import clsx from 'clsx';
 
@@ -222,11 +223,14 @@ const DashboardPage: React.FC = () => {
         </Card>
       </div>
 
-      {/* Budget, Bills & Goals Widgets */}
+      {/* Budget, Bills, Goals & Investments Widgets */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
         <DashboardBudgetWidget />
         <DashboardBillsWidget />
         <DashboardGoalsWidget />
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        <DashboardInvestmentsWidget />
       </div>
 
       {/* Recent Transactions */}

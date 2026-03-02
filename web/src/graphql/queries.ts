@@ -424,6 +424,17 @@ export const GET_PORTFOLIO_SUMMARY = gql`
   }
 `;
 
+export const GET_PORTFOLIO_HISTORY = gql`
+  query GetPortfolioHistory($accountId: ID, $months: Int) {
+    portfolioHistory(accountId: $accountId, months: $months) {
+      date
+      totalValue
+      totalCostBasis
+      gainLoss
+    }
+  }
+`;
+
 export const GET_GOALS = gql`
   query GetGoals($activeOnly: Boolean) {
     goals(activeOnly: $activeOnly) {

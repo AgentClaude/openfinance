@@ -613,6 +613,37 @@ module Types
       Holding.where(id: latest_ids).includes(:security, :account)
     end
 
+    field :portfolio_history, [Types::PortfolioHistoryPointType], null: false do
+      argument :account_id, ID, required: false
+      argument :months, Integer, required: false, default_value: 12
+    end
+    def portfolio_history(account_id: nil, months: 12)
+      return [] unless context[:current_user]&.household
+
+      household = context[:current_user].household
+      start_date = months.months.ago.to_date
+
+      scope = Holding.joins(:account)
+                     .where(accounts: { household_id: household.id })
+                     .where('holdings.as_of_date >= ?', start_date)
+                     .where('holdings.quantity > 0')
+      scope = scope.where(account_id: account_id) if account_id.present?
+
+      # Group by date, sum values
+      points_by_date = {}
+      scope.includes(:security).find_each do |h|
+        date_key = h.as_of_date.iso8601
+        points_by_date[date_key] ||= { date: date_key, total_value: 0.0, total_cost_basis: 0.0 }
+        points_by_date[date_key][:total_value] += h.current_value.cents / 100.0
+        points_by_date[date_key][:total_cost_basis] += h.cost_basis_total.cents / 100.0
+      end
+
+      points_by_date.values.map do |p|
+        p[:gain_loss] = p[:total_value] - p[:total_cost_basis]
+        p
+      end.sort_by { |p| p[:date] }
+    end
+
     def empty_portfolio
       { total_value: 0.0, total_cost_basis: 0.0, total_gain_loss: 0.0, total_gain_loss_percentage: 0.0, total_holdings_count: 0, allocations: [] }
     end

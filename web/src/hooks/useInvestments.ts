@@ -1,6 +1,13 @@
 import { useQuery } from '@apollo/client';
-import { GET_HOLDINGS, GET_PORTFOLIO_SUMMARY } from '@/graphql/queries';
+import { GET_HOLDINGS, GET_PORTFOLIO_SUMMARY, GET_PORTFOLIO_HISTORY } from '@/graphql/queries';
 import { Holding, PortfolioSummary } from '@/types';
+
+export interface PortfolioHistoryPoint {
+  date: string;
+  totalValue: number;
+  totalCostBasis: number;
+  gainLoss: number;
+}
 
 export const useInvestments = (accountId?: string) => {
   const variables = accountId ? { accountId } : {};
@@ -19,6 +26,12 @@ export const useInvestments = (accountId?: string) => {
     refetch: refetchSummary,
   } = useQuery(GET_PORTFOLIO_SUMMARY, { variables });
 
+  const {
+    data: historyData,
+    loading: historyLoading,
+    refetch: refetchHistory,
+  } = useQuery(GET_PORTFOLIO_HISTORY, { variables: { ...variables, months: 12 } });
+
   const holdings: Holding[] = holdingsData?.holdings || [];
   const summary: PortfolioSummary = summaryData?.portfolioSummary || {
     totalValue: 0,
@@ -29,14 +42,18 @@ export const useInvestments = (accountId?: string) => {
     allocations: [],
   };
 
+  const history: PortfolioHistoryPoint[] = historyData?.portfolioHistory || [];
+
   return {
     holdings,
     summary,
-    loading: holdingsLoading || summaryLoading,
+    history,
+    loading: holdingsLoading || summaryLoading || historyLoading,
     error: holdingsError || summaryError,
     refetch: () => {
       refetchHoldings();
       refetchSummary();
+      refetchHistory();
     },
   };
 };

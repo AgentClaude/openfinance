@@ -563,8 +563,12 @@ securities_data.each do |sd|
   secs[sd[:symbol]] = sec
 end
 
+# Create holdings for today AND historical monthly snapshots (6 months back)
+# Simulate gradual price appreciation with some volatility
+total_holdings_created = 0
 holdings_config.each do |account, holdings_list|
   holdings_list.each do |h|
+    # Today's holding
     holding = Holding.find_or_initialize_by(account: account, security: secs[h[:symbol]], as_of_date: today)
     holding.assign_attributes(
       quantity: h[:qty],
@@ -573,10 +577,29 @@ holdings_config.each do |account, holdings_list|
       currency: 'USD'
     )
     holding.save!
+    total_holdings_created += 1
+
+    # Historical monthly snapshots (6 months back)
+    6.downto(1) do |months_ago|
+      hist_date = today - months_ago.months
+      # Simulate prices lower in the past with some noise
+      growth_factor = 1.0 - (months_ago * 0.025) + (rand(-15..15) * 0.001)
+      hist_price = (h[:price_cents] * growth_factor).to_i
+
+      hist = Holding.find_or_initialize_by(account: account, security: secs[h[:symbol]], as_of_date: hist_date)
+      hist.assign_attributes(
+        quantity: h[:qty],
+        current_price_cents: hist_price,
+        cost_basis_cents: h[:cost_cents],
+        currency: 'USD'
+      )
+      hist.save!
+      total_holdings_created += 1
+    end
   end
 end
 
-puts "✅ #{securities_data.size} securities, #{holdings_config.values.flatten.size} holdings"
+puts "✅ #{securities_data.size} securities, #{total_holdings_created} holdings (incl. 6-month history)"
 
 # ==============================================================================
 # 10. CATEGORIZATION RULES
