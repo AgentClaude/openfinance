@@ -1,5 +1,5 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { 
   ArrowTrendingUpIcon,
   ArrowTrendingDownIcon,
@@ -28,7 +28,19 @@ const COLORS = [
 ];
 
 const DashboardPage: React.FC = () => {
+  const navigate = useNavigate();
   const { summary, loading, getNetWorthTrend, getNetWorthTrendPercentage } = useDashboard();
+
+  // Redirect new users to onboarding
+  useEffect(() => {
+    if (!loading && summary) {
+      const hasNoData = summary.accountBalances.length === 0 && summary.recentTransactions.length === 0;
+      const onboardingDone = localStorage.getItem('onboarding_completed') === 'true';
+      if (hasNoData && !onboardingDone) {
+        navigate('/onboarding', { replace: true });
+      }
+    }
+  }, [loading, summary, navigate]);
 
   if (loading) {
     return (

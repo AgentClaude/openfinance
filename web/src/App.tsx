@@ -29,6 +29,7 @@ import ImportPage from '@/pages/ImportPage';
 import SettingsPage from '@/pages/SettingsPage';
 import DocsPage from '@/pages/DocsPage';
 import NetWorthPage from '@/pages/NetWorthPage';
+import OnboardingPage from '@/pages/OnboardingPage';
 
 function App() {
   return (
@@ -44,6 +45,9 @@ function App() {
                 <Route path="/register" element={<RegisterPage />} />
                 <Route path="/docs" element={<DocsPage />} />
                 
+                {/* Onboarding (protected but no layout) */}
+                <Route path="/onboarding" element={<ProtectedRoute><OnboardingPage /></ProtectedRoute>} />
+
                 {/* Protected routes */}
                 <Route path="/" element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
                   <Route path="dashboard" element={<DashboardPage />} />
