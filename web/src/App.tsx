@@ -22,6 +22,7 @@ import BudgetPage from '@/pages/BudgetPage';
 import GoalsPage from '@/pages/GoalsPage';
 import CategoriesPage from '@/pages/CategoriesPage';
 import RulesPage from '@/pages/RulesPage';
+import MerchantMappingsPage from '@/pages/MerchantMappingsPage';
 import RecurringPage from '@/pages/RecurringPage';
 import ReportsPage from '@/pages/ReportsPage';
 import InvestmentsPage from '@/pages/InvestmentsPage';
@@ -57,6 +58,7 @@ function App() {
                   <Route path="budget" element={<BudgetPage />} />
                   <Route path="categories" element={<CategoriesPage />} />
                   <Route path="rules" element={<RulesPage />} />
+                  <Route path="merchant-mappings" element={<MerchantMappingsPage />} />
                   <Route path="recurring" element={<RecurringPage />} />
                   <Route path="reports" element={<ReportsPage />} />
                   <Route path="net-worth" element={<NetWorthPage />} />
