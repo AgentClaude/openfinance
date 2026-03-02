@@ -8,10 +8,8 @@ module Mutations
     field :errors, [String], null: true
 
     def resolve(transaction_id:, splits:)
-      household = context[:current_user]&.household
-      raise GraphQL::ExecutionError, "Not authenticated" unless household
-
-      txn = household.transactions.find(transaction_id)
+      hh = require_auth!
+      txn = authorize(hh.transactions.find(transaction_id), :update?)
       split_params = splits.map do |s|
         {
           amount_cents: (s.amount * 100).round,
@@ -23,7 +21,7 @@ module Mutations
       result = Transactions::SplitService.new(
         transaction: txn,
         splits: split_params,
-        household: household
+        household: hh
       ).call
 
       if result.success?

@@ -12,10 +12,8 @@ module Mutations
     type Types::CategorizationRuleType
 
     def resolve(id:, **attrs)
-      household = context[:current_user]&.household
-      raise GraphQL::ExecutionError, "Not authenticated" unless household
-
-      rule = household.categorization_rules.find(id)
+      hh = require_auth!
+      rule = authorize(hh.categorization_rules.find(id), :update?)
       if rule.update(attrs.compact)
         rule
       else

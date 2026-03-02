@@ -5,11 +5,10 @@ module Mutations
     field :success, Boolean, null: false
 
     def resolve(id:)
-      household = context[:current_user]&.household
-      raise GraphQL::ExecutionError, "Not authenticated" unless household
-
-      item = household.recurring_items.find_by(id: id)
+      hh = require_auth!
+      item = hh.recurring_items.find_by(id: id)
       raise GraphQL::ExecutionError, "Recurring item not found" unless item
+      authorize(item, :destroy?)
 
       item.destroy!
       { success: true }

@@ -5,10 +5,9 @@ module Mutations
     type Types::CategoryType
 
     def resolve(input:)
-      household = context[:current_user]&.household
-      raise GraphQL::ExecutionError, "Not authenticated" unless household
+      hh = require_auth!
 
-      household.categories.create!(
+      hh.categories.create!(
         name: input.name,
         icon: input.icon,
         color: input.color,

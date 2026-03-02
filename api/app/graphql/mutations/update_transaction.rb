@@ -6,10 +6,8 @@ module Mutations
     type Types::TransactionType
 
     def resolve(id:, input:)
-      household = context[:current_user]&.household
-      raise GraphQL::ExecutionError, "Not authenticated" unless household
-
-      txn = household.transactions.find(id)
+      hh = require_auth!
+      txn = authorize(hh.transactions.find(id), :update?)
       attrs = {}
       attrs[:account_id] = input.account_id if input.respond_to?(:account_id) && !input.account_id.nil?
       attrs[:name] = input.description if input.respond_to?(:description) && !input.description.nil?

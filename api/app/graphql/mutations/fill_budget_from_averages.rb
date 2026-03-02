@@ -5,14 +5,13 @@ module Mutations
     field :budget_items, [Types::BudgetItemType], null: false
 
     def resolve(month:)
-      household = context[:current_user]&.household
-      raise GraphQL::ExecutionError, "Not authenticated" unless household
+      hh = require_auth!
 
       target_date = Date.parse("#{month}-01").beginning_of_month rescue nil
       raise GraphQL::ExecutionError, "Invalid month format" unless target_date
 
-      budget = household.budgets.first || Budget.create!(
-        household: household,
+      budget = hh.budgets.first || Budget.create!(
+        hh: hh,
         name: "Monthly Budget",
         period_type: "monthly",
         start_date: target_date
@@ -22,7 +21,7 @@ module Mutations
       three_months_ago = target_date - 3.months
       end_of_last_month = target_date - 1.day
 
-      spending = household.transactions
+      spending = hh.transactions
         .where(date: three_months_ago..end_of_last_month)
         .where("amount_cents < 0")
         .where.not(category_id: nil)

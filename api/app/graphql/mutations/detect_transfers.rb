@@ -3,10 +3,9 @@ module Mutations
     field :candidates, [Types::TransferCandidateType], null: false
 
     def resolve
-      household = context[:current_user]&.household
-      raise GraphQL::ExecutionError, "Not authenticated" unless household
+      hh = require_auth!
 
-      result = Transactions::TransferDetectionService.new(household: household).call
+      result = Transactions::TransferDetectionService.new(hh: hh).call
       { candidates: result.data[:candidates] || [] }
     end
   end

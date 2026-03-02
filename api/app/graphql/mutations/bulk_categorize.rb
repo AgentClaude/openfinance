@@ -6,10 +6,9 @@ module Mutations
     type [Types::TransactionType]
 
     def resolve(transaction_ids:, category_id:)
-      household = context[:current_user]&.household
-      raise GraphQL::ExecutionError, "Not authenticated" unless household
+      hh = require_auth!
 
-      txns = household.transactions.where(id: transaction_ids)
+      txns = hh.transactions.where(id: transaction_ids)
       txns.update_all(category_id: category_id)
       txns.reload.includes(:account, :category)
     end

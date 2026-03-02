@@ -3,10 +3,9 @@ module Mutations
     field :updated_count, Integer, null: false
 
     def resolve
-      household = context[:current_user]&.household
-      raise GraphQL::ExecutionError, "Not authenticated" unless household
+      hh = require_auth!
 
-      service = Rules::ApplyRulesService.new(household: household)
+      service = Rules::ApplyRulesService.new(hh: hh)
       result = service.call
 
       if result.success?

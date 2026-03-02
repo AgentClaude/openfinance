@@ -6,11 +6,11 @@ module Mutations
     type Types::RecurringItemType
 
     def resolve(id:, transaction_id: nil)
-      household = context[:current_user]&.household
-      raise GraphQL::ExecutionError, "Not authenticated" unless household
+      hh = require_auth!
 
-      item = household.recurring_items.find_by(id: id)
+      item = hh.recurring_items.find_by(id: id)
       raise GraphQL::ExecutionError, "Recurring item not found" unless item
+      authorize(item, :update?)
 
       today = Date.current
       item.last_occurrence = today

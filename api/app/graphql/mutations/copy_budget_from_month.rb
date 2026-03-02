@@ -6,14 +6,13 @@ module Mutations
     field :budget_items, [Types::BudgetItemType], null: false
 
     def resolve(source_month:, target_month:)
-      household = context[:current_user]&.household
-      raise GraphQL::ExecutionError, "Not authenticated" unless household
+      hh = require_auth!
 
       source_date = Date.parse("#{source_month}-01").beginning_of_month rescue nil
       target_date = Date.parse("#{target_month}-01").beginning_of_month rescue nil
       raise GraphQL::ExecutionError, "Invalid month format" unless source_date && target_date
 
-      budget = household.budgets.first
+      budget = hh.budgets.first
       raise GraphQL::ExecutionError, "No budget found" unless budget
 
       source_items = BudgetItem.where(budget: budget, month: source_date)

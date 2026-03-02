@@ -13,10 +13,9 @@ module Mutations
     type Types::RecurringItemType
 
     def resolve(**args)
-      household = context[:current_user]&.household
-      raise GraphQL::ExecutionError, "Not authenticated" unless household
+      hh = require_auth!
 
-      household.recurring_items.create!(
+      hh.recurring_items.create!(
         name: args[:name],
         merchant_name: args[:merchant_name],
         description: args[:description],

@@ -5,10 +5,9 @@ module Mutations
     type Types::TransactionType
 
     def resolve(input:)
-      household = context[:current_user]&.household
-      raise GraphQL::ExecutionError, "Not authenticated" unless household
+      hh = require_auth!
 
-      txn = household.transactions.create!(
+      txn = hh.transactions.create!(
         account_id: input.account_id,
         name: input.description,
         amount_cents: (input.amount * 100).to_i,

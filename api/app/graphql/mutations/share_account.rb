@@ -10,17 +10,15 @@ module Mutations
     field :errors, [String], null: false
 
     def resolve(account_id:, email:, permission_level:)
-      household = context[:current_user]&.household
-      raise GraphQL::ExecutionError, "Not authenticated" unless household
-
-      account = household.accounts.find(account_id)
+      hh = require_auth!
+      account = authorize(hh.accounts.find(account_id), :share?)
       target_user = User.find_by(email: email)
 
       unless target_user
         return { shared_account: nil, errors: ["No user found with that email"] }
       end
 
-      if target_user.household_id == household.id
+      if target_user.household_id == hh.id
         return { shared_account: nil, errors: ["User is already in your household"] }
       end
 

@@ -9,11 +9,10 @@ module Mutations
     field :errors, [String], null: true
 
     def resolve(transaction_ids:, action:, category_id: nil)
-      household = context[:current_user]&.household
-      raise GraphQL::ExecutionError, "Not authenticated" unless household
+      hh = require_auth!
 
       result = Transactions::BulkActionsService.new(
-        household: household,
+        hh: hh,
         transaction_ids: transaction_ids,
         action: action,
         category_id: category_id

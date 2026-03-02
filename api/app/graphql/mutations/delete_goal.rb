@@ -5,10 +5,8 @@ module Mutations
     field :success, Boolean, null: false
 
     def resolve(id:)
-      household = context[:current_user]&.household
-      raise GraphQL::ExecutionError, "Not authenticated" unless household
-
-      goal = household.goals.find(id)
+      hh = require_auth!
+      goal = authorize(hh.goals.find(id), :destroy?)
       goal.destroy!
 
       { success: true }
