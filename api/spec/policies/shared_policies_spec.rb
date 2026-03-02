@@ -29,4 +29,5 @@ RSpec.describe 'Household-scoped policies' do
   it_behaves_like 'household scoped policy', GoalPolicy, :goal
   it_behaves_like 'household scoped policy', RecurringItemPolicy, :recurring_item
   it_behaves_like 'household scoped policy', TagPolicy, :tag
+  it_behaves_like 'household scoped policy', CategorizationRulePolicy, :categorization_rule
 end

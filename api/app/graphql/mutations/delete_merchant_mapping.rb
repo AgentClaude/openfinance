@@ -3,9 +3,10 @@ module Mutations
     argument :id, ID, required: true
     field :success, Boolean, null: false
     def resolve(id:)
-      household = context[:current_user]&.household
-      raise GraphQL::ExecutionError, "Not authenticated" unless household
-      household.merchant_mappings.find(id).destroy!
+      hh = require_auth!
+      mapping = hh.merchant_mappings.find(id)
+      authorize(mapping, :destroy?)
+      mapping.destroy!
       { success: true }
     end
   end

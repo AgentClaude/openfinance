@@ -61,8 +61,9 @@ RSpec.describe 'GraphQL Mutations', type: :request do
       result = graphql_query(query, variables: {
         input: { name: 'Test', type: 'DEPOSITORY', balance: 100.0 }
       })
-      data = result.dig('data', 'createManualAccount')
-      expect(data['errors']).to include('Not authenticated')
+      errors = result['errors']
+      expect(errors).to be_present
+      expect(errors.first['message']).to include('Not authenticated')
     end
   end
 

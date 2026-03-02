@@ -4,10 +4,9 @@ module Mutations
     field :recurring_items, [Types::RecurringItemType], null: false
 
     def resolve
-      household = context[:current_user]&.household
-      raise GraphQL::ExecutionError, "Not authenticated" unless household
+      hh = require_auth!
 
-      service = Recurring::DetectRecurringService.new(household: household)
+      service = Recurring::DetectRecurringService.new(hh: hh)
       result = service.call
 
       if result.success?

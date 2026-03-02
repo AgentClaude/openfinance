@@ -5,10 +5,8 @@ module Mutations
     field :success, Boolean, null: false
 
     def resolve(id:)
-      user = context[:current_user]
-      raise GraphQL::ExecutionError, "Authentication required" unless user
-
-      tag = user.household.tags.find(id)
+      hh = require_auth!
+      tag = authorize(hh.tags.find(id), :destroy?)
       tag.destroy!
       { success: true }
     end

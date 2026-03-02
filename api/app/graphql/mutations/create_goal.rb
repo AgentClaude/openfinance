@@ -12,10 +12,8 @@ module Mutations
     type Types::GoalType
 
     def resolve(**args)
-      household = context[:current_user]&.household
-      raise GraphQL::ExecutionError, "Not authenticated" unless household
-
-      goal = household.goals.new(
+      hh = require_auth!
+      goal = hh.goals.new(
         name: args[:name],
         description: args[:description],
         goal_type: args[:goal_type],

@@ -7,12 +7,11 @@ module Mutations
     type Types::BudgetItemType
 
     def resolve(category_id:, month:, budgeted:)
-      household = context[:current_user]&.household
-      raise GraphQL::ExecutionError, "Not authenticated" unless household
-
+      hh = require_auth!
       date = Date.parse("#{month}-01").beginning_of_month rescue Date.current.beginning_of_month
-      budget = household.budgets.first || Budget.create!(household: household, name: "Monthly Budget", start_date: date, period_type: 'monthly')
+      budget = hh.budgets.first || Budget.create!(household: hh, name: "Monthly Budget", start_date: date, period_type: 'monthly')
       item = BudgetItem.find_or_initialize_by(budget: budget, category_id: category_id, month: date)
+      authorize(item, item.new_record? ? :create? : :update?)
       item.update!(amount_cents: (budgeted * 100).to_i)
       item
     end

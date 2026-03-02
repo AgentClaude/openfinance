@@ -8,10 +8,9 @@ module Mutations
     field :errors, [String], null: true
 
     def resolve(transaction_a_id:, transaction_b_id:)
-      household = context[:current_user]&.household
-      raise GraphQL::ExecutionError, "Not authenticated" unless household
+      hh = require_auth!
 
-      service = Transactions::TransferDetectionService.new(household: household)
+      service = Transactions::TransferDetectionService.new(hh: hh)
       result = service.link_transfer!(
         transaction_a_id: transaction_a_id,
         transaction_b_id: transaction_b_id

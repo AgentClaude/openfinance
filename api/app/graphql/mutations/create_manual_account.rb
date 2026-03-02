@@ -18,12 +18,11 @@ module Mutations
     }.freeze
 
     def resolve(input:)
-      household = context[:current_user]&.household
-      return { errors: ["Not authenticated"] } unless household
+      hh = require_auth!
 
       account_type = TYPE_TO_ACCOUNT_TYPE[input.type] || input.type&.downcase || 'checking'
 
-      account = household.accounts.new(
+      account = hh.accounts.new(
         name: input.name,
         account_type: account_type,
         current_balance_cents: ((input.balance || 0) * 100).to_i,

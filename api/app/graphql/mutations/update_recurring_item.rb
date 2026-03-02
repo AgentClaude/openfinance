@@ -15,11 +15,10 @@ module Mutations
     type Types::RecurringItemType
 
     def resolve(id:, **args)
-      household = context[:current_user]&.household
-      raise GraphQL::ExecutionError, "Not authenticated" unless household
-
-      item = household.recurring_items.find_by(id: id)
+      hh = require_auth!
+      item = hh.recurring_items.find_by(id: id)
       raise GraphQL::ExecutionError, "Recurring item not found" unless item
+      authorize(item, :update?)
 
       attrs = {}
       attrs[:name] = args[:name] if args.key?(:name)

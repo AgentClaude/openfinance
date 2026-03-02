@@ -10,10 +10,9 @@ module Mutations
     type Types::CategorizationRuleType
 
     def resolve(match_field:, match_type:, match_value:, category_id:, rename_to: nil, priority: nil)
-      household = context[:current_user]&.household
-      raise GraphQL::ExecutionError, "Not authenticated" unless household
+      hh = require_auth!
 
-      rule = household.categorization_rules.build(
+      rule = hh.categorization_rules.build(
         match_field: match_field,
         match_type: match_type,
         match_value: match_value,

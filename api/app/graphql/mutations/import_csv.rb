@@ -12,11 +12,10 @@ module Mutations
     field :import_id, ID, null: true
 
     def resolve(account_id:, csv_content:, filename:, column_mapping: nil, format_type: "auto")
-      household = context[:current_user]&.household
-      raise GraphQL::ExecutionError, "Not authenticated" unless household
+      hh = require_auth!
 
       result = Transactions::CsvImportService.new(
-        household: household,
+        hh: hh,
         account_id: account_id,
         csv_content: csv_content,
         column_mapping: column_mapping,

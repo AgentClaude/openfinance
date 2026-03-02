@@ -8,10 +8,8 @@ module Mutations
     type Types::TagType
 
     def resolve(id:, name: nil, color_hex: nil, is_active: nil)
-      user = context[:current_user]
-      raise GraphQL::ExecutionError, "Authentication required" unless user
-
-      tag = user.household.tags.find(id)
+      hh = require_auth!
+      tag = authorize(hh.tags.find(id), :update?)
       attrs = {}
       attrs[:name] = name if name.present?
       attrs[:color_hex] = color_hex if color_hex.present?
