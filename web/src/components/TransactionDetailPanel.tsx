@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { XMarkIcon, CheckIcon, ExclamationTriangleIcon, ScissorsIcon, EyeSlashIcon, EyeIcon } from '@heroicons/react/24/outline';
+import { XMarkIcon, CheckIcon, ExclamationTriangleIcon, ScissorsIcon, EyeSlashIcon, EyeIcon, BoltIcon } from '@heroicons/react/24/outline';
+import { useMutation } from '@apollo/client';
 import { Transaction, Category, Tag } from '@/types';
 import AmountDisplay from '@/components/ui/AmountDisplay';
 import Badge from '@/components/ui/Badge';
 import Button from '@/components/ui/Button';
 import Select from '@/components/ui/Select';
 import SplitTransactionModal from '@/components/SplitTransactionModal';
+import { CREATE_CATEGORIZATION_RULE } from '@/graphql/mutations';
 import { format } from 'date-fns';
 
 interface TransactionDetailPanelProps {
@@ -39,6 +41,15 @@ const TransactionDetailPanel: React.FC<TransactionDetailPanelProps> = ({
   const [tagInput, setTagInput] = useState('');
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const [splitOpen, setSplitOpen] = useState(false);
+  const [ruleFormOpen, setRuleFormOpen] = useState(false);
+  const [ruleMatchField, setRuleMatchField] = useState<'merchant_name' | 'description'>('merchant_name');
+  const [ruleMatchType, setRuleMatchType] = useState<'contains' | 'exact'>('contains');
+  const [ruleMatchValue, setRuleMatchValue] = useState('');
+  const [ruleFeedback, setRuleFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+
+  const [createRule, { loading: creatingRule }] = useMutation(CREATE_CATEGORIZATION_RULE, {
+    refetchQueries: ['GetCategorizationRules'],
+  });
 
   useEffect(() => {
     if (transaction) {
@@ -48,8 +59,41 @@ const TransactionDetailPanel: React.FC<TransactionDetailPanelProps> = ({
       setExcluded(transaction.excluded || false);
       setTransactionTags(transaction.tags || []);
       setFeedback(null);
+      setRuleFormOpen(false);
+      setRuleFeedback(null);
+      // Pre-fill rule match value from merchant or description
+      if (transaction.merchantName) {
+        setRuleMatchField('merchant_name');
+        setRuleMatchValue(transaction.merchantName);
+      } else {
+        setRuleMatchField('description');
+        setRuleMatchValue(transaction.description);
+      }
+      setRuleMatchType('contains');
     }
   }, [transaction]);
+
+  const handleCreateRule = async () => {
+    if (!transaction || !categoryId || !ruleMatchValue.trim()) {
+      setRuleFeedback({ type: 'error', message: 'Select a category and match value first' });
+      return;
+    }
+    try {
+      await createRule({
+        variables: {
+          matchField: ruleMatchField,
+          matchType: ruleMatchType,
+          matchValue: ruleMatchValue.trim(),
+          categoryId,
+        },
+      });
+      setRuleFeedback({ type: 'success', message: 'Rule created! Future matching transactions will be auto-categorized.' });
+      setTimeout(() => setRuleFormOpen(false), 2000);
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : 'Failed to create rule';
+      setRuleFeedback({ type: 'error', message: msg });
+    }
+  };
 
   const overlayRef = useRef<HTMLDivElement>(null);
 
@@ -325,6 +369,65 @@ const TransactionDetailPanel: React.FC<TransactionDetailPanelProps> = ({
 
             {/* Footer */}
             <div className="border-t border-gray-200 px-4 py-4 sm:px-6 space-y-3">
+              {/* Create Rule Section */}
+              {categoryId && !ruleFormOpen && (
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => setRuleFormOpen(true)}
+                  className="w-full"
+                >
+                  <BoltIcon className="h-4 w-4 mr-2" />
+                  Always categorize like this
+                </Button>
+              )}
+              {ruleFormOpen && (
+                <div className="rounded-lg border border-brand-200 bg-brand-50 p-3 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-sm font-medium text-brand-800">Create Auto-Categorization Rule</h4>
+                    <button onClick={() => { setRuleFormOpen(false); setRuleFeedback(null); }} className="text-gray-400 hover:text-gray-600">
+                      <XMarkIcon className="h-4 w-4" />
+                    </button>
+                  </div>
+                  {ruleFeedback && (
+                    <div className={`rounded-md p-2 text-xs ${ruleFeedback.type === 'success' ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'}`}>
+                      {ruleFeedback.message}
+                    </div>
+                  )}
+                  <div className="grid grid-cols-2 gap-2">
+                    <select
+                      value={ruleMatchField}
+                      onChange={(e) => setRuleMatchField(e.target.value as 'merchant_name' | 'description')}
+                      className="rounded-md border-gray-300 text-xs shadow-sm focus:border-brand-500 focus:ring-brand-500"
+                    >
+                      <option value="merchant_name">Merchant</option>
+                      <option value="description">Description</option>
+                    </select>
+                    <select
+                      value={ruleMatchType}
+                      onChange={(e) => setRuleMatchType(e.target.value as 'contains' | 'exact')}
+                      className="rounded-md border-gray-300 text-xs shadow-sm focus:border-brand-500 focus:ring-brand-500"
+                    >
+                      <option value="contains">Contains</option>
+                      <option value="exact">Exact match</option>
+                    </select>
+                  </div>
+                  <input
+                    type="text"
+                    value={ruleMatchValue}
+                    onChange={(e) => setRuleMatchValue(e.target.value)}
+                    placeholder="Match value..."
+                    className="w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-brand-500 focus:ring-brand-500"
+                  />
+                  <p className="text-xs text-gray-500">
+                    When {ruleMatchField === 'merchant_name' ? 'merchant' : 'description'} {ruleMatchType === 'contains' ? 'contains' : 'exactly matches'} &quot;{ruleMatchValue}&quot;, categorize as <strong>{categories.find(c => c.id === categoryId)?.name || 'selected category'}</strong>.
+                  </p>
+                  <Button size="sm" onClick={handleCreateRule} loading={creatingRule} className="w-full">
+                    Create Rule
+                  </Button>
+                </div>
+              )}
+
               {!transaction.isSplit && !transaction.parentTransactionId && (
                 <Button
                   variant="secondary"
