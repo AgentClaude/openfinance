@@ -799,6 +799,19 @@ export const UPLOAD_RECEIPT = gql`
   }
 `;
 
+export const DELETE_RECEIPT = gql`
+  mutation DeleteReceipt($transactionId: ID!) {
+    deleteReceipt(transactionId: $transactionId) {
+      transaction {
+        id
+        hasReceipt
+        receiptUrl
+      }
+      errors
+    }
+  }
+`;
+
 export const UPLOAD_STATEMENT = gql`
   mutation UploadStatement($accountId: ID!, $fileData: String!, $filename: String!, $contentType: String) {
     uploadStatement(accountId: $accountId, fileData: $fileData, filename: $filename, contentType: $contentType) {

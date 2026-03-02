@@ -47,6 +47,7 @@ module Types
     field :share_account, mutation: Mutations::ShareAccount
     field :adjust_balance, mutation: Mutations::AdjustBalance
     field :upload_receipt, mutation: Mutations::UploadReceipt
+    field :delete_receipt, mutation: Mutations::DeleteReceipt
     field :upload_statement, mutation: Mutations::UploadStatement
     field :update_member_role, mutation: Mutations::UpdateMemberRole
     field :redeem_referral, mutation: Mutations::RedeemReferral
