@@ -987,3 +987,12 @@ export const SUGGEST_MERCHANT_MAPPINGS = gql`
     }
   }
 `;
+
+export const SEND_TEST_DIGEST = gql`
+  mutation SendTestDigest {
+    sendTestDigest(input: {}) {
+      success
+      message
+    }
+  }
+`;

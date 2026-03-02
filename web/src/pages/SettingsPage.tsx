@@ -6,7 +6,7 @@ import { usePreferences } from '@/hooks/usePreferences';
 import { useTags } from '@/hooks/useTags';
 import { useQuery, useMutation } from '@apollo/client';
 import { GET_ACCOUNTS, GET_NOTIFICATION_PREFERENCES, GET_HOUSEHOLD_MEMBERS, GET_HOUSEHOLD_INVITATIONS, GET_MY_REFERRAL_CODE, GET_REFERRALS } from '@/graphql/queries';
-import { UPDATE_HOUSEHOLD, UPDATE_NOTIFICATION_PREFERENCE, UPDATE_TAG, DELETE_TAG, EXPORT_DATA, DELETE_ACCOUNT, INVITE_TO_HOUSEHOLD, REMOVE_HOUSEHOLD_MEMBER, UPDATE_MEMBER_ROLE } from '@/graphql/mutations';
+import { UPDATE_HOUSEHOLD, UPDATE_NOTIFICATION_PREFERENCE, UPDATE_TAG, DELETE_TAG, EXPORT_DATA, DELETE_ACCOUNT, INVITE_TO_HOUSEHOLD, REMOVE_HOUSEHOLD_MEMBER, UPDATE_MEMBER_ROLE, SEND_TEST_DIGEST } from '@/graphql/mutations';
 import { NotificationPreference } from '@/types';
 import toast from 'react-hot-toast';
 
@@ -50,6 +50,32 @@ const CHANNELS = [
 ];
 
 type TabId = 'profile' | 'preferences' | 'household' | 'members' | 'notifications' | 'tags' | 'referrals' | 'security' | 'data';
+
+function SendTestDigestButton() {
+  const [sendDigest, { loading }] = useMutation(SEND_TEST_DIGEST);
+  const handleSend = async () => {
+    try {
+      const { data } = await sendDigest();
+      if (data?.sendTestDigest?.success) {
+        toast.success(data.sendTestDigest.message || 'Test digest sent!');
+      } else {
+        toast.error(data?.sendTestDigest?.message || 'Failed to send digest');
+      }
+    } catch {
+      toast.error('Failed to send test digest');
+    }
+  };
+
+  return (
+    <button
+      onClick={handleSend}
+      disabled={loading}
+      className="inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg bg-brand-600 text-white hover:bg-brand-700 disabled:opacity-50 transition-colors"
+    >
+      {loading ? '📧 Sending...' : '📧 Send Test Digest'}
+    </button>
+  );
+}
 
 export default function SettingsPage() {
   const { user } = useAuth();
@@ -634,6 +660,13 @@ export default function SettingsPage() {
                 ))}
               </tbody>
             </table>
+          </div>
+
+          {/* Test Digest Button */}
+          <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+            <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">Weekly Digest Preview</h3>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">Send a test digest email to see what your weekly summary looks like.</p>
+            <SendTestDigestButton />
           </div>
         </div>
       )}

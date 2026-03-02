@@ -1,0 +1,50 @@
+WEEKLY FINANCIAL DIGEST
+<%= @period_start %> — <%= @period_end %>
+========================================
+
+OVERVIEW
+  Spent:        $<%= format_cents(@data[:spending][:total_cents]) %>
+  Income:       $<%= format_cents(@data[:income][:total_cents]) %>
+  Transactions: <%= @data[:transaction_count] %>
+
+<% if @data[:top_categories].any? -%>
+TOP SPENDING CATEGORIES
+<% @data[:top_categories].each do |cat| -%>
+  <%= cat[:name].ljust(25) %> $<%= format_cents(cat[:amount_cents]) %>
+<% end -%>
+<% end -%>
+
+<% if @data[:top_merchants].any? -%>
+TOP MERCHANTS
+<% @data[:top_merchants].each do |m| -%>
+  <%= m[:name].to_s.ljust(25) %> $<%= format_cents(m[:amount_cents]) %>
+<% end -%>
+<% end -%>
+
+<% if @data[:budget_alerts].any? -%>
+BUDGET ALERTS
+<% @data[:budget_alerts].each do |alert| -%>
+  ⚠️ <%= alert[:category] %>: <%= alert[:percentage] %>% ($<%= format_cents(alert[:spent_cents]) %> of $<%= format_cents(alert[:budgeted_cents]) %>)
+<% end -%>
+<% end -%>
+
+<% if @data[:upcoming_bills].any? -%>
+UPCOMING BILLS
+<% @data[:upcoming_bills].each do |bill| -%>
+  <%= bill[:name].to_s.ljust(25) %> $<%= format_cents(bill[:amount_cents]) %> due <%= bill[:due_date]&.strftime('%b %d') %>
+<% end -%>
+<% end -%>
+
+<% nw = @data[:net_worth] -%>
+NET WORTH
+  Assets:      $<%= format_cents(nw[:assets_cents]) %>
+  Liabilities: $<%= format_cents(nw[:liabilities_cents]) %>
+  Net Worth:   $<%= format_cents(nw[:net_worth_cents].abs) %> <%= nw[:net_worth_cents] < 0 ? '(debt)' : '' %>
+
+<% if @data[:needs_review_count] > 0 -%>
+You have <%= @data[:needs_review_count] %> transaction(s) that need review.
+<% end -%>
+
+---
+OpenFinance — Your finances, your data.
+To change digest frequency, visit Settings → Notifications.
