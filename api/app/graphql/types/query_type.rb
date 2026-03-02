@@ -286,6 +286,12 @@ module Types
         .by_priority.includes(:category)
     end
 
+    field :suggested_rules, [Types::SuggestedRuleType], null: false
+    def suggested_rules
+      return [] unless context[:current_user]&.household
+      SuggestCategorizationRules.new(context[:current_user].household).call
+    end
+
     field :recurring_items, [Types::RecurringItemType], null: false do
       argument :active_only, Boolean, required: false, default_value: false
     end
