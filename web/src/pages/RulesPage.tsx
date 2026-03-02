@@ -5,9 +5,14 @@ import {
   PencilIcon,
   PlayIcon,
   BoltIcon,
+  LightBulbIcon,
+  CheckIcon,
+  XMarkIcon,
 } from '@heroicons/react/24/outline';
+import { useQuery } from '@apollo/client';
 import { useRules, Rule } from '@/hooks/useRules';
 import { useCategories } from '@/hooks/useCategories';
+import { GET_SUGGESTED_RULES } from '@/graphql/queries';
 import PageHeader from '@/components/ui/PageHeader';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
@@ -19,6 +24,18 @@ import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import EmptyState from '@/components/ui/EmptyState';
 import { useToast } from '@/components/ui/Toast';
 import CategoryIcon from '@/components/ui/CategoryIcon';
+
+interface SuggestedRule {
+  merchantName: string;
+  categoryId: string;
+  categoryName: string;
+  categoryIcon: string | null;
+  categoryColor: string | null;
+  transactionCount: number;
+  matchField: string;
+  matchType: string;
+  matchValue: string;
+}
 
 interface Category {
   id: string;
@@ -58,6 +75,52 @@ const RulesPage: React.FC = () => {
     createRule, updateRule, deleteRule, applyRules,
   } = useRules();
   const { categories } = useCategories();
+  const { data: suggestedData, loading: suggestedLoading, refetch: refetchSuggested } = useQuery(GET_SUGGESTED_RULES);
+  const [dismissedSuggestions, setDismissedSuggestions] = useState<Set<string>>(new Set());
+  const [acceptingMerchant, setAcceptingMerchant] = useState<string | null>(null);
+
+  const suggestions: SuggestedRule[] = (suggestedData?.suggestedRules || []).filter(
+    (s: SuggestedRule) => !dismissedSuggestions.has(s.merchantName)
+  );
+
+  const handleAcceptSuggestion = async (suggestion: SuggestedRule) => {
+    setAcceptingMerchant(suggestion.merchantName);
+    try {
+      await createRule({
+        matchField: suggestion.matchField,
+        matchType: suggestion.matchType,
+        matchValue: suggestion.matchValue,
+        categoryId: suggestion.categoryId,
+      });
+      addToast({ title: `Rule created for "${suggestion.merchantName}"`, type: 'success' });
+      refetchSuggested();
+    } catch (e: any) {
+      addToast({ title: e.message, type: 'error' });
+    } finally {
+      setAcceptingMerchant(null);
+    }
+  };
+
+  const handleDismissSuggestion = (merchantName: string) => {
+    setDismissedSuggestions(prev => new Set(prev).add(merchantName));
+  };
+
+  const handleAcceptAll = async () => {
+    for (const suggestion of suggestions) {
+      try {
+        await createRule({
+          matchField: suggestion.matchField,
+          matchType: suggestion.matchType,
+          matchValue: suggestion.matchValue,
+          categoryId: suggestion.categoryId,
+        });
+      } catch {
+        // skip duplicates
+      }
+    }
+    addToast({ title: `Created ${suggestions.length} rules from suggestions`, type: 'success' });
+    refetchSuggested();
+  };
 
   // Flatten categories for select
   const allCategories: Category[] = [];
@@ -163,6 +226,66 @@ const RulesPage: React.FC = () => {
           </div>
         }
       />
+
+      {/* Suggested Rules Section */}
+      {!suggestedLoading && suggestions.length > 0 && (
+        <div className="mb-6">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <LightBulbIcon className="h-5 w-5 text-amber-500" />
+              <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                Suggested Rules
+              </h2>
+              <span className="text-xs text-gray-400">
+                Based on your categorization patterns
+              </span>
+            </div>
+            <Button variant="secondary" size="sm" onClick={handleAcceptAll}>
+              Accept All ({suggestions.length})
+            </Button>
+          </div>
+          <div className="space-y-2">
+            {suggestions.map((s) => (
+              <Card key={s.merchantName} className="p-3 border-amber-200 dark:border-amber-800/30 bg-amber-50/50 dark:bg-amber-900/10">
+                <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <p className="text-sm text-gray-900 dark:text-gray-100">
+                      When <span className="text-brand-700 font-medium">merchant name</span>{' '}
+                      contains "<span className="font-semibold">{s.matchValue}</span>"
+                    </p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="text-xs text-gray-500 dark:text-gray-400">→ Categorize as</span>
+                      <Badge style={{ backgroundColor: (s.categoryColor || '#6b7280') + '20', color: s.categoryColor || '#6b7280' }}>
+                        {s.categoryIcon && <CategoryIcon icon={s.categoryIcon} className="mr-1" />} {s.categoryName}
+                      </Badge>
+                      <span className="text-xs text-gray-400">
+                        ({s.transactionCount} transactions)
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => handleAcceptSuggestion(s)}
+                      disabled={acceptingMerchant === s.merchantName}
+                      className="p-1.5 rounded-md text-green-600 hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors"
+                      title="Accept suggestion"
+                    >
+                      <CheckIcon className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={() => handleDismissSuggestion(s.merchantName)}
+                      className="p-1.5 rounded-md text-gray-400 hover:text-red-500 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors"
+                      title="Dismiss"
+                    >
+                      <XMarkIcon className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
+              </Card>
+            ))}
+          </div>
+        </div>
+      )}
 
       {rules.length === 0 ? (
         <EmptyState

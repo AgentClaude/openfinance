@@ -591,3 +591,19 @@ export const GET_ACCOUNT_CONNECTIONS = gql`
     }
   }
 `;
+
+export const GET_SUGGESTED_RULES = gql`
+  query GetSuggestedRules {
+    suggestedRules {
+      merchantName
+      categoryId
+      categoryName
+      categoryIcon
+      categoryColor
+      transactionCount
+      matchField
+      matchType
+      matchValue
+    }
+  }
+`;

@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { XMarkIcon, CheckIcon, ExclamationTriangleIcon, ScissorsIcon, EyeSlashIcon, EyeIcon } from '@heroicons/react/24/outline';
+import { XMarkIcon, CheckIcon, ExclamationTriangleIcon, ScissorsIcon, EyeSlashIcon, EyeIcon, BoltIcon } from '@heroicons/react/24/outline';
 import { Transaction, Category, Tag } from '@/types';
 import AmountDisplay from '@/components/ui/AmountDisplay';
 import Badge from '@/components/ui/Badge';
 import Button from '@/components/ui/Button';
 import Select from '@/components/ui/Select';
 import SplitTransactionModal from '@/components/SplitTransactionModal';
+import CreateRuleFromTransactionModal from '@/components/CreateRuleFromTransactionModal';
 import { format } from 'date-fns';
 
 interface TransactionDetailPanelProps {
@@ -16,6 +17,7 @@ interface TransactionDetailPanelProps {
   tags: Tag[];
   onSave: (id: string, input: Record<string, unknown>) => Promise<unknown>;
   onCreateTag: (input: { name: string; color?: string }) => Promise<Tag>;
+  onCreateRule?: (input: { matchField: string; matchType: string; matchValue: string; categoryId: string; renameTo?: string }) => Promise<unknown>;
   saving?: boolean;
 }
 
@@ -29,6 +31,7 @@ const TransactionDetailPanel: React.FC<TransactionDetailPanelProps> = ({
   tags: allTags,
   onSave,
   onCreateTag,
+  onCreateRule,
   saving,
 }) => {
   const [categoryId, setCategoryId] = useState<string>('');
@@ -39,6 +42,7 @@ const TransactionDetailPanel: React.FC<TransactionDetailPanelProps> = ({
   const [tagInput, setTagInput] = useState('');
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const [splitOpen, setSplitOpen] = useState(false);
+  const [ruleOpen, setRuleOpen] = useState(false);
 
   useEffect(() => {
     if (transaction) {
@@ -325,17 +329,30 @@ const TransactionDetailPanel: React.FC<TransactionDetailPanelProps> = ({
 
             {/* Footer */}
             <div className="border-t border-gray-200 px-4 py-4 sm:px-6 space-y-3">
-              {!transaction.isSplit && !transaction.parentTransactionId && (
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => setSplitOpen(true)}
-                  className="w-full"
-                >
-                  <ScissorsIcon className="h-4 w-4 mr-2" />
-                  Split Transaction
-                </Button>
-              )}
+              <div className="flex gap-2">
+                {onCreateRule && (
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => setRuleOpen(true)}
+                    className="flex-1"
+                  >
+                    <BoltIcon className="h-4 w-4 mr-2" />
+                    Create Rule
+                  </Button>
+                )}
+                {!transaction.isSplit && !transaction.parentTransactionId && (
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => setSplitOpen(true)}
+                    className="flex-1"
+                  >
+                    <ScissorsIcon className="h-4 w-4 mr-2" />
+                    Split Transaction
+                  </Button>
+                )}
+              </div>
               {transaction.isSplit && (
                 <div className="text-center">
                   <Badge variant="info" size="sm">This transaction has been split</Badge>
@@ -374,6 +391,16 @@ const TransactionDetailPanel: React.FC<TransactionDetailPanelProps> = ({
           setFeedback({ type: 'success', message: 'Transaction split successfully!' });
           setSplitOpen(false);
         }}
+      />
+    )}
+
+    {transaction && onCreateRule && (
+      <CreateRuleFromTransactionModal
+        transaction={transaction}
+        categories={categories}
+        isOpen={ruleOpen}
+        onClose={() => setRuleOpen(false)}
+        onCreateRule={onCreateRule}
       />
     )}
     </>

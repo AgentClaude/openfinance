@@ -30,6 +30,7 @@ import Card from '@/components/ui/Card';
 import BulkActionToolbar from '@/components/BulkActionToolbar';
 import TransactionDetailPanel from '@/components/TransactionDetailPanel';
 import TransferDetection from '@/components/TransferDetection';
+import { useRules } from '@/hooks/useRules';
 import { BULK_TRANSACTION_ACTION, EXPORT_DATA } from '@/graphql/mutations';
 import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
@@ -56,6 +57,7 @@ const TransactionsPage: React.FC = () => {
   const { accounts } = useAccounts();
   const { categories } = useCategories();
   const { tags, createTag } = useTags();
+  const { createRule } = useRules();
 
   const [bulkAction, { loading: bulkLoading }] = useMutation(BULK_TRANSACTION_ACTION);
   const [exportData] = useMutation(EXPORT_DATA);
@@ -642,6 +644,7 @@ const TransactionsPage: React.FC = () => {
         tags={tags}
         onSave={handleSaveTransaction}
         onCreateTag={createTag}
+        onCreateRule={createRule}
         saving={updating}
       />
     </div>

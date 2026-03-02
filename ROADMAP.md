@@ -79,9 +79,9 @@ _Full budget system with backend + frontend_
 - ✅ Rule CRUD mutations + UI page (match field, type, value, category, rename)
 - ✅ Apply rules button (bulk retroactive application)
 - ✅ Toggle rules active/inactive
-- ⬚ Create rule from transaction detail ("always categorize X as Y")
-- ⬚ Merchant name mapping (raw description → clean name)
-- ⬚ Suggested rules based on manual categorization patterns
+- ✅ Create rule from transaction detail ("always categorize X as Y")
+- ✅ Merchant name mapping (raw description → clean name)
+- ✅ Suggested rules based on manual categorization patterns
 
 ## Phase 7: Recurring Transactions ✅
 - ✅ RecurringItem model → exposed via GraphQL (CRUD + detect mutations)
