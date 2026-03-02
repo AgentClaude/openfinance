@@ -1,0 +1,78 @@
+<div style="max-width: 600px; margin: 0 auto; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #1a1a2e;">
+  <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 24px; border-radius: 12px 12px 0 0;">
+    <h1 style="color: white; margin: 0; font-size: 20px;">📊 Weekly Financial Summary</h1>
+    <p style="color: rgba(255,255,255,0.8); margin: 4px 0 0; font-size: 14px;"><%= @week_start.strftime('%b %d') %> — <%= @week_end.strftime('%b %d, %Y') %></p>
+  </div>
+  <div style="background: #ffffff; padding: 24px; border: 1px solid #e5e7eb; border-top: none;">
+
+    <!-- Summary Cards -->
+    <table style="width: 100%; border-collapse: collapse; margin-bottom: 24px;">
+      <tr>
+        <td style="width: 33%; text-align: center; padding: 16px; background: #f0fdf4; border-radius: 8px;">
+          <div style="font-size: 12px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px;">Income</div>
+          <div style="font-size: 24px; font-weight: 700; color: #10b981;">$<%= '%.2f' % @total_income %></div>
+        </td>
+        <td style="width: 4px;"></td>
+        <td style="width: 33%; text-align: center; padding: 16px; background: #fef2f2; border-radius: 8px;">
+          <div style="font-size: 12px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px;">Spent</div>
+          <div style="font-size: 24px; font-weight: 700; color: #ef4444;">$<%= '%.2f' % @total_spent %></div>
+        </td>
+        <td style="width: 4px;"></td>
+        <td style="width: 33%; text-align: center; padding: 16px; background: <%= @net >= 0 ? '#f0fdf4' : '#fef2f2' %>; border-radius: 8px;">
+          <div style="font-size: 12px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px;">Net</div>
+          <div style="font-size: 24px; font-weight: 700; color: <%= @net >= 0 ? '#10b981' : '#ef4444' %>;">
+            <%= @net >= 0 ? '+' : '-' %>$<%= '%.2f' % @net.abs %>
+          </div>
+        </td>
+      </tr>
+    </table>
+
+    <% if @net_worth %>
+      <div style="background: #f8fafc; border-radius: 8px; padding: 16px; margin-bottom: 24px; text-align: center;">
+        <div style="font-size: 12px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px;">Net Worth</div>
+        <div style="font-size: 28px; font-weight: 700; color: #1a1a2e;">$<%= number_with_delimiter('%.2f' % @net_worth) %></div>
+      </div>
+    <% end %>
+
+    <!-- Top Spending Categories -->
+    <% if @top_categories.any? %>
+      <h3 style="color: #1a1a2e; margin-bottom: 12px;">Top Spending Categories</h3>
+      <table style="width: 100%; border-collapse: collapse; margin-bottom: 24px;">
+        <% @top_categories.each do |cat| %>
+          <tr>
+            <td style="padding: 10px 0; border-bottom: 1px solid #f3f4f6; color: #4a5568;"><%= cat[:name] %></td>
+            <td style="padding: 10px 0; border-bottom: 1px solid #f3f4f6; text-align: right; font-weight: 600; color: #1a1a2e;">$<%= '%.2f' % cat[:amount] %></td>
+          </tr>
+        <% end %>
+      </table>
+    <% end %>
+
+    <!-- Budget Alerts -->
+    <% if @budget_alerts.any? %>
+      <h3 style="color: #ef4444; margin-bottom: 12px;">⚠️ Budget Alerts</h3>
+      <% @budget_alerts.each do |alert| %>
+        <div style="background: #fef2f2; border-left: 4px solid #ef4444; padding: 12px; margin-bottom: 8px; border-radius: 0 8px 8px 0;">
+          <strong><%= alert[:category] %></strong>: $<%= '%.2f' % alert[:spent] %> of $<%= '%.2f' % alert[:budgeted] %> (<%= alert[:percentage].round(0) %>%)
+        </div>
+      <% end %>
+    <% end %>
+
+    <!-- Upcoming Bills -->
+    <% if @upcoming_bills.any? %>
+      <h3 style="color: #1a1a2e; margin-bottom: 12px;">📅 Upcoming Bills (Next 7 Days)</h3>
+      <table style="width: 100%; border-collapse: collapse; margin-bottom: 24px;">
+        <% @upcoming_bills.each do |bill| %>
+          <tr>
+            <td style="padding: 10px 0; border-bottom: 1px solid #f3f4f6; color: #4a5568;"><%= bill[:name] %></td>
+            <td style="padding: 10px 0; border-bottom: 1px solid #f3f4f6; text-align: center; color: #6b7280; font-size: 13px;"><%= bill[:due_date].strftime('%b %d') %></td>
+            <td style="padding: 10px 0; border-bottom: 1px solid #f3f4f6; text-align: right; font-weight: 600; color: #1a1a2e;">$<%= '%.2f' % bill[:amount] %></td>
+          </tr>
+        <% end %>
+      </table>
+    <% end %>
+
+  </div>
+  <div style="background: #f8fafc; padding: 16px 24px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 12px 12px;">
+    <p style="color: #9ca3af; font-size: 12px; margin: 0;">You're receiving this weekly digest because it's enabled in your notification preferences. Manage in Settings → Notifications.</p>
+  </div>
+</div>

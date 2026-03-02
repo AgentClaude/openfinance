@@ -1,0 +1,15 @@
+<div style="max-width: 600px; margin: 0 auto; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #1a1a2e;">
+  <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 24px; border-radius: 12px 12px 0 0;">
+    <h1 style="color: white; margin: 0; font-size: 20px;">⚠️ Low Balance Alert</h1>
+  </div>
+  <div style="background: #ffffff; padding: 24px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 12px 12px;">
+    <h2 style="margin-top: 0; color: #1a1a2e;"><%= @account.name %></h2>
+    <div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 20px; margin: 16px 0; text-align: center;">
+      <div style="font-size: 12px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px;">Current Balance</div>
+      <div style="font-size: 32px; font-weight: 700; color: #ef4444;">$<%= '%.2f' % @balance %></div>
+    </div>
+    <p style="color: #4a5568; line-height: 1.6;">Your <strong><%= @account.name %></strong> account balance is low. Consider transferring funds or adjusting upcoming expenses.</p>
+    <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 20px 0;">
+    <p style="color: #9ca3af; font-size: 12px;">Manage balance alerts in Settings → Notifications.</p>
+  </div>
+</div>
