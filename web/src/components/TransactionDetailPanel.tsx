@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { XMarkIcon, CheckIcon, ExclamationTriangleIcon, ScissorsIcon, EyeSlashIcon, EyeIcon, PaperClipIcon, TrashIcon, ArrowTopRightOnSquareIcon } from '@heroicons/react/24/outline';
+import { XMarkIcon, CheckIcon, ExclamationTriangleIcon, ScissorsIcon, EyeSlashIcon, EyeIcon, PaperClipIcon, TrashIcon, ArrowTopRightOnSquareIcon, BoltIcon } from '@heroicons/react/24/outline';
 import { useMutation } from '@apollo/client';
 import { Transaction, Category, Tag } from '@/types';
 import AmountDisplay from '@/components/ui/AmountDisplay';
@@ -7,7 +7,7 @@ import Badge from '@/components/ui/Badge';
 import Button from '@/components/ui/Button';
 import Select from '@/components/ui/Select';
 import SplitTransactionModal from '@/components/SplitTransactionModal';
-import { UPLOAD_RECEIPT, DELETE_RECEIPT } from '@/graphql/mutations';
+import { UPLOAD_RECEIPT, DELETE_RECEIPT, CREATE_CATEGORIZATION_RULE } from '@/graphql/mutations';
 import { format } from 'date-fns';
 
 interface TransactionDetailPanelProps {
@@ -43,10 +43,16 @@ const TransactionDetailPanel: React.FC<TransactionDetailPanelProps> = ({
   const [splitOpen, setSplitOpen] = useState(false);
   const [uploadingReceipt, setUploadingReceipt] = useState(false);
   const [deletingReceipt, setDeletingReceipt] = useState(false);
+  const [showRuleForm, setShowRuleForm] = useState(false);
+  const [ruleMatchField, setRuleMatchField] = useState<string>('merchant_name');
+  const [ruleMatchType, setRuleMatchType] = useState<string>('contains');
+  const [ruleMatchValue, setRuleMatchValue] = useState('');
+  const [ruleCategoryId, setRuleCategoryId] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [uploadReceiptMutation] = useMutation(UPLOAD_RECEIPT);
   const [deleteReceiptMutation] = useMutation(DELETE_RECEIPT);
+  const [createRuleMutation, { loading: creatingRule }] = useMutation(CREATE_CATEGORIZATION_RULE);
 
   const handleUploadReceipt = useCallback(async (file: File) => {
     if (!transaction) return;
@@ -113,6 +119,34 @@ const TransactionDetailPanel: React.FC<TransactionDetailPanelProps> = ({
     if (file) handleUploadReceipt(file);
   }, [handleUploadReceipt]);
 
+  const handleOpenRuleForm = () => {
+    if (!transaction) return;
+    const merchant = transaction.merchantName || transaction.description || '';
+    setRuleMatchField(transaction.merchantName ? 'merchant_name' : 'description');
+    setRuleMatchType('contains');
+    setRuleMatchValue(merchant);
+    setRuleCategoryId(categoryId || transaction.categoryId || '');
+    setShowRuleForm(true);
+  };
+
+  const handleCreateRule = async () => {
+    if (!ruleMatchValue || !ruleCategoryId) return;
+    try {
+      await createRuleMutation({
+        variables: {
+          matchField: ruleMatchField,
+          matchType: ruleMatchType,
+          matchValue: ruleMatchValue,
+          categoryId: ruleCategoryId,
+        },
+      });
+      setFeedback({ type: 'success', message: 'Rule created! Future matching transactions will be auto-categorized.' });
+      setShowRuleForm(false);
+    } catch (e: any) {
+      setFeedback({ type: 'error', message: `Failed to create rule: ${e.message}` });
+    }
+  };
+
   useEffect(() => {
     if (transaction) {
       setCategoryId(transaction.categoryId || '');
@@ -121,6 +155,7 @@ const TransactionDetailPanel: React.FC<TransactionDetailPanelProps> = ({
       setExcluded(transaction.excluded || false);
       setTransactionTags(transaction.tags || []);
       setFeedback(null);
+      setShowRuleForm(false);
     }
   }, [transaction]);
 
@@ -447,8 +482,77 @@ const TransactionDetailPanel: React.FC<TransactionDetailPanelProps> = ({
               </div>
             </div>
 
+            {/* Create Rule Form */}
+            {showRuleForm && (
+              <div className="border-t border-gray-200 px-4 py-4 sm:px-6 bg-brand-50/50 dark:bg-brand-900/10">
+                <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-3 flex items-center gap-1.5">
+                  <BoltIcon className="h-4 w-4 text-brand-600" />
+                  Create Auto-Categorization Rule
+                </h4>
+                <div className="space-y-3">
+                  <div className="grid grid-cols-2 gap-2">
+                    <Select
+                      label="Match Field"
+                      value={ruleMatchField}
+                      onChange={(e) => setRuleMatchField(e.target.value)}
+                      options={[
+                        { value: 'merchant_name', label: 'Merchant Name' },
+                        { value: 'description', label: 'Description' },
+                      ]}
+                    />
+                    <Select
+                      label="Match Type"
+                      value={ruleMatchType}
+                      onChange={(e) => setRuleMatchType(e.target.value)}
+                      options={[
+                        { value: 'contains', label: 'Contains' },
+                        { value: 'exact', label: 'Exact Match' },
+                        { value: 'starts_with', label: 'Starts With' },
+                      ]}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Match Value</label>
+                    <input
+                      type="text"
+                      value={ruleMatchValue}
+                      onChange={(e) => setRuleMatchValue(e.target.value)}
+                      className="w-full rounded-md border-gray-300 shadow-sm focus:border-brand-500 focus:ring-brand-500 text-sm dark:bg-slate-700 dark:border-slate-600 dark:text-gray-100"
+                      placeholder="e.g. Starbucks"
+                    />
+                  </div>
+                  <Select
+                    label="Auto-assign to Category"
+                    value={ruleCategoryId}
+                    onChange={(e) => setRuleCategoryId(e.target.value)}
+                    options={[
+                      { value: '', label: 'Select category...' },
+                      ...categories.map(c => ({ value: c.id, label: c.name })),
+                    ]}
+                  />
+                  <div className="flex gap-2">
+                    <Button size="sm" onClick={handleCreateRule} loading={creatingRule} disabled={!ruleMatchValue || !ruleCategoryId}>
+                      Create Rule
+                    </Button>
+                    <Button size="sm" variant="secondary" onClick={() => setShowRuleForm(false)}>
+                      Cancel
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Footer */}
             <div className="border-t border-gray-200 px-4 py-4 sm:px-6 space-y-3">
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={handleOpenRuleForm}
+                className="w-full"
+              >
+                <BoltIcon className="h-4 w-4 mr-2" />
+                Always Categorize Like This
+              </Button>
               {!transaction.isSplit && !transaction.parentTransactionId && (
                 <Button
                   variant="secondary"
