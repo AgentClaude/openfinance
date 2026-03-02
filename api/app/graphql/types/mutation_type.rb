@@ -20,6 +20,11 @@ module Types
     field :update_categorization_rule, mutation: Mutations::UpdateCategorizationRule
     field :delete_categorization_rule, mutation: Mutations::DeleteCategorizationRule
     field :apply_categorization_rules, mutation: Mutations::ApplyCategorizationRules
+    field :create_merchant_mapping, mutation: Mutations::CreateMerchantMapping
+    field :update_merchant_mapping, mutation: Mutations::UpdateMerchantMapping
+    field :delete_merchant_mapping, mutation: Mutations::DeleteMerchantMapping
+    field :apply_merchant_mappings, mutation: Mutations::ApplyMerchantMappings
+    field :suggest_merchant_mappings, mutation: Mutations::SuggestMerchantMappings
     field :detect_recurring_transactions, mutation: Mutations::DetectRecurringTransactions
     field :create_recurring_item, mutation: Mutations::CreateRecurringItem
     field :update_recurring_item, mutation: Mutations::UpdateRecurringItem

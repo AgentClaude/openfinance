@@ -286,6 +286,12 @@ module Types
         .by_priority.includes(:category)
     end
 
+    field :merchant_mappings, [Types::MerchantNameMappingType], null: false
+    def merchant_mappings
+      return [] unless context[:current_user]&.household
+      context[:current_user].household.merchant_name_mappings.order(created_at: :desc)
+    end
+
     field :recurring_items, [Types::RecurringItemType], null: false do
       argument :active_only, Boolean, required: false, default_value: false
     end

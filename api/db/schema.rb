@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_02_14_400001) do
+ActiveRecord::Schema[8.0].define(version: 2026_03_02_230000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -170,6 +170,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_02_14_400001) do
     t.string "period_type", default: "monthly", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "rollover_enabled", default: false, null: false
     t.index ["end_date"], name: "index_budgets_on_end_date"
     t.index ["household_id", "name"], name: "index_budgets_on_household_id_and_name", unique: true
     t.index ["household_id"], name: "index_budgets_on_household_id"
@@ -390,6 +391,19 @@ ActiveRecord::Schema[8.0].define(version: 2026_02_14_400001) do
     t.datetime "updated_at", null: false
     t.index ["household_id", "raw_pattern"], name: "index_merchant_mappings_on_household_id_and_raw_pattern", unique: true
     t.index ["household_id"], name: "index_merchant_mappings_on_household_id"
+  end
+
+  create_table "merchant_name_mappings", force: :cascade do |t|
+    t.uuid "household_id", null: false
+    t.string "raw_pattern", null: false
+    t.string "clean_name", null: false
+    t.string "match_type", default: "contains", null: false
+    t.integer "applied_count", default: 0, null: false
+    t.boolean "is_active", default: true, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["household_id", "raw_pattern", "match_type"], name: "idx_merchant_mappings_unique", unique: true
+    t.index ["household_id"], name: "index_merchant_name_mappings_on_household_id"
   end
 
   create_table "notification_preferences", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -703,6 +717,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_02_14_400001) do
   add_foreign_key "household_memberships", "households"
   add_foreign_key "household_memberships", "users"
   add_foreign_key "household_memberships", "users", column: "invited_by_id"
+  add_foreign_key "merchant_name_mappings", "households"
   add_foreign_key "notification_preferences", "users"
   add_foreign_key "notification_rules", "households"
   add_foreign_key "notification_rules", "users"
