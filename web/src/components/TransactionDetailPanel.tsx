@@ -1,11 +1,13 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { XMarkIcon, CheckIcon, ExclamationTriangleIcon, ScissorsIcon, EyeSlashIcon, EyeIcon } from '@heroicons/react/24/outline';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { XMarkIcon, CheckIcon, ExclamationTriangleIcon, ScissorsIcon, EyeSlashIcon, EyeIcon, PaperClipIcon, TrashIcon, ArrowTopRightOnSquareIcon } from '@heroicons/react/24/outline';
+import { useMutation } from '@apollo/client';
 import { Transaction, Category, Tag } from '@/types';
 import AmountDisplay from '@/components/ui/AmountDisplay';
 import Badge from '@/components/ui/Badge';
 import Button from '@/components/ui/Button';
 import Select from '@/components/ui/Select';
 import SplitTransactionModal from '@/components/SplitTransactionModal';
+import { UPLOAD_RECEIPT, DELETE_RECEIPT } from '@/graphql/mutations';
 import { format } from 'date-fns';
 
 interface TransactionDetailPanelProps {
@@ -39,6 +41,77 @@ const TransactionDetailPanel: React.FC<TransactionDetailPanelProps> = ({
   const [tagInput, setTagInput] = useState('');
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const [splitOpen, setSplitOpen] = useState(false);
+  const [uploadingReceipt, setUploadingReceipt] = useState(false);
+  const [deletingReceipt, setDeletingReceipt] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const [uploadReceiptMutation] = useMutation(UPLOAD_RECEIPT);
+  const [deleteReceiptMutation] = useMutation(DELETE_RECEIPT);
+
+  const handleUploadReceipt = useCallback(async (file: File) => {
+    if (!transaction) return;
+    setUploadingReceipt(true);
+    try {
+      const reader = new FileReader();
+      const base64 = await new Promise<string>((resolve, reject) => {
+        reader.onload = () => {
+          const result = reader.result as string;
+          // Strip data URL prefix to get raw base64
+          const base64Data = result.includes(',') ? result.split(',')[1] : result;
+          resolve(base64Data);
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+
+      const { data } = await uploadReceiptMutation({
+        variables: {
+          transactionId: transaction.id,
+          fileData: base64,
+          filename: file.name,
+          contentType: file.type || 'application/octet-stream',
+        },
+      });
+
+      if (data?.uploadReceipt?.errors?.length) {
+        setFeedback({ type: 'error', message: data.uploadReceipt.errors[0] });
+      } else {
+        setFeedback({ type: 'success', message: 'Receipt uploaded!' });
+      }
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : 'Upload failed';
+      setFeedback({ type: 'error', message: msg });
+    } finally {
+      setUploadingReceipt(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  }, [transaction, uploadReceiptMutation]);
+
+  const handleDeleteReceipt = useCallback(async () => {
+    if (!transaction) return;
+    setDeletingReceipt(true);
+    try {
+      const { data } = await deleteReceiptMutation({
+        variables: { transactionId: transaction.id },
+      });
+      if (data?.deleteReceipt?.errors?.length) {
+        setFeedback({ type: 'error', message: data.deleteReceipt.errors[0] });
+      } else {
+        setFeedback({ type: 'success', message: 'Receipt removed.' });
+      }
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : 'Delete failed';
+      setFeedback({ type: 'error', message: msg });
+    } finally {
+      setDeletingReceipt(false);
+    }
+  }, [transaction, deleteReceiptMutation]);
+
+  const handleFileDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    const file = e.dataTransfer.files[0];
+    if (file) handleUploadReceipt(file);
+  }, [handleUploadReceipt]);
 
   useEffect(() => {
     if (transaction) {
@@ -273,6 +346,57 @@ const TransactionDetailPanel: React.FC<TransactionDetailPanelProps> = ({
                   rows={3}
                   className="w-full rounded-md border-gray-300 shadow-sm focus:border-brand-500 focus:ring-brand-500 text-sm"
                 />
+              </div>
+
+              {/* Receipt */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Receipt</label>
+                {transaction.hasReceipt ? (
+                  <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                    <PaperClipIcon className="h-5 w-5 text-gray-400 flex-shrink-0" />
+                    <span className="text-sm text-gray-700 flex-1 truncate">Receipt attached</span>
+                    <a
+                      href={`http://localhost:3001${transaction.receiptUrl}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-brand-600 hover:text-brand-700"
+                      title="View receipt"
+                    >
+                      <ArrowTopRightOnSquareIcon className="h-4 w-4" />
+                    </a>
+                    <button
+                      onClick={handleDeleteReceipt}
+                      disabled={deletingReceipt}
+                      className="text-red-500 hover:text-red-700 disabled:opacity-50"
+                      title="Remove receipt"
+                    >
+                      <TrashIcon className="h-4 w-4" />
+                    </button>
+                  </div>
+                ) : (
+                  <div
+                    onDragOver={(e) => e.preventDefault()}
+                    onDrop={handleFileDrop}
+                    className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-brand-400 transition-colors cursor-pointer"
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    <PaperClipIcon className="h-6 w-6 text-gray-400 mx-auto mb-1" />
+                    <p className="text-sm text-gray-500">
+                      {uploadingReceipt ? 'Uploading...' : 'Click or drag to attach receipt'}
+                    </p>
+                    <p className="text-xs text-gray-400 mt-1">PDF, image, or document</p>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*,.pdf,.doc,.docx"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) handleUploadReceipt(file);
+                      }}
+                    />
+                  </div>
+                )}
               </div>
 
               {/* Review Toggle */}
