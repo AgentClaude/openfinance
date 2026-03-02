@@ -916,3 +916,55 @@ export const CREATE_UPDATE_LINK_TOKEN = gql`
     }
   }
 `;
+
+export const DELETE_NOTIFICATION = gql`
+  mutation DeleteNotification($id: ID!) {
+    deleteNotification(id: $id) {
+      success
+      errors
+    }
+  }
+`;
+
+export const CREATE_NOTIFICATION_RULE = gql`
+  mutation CreateNotificationRule($name: String!, $ruleType: String!, $conditions: JSON!, $settings: JSON) {
+    createNotificationRule(name: $name, ruleType: $ruleType, conditions: $conditions, settings: $settings) {
+      notificationRule {
+        id
+        name
+        ruleType
+        isActive
+        conditions
+        settings
+        createdAt
+      }
+      errors
+    }
+  }
+`;
+
+export const UPDATE_NOTIFICATION_RULE = gql`
+  mutation UpdateNotificationRule($id: ID!, $name: String, $isActive: Boolean, $conditions: JSON, $settings: JSON) {
+    updateNotificationRule(id: $id, name: $name, isActive: $isActive, conditions: $conditions, settings: $settings) {
+      notificationRule {
+        id
+        name
+        ruleType
+        isActive
+        conditions
+        settings
+        updatedAt
+      }
+      errors
+    }
+  }
+`;
+
+export const DELETE_NOTIFICATION_RULE = gql`
+  mutation DeleteNotificationRule($id: ID!) {
+    deleteNotificationRule(id: $id) {
+      success
+      errors
+    }
+  }
+`;

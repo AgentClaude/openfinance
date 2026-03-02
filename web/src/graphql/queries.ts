@@ -591,3 +591,18 @@ export const GET_ACCOUNT_CONNECTIONS = gql`
     }
   }
 `;
+
+export const GET_NOTIFICATION_RULES = gql`
+  query GetNotificationRules {
+    notificationRules {
+      id
+      name
+      ruleType
+      isActive
+      conditions
+      settings
+      createdAt
+      updatedAt
+    }
+  }
+`;

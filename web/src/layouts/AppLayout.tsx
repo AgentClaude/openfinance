@@ -14,6 +14,7 @@ import {
   ChartPieIcon,
   ArrowUpTrayIcon,
   FlagIcon,
+  BellIcon as BellNavIcon,
 } from '@heroicons/react/24/outline';
 import { useAuth } from '@/hooks/useAuth';
 import Sidebar from '@/components/ui/Sidebar';
@@ -35,6 +36,7 @@ const navigation = [
   { name: 'Reports', href: '/reports', icon: ChartPieIcon },
   { name: 'Import', href: '/import', icon: ArrowUpTrayIcon },
   { name: 'Rules', href: '/rules', icon: BoltIcon },
+  { name: 'Notifications', href: '/notifications', icon: BellNavIcon },
   { name: 'Settings', href: '/settings', icon: CogIcon },
 ];
 

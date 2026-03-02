@@ -42,6 +42,10 @@ module Types
     field :update_notification_preference, mutation: Mutations::UpdateNotificationPreference
     field :mark_notification_read, mutation: Mutations::MarkNotificationRead
     field :mark_all_notifications_read, mutation: Mutations::MarkAllNotificationsRead
+    field :delete_notification, mutation: Mutations::DeleteNotification
+    field :create_notification_rule, mutation: Mutations::CreateNotificationRule
+    field :update_notification_rule, mutation: Mutations::UpdateNotificationRule
+    field :delete_notification_rule, mutation: Mutations::DeleteNotificationRule
     field :update_tag, mutation: Mutations::UpdateTag
     field :delete_tag, mutation: Mutations::DeleteTag
     field :share_account, mutation: Mutations::ShareAccount
@@ -52,6 +56,13 @@ module Types
     field :redeem_referral, mutation: Mutations::RedeemReferral
     field :export_data, mutation: Mutations::ExportData
     field :delete_account, mutation: Mutations::DeleteAccount
+
+    # Merchant mappings
+    field :create_merchant_mapping, mutation: Mutations::CreateMerchantMapping
+    field :update_merchant_mapping, mutation: Mutations::UpdateMerchantMapping
+    field :delete_merchant_mapping, mutation: Mutations::DeleteMerchantMapping
+    field :apply_merchant_mappings, mutation: Mutations::ApplyMerchantMappings
+    field :suggest_merchant_mappings, mutation: Mutations::SuggestMerchantMappings
 
     # Plaid connection management
     field :disconnect_connection, mutation: Mutations::DisconnectConnection

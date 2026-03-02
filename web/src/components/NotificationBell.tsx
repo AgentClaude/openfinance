@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation } from '@apollo/client';
 import { BellIcon, CheckIcon } from '@heroicons/react/24/outline';
 import { BellAlertIcon } from '@heroicons/react/24/solid';
@@ -32,6 +33,7 @@ function timeAgo(dateStr: string): string {
 const NotificationBell: React.FC = () => {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
 
   const { data, refetch } = useQuery(GET_NOTIFICATIONS, {
     variables: { limit: 20 },
@@ -123,6 +125,12 @@ const NotificationBell: React.FC = () => {
               ))
             )}
           </div>
+          <button
+            onClick={() => { setOpen(false); navigate('/notifications'); }}
+            className="w-full px-4 py-2 text-center text-xs text-brand-600 hover:text-brand-700 hover:bg-gray-50 border-t border-gray-100 font-medium"
+          >
+            View all notifications
+          </button>
         </div>
       )}
     </div>

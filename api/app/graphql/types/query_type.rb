@@ -248,6 +248,12 @@ module Types
       NotificationPreference.defaults_for(context[:current_user])
     end
 
+    field :notification_rules, [Types::NotificationRuleType], null: false
+    def notification_rules
+      return [] unless context[:current_user]
+      context[:current_user].notification_rules.order(created_at: :desc)
+    end
+
     field :balance_adjustments, [Types::BalanceAdjustmentType], null: false do
       argument :account_id, ID, required: true
     end
@@ -263,6 +269,13 @@ module Types
       return [] unless context[:current_user]&.household
       CategorizationRulePolicy::Scope.new(context[:current_user], CategorizationRule).resolve
         .by_priority.includes(:category)
+    end
+
+    field :merchant_mappings, [Types::MerchantMappingType], null: false
+    def merchant_mappings
+      return [] unless context[:current_user]&.household
+      MerchantMappingPolicy::Scope.new(context[:current_user], MerchantMapping).resolve
+        .order(created_at: :desc)
     end
 
     field :recurring_items, [Types::RecurringItemType], null: false do
