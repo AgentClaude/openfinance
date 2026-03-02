@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f4f4f5; margin: 0; padding: 20px; }
+    .container { max-width: 600px; margin: 0 auto; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    .header { background: #2563eb; color: #fff; padding: 24px; text-align: center; }
+    .header h1 { margin: 0; font-size: 20px; font-weight: 600; }
+    .content { padding: 24px; }
+    .bill-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #f3f4f6; }
+    .bill-name { font-weight: 500; color: #111827; }
+    .bill-due { font-size: 13px; color: #6b7280; }
+    .bill-amount { font-weight: 600; color: #111827; }
+    .urgent { color: #dc2626; }
+    .total { margin-top: 16px; padding: 16px; background: #f9fafb; border-radius: 8px; text-align: center; }
+    .total .value { font-size: 24px; font-weight: 700; }
+    .footer { padding: 16px 24px; background: #f9fafb; text-align: center; font-size: 12px; color: #6b7280; }
+    a { color: #2563eb; text-decoration: none; }
+    .btn { display: inline-block; background: #2563eb; color: #fff !important; padding: 10px 24px; border-radius: 6px; font-weight: 500; margin-top: 16px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>📋 Upcoming Bills</h1>
+    </div>
+    <div class="content">
+      <p>Hi <%= @user.name.presence || @user.email.split('@').first %>, you have <strong><%= @items.size %></strong> upcoming <%= 'bill'.pluralize(@items.size) %>:</p>
+
+      <% @items.each do |item| %>
+        <% days_until = (item[:due_date] - Date.current).to_i %>
+        <div class="bill-row">
+          <div>
+            <div class="bill-name"><%= item[:name] %></div>
+            <div class="bill-due <%= 'urgent' if days_until <= 1 %>">
+              <% if days_until == 0 %>Due today
+              <% elsif days_until == 1 %>Due tomorrow
+              <% else %>Due in <%= days_until %> days (<%= item[:due_date].strftime('%b %d') %>)
+              <% end %>
+            </div>
+          </div>
+          <div class="bill-amount">$<%= '%.2f' % (item[:amount] / 100.0) %></div>
+        </div>
+      <% end %>
+
+      <div class="total">
+        <div class="value">$<%= '%.2f' % (@items.sum { |i| i[:amount] } / 100.0) %></div>
+        <div style="font-size:13px;color:#6b7280;">Total upcoming</div>
+      </div>
+
+      <div style="text-align: center;">
+        <a href="<%= @unsubscribe_url %>" class="btn">View Recurring</a>
+      </div>
+    </div>
+    <div class="footer">
+      <p><a href="<%= @unsubscribe_url %>">Manage notification preferences</a></p>
+    </div>
+  </div>
+</body>
+</html>

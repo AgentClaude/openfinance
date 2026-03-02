@@ -1,0 +1,14 @@
+Upcoming Bills
+==============
+
+Hi <%= @user.name.presence || @user.email.split('@').first %>, you have <%= @items.size %> upcoming <%= 'bill'.pluralize(@items.size) %>:
+
+<% @items.each do |item| %>
+<% days_until = (item[:due_date] - Date.current).to_i %>
+  <%= item[:name].ljust(25) %> $<%= '%.2f' % (item[:amount] / 100.0) %> — <%= days_until == 0 ? 'Due today' : days_until == 1 ? 'Due tomorrow' : "Due in #{days_until} days" %>
+<% end %>
+
+Total: $<%= '%.2f' % (@items.sum { |i| i[:amount] } / 100.0) %>
+
+---
+Manage preferences: <%= @unsubscribe_url %>

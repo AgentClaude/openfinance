@@ -1,0 +1,34 @@
+Weekly Financial Summary — <%= @week_start.strftime('%b %d') %> to <%= @week_end.strftime('%b %d, %Y') %>
+====================================================================
+
+Hi <%= @user.name.presence || @user.email.split('@').first %>,
+
+SUMMARY
+  Spent:        $<%= '%.2f' % (@data[:total_spent] / 100.0) %>
+  Income:       $<%= '%.2f' % (@data[:total_income] / 100.0) %>
+  Net Worth:    $<%= '%.2f' % (@data[:net_worth] / 100.0) %>
+  Transactions: <%= @data[:transaction_count] %>
+
+<% if @data[:top_categories].present? %>
+TOP SPENDING CATEGORIES
+<% @data[:top_categories].each do |cat| %>
+  <%= cat[:name].ljust(25) %> $<%= '%.2f' % (cat[:amount] / 100.0) %>
+<% end %>
+<% end %>
+
+<% if @data[:budget_status].present? %>
+BUDGET STATUS (This Month)
+<% @data[:budget_status].each do |b| %>
+  <%= b[:category].ljust(25) %> $<%= '%.2f' % (b[:spent] / 100.0) %> / $<%= '%.2f' % (b[:budgeted] / 100.0) %> (<%= b[:pct] %>%)
+<% end %>
+<% end %>
+
+<% if @data[:upcoming_bills].present? %>
+UPCOMING BILLS (Next 7 Days)
+<% @data[:upcoming_bills].each do |bill| %>
+  <%= bill[:name].ljust(25) %> $<%= '%.2f' % (bill[:amount] / 100.0) %> — due <%= bill[:due_date].strftime('%b %d') %>
+<% end %>
+<% end %>
+
+---
+Manage preferences: <%= @unsubscribe_url %>

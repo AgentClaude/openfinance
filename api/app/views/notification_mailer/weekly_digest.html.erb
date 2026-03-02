@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f4f4f5; margin: 0; padding: 20px; }
+    .container { max-width: 600px; margin: 0 auto; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    .header { background: #2563eb; color: #fff; padding: 24px; text-align: center; }
+    .header h1 { margin: 0; font-size: 20px; font-weight: 600; }
+    .header p { margin: 4px 0 0; opacity: 0.9; font-size: 14px; }
+    .content { padding: 24px; }
+    .stat-grid { display: flex; flex-wrap: wrap; gap: 12px; margin: 16px 0; }
+    .stat { flex: 1; min-width: 120px; background: #f9fafb; border-radius: 8px; padding: 16px; text-align: center; }
+    .stat .value { font-size: 24px; font-weight: 700; color: #111827; }
+    .stat .label { font-size: 12px; color: #6b7280; margin-top: 4px; }
+    .stat .positive { color: #16a34a; }
+    .stat .negative { color: #dc2626; }
+    .section { margin: 24px 0; }
+    .section h3 { font-size: 16px; font-weight: 600; margin: 0 0 12px; color: #374151; border-bottom: 1px solid #e5e7eb; padding-bottom: 8px; }
+    table { width: 100%; border-collapse: collapse; }
+    td { padding: 8px 0; font-size: 14px; color: #374151; }
+    td:last-child { text-align: right; font-weight: 500; }
+    tr + tr { border-top: 1px solid #f3f4f6; }
+    .footer { padding: 16px 24px; background: #f9fafb; text-align: center; font-size: 12px; color: #6b7280; }
+    a { color: #2563eb; text-decoration: none; }
+    .btn { display: inline-block; background: #2563eb; color: #fff !important; padding: 10px 24px; border-radius: 6px; font-weight: 500; margin-top: 16px; }
+    .progress-bar { background: #e5e7eb; border-radius: 4px; height: 8px; overflow: hidden; margin-top: 4px; }
+    .progress-fill { height: 100%; border-radius: 4px; }
+    .green { background: #22c55e; }
+    .yellow { background: #eab308; }
+    .red { background: #ef4444; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>💰 Weekly Financial Summary</h1>
+      <p><%= @week_start.strftime('%b %d') %> – <%= @week_end.strftime('%b %d, %Y') %></p>
+    </div>
+    <div class="content">
+      <p>Hi <%= @user.name.presence || @user.email.split('@').first %>,</p>
+      <p>Here's your financial snapshot for the week:</p>
+
+      <!-- Summary Stats -->
+      <div class="stat-grid">
+        <div class="stat">
+          <div class="value negative">$<%= '%.2f' % (@data[:total_spent] / 100.0) %></div>
+          <div class="label">Spent</div>
+        </div>
+        <div class="stat">
+          <div class="value positive">$<%= '%.2f' % (@data[:total_income] / 100.0) %></div>
+          <div class="label">Income</div>
+        </div>
+        <div class="stat">
+          <div class="value">$<%= '%.2f' % (@data[:net_worth] / 100.0) %></div>
+          <div class="label">Net Worth</div>
+        </div>
+        <div class="stat">
+          <div class="value"><%= @data[:transaction_count] %></div>
+          <div class="label">Transactions</div>
+        </div>
+      </div>
+
+      <!-- Top Spending Categories -->
+      <% if @data[:top_categories].present? %>
+      <div class="section">
+        <h3>Top Spending Categories</h3>
+        <table>
+          <% @data[:top_categories].each do |cat| %>
+          <tr>
+            <td><%= cat[:name] %></td>
+            <td>$<%= '%.2f' % (cat[:amount] / 100.0) %></td>
+          </tr>
+          <% end %>
+        </table>
+      </div>
+      <% end %>
+
+      <!-- Budget Status -->
+      <% if @data[:budget_status].present? %>
+      <div class="section">
+        <h3>Budget Status (This Month)</h3>
+        <table>
+          <% @data[:budget_status].each do |b| %>
+          <tr>
+            <td>
+              <%= b[:category] %>
+              <div class="progress-bar">
+                <div class="progress-fill <%= b[:pct] < 80 ? 'green' : b[:pct] < 100 ? 'yellow' : 'red' %>" style="width: <%= [b[:pct], 100].min %>%"></div>
+              </div>
+            </td>
+            <td>$<%= '%.2f' % (b[:spent] / 100.0) %> / $<%= '%.2f' % (b[:budgeted] / 100.0) %></td>
+          </tr>
+          <% end %>
+        </table>
+      </div>
+      <% end %>
+
+      <!-- Upcoming Bills -->
+      <% if @data[:upcoming_bills].present? %>
+      <div class="section">
+        <h3>Upcoming Bills (Next 7 Days)</h3>
+        <table>
+          <% @data[:upcoming_bills].each do |bill| %>
+          <tr>
+            <td><%= bill[:name] %> — <%= bill[:due_date].strftime('%b %d') %></td>
+            <td>$<%= '%.2f' % (bill[:amount] / 100.0) %></td>
+          </tr>
+          <% end %>
+        </table>
+      </div>
+      <% end %>
+
+      <div style="text-align: center;">
+        <a href="<%= @unsubscribe_url %>" class="btn">View Dashboard</a>
+      </div>
+    </div>
+    <div class="footer">
+      <p>You're receiving this weekly digest because you have it enabled.</p>
+      <p><a href="<%= @unsubscribe_url %>">Manage notification preferences</a></p>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,11 @@
+Budget Alerts
+=============
+
+Hi <%= @user.name.presence || @user.email.split('@').first %>, some budgets need attention:
+
+<% @alerts.each do |alert| %>
+  <%= alert[:category].ljust(25) %> $<%= '%.2f' % (alert[:spent] / 100.0) %> / $<%= '%.2f' % (alert[:budgeted] / 100.0) %> (<%= alert[:pct] %>%)
+<% end %>
+
+---
+Manage preferences: <%= @unsubscribe_url %>

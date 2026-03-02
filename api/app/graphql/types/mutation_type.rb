@@ -53,6 +53,7 @@ module Types
     field :redeem_referral, mutation: Mutations::RedeemReferral
     field :export_data, mutation: Mutations::ExportData
     field :delete_account, mutation: Mutations::DeleteAccount
+    field :send_test_digest, mutation: Mutations::SendTestDigest
 
     # Plaid connection management
     field :disconnect_connection, mutation: Mutations::DisconnectConnection

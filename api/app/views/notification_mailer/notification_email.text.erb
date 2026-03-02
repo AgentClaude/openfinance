@@ -1,0 +1,12 @@
+<%= @notification.title %>
+<%= "=" * @notification.title.length %>
+
+<%= @notification.body %>
+
+<% if @notification.data.present? && @notification.notification_type == 'budget_alert' && @notification.data['percentage'] %>
+Budget used: <%= @notification.data['percentage'] %>%
+<% end %>
+
+---
+View in OpenFinance: <%= @unsubscribe_url %>
+Manage preferences: <%= @unsubscribe_url %>
