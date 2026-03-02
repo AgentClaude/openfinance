@@ -69,7 +69,7 @@ _Full budget system with backend + frontend_
 - ✅ "Left to budget" calculation
 - ✅ Copy budget from previous month / fill from averages
 - ✅ Budget rollover (backend: rollover_cents column + GraphQL field)
-- ⬚ Budget rollover UI (display rollover amounts in frontend)
+- ✅ Budget rollover UI (display rollover amounts in frontend)
 - ⬚ Flex budget mode (total spending target vs per-category)
 - ✅ Over-budget alerts (inline red indicators)
 - ✅ Dashboard budget summary widget
@@ -79,7 +79,7 @@ _Full budget system with backend + frontend_
 - ✅ Rule CRUD mutations + UI page (match field, type, value, category, rename)
 - ✅ Apply rules button (bulk retroactive application)
 - ✅ Toggle rules active/inactive
-- ⬚ Create rule from transaction detail ("always categorize X as Y")
+- ✅ Create rule from transaction detail ("always categorize X as Y")
 - ⬚ Merchant name mapping (raw description → clean name)
 - ⬚ Suggested rules based on manual categorization patterns
 
