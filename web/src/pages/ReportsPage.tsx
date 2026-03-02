@@ -8,7 +8,7 @@ import {
 } from 'recharts';
 import { useQuery } from '@apollo/client';
 import { useReports } from '@/hooks/useReports';
-import { GET_NET_WORTH_HISTORY, GET_CATEGORY_TRENDS, GET_CATEGORIES } from '@/graphql/queries';
+import { GET_NET_WORTH_HISTORY, GET_CATEGORY_TRENDS, GET_CATEGORIES, GET_ACCOUNTS, GET_TAGS } from '@/graphql/queries';
 import PageHeader from '@/components/ui/PageHeader';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import { StatCard, ChartCard } from '@/components/shared';
@@ -38,12 +38,40 @@ const ReportsPage: React.FC = () => {
   const [dateRangeMode, setDateRangeMode] = useState<DateRangeMode>('preset');
   const [customFrom, setCustomFrom] = useState('');
   const [customTo, setCustomTo] = useState('');
+  const [selectedAccountIds, setSelectedAccountIds] = useState<string[]>([]);
+  const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>([]);
+  const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
+  const [excludeTransfers, setExcludeTransfers] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
 
-  const queryVars = dateRangeMode === 'custom' && customFrom && customTo
-    ? { dateFrom: customFrom, dateTo: customTo }
-    : { months };
+  const { data: accountsData } = useQuery(GET_ACCOUNTS);
+  const { data: categoriesData } = useQuery(GET_CATEGORIES);
+  const { data: tagsData } = useQuery(GET_TAGS);
+
+  const accounts = accountsData?.accounts || [];
+  const categories = categoriesData?.categories || [];
+  const tags = tagsData?.tags || [];
+
+  const queryVars = {
+    ...(dateRangeMode === 'custom' && customFrom && customTo
+      ? { dateFrom: customFrom, dateTo: customTo }
+      : { months }),
+    ...(selectedAccountIds.length > 0 && { accountIds: selectedAccountIds }),
+    ...(selectedCategoryIds.length > 0 && { categoryIds: selectedCategoryIds }),
+    ...(selectedTagIds.length > 0 && { tagIds: selectedTagIds }),
+    ...(excludeTransfers && { excludeTransfers: true }),
+  };
 
   const { reports, loading } = useReports(queryVars);
+
+  const activeFilterCount = (selectedAccountIds.length > 0 ? 1 : 0) + (selectedCategoryIds.length > 0 ? 1 : 0) + (selectedTagIds.length > 0 ? 1 : 0) + (excludeTransfers ? 1 : 0);
+
+  const clearFilters = () => {
+    setSelectedAccountIds([]);
+    setSelectedCategoryIds([]);
+    setSelectedTagIds([]);
+    setExcludeTransfers(false);
+  };
 
   const tabs: { id: ReportTab; label: string; icon: string }[] = [
     { id: 'overview', label: 'Overview', icon: '📊' },
@@ -115,6 +143,100 @@ const ReportsPage: React.FC = () => {
           </div>
         }
       />
+
+      {/* Filter Bar */}
+      <div className="mb-4">
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setShowFilters(!showFilters)}
+            className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-md border transition-colors ${
+              activeFilterCount > 0
+                ? 'bg-brand-50 border-brand-300 text-brand-700 dark:bg-brand-900/30 dark:border-brand-700 dark:text-brand-300'
+                : 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-slate-700/50'
+            }`}
+          >
+            <span>🔍</span>
+            Filters
+            {activeFilterCount > 0 && (
+              <span className="inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-brand-500 rounded-full">
+                {activeFilterCount}
+              </span>
+            )}
+          </button>
+          {activeFilterCount > 0 && (
+            <button onClick={clearFilters} className="text-sm text-gray-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400">
+              Clear all
+            </button>
+          )}
+          <label className="inline-flex items-center gap-1.5 text-sm text-gray-600 dark:text-gray-400 ml-auto">
+            <input
+              type="checkbox"
+              checked={excludeTransfers}
+              onChange={(e) => setExcludeTransfers(e.target.checked)}
+              className="rounded border-gray-300 dark:border-gray-600 text-brand-600 focus:ring-brand-500"
+            />
+            Exclude transfers
+          </label>
+        </div>
+        {showFilters && (
+          <div className="mt-3 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700 grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Accounts */}
+            <div>
+              <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5">Accounts</label>
+              <select
+                multiple
+                value={selectedAccountIds}
+                onChange={(e) => setSelectedAccountIds(Array.from(e.target.selectedOptions, o => o.value))}
+                className="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 text-sm shadow-sm focus:border-brand-500 focus:ring-brand-500"
+                size={Math.min(accounts.length, 5)}
+              >
+                {accounts.map((a: any) => (
+                  <option key={a.id} value={a.id}>{a.name} ({a.type})</option>
+                ))}
+              </select>
+              {selectedAccountIds.length > 0 && (
+                <button onClick={() => setSelectedAccountIds([])} className="text-xs text-brand-600 dark:text-brand-400 mt-1 hover:underline">Clear</button>
+              )}
+            </div>
+            {/* Categories */}
+            <div>
+              <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5">Categories</label>
+              <select
+                multiple
+                value={selectedCategoryIds}
+                onChange={(e) => setSelectedCategoryIds(Array.from(e.target.selectedOptions, o => o.value))}
+                className="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 text-sm shadow-sm focus:border-brand-500 focus:ring-brand-500"
+                size={Math.min(categories.length, 5)}
+              >
+                {categories.map((c: any) => (
+                  <option key={c.id} value={c.id}>{c.icon} {c.name}</option>
+                ))}
+              </select>
+              {selectedCategoryIds.length > 0 && (
+                <button onClick={() => setSelectedCategoryIds([])} className="text-xs text-brand-600 dark:text-brand-400 mt-1 hover:underline">Clear</button>
+              )}
+            </div>
+            {/* Tags */}
+            <div>
+              <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5">Tags</label>
+              <select
+                multiple
+                value={selectedTagIds}
+                onChange={(e) => setSelectedTagIds(Array.from(e.target.selectedOptions, o => o.value))}
+                className="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 text-sm shadow-sm focus:border-brand-500 focus:ring-brand-500"
+                size={Math.min(tags.length || 3, 5)}
+              >
+                {tags.map((t: any) => (
+                  <option key={t.id} value={t.id}>{t.name}</option>
+                ))}
+              </select>
+              {selectedTagIds.length > 0 && (
+                <button onClick={() => setSelectedTagIds([])} className="text-xs text-brand-600 dark:text-brand-400 mt-1 hover:underline">Clear</button>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
 
       {/* Tabs */}
       <div className="border-b border-gray-200 dark:border-gray-700 mb-6">
