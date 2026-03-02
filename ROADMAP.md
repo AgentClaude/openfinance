@@ -103,7 +103,7 @@ _Backend partially exists: reports query returns monthly_summary, spending_by_ca
 - ✅ Net Worth Over Time (area chart with assets/liabilities + net worth line)
 - ✅ Category Trends (line chart per category + month-over-month table)
 - ✅ Merchant Spending (ranked list with progress bars, transaction counts, percentages)
-- ⬚ Report filters (accounts, categories, tags) — date range done
+- ✅ Report filters (accounts, categories, tags) — date range done (PR #84)
 - ⬚ Sankey diagram (income flow to categories)
 
 ## Phase 9: Net Worth Page ✅
