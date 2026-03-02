@@ -479,8 +479,10 @@ module Types
       argument :months, Integer, required: false, default_value: 6
       argument :date_from, String, required: false
       argument :date_to, String, required: false
+      argument :account_ids, [ID], required: false
+      argument :category_ids, [ID], required: false
     end
-    def reports(months: 6, date_from: nil, date_to: nil)
+    def reports(months: 6, date_from: nil, date_to: nil, account_ids: nil, category_ids: nil)
       return empty_reports unless context[:current_user]&.household
 
       household = context[:current_user].household
@@ -488,6 +490,8 @@ module Types
       start_date = date_from ? Date.parse(date_from) : (end_date - months.months).beginning_of_month
 
       txns = household.transactions.where(date: start_date..end_date)
+      txns = txns.where(account_id: account_ids) if account_ids.present?
+      txns = txns.where(category_id: category_ids) if category_ids.present?
 
       # Monthly summary (income vs expenses)
       monthly_summary = []

@@ -621,7 +621,7 @@ type Query {
   portfolioSummary(accountId: ID): PortfolioSummary!
   recurringItems(activeOnly: Boolean = false): [RecurringItem!]!
   referrals: [Referral!]!
-  reports(dateFrom: String, dateTo: String, months: Int = 6): Reports!
+  reports(accountIds: [ID!], categoryIds: [ID!], dateFrom: String, dateTo: String, months: Int = 6): Reports!
   tags: [Tag!]!
   transactions(accountId: String, categoryId: String, dateFrom: String, dateTo: String, limit: Int = 50, maxAmount: Float, minAmount: Float, needsReview: Boolean, page: Int = 1, search: String): TransactionPage!
   unreadNotificationCount: Int!

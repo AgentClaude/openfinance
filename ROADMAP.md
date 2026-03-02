@@ -103,7 +103,7 @@ _Backend partially exists: reports query returns monthly_summary, spending_by_ca
 - ✅ Net Worth Over Time (area chart with assets/liabilities + net worth line)
 - ✅ Category Trends (line chart per category + month-over-month table)
 - ✅ Merchant Spending (ranked list with progress bars, transaction counts, percentages)
-- ⬚ Report filters (accounts, categories, tags) — date range done
+- ✅ Report filters (accounts, categories) — multi-select dropdowns with clear button
 - ⬚ Sankey diagram (income flow to categories)
 
 ## Phase 9: Net Worth Page ✅
@@ -175,7 +175,7 @@ _PR #56_
 ## Phase 16: Polish & UX — Partially Done
 - ✅ Dark mode (implemented across all pages)
 - ⬚ Customizable dashboard widget layout
-- ⬚ Account detail page (balance history, filtered transactions)
+- ✅ Account detail page (balance history chart, filtered transactions, account info) (PR #70)
 - ✅ Global search — Cmd+K command palette (transactions, pages, actions) (PR #69)
 - ✅ Keyboard shortcuts — Cmd+K, arrow keys, Enter, Escape (PR #69)
 - ⬚ Onboarding flow (guided setup)

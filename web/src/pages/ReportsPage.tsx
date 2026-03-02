@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
   PieChart, Pie, Cell,
@@ -8,7 +8,7 @@ import {
 } from 'recharts';
 import { useQuery } from '@apollo/client';
 import { useReports } from '@/hooks/useReports';
-import { GET_NET_WORTH_HISTORY, GET_CATEGORY_TRENDS, GET_CATEGORIES } from '@/graphql/queries';
+import { GET_NET_WORTH_HISTORY, GET_CATEGORY_TRENDS, GET_CATEGORIES, GET_ACCOUNTS } from '@/graphql/queries';
 import PageHeader from '@/components/ui/PageHeader';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import { StatCard, ChartCard } from '@/components/shared';
@@ -32,16 +32,93 @@ type ReportTab = 'overview' | 'spending' | 'income-expenses' | 'cashflow' | 'mer
 
 type DateRangeMode = 'preset' | 'custom';
 
+const MultiSelectDropdown: React.FC<{
+  label: string;
+  items: { id: string; name: string; icon?: string }[];
+  selected: string[];
+  onChange: (ids: string[]) => void;
+}> = ({ label, items, selected, onChange }) => {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
+  const toggle = (id: string) => {
+    onChange(selected.includes(id) ? selected.filter((s) => s !== id) : [...selected, id]);
+  };
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        onClick={() => setOpen(!open)}
+        className={`flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-md border transition-colors ${
+          selected.length > 0
+            ? 'bg-brand-50 dark:bg-brand-900/30 border-brand-300 dark:border-brand-700 text-brand-800 dark:text-brand-200'
+            : 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
+        }`}
+      >
+        <span>🔽</span>
+        {label}
+        {selected.length > 0 && (
+          <span className="ml-1 px-1.5 py-0.5 text-xs rounded-full bg-brand-200 dark:bg-brand-800 text-brand-800 dark:text-brand-200">
+            {selected.length}
+          </span>
+        )}
+      </button>
+      {open && (
+        <div className="absolute z-50 mt-1 w-64 max-h-60 overflow-y-auto rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-lg">
+          {items.length === 0 && (
+            <div className="px-3 py-2 text-sm text-gray-400">No items</div>
+          )}
+          {items.map((item) => (
+            <label
+              key={item.id}
+              className="flex items-center gap-2 px-3 py-2 text-sm cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700"
+            >
+              <input
+                type="checkbox"
+                checked={selected.includes(item.id)}
+                onChange={() => toggle(item.id)}
+                className="rounded border-gray-300 dark:border-gray-600 text-brand-600 focus:ring-brand-500"
+              />
+              {item.icon && <span>{item.icon}</span>}
+              <span className="truncate text-gray-700 dark:text-gray-300">{item.name}</span>
+            </label>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
 const ReportsPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<ReportTab>('overview');
   const [months, setMonths] = useState(6);
   const [dateRangeMode, setDateRangeMode] = useState<DateRangeMode>('preset');
   const [customFrom, setCustomFrom] = useState('');
   const [customTo, setCustomTo] = useState('');
+  const [selectedAccountIds, setSelectedAccountIds] = useState<string[]>([]);
+  const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>([]);
 
-  const queryVars = dateRangeMode === 'custom' && customFrom && customTo
-    ? { dateFrom: customFrom, dateTo: customTo }
-    : { months };
+  const { data: accountsData } = useQuery(GET_ACCOUNTS);
+  const { data: categoriesData } = useQuery(GET_CATEGORIES);
+
+  const accounts = accountsData?.accounts || [];
+  const categories = categoriesData?.categories || [];
+
+  const queryVars = {
+    ...(dateRangeMode === 'custom' && customFrom && customTo
+      ? { dateFrom: customFrom, dateTo: customTo }
+      : { months }),
+    ...(selectedAccountIds.length > 0 ? { accountIds: selectedAccountIds } : {}),
+    ...(selectedCategoryIds.length > 0 ? { categoryIds: selectedCategoryIds } : {}),
+  };
 
   const { reports, loading } = useReports(queryVars);
 
@@ -134,6 +211,30 @@ const ReportsPage: React.FC = () => {
             </button>
           ))}
         </nav>
+      </div>
+
+      {/* Account & Category Filters */}
+      <div className="flex flex-wrap items-center gap-3 mb-6">
+        <MultiSelectDropdown
+          label="Accounts"
+          items={accounts.map((a: { id: string; name: string }) => ({ id: a.id, name: a.name }))}
+          selected={selectedAccountIds}
+          onChange={setSelectedAccountIds}
+        />
+        <MultiSelectDropdown
+          label="Categories"
+          items={categories.map((c: { id: string; name: string; icon?: string }) => ({ id: c.id, name: c.name, icon: c.icon }))}
+          selected={selectedCategoryIds}
+          onChange={setSelectedCategoryIds}
+        />
+        {(selectedAccountIds.length > 0 || selectedCategoryIds.length > 0) && (
+          <button
+            onClick={() => { setSelectedAccountIds([]); setSelectedCategoryIds([]); }}
+            className="text-xs text-gray-500 dark:text-gray-400 hover:text-red-500 underline"
+          >
+            Clear filters
+          </button>
+        )}
       </div>
 
       {loading && <LoadingSpinner />}
