@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { XMarkIcon, CheckIcon, ExclamationTriangleIcon, ScissorsIcon, EyeSlashIcon, EyeIcon } from '@heroicons/react/24/outline';
+import { XMarkIcon, CheckIcon, ExclamationTriangleIcon, ScissorsIcon, EyeSlashIcon, EyeIcon, BoltIcon } from '@heroicons/react/24/outline';
 import { Transaction, Category, Tag } from '@/types';
 import AmountDisplay from '@/components/ui/AmountDisplay';
 import Badge from '@/components/ui/Badge';
 import Button from '@/components/ui/Button';
 import Select from '@/components/ui/Select';
 import SplitTransactionModal from '@/components/SplitTransactionModal';
+import CreateRuleFromTransaction from '@/components/CreateRuleFromTransaction';
 import { format } from 'date-fns';
 
 interface TransactionDetailPanelProps {
@@ -39,6 +40,7 @@ const TransactionDetailPanel: React.FC<TransactionDetailPanelProps> = ({
   const [tagInput, setTagInput] = useState('');
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const [splitOpen, setSplitOpen] = useState(false);
+  const [ruleOpen, setRuleOpen] = useState(false);
 
   useEffect(() => {
     if (transaction) {
@@ -325,17 +327,28 @@ const TransactionDetailPanel: React.FC<TransactionDetailPanelProps> = ({
 
             {/* Footer */}
             <div className="border-t border-gray-200 px-4 py-4 sm:px-6 space-y-3">
-              {!transaction.isSplit && !transaction.parentTransactionId && (
+              <div className="flex gap-2">
+                {!transaction.isSplit && !transaction.parentTransactionId && (
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => setSplitOpen(true)}
+                    className="flex-1"
+                  >
+                    <ScissorsIcon className="h-4 w-4 mr-2" />
+                    Split
+                  </Button>
+                )}
                 <Button
                   variant="secondary"
                   size="sm"
-                  onClick={() => setSplitOpen(true)}
-                  className="w-full"
+                  onClick={() => setRuleOpen(true)}
+                  className="flex-1"
                 >
-                  <ScissorsIcon className="h-4 w-4 mr-2" />
-                  Split Transaction
+                  <BoltIcon className="h-4 w-4 mr-2" />
+                  Create Rule
                 </Button>
-              )}
+              </div>
               {transaction.isSplit && (
                 <div className="text-center">
                   <Badge variant="info" size="sm">This transaction has been split</Badge>
@@ -365,16 +378,29 @@ const TransactionDetailPanel: React.FC<TransactionDetailPanelProps> = ({
     </div>
 
     {transaction && (
-      <SplitTransactionModal
-        transaction={transaction}
-        categories={categories}
-        isOpen={splitOpen}
-        onClose={() => setSplitOpen(false)}
-        onSuccess={() => {
-          setFeedback({ type: 'success', message: 'Transaction split successfully!' });
-          setSplitOpen(false);
-        }}
-      />
+      <>
+        <SplitTransactionModal
+          transaction={transaction}
+          categories={categories}
+          isOpen={splitOpen}
+          onClose={() => setSplitOpen(false)}
+          onSuccess={() => {
+            setFeedback({ type: 'success', message: 'Transaction split successfully!' });
+            setSplitOpen(false);
+          }}
+        />
+        <CreateRuleFromTransaction
+          transaction={transaction}
+          categories={categories}
+          selectedCategoryId={categoryId}
+          isOpen={ruleOpen}
+          onClose={() => setRuleOpen(false)}
+          onSuccess={() => {
+            setFeedback({ type: 'success', message: 'Rule created! Future transactions will be auto-categorized.' });
+            setRuleOpen(false);
+          }}
+        />
+      </>
     )}
     </>
   );

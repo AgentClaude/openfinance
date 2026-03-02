@@ -178,7 +178,7 @@ _PR #56_
 - ⬚ Account detail page (balance history, filtered transactions)
 - ✅ Global search — Cmd+K command palette (transactions, pages, actions) (PR #69)
 - ✅ Keyboard shortcuts — Cmd+K, arrow keys, Enter, Escape (PR #69)
-- ⬚ Onboarding flow (guided setup)
+- 🔧 Onboarding flow (guided setup) — PR #74
 - ✅ Empty states with guidance (EmptyState component used throughout)
 
 ## Phase 17: Authorization & Account Sharing — HIGH PRIORITY
