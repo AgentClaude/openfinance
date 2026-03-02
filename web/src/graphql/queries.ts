@@ -562,6 +562,37 @@ export const GET_CATEGORY_TRENDS = gql`
   }
 `;
 
+export const GET_ACCOUNT = gql`
+  query GetAccount($id: ID!) {
+    account(id: $id) {
+      id
+      name
+      type
+      subtype
+      balance
+      balanceDate
+      mask
+      officialName
+      isActive
+      plaidAccountId
+      householdId
+      currency
+      createdAt
+    }
+  }
+`;
+
+export const GET_ACCOUNT_BALANCE_HISTORY = gql`
+  query GetAccountBalanceHistory($accountId: ID!, $months: Int) {
+    accountBalanceHistory(accountId: $accountId, months: $months) {
+      id
+      accountId
+      date
+      balance
+    }
+  }
+`;
+
 export const GET_ACCOUNT_CONNECTIONS = gql`
   query GetAccountConnections {
     accountConnections {

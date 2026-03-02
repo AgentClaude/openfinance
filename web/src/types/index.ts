@@ -25,6 +25,8 @@ export interface Account {
   isActive: boolean;
   plaidAccountId?: string;
   householdId: string;
+  currency?: string;
+  createdAt?: string;
 }
 
 export enum AccountType {

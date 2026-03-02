@@ -61,6 +61,27 @@ module Types
         .where(is_hidden: false).order(:display_order, :name)
     end
 
+    field :account, Types::AccountType, null: true do
+      argument :id, ID, required: true
+    end
+    def account(id:)
+      return nil unless context[:current_user]&.household
+      AccountPolicy::Scope.new(context[:current_user], Account).resolve.find_by(id: id)
+    end
+
+    field :account_balance_history, [Types::AccountBalanceHistoryType], null: false do
+      argument :account_id, ID, required: true
+      argument :months, Integer, required: false, default_value: 12
+    end
+    def account_balance_history(account_id:, months: 12)
+      return [] unless context[:current_user]&.household
+      account = AccountPolicy::Scope.new(context[:current_user], Account).resolve.find_by(id: account_id)
+      return [] unless account
+      account.balance_histories
+        .where('date >= ?', months.months.ago.to_date)
+        .order(:date)
+    end
+
     field :account_connections, [Types::AccountConnectionType], null: false
     def account_connections
       return [] unless context[:current_user]&.household

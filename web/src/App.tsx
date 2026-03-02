@@ -17,6 +17,7 @@ import RegisterPage from '@/pages/RegisterPage';
 import DashboardPage from '@/pages/DashboardPage';
 import TransactionsPage from '@/pages/TransactionsPage';
 import AccountsPage from '@/pages/AccountsPage';
+import AccountDetailPage from '@/pages/AccountDetailPage';
 import BudgetPage from '@/pages/BudgetPage';
 import GoalsPage from '@/pages/GoalsPage';
 import CategoriesPage from '@/pages/CategoriesPage';
@@ -48,6 +49,7 @@ function App() {
                   <Route path="dashboard" element={<DashboardPage />} />
                   <Route path="transactions" element={<TransactionsPage />} />
                   <Route path="accounts" element={<AccountsPage />} />
+                  <Route path="accounts/:id" element={<AccountDetailPage />} />
                   <Route path="budget" element={<BudgetPage />} />
                   <Route path="categories" element={<CategoriesPage />} />
                   <Route path="rules" element={<RulesPage />} />
