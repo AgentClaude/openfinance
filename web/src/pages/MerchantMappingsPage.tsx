@@ -75,7 +75,7 @@ const MerchantMappingsPage: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.rawPattern.trim() || !form.cleanName.trim()) {
-      addToast('Pattern and clean name are required.', 'error');
+      addToast({ title: 'Pattern and clean name are required.', type: 'error' });
       return;
     }
     try {
@@ -85,43 +85,43 @@ const MerchantMappingsPage: React.FC = () => {
           cleanName: form.cleanName.trim(),
           matchType: form.matchType,
         });
-        addToast('Mapping updated.', 'success');
+        addToast({ title: 'Mapping updated.', type: 'success' });
       } else {
         await createMapping(form.rawPattern.trim(), form.cleanName.trim(), form.matchType);
-        addToast('Mapping created.', 'success');
+        addToast({ title: 'Mapping created.', type: 'success' });
       }
       setShowModal(false);
       resetForm();
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Failed to save mapping';
-      addToast(msg, 'error');
+      addToast({ title: msg, type: 'error' });
     }
   };
 
   const handleDelete = async (id: string) => {
     try {
       await deleteMapping(id);
-      addToast('Mapping deleted.', 'success');
+      addToast({ title: 'Mapping deleted.', type: 'success' });
     } catch {
-      addToast('Failed to delete mapping.', 'error');
+      addToast({ title: 'Failed to delete mapping.', type: 'error' });
     }
   };
 
   const handleToggle = async (mapping: MerchantMapping) => {
     try {
       await updateMapping(mapping.id, { isActive: !mapping.isActive });
-      addToast(mapping.isActive ? 'Mapping disabled.' : 'Mapping enabled.', 'success');
+      addToast({ title: mapping.isActive ? 'Mapping disabled.' : 'Mapping enabled.', type: 'success' });
     } catch {
-      addToast('Failed to toggle mapping.', 'error');
+      addToast({ title: 'Failed to toggle mapping.', type: 'error' });
     }
   };
 
   const handleApply = async () => {
     try {
       const count = await applyMappings();
-      addToast(`Applied mappings to ${count} transaction${count === 1 ? '' : 's'}.`, 'success');
+      addToast({ title: `Applied mappings to ${count} transaction${count === 1 ? '' : 's'}.`, type: 'success' });
     } catch {
-      addToast('Failed to apply mappings.', 'error');
+      addToast({ title: 'Failed to apply mappings.', type: 'error' });
     }
   };
 
@@ -131,10 +131,10 @@ const MerchantMappingsPage: React.FC = () => {
       setSuggestions(results);
       setShowSuggestions(true);
       if (results.length === 0) {
-        addToast('No suggestions found — your transactions look clean!', 'info');
+        addToast({ title: 'No suggestions found — your transactions look clean!', type: 'info' });
       }
     } catch {
-      addToast('Failed to generate suggestions.', 'error');
+      addToast({ title: 'Failed to generate suggestions.', type: 'error' });
     }
   };
 
@@ -142,10 +142,10 @@ const MerchantMappingsPage: React.FC = () => {
     try {
       await createMapping(suggestion.rawPattern, suggestion.suggestedName, 'contains');
       setSuggestions(prev => prev.filter(s => s.rawPattern !== suggestion.rawPattern));
-      addToast(`Created mapping: "${suggestion.rawPattern}" → "${suggestion.suggestedName}"`, 'success');
+      addToast({ title: `Created mapping: "${suggestion.rawPattern}" → "${suggestion.suggestedName}"`, type: 'success' });
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Failed to create mapping';
-      addToast(msg, 'error');
+      addToast({ title: msg, type: 'error' });
     }
   };
 
@@ -158,7 +158,7 @@ const MerchantMappingsPage: React.FC = () => {
     <div className="space-y-6">
       <PageHeader
         title="Merchant Mappings"
-        description="Clean up messy transaction descriptions. Map raw merchant names to readable ones."
+        subtitle="Clean up messy transaction descriptions. Map raw merchant names to readable ones."
         actions={
           <div className="flex gap-2">
             <Button
@@ -166,8 +166,8 @@ const MerchantMappingsPage: React.FC = () => {
               size="sm"
               onClick={handleSuggest}
               loading={suggesting}
-              icon={<SparklesIcon className="h-4 w-4" />}
             >
+              <SparklesIcon className="h-4 w-4" />
               Auto-Suggest
             </Button>
             <Button
@@ -175,15 +175,15 @@ const MerchantMappingsPage: React.FC = () => {
               size="sm"
               onClick={handleApply}
               loading={applying}
-              icon={<PlayIcon className="h-4 w-4" />}
             >
+              <PlayIcon className="h-4 w-4" />
               Apply All
             </Button>
             <Button
               size="sm"
               onClick={openCreate}
-              icon={<PlusIcon className="h-4 w-4" />}
             >
+              <PlusIcon className="h-4 w-4" />
               Add Mapping
             </Button>
           </div>
@@ -249,20 +249,22 @@ const MerchantMappingsPage: React.FC = () => {
 
       {/* Mappings List */}
       {mappings.length === 0 ? (
-        <EmptyState
-          title="No merchant mappings yet"
-          description="Create mappings to automatically clean up messy merchant names on your transactions. Try Auto-Suggest to get started!"
-          action={
-            <div className="flex gap-2">
-              <Button variant="secondary" onClick={handleSuggest} loading={suggesting} icon={<SparklesIcon className="h-4 w-4" />}>
-                Auto-Suggest
-              </Button>
-              <Button onClick={openCreate} icon={<PlusIcon className="h-4 w-4" />}>
-                Add Mapping
-              </Button>
-            </div>
-          }
-        />
+        <div className="text-center py-12">
+          <EmptyState
+            title="No merchant mappings yet"
+            description="Create mappings to automatically clean up messy merchant names on your transactions. Try Auto-Suggest to get started!"
+          />
+          <div className="flex gap-2 justify-center mt-4">
+            <Button variant="secondary" onClick={handleSuggest} loading={suggesting}>
+              <SparklesIcon className="h-4 w-4" />
+              Auto-Suggest
+            </Button>
+            <Button onClick={openCreate}>
+              <PlusIcon className="h-4 w-4" />
+              Add Mapping
+            </Button>
+          </div>
+        </div>
       ) : (
         <div className="space-y-4">
           {activeMappings.length > 0 && (
