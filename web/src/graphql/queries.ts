@@ -279,8 +279,8 @@ export const GET_RECURRING_ITEMS = gql`
 `;
 
 export const GET_REPORTS = gql`
-  query GetReports($months: Int, $dateFrom: String, $dateTo: String) {
-    reports(months: $months, dateFrom: $dateFrom, dateTo: $dateTo) {
+  query GetReports($months: Int, $dateFrom: String, $dateTo: String, $accountIds: [ID!], $categoryIds: [ID!], $excludeTransfers: Boolean) {
+    reports(months: $months, dateFrom: $dateFrom, dateTo: $dateTo, accountIds: $accountIds, categoryIds: $categoryIds, excludeTransfers: $excludeTransfers) {
       monthlySummary {
         month
         income

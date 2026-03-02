@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
   PieChart, Pie, Cell,
@@ -8,10 +8,82 @@ import {
 } from 'recharts';
 import { useQuery } from '@apollo/client';
 import { useReports } from '@/hooks/useReports';
-import { GET_NET_WORTH_HISTORY, GET_CATEGORY_TRENDS, GET_CATEGORIES } from '@/graphql/queries';
+import { GET_NET_WORTH_HISTORY, GET_CATEGORY_TRENDS, GET_CATEGORIES, GET_ACCOUNTS } from '@/graphql/queries';
 import PageHeader from '@/components/ui/PageHeader';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import { StatCard, ChartCard } from '@/components/shared';
+
+/* ── Multi-select dropdown for report filters ── */
+const MultiSelectFilter: React.FC<{
+  label: string;
+  options: { id: string; name: string; icon?: string }[];
+  selected: string[];
+  onChange: (ids: string[]) => void;
+}> = ({ label, options, selected, onChange }) => {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
+  const toggle = (id: string) => {
+    onChange(selected.includes(id) ? selected.filter((s) => s !== id) : [...selected, id]);
+  };
+
+  const displayText = selected.length === 0
+    ? `All ${label}`
+    : selected.length === 1
+      ? options.find((o) => o.id === selected[0])?.name || '1 selected'
+      : `${selected.length} selected`;
+
+  return (
+    <div className="relative" ref={ref}>
+      <button
+        onClick={() => setOpen(!open)}
+        className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md border transition-colors ${
+          selected.length > 0
+            ? 'bg-brand-50 dark:bg-brand-900/30 border-brand-300 dark:border-brand-600 text-brand-800 dark:text-brand-200'
+            : 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-slate-700/50'
+        }`}
+      >
+        {displayText}
+        <svg className={`w-3 h-3 transition-transform ${open ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+      </button>
+      {open && (
+        <div className="absolute z-50 mt-1 w-56 max-h-64 overflow-y-auto rounded-md bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg">
+          {selected.length > 0 && (
+            <button
+              onClick={() => onChange([])}
+              className="w-full text-left px-3 py-1.5 text-xs text-brand-600 dark:text-brand-400 hover:bg-gray-50 dark:hover:bg-slate-700/50 border-b border-gray-100 dark:border-gray-700"
+            >
+              Clear all
+            </button>
+          )}
+          {options.map((opt) => (
+            <label
+              key={opt.id}
+              className="flex items-center gap-2 px-3 py-1.5 text-sm cursor-pointer hover:bg-gray-50 dark:hover:bg-slate-700/50"
+            >
+              <input
+                type="checkbox"
+                checked={selected.includes(opt.id)}
+                onChange={() => toggle(opt.id)}
+                className="rounded border-gray-300 dark:border-gray-600 text-brand-600 focus:ring-brand-500"
+              />
+              {opt.icon && <span className="text-sm">{opt.icon}</span>}
+              <span className="text-gray-700 dark:text-gray-300 truncate">{opt.name}</span>
+            </label>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
 
 const COLORS = [
   '#0D9488', '#F59E0B', '#7C3AED', '#E11D48', '#0EA5E9',
@@ -38,10 +110,30 @@ const ReportsPage: React.FC = () => {
   const [dateRangeMode, setDateRangeMode] = useState<DateRangeMode>('preset');
   const [customFrom, setCustomFrom] = useState('');
   const [customTo, setCustomTo] = useState('');
+  const [selectedAccountIds, setSelectedAccountIds] = useState<string[]>([]);
+  const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>([]);
+  const [excludeTransfers, setExcludeTransfers] = useState(false);
 
-  const queryVars = dateRangeMode === 'custom' && customFrom && customTo
-    ? { dateFrom: customFrom, dateTo: customTo }
-    : { months };
+  const { data: accountsData } = useQuery(GET_ACCOUNTS);
+  const { data: categoriesData } = useQuery(GET_CATEGORIES);
+
+  const accountOptions = useMemo(() =>
+    (accountsData?.accounts || []).map((a: any) => ({ id: a.id, name: a.name, icon: a.accountType === 'checking' ? '🏦' : a.accountType === 'credit_card' ? '💳' : a.accountType === 'savings' ? '💰' : '📊' })),
+    [accountsData]
+  );
+  const categoryOptions = useMemo(() =>
+    (categoriesData?.categories || []).map((c: any) => ({ id: c.id, name: c.name, icon: c.icon })),
+    [categoriesData]
+  );
+
+  const queryVars = {
+    ...(dateRangeMode === 'custom' && customFrom && customTo
+      ? { dateFrom: customFrom, dateTo: customTo }
+      : { months }),
+    ...(selectedAccountIds.length > 0 ? { accountIds: selectedAccountIds } : {}),
+    ...(selectedCategoryIds.length > 0 ? { categoryIds: selectedCategoryIds } : {}),
+    ...(excludeTransfers ? { excludeTransfers: true } : {}),
+  };
 
   const { reports, loading } = useReports(queryVars);
 
@@ -134,6 +226,30 @@ const ReportsPage: React.FC = () => {
             </button>
           ))}
         </nav>
+      </div>
+
+      {/* Filter Bar */}
+      <div className="flex flex-wrap items-center gap-3 mb-6">
+        <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Filter by:</span>
+        <MultiSelectFilter label="Accounts" options={accountOptions} selected={selectedAccountIds} onChange={setSelectedAccountIds} />
+        <MultiSelectFilter label="Categories" options={categoryOptions} selected={selectedCategoryIds} onChange={setSelectedCategoryIds} />
+        <label className="flex items-center gap-1.5 text-xs text-gray-600 dark:text-gray-400 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={excludeTransfers}
+            onChange={(e) => setExcludeTransfers(e.target.checked)}
+            className="rounded border-gray-300 dark:border-gray-600 text-brand-600 focus:ring-brand-500"
+          />
+          Exclude transfers
+        </label>
+        {(selectedAccountIds.length > 0 || selectedCategoryIds.length > 0 || excludeTransfers) && (
+          <button
+            onClick={() => { setSelectedAccountIds([]); setSelectedCategoryIds([]); setExcludeTransfers(false); }}
+            className="text-xs text-brand-600 dark:text-brand-400 hover:underline"
+          >
+            Clear all filters
+          </button>
+        )}
       </div>
 
       {loading && <LoadingSpinner />}

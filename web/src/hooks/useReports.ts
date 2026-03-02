@@ -45,13 +45,16 @@ interface UseReportsOptions {
   months?: number;
   dateFrom?: string;
   dateTo?: string;
+  accountIds?: string[];
+  categoryIds?: string[];
+  excludeTransfers?: boolean;
 }
 
 export const useReports = (options: UseReportsOptions = {}) => {
-  const { months = 6, dateFrom, dateTo } = options;
+  const { months = 6, dateFrom, dateTo, accountIds, categoryIds, excludeTransfers } = options;
 
   const { data, loading, error, refetch } = useQuery(GET_REPORTS, {
-    variables: { months, dateFrom, dateTo },
+    variables: { months, dateFrom, dateTo, accountIds, categoryIds, excludeTransfers },
   });
 
   const reports: Reports | null = data?.reports || null;
