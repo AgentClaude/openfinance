@@ -258,6 +258,12 @@ module Types
       account.balance_adjustments.ordered
     end
 
+    field :merchant_mappings, [Types::MerchantMappingType], null: false
+    def merchant_mappings
+      return [] unless context[:current_user]&.household
+      context[:current_user].household.merchant_mappings.order(created_at: :desc)
+    end
+
     field :categorization_rules, [Types::CategorizationRuleType], null: false
     def categorization_rules
       return [] unless context[:current_user]&.household
@@ -479,8 +485,10 @@ module Types
       argument :months, Integer, required: false, default_value: 6
       argument :date_from, String, required: false
       argument :date_to, String, required: false
+      argument :account_ids, [ID], required: false
+      argument :exclude_transfers, Boolean, required: false, default_value: false
     end
-    def reports(months: 6, date_from: nil, date_to: nil)
+    def reports(months: 6, date_from: nil, date_to: nil, account_ids: nil, exclude_transfers: false)
       return empty_reports unless context[:current_user]&.household
 
       household = context[:current_user].household
@@ -488,6 +496,8 @@ module Types
       start_date = date_from ? Date.parse(date_from) : (end_date - months.months).beginning_of_month
 
       txns = household.transactions.where(date: start_date..end_date)
+      txns = txns.where(account_id: account_ids) if account_ids.present?
+      txns = txns.where(is_transfer: false) if exclude_transfers
 
       # Monthly summary (income vs expenses)
       monthly_summary = []

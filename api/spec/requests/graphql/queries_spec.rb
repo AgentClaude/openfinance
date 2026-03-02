@@ -177,4 +177,51 @@ RSpec.describe 'GraphQL Queries', type: :request do
       expect(data['netWorth']).to eq(0.0)
     end
   end
+
+  describe 'reports with filters' do
+    let(:account1) { create(:account, household: household, name: 'Checking') }
+    let(:account2) { create(:account, household: household, name: 'Savings') }
+    let(:category) { create(:category, household: household) }
+
+    let(:query) do
+      <<~GRAPHQL
+        query($accountIds: [ID!], $excludeTransfers: Boolean) {
+          reports(months: 3, accountIds: $accountIds, excludeTransfers: $excludeTransfers) {
+            monthlySummary { month income expenses cashFlow }
+            spendingByCategory { categoryName amount }
+            topMerchants { merchantName amount }
+          }
+        }
+      GRAPHQL
+    end
+
+    before do
+      create(:transaction, account: account1, category: category, amount_cents: -5000, merchant_name: 'Store A', date: Date.current, household: household, is_transfer: false)
+      create(:transaction, account: account2, category: category, amount_cents: -3000, merchant_name: 'Store B', date: Date.current, household: household, is_transfer: false)
+      create(:transaction, account: account1, category: category, amount_cents: -2000, merchant_name: 'Transfer', date: Date.current, household: household, is_transfer: true)
+    end
+
+    it 'filters by account_ids' do
+      result = graphql_query(query, user: user, variables: { accountIds: [account1.id.to_s] })
+      merchants = result.dig('data', 'reports', 'topMerchants')
+      names = merchants.map { |m| m['merchantName'] }
+      expect(names).to include('Store A')
+      expect(names).not_to include('Store B')
+    end
+
+    it 'excludes transfers when excludeTransfers is true' do
+      result = graphql_query(query, user: user, variables: { excludeTransfers: true })
+      merchants = result.dig('data', 'reports', 'topMerchants')
+      names = merchants.map { |m| m['merchantName'] }
+      expect(names).to include('Store A', 'Store B')
+      expect(names).not_to include('Transfer')
+    end
+
+    it 'returns all transactions when no filters applied' do
+      result = graphql_query(query, user: user)
+      merchants = result.dig('data', 'reports', 'topMerchants')
+      names = merchants.map { |m| m['merchantName'] }
+      expect(names).to include('Store A', 'Store B', 'Transfer')
+    end
+  end
 end

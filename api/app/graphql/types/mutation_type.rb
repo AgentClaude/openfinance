@@ -53,6 +53,13 @@ module Types
     field :export_data, mutation: Mutations::ExportData
     field :delete_account, mutation: Mutations::DeleteAccount
 
+    # Merchant mappings
+    field :create_merchant_mapping, mutation: Mutations::CreateMerchantMapping
+    field :update_merchant_mapping, mutation: Mutations::UpdateMerchantMapping
+    field :delete_merchant_mapping, mutation: Mutations::DeleteMerchantMapping
+    field :apply_merchant_mappings, mutation: Mutations::ApplyMerchantMappings
+    field :suggest_merchant_mappings, mutation: Mutations::SuggestMerchantMappings
+
     # Plaid connection management
     field :disconnect_connection, mutation: Mutations::DisconnectConnection
     field :retry_connection_sync, mutation: Mutations::RetryConnectionSync

@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
   PieChart, Pie, Cell,
@@ -8,7 +8,7 @@ import {
 } from 'recharts';
 import { useQuery } from '@apollo/client';
 import { useReports } from '@/hooks/useReports';
-import { GET_NET_WORTH_HISTORY, GET_CATEGORY_TRENDS, GET_CATEGORIES } from '@/graphql/queries';
+import { GET_NET_WORTH_HISTORY, GET_CATEGORY_TRENDS, GET_CATEGORIES, GET_ACCOUNTS } from '@/graphql/queries';
 import PageHeader from '@/components/ui/PageHeader';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import { StatCard, ChartCard } from '@/components/shared';
@@ -38,10 +38,38 @@ const ReportsPage: React.FC = () => {
   const [dateRangeMode, setDateRangeMode] = useState<DateRangeMode>('preset');
   const [customFrom, setCustomFrom] = useState('');
   const [customTo, setCustomTo] = useState('');
+  const [selectedAccountIds, setSelectedAccountIds] = useState<string[]>([]);
+  const [excludeTransfers, setExcludeTransfers] = useState(false);
+  const [accountDropdownOpen, setAccountDropdownOpen] = useState(false);
+  const accountDropdownRef = useRef<HTMLDivElement>(null);
 
-  const queryVars = dateRangeMode === 'custom' && customFrom && customTo
-    ? { dateFrom: customFrom, dateTo: customTo }
-    : { months };
+  const { data: accountsData } = useQuery(GET_ACCOUNTS);
+  const accounts: { id: string; name: string; accountType: string }[] = accountsData?.accounts || [];
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (accountDropdownRef.current && !accountDropdownRef.current.contains(e.target as Node)) {
+        setAccountDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, []);
+
+  const toggleAccount = (id: string) => {
+    setSelectedAccountIds(prev =>
+      prev.includes(id) ? prev.filter(a => a !== id) : [...prev, id]
+    );
+  };
+
+  const queryVars = {
+    ...(dateRangeMode === 'custom' && customFrom && customTo
+      ? { dateFrom: customFrom, dateTo: customTo }
+      : { months }),
+    accountIds: selectedAccountIds,
+    excludeTransfers,
+  };
 
   const { reports, loading } = useReports(queryVars);
 
@@ -112,6 +140,57 @@ const ReportsPage: React.FC = () => {
                 />
               </div>
             )}
+            {/* Account Filter */}
+            <div className="relative" ref={accountDropdownRef}>
+              <button
+                onClick={() => setAccountDropdownOpen(!accountDropdownOpen)}
+                className={`px-3 py-1.5 text-xs font-medium rounded-md border ${
+                  selectedAccountIds.length > 0
+                    ? 'bg-brand-50 border-brand-300 text-brand-800'
+                    : 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-slate-700/50'
+                }`}
+              >
+                {selectedAccountIds.length > 0 ? `${selectedAccountIds.length} account${selectedAccountIds.length > 1 ? 's' : ''}` : 'All Accounts'}
+                <span className="ml-1">▾</span>
+              </button>
+              {accountDropdownOpen && (
+                <div className="absolute right-0 mt-1 w-64 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50 max-h-64 overflow-y-auto">
+                  <div className="p-2 border-b border-gray-100 dark:border-gray-700">
+                    <button
+                      onClick={() => setSelectedAccountIds([])}
+                      className="text-xs text-brand-600 hover:text-brand-800"
+                    >
+                      Clear all
+                    </button>
+                  </div>
+                  {accounts.map((account) => (
+                    <label
+                      key={account.id}
+                      className="flex items-center gap-2 px-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer text-sm"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selectedAccountIds.includes(account.id)}
+                        onChange={() => toggleAccount(account.id)}
+                        className="rounded border-gray-300 text-brand-600 focus:ring-brand-500"
+                      />
+                      <span className="text-gray-700 dark:text-gray-300 truncate">{account.name}</span>
+                      <span className="text-gray-400 text-xs ml-auto capitalize">{account.accountType?.replace(/_/g, ' ')}</span>
+                    </label>
+                  ))}
+                </div>
+              )}
+            </div>
+            {/* Exclude Transfers */}
+            <label className="flex items-center gap-1.5 text-xs text-gray-600 dark:text-gray-400 cursor-pointer whitespace-nowrap">
+              <input
+                type="checkbox"
+                checked={excludeTransfers}
+                onChange={(e) => setExcludeTransfers(e.target.checked)}
+                className="rounded border-gray-300 text-brand-600 focus:ring-brand-500"
+              />
+              Exclude transfers
+            </label>
           </div>
         }
       />
