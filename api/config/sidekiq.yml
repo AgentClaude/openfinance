@@ -1,0 +1,12 @@
+:concurrency: 5
+
+:queues:
+  - default
+  - mailers
+
+:scheduler:
+  :schedule:
+    weekly_digest:
+      cron: '0 8 * * 1'  # Every Monday at 8:00 AM UTC
+      class: WeeklyDigestJob
+      description: 'Send weekly financial digest emails'

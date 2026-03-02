@@ -18,6 +18,7 @@ gem "graphiql-rails", "~> 1.9", group: :development
 
 # Background Jobs
 gem "sidekiq", "~> 7.2"
+# Weekly digest scheduled via Sidekiq perform_in self-rescheduling pattern
 # Sidekiq web UI is included in sidekiq gem
 
 # HTTP Client for Plaid

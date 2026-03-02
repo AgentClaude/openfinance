@@ -1,0 +1,43 @@
+WEEKLY FINANCIAL DIGEST
+<%= @period[:start_date].strftime('%b %-d') %> — <%= @period[:end_date].strftime('%b %-d, %Y') %>
+
+Hi <%= @user.name.present? ? @user.name.split.first : 'there' %>,
+
+=== CASH FLOW ===
+Income:   <%= number_to_currency(@digest[:income_summary][:total_cents] / 100.0) %>
+Spending: <%= number_to_currency(@digest[:spending_summary][:total_cents] / 100.0) %><% if @digest[:spending_summary][:change_percentage] %> (<%= @digest[:spending_summary][:change_percentage] > 0 ? '+' : '' %><%= @digest[:spending_summary][:change_percentage] %>% vs last week)<% end %>
+Net:      <%= number_to_currency(@digest[:net_cash_flow] / 100.0) %>
+
+<% if @digest[:top_categories].any? %>
+=== TOP SPENDING ===
+<% @digest[:top_categories].each do |cat| %>
+  <%= cat[:name].ljust(25) %> <%= number_to_currency(cat[:amount_cents] / 100.0) %>
+<% end %>
+<% end %>
+
+<% if @digest[:budget_alerts].any? %>
+=== BUDGET ALERTS ===
+<% @digest[:budget_alerts].each do |alert| %>
+  ⚠️ <%= alert[:category] %>: <%= number_to_currency(alert[:spent_cents] / 100.0) %> / <%= number_to_currency(alert[:budgeted_cents] / 100.0) %> (<%= alert[:percentage] %>%)
+<% end %>
+<% end %>
+
+<% if @digest[:upcoming_bills].any? %>
+=== UPCOMING BILLS ===
+<% @digest[:upcoming_bills].each do |bill| %>
+  <%= bill[:due_date].strftime('%b %-d') %> - <%= bill[:name].ljust(20) %> <%= number_to_currency(bill[:amount_cents] / 100.0) %>
+<% end %>
+<% end %>
+
+<% if @digest[:account_balances].any? %>
+=== ACCOUNTS ===
+<% @digest[:account_balances].each do |acct| %>
+  <%= acct[:name].ljust(25) %> <%= number_to_currency(acct[:balance_cents] / 100.0) %>
+<% end %>
+<% end %>
+
+NET WORTH: <%= number_to_currency(@digest[:net_worth]) %>
+
+<%= @digest[:transaction_count] %> transactions this week
+---
+Powered by OpenFinance

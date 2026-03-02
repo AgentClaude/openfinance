@@ -1,0 +1,123 @@
+<div style="max-width: 600px; margin: 0 auto; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #1a1a2e;">
+  <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 32px; border-radius: 12px 12px 0 0; text-align: center;">
+    <h1 style="color: #fff; margin: 0; font-size: 24px;">💰 Weekly Financial Digest</h1>
+    <p style="color: rgba(255,255,255,0.85); margin: 8px 0 0; font-size: 14px;">
+      <%= @period[:start_date].strftime('%b %-d') %> — <%= @period[:end_date].strftime('%b %-d, %Y') %>
+    </p>
+  </div>
+
+  <div style="background: #fff; padding: 24px; border: 1px solid #e2e8f0; border-top: none;">
+    <p style="margin: 0 0 20px; font-size: 15px; color: #4a5568;">
+      Hi <%= @user.name.present? ? @user.name.split.first : 'there' %>, here's your week in review.
+    </p>
+
+    <!-- Cash Flow Summary -->
+    <div style="display: flex; gap: 12px; margin-bottom: 24px;">
+      <div style="flex: 1; background: #f0fff4; border-radius: 8px; padding: 16px; text-align: center;">
+        <div style="font-size: 12px; color: #38a169; text-transform: uppercase; font-weight: 600;">Income</div>
+        <div style="font-size: 22px; font-weight: 700; color: #22543d; margin-top: 4px;">
+          <%= number_to_currency(@digest[:income_summary][:total_cents] / 100.0) %>
+        </div>
+      </div>
+      <div style="flex: 1; background: #fff5f5; border-radius: 8px; padding: 16px; text-align: center;">
+        <div style="font-size: 12px; color: #e53e3e; text-transform: uppercase; font-weight: 600;">Spending</div>
+        <div style="font-size: 22px; font-weight: 700; color: #742a2a; margin-top: 4px;">
+          <%= number_to_currency(@digest[:spending_summary][:total_cents] / 100.0) %>
+        </div>
+        <% if @digest[:spending_summary][:change_percentage] %>
+          <div style="font-size: 11px; color: #718096; margin-top: 2px;">
+            <%= @digest[:spending_summary][:change_percentage] > 0 ? '↑' : '↓' %>
+            <%= @digest[:spending_summary][:change_percentage].abs %>% vs last week
+          </div>
+        <% end %>
+      </div>
+      <div style="flex: 1; background: #ebf8ff; border-radius: 8px; padding: 16px; text-align: center;">
+        <div style="font-size: 12px; color: #3182ce; text-transform: uppercase; font-weight: 600;">Net</div>
+        <div style="font-size: 22px; font-weight: 700; color: <%= @digest[:net_cash_flow] >= 0 ? '#22543d' : '#742a2a' %>; margin-top: 4px;">
+          <%= number_to_currency(@digest[:net_cash_flow] / 100.0) %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Top Categories -->
+    <% if @digest[:top_categories].any? %>
+      <h3 style="font-size: 16px; margin: 0 0 12px; color: #2d3748;">Top Spending Categories</h3>
+      <table style="width: 100%; border-collapse: collapse; margin-bottom: 24px;">
+        <% max_amount = @digest[:top_categories].map { |c| c[:amount_cents] }.max %>
+        <% @digest[:top_categories].each do |cat| %>
+          <tr>
+            <td style="padding: 8px 0; font-size: 14px; color: #4a5568;"><%= cat[:name] %></td>
+            <td style="padding: 8px 0; text-align: right; font-size: 14px; font-weight: 600; color: #2d3748; white-space: nowrap;">
+              <%= number_to_currency(cat[:amount_cents] / 100.0) %>
+            </td>
+          </tr>
+          <tr>
+            <td colspan="2" style="padding: 0 0 8px;">
+              <div style="background: #edf2f7; border-radius: 4px; height: 6px; overflow: hidden;">
+                <div style="background: #667eea; height: 100%; width: <%= (cat[:amount_cents].to_f / max_amount * 100).round %>%; border-radius: 4px;"></div>
+              </div>
+            </td>
+          </tr>
+        <% end %>
+      </table>
+    <% end %>
+
+    <!-- Budget Alerts -->
+    <% if @digest[:budget_alerts].any? %>
+      <h3 style="font-size: 16px; margin: 0 0 12px; color: #2d3748;">⚠️ Budget Alerts</h3>
+      <div style="margin-bottom: 24px;">
+        <% @digest[:budget_alerts].each do |alert| %>
+          <div style="background: <%= alert[:percentage] >= 100 ? '#fff5f5' : '#fffff0' %>; border-left: 4px solid <%= alert[:percentage] >= 100 ? '#e53e3e' : '#ecc94b' %>; padding: 12px; margin-bottom: 8px; border-radius: 0 8px 8px 0;">
+            <div style="font-weight: 600; font-size: 14px; color: #2d3748;"><%= alert[:category] %></div>
+            <div style="font-size: 13px; color: #718096;">
+              <%= number_to_currency(alert[:spent_cents] / 100.0) %> of <%= number_to_currency(alert[:budgeted_cents] / 100.0) %> (<%= alert[:percentage] %>%)
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+
+    <!-- Upcoming Bills -->
+    <% if @digest[:upcoming_bills].any? %>
+      <h3 style="font-size: 16px; margin: 0 0 12px; color: #2d3748;">📅 Upcoming Bills</h3>
+      <table style="width: 100%; border-collapse: collapse; margin-bottom: 24px;">
+        <% @digest[:upcoming_bills].each do |bill| %>
+          <tr style="border-bottom: 1px solid #edf2f7;">
+            <td style="padding: 8px 0; font-size: 14px; color: #4a5568;"><%= bill[:name] %></td>
+            <td style="padding: 8px 0; text-align: right; font-size: 14px; color: #718096;"><%= bill[:due_date].strftime('%b %-d') %></td>
+            <td style="padding: 8px 0; text-align: right; font-size: 14px; font-weight: 600; color: #2d3748; white-space: nowrap;">
+              <%= number_to_currency(bill[:amount_cents] / 100.0) %>
+            </td>
+          </tr>
+        <% end %>
+      </table>
+    <% end %>
+
+    <!-- Account Balances -->
+    <% if @digest[:account_balances].any? %>
+      <h3 style="font-size: 16px; margin: 0 0 12px; color: #2d3748;">🏦 Account Balances</h3>
+      <table style="width: 100%; border-collapse: collapse; margin-bottom: 24px;">
+        <% @digest[:account_balances].each do |acct| %>
+          <tr style="border-bottom: 1px solid #edf2f7;">
+            <td style="padding: 8px 0; font-size: 14px; color: #4a5568;"><%= acct[:name] %></td>
+            <td style="padding: 8px 0; text-align: right; font-size: 14px; font-weight: 600; color: #2d3748; white-space: nowrap;">
+              <%= number_to_currency(acct[:balance_cents] / 100.0) %>
+            </td>
+          </tr>
+        <% end %>
+      </table>
+    <% end %>
+
+    <!-- Net Worth -->
+    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 8px; padding: 20px; text-align: center; margin-bottom: 16px;">
+      <div style="font-size: 12px; color: rgba(255,255,255,0.8); text-transform: uppercase; font-weight: 600;">Net Worth</div>
+      <div style="font-size: 28px; font-weight: 700; color: #fff; margin-top: 4px;">
+        <%= number_to_currency(@digest[:net_worth]) %>
+      </div>
+    </div>
+
+    <p style="font-size: 12px; color: #a0aec0; text-align: center; margin: 16px 0 0;">
+      <%= @digest[:transaction_count] %> transactions this week · Powered by OpenFinance
+    </p>
+  </div>
+</div>
