@@ -8,6 +8,7 @@ import { useQuery, useMutation } from '@apollo/client';
 import { GET_ACCOUNTS, GET_NOTIFICATION_PREFERENCES, GET_HOUSEHOLD_MEMBERS, GET_HOUSEHOLD_INVITATIONS, GET_MY_REFERRAL_CODE, GET_REFERRALS } from '@/graphql/queries';
 import { UPDATE_HOUSEHOLD, UPDATE_NOTIFICATION_PREFERENCE, UPDATE_TAG, DELETE_TAG, EXPORT_DATA, DELETE_ACCOUNT, INVITE_TO_HOUSEHOLD, REMOVE_HOUSEHOLD_MEMBER, UPDATE_MEMBER_ROLE } from '@/graphql/mutations';
 import { NotificationPreference } from '@/types';
+import Button from '@/components/ui/Button';
 import toast from 'react-hot-toast';
 
 const CURRENCIES = ['USD', 'EUR', 'GBP', 'CAD', 'AUD', 'NZD', 'JPY', 'CHF'];
@@ -302,8 +303,7 @@ export default function SettingsPage() {
   const labelClasses = 'block text-sm font-medium text-gray-700 dark:text-gray-300';
   const cardClasses = 'bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-6';
   const headingClasses = 'text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4';
-  const btnPrimary = 'bg-brand-700 text-white px-4 py-2 rounded-lg hover:bg-brand-800 disabled:opacity-50 text-sm font-medium transition-colors';
-  const btnDanger = 'bg-red-600 text-white px-3 py-1.5 rounded-lg hover:bg-red-700 text-xs font-medium transition-colors';
+  // Buttons use shared Button component (primary/danger/ghost variants)
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -346,9 +346,9 @@ export default function SettingsPage() {
                 </div>
               </div>
               <div className="mt-4 flex justify-end">
-                <button type="submit" disabled={updatingProfile} className={btnPrimary}>
+                <Button type="submit" disabled={updatingProfile} loading={updatingProfile}>
                   {updatingProfile ? 'Saving...' : 'Save Changes'}
-                </button>
+                </Button>
               </div>
             </div>
           </form>
@@ -368,9 +368,9 @@ export default function SettingsPage() {
                 <label className={labelClasses}>Confirm New Password</label>
                 <input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className={inputClasses} required />
               </div>
-              <button type="submit" disabled={changingPassword} className={btnPrimary}>
+              <Button type="submit" disabled={changingPassword} loading={changingPassword}>
                 {changingPassword ? 'Changing...' : 'Change Password'}
-              </button>
+              </Button>
             </div>
           </form>
         </div>
@@ -471,16 +471,16 @@ export default function SettingsPage() {
               </div>
             </div>
             <div className="mt-4 flex justify-end">
-              <button type="submit" disabled={updatingHousehold} className={btnPrimary}>
+              <Button type="submit" disabled={updatingHousehold} loading={updatingHousehold}>
                 {updatingHousehold ? 'Saving...' : 'Save Changes'}
-              </button>
+              </Button>
             </div>
           </form>
 
           <div className={cardClasses}>
             <h2 className={headingClasses}>Members</h2>
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              Manage household members in the <button onClick={() => setActiveTab('members')} className="text-brand-700 dark:text-brand-400 hover:underline font-medium">Members tab</button>.
+              Manage household members in the <Button variant="link" onClick={() => setActiveTab('members')}>Members tab</Button>.
             </p>
           </div>
         </div>
@@ -511,9 +511,9 @@ export default function SettingsPage() {
                     <option value="owner">Owner</option>
                   </select>
                 </div>
-                <button type="submit" disabled={inviting} className={btnPrimary}>
+                <Button type="submit" disabled={inviting} loading={inviting}>
                   {inviting ? 'Sending...' : 'Send Invite'}
-                </button>
+                </Button>
               </div>
             </form>
           )}
@@ -556,9 +556,9 @@ export default function SettingsPage() {
                       </span>
                     )}
                     {isOwner && m.user.id !== user?.id && (
-                      <button onClick={() => handleRemoveMember(m.user.id, m.user.name || m.user.email)} className={btnDanger}>
+                      <Button variant="danger" size="sm" onClick={() => handleRemoveMember(m.user.id, m.user.name || m.user.email)}>
                         Remove
-                      </button>
+                      </Button>
                     )}
                   </div>
                 </div>
@@ -663,8 +663,8 @@ export default function SettingsPage() {
                         onChange={(e) => setEditTagName(e.target.value)}
                         className={inputClasses + ' !mt-0 max-w-xs'}
                       />
-                      <button onClick={() => handleSaveTag(tag.id)} className="text-brand-700 hover:text-indigo-800 text-sm font-medium">Save</button>
-                      <button onClick={() => setEditingTagId(null)} className="text-gray-400 hover:text-gray-600 text-sm">Cancel</button>
+                      <Button variant="link" onClick={() => handleSaveTag(tag.id)}>Save</Button>
+                      <Button variant="ghost" size="sm" onClick={() => setEditingTagId(null)}>Cancel</Button>
                     </div>
                   ) : (
                     <>
@@ -676,8 +676,8 @@ export default function SettingsPage() {
                         <span className="text-sm text-gray-900 dark:text-gray-100">{tag.name}</span>
                       </div>
                       <div className="flex items-center space-x-2">
-                        <button onClick={() => handleStartEditTag(tag)} className="text-gray-400 hover:text-brand-700 text-sm">Edit</button>
-                        <button onClick={() => handleDeleteTag(tag.id)} className={btnDanger}>Delete</button>
+                        <Button variant="ghost" size="sm" onClick={() => handleStartEditTag(tag)}>Edit</Button>
+                        <Button variant="danger" size="sm" onClick={() => handleDeleteTag(tag.id)}>Delete</Button>
                       </div>
                     </>
                   )}
@@ -700,9 +700,9 @@ export default function SettingsPage() {
               <code className="flex-1 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 px-4 py-3 rounded-md font-mono text-lg tracking-wider">
                 {myReferralCode || '...'}
               </code>
-              <button onClick={handleCopyCode} className={btnPrimary} disabled={!myReferralCode}>
+              <Button onClick={handleCopyCode} disabled={!myReferralCode}>
                 {codeCopied ? '✓ Copied' : '📋 Copy'}
-              </button>
+              </Button>
             </div>
           </div>
 
@@ -755,15 +755,15 @@ export default function SettingsPage() {
                   Add an extra layer of security to your account using an authenticator app.
                 </p>
               </div>
-              <button
+              <Button
+                variant={twoFactorEnabled ? 'danger' : 'primary'}
                 onClick={() => {
                   setTwoFactorEnabled(!twoFactorEnabled);
                   toast(twoFactorEnabled ? '2FA disabled (placeholder)' : '2FA enabled (placeholder)', { icon: 'ℹ️' });
                 }}
-                className={twoFactorEnabled ? btnDanger : btnPrimary}
               >
                 {twoFactorEnabled ? 'Disable 2FA' : 'Enable 2FA'}
-              </button>
+              </Button>
             </div>
             <p className="mt-3 text-xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 rounded-md p-2">
               ⚠️ Two-factor authentication is coming soon. This is a preview of the interface.
@@ -813,9 +813,9 @@ export default function SettingsPage() {
             <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
               Download all your financial data as a JSON file. Includes accounts, transactions, categories, tags, budgets, goals, and recurring items.
             </p>
-            <button onClick={handleExport} disabled={exporting} className={btnPrimary}>
+            <Button onClick={handleExport} disabled={exporting} loading={exporting}>
               {exporting ? 'Exporting...' : '📥 Export All Data (JSON)'}
-            </button>
+            </Button>
           </div>
 
           <div className={`${cardClasses} border-2 border-red-200 dark:border-red-800`}>
@@ -824,9 +824,9 @@ export default function SettingsPage() {
               Permanently delete your account and anonymize all associated data. This action cannot be undone.
             </p>
             {!showDeleteForm ? (
-              <button onClick={() => setShowDeleteForm(true)} className={btnDanger + ' !px-4 !py-2 !text-sm'}>
+              <Button variant="danger" onClick={() => setShowDeleteForm(true)}>
                 Delete My Account
-              </button>
+              </Button>
             ) : (
               <div className="space-y-3 max-w-md">
                 <div>
@@ -849,7 +849,8 @@ export default function SettingsPage() {
                   />
                 </div>
                 <div className="flex space-x-3">
-                  <button
+                  <Button
+                    variant="danger"
                     onClick={async () => {
                       if (deleteConfirm !== 'DELETE') {
                         toast.error('Please type DELETE to confirm');
@@ -869,13 +870,13 @@ export default function SettingsPage() {
                       }
                     }}
                     disabled={deletingAccount || deleteConfirm !== 'DELETE' || !deletePassword}
-                    className={btnDanger + ' !px-4 !py-2 !text-sm disabled:opacity-50'}
+                    loading={deletingAccount}
                   >
                     {deletingAccount ? 'Deleting...' : 'Permanently Delete Account'}
-                  </button>
-                  <button onClick={() => { setShowDeleteForm(false); setDeleteConfirm(''); setDeletePassword(''); }} className="text-sm text-gray-500 hover:text-gray-700">
+                  </Button>
+                  <Button variant="ghost" onClick={() => { setShowDeleteForm(false); setDeleteConfirm(''); setDeletePassword(''); }}>
                     Cancel
-                  </button>
+                  </Button>
                 </div>
               </div>
             )}

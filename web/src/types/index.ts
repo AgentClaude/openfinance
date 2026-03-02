@@ -196,15 +196,11 @@ export interface ToastType {
   message?: string;
 }
 
-export interface ButtonProps {
-  variant?: 'primary' | 'secondary' | 'danger' | 'ghost';
+export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  variant?: 'primary' | 'secondary' | 'danger' | 'ghost' | 'link';
   size?: 'sm' | 'md' | 'lg';
   loading?: boolean;
-  disabled?: boolean;
-  type?: 'button' | 'submit' | 'reset';
-  className?: string;
-  children: React.ReactNode;
-  onClick?: () => void;
+  fullWidth?: boolean;
 }
 
 export interface ColumnConfig<T> {

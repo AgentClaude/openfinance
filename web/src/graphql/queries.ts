@@ -649,3 +649,17 @@ export const GET_MERCHANT_MAPPINGS = gql`
     }
   }
 `;
+
+export const GET_SUGGESTED_RULES = gql`
+  query GetSuggestedRules {
+    suggestedRules {
+      merchantName
+      categoryId
+      categoryName
+      transactionCount
+      matchField
+      matchType
+      matchValue
+    }
+  }
+`;

@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useInvestments, PortfolioHistoryPoint } from '@/hooks/useInvestments';
 import { useAccounts } from '@/hooks/useAccounts';
-import { LoadingSpinner } from '@/components/LoadingSpinner';
+import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import { Holding, PortfolioAllocation } from '@/types';
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
