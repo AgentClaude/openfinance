@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f4f5f7; color: #1a1a2e; }
+    .container { max-width: 600px; margin: 0 auto; background: #ffffff; }
+    .header { background: linear-gradient(135deg, #0f766e 0%, #134e4a 100%); color: white; padding: 32px 24px; text-align: center; }
+    .header h1 { margin: 0 0 4px; font-size: 24px; font-weight: 700; }
+    .header p { margin: 0; opacity: 0.85; font-size: 14px; }
+    .section { padding: 24px; border-bottom: 1px solid #e5e7eb; }
+    .section:last-child { border-bottom: none; }
+    .section-title { font-size: 16px; font-weight: 700; color: #0f766e; margin: 0 0 16px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .stat-grid { display: flex; gap: 12px; flex-wrap: wrap; }
+    .stat-card { flex: 1; min-width: 120px; background: #f0fdfa; border-radius: 8px; padding: 16px; text-align: center; }
+    .stat-value { font-size: 24px; font-weight: 700; color: #1a1a2e; }
+    .stat-label { font-size: 12px; color: #6b7280; margin-top: 4px; }
+    .change-up { color: #dc2626; font-size: 12px; }
+    .change-down { color: #16a34a; font-size: 12px; }
+    .bar-row { display: flex; align-items: center; margin-bottom: 10px; }
+    .bar-label { width: 140px; font-size: 13px; color: #374151; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .bar-track { flex: 1; height: 8px; background: #e5e7eb; border-radius: 4px; margin: 0 8px; overflow: hidden; }
+    .bar-fill { height: 100%; border-radius: 4px; }
+    .bar-fill-green { background: #16a34a; }
+    .bar-fill-yellow { background: #f59e0b; }
+    .bar-fill-red { background: #dc2626; }
+    .bar-amount { width: 80px; text-align: right; font-size: 13px; font-weight: 600; color: #374151; }
+    .txn-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f3f4f6; font-size: 13px; }
+    .txn-row:last-child { border-bottom: none; }
+    .txn-name { color: #374151; }
+    .txn-amount { font-weight: 600; color: #dc2626; }
+    .budget-row { display: flex; align-items: center; margin-bottom: 12px; }
+    .budget-info { flex: 1; }
+    .budget-cat { font-size: 13px; font-weight: 600; color: #374151; }
+    .budget-detail { font-size: 11px; color: #9ca3af; }
+    .budget-pct { font-size: 13px; font-weight: 700; min-width: 50px; text-align: right; }
+    .pct-green { color: #16a34a; }
+    .pct-yellow { color: #f59e0b; }
+    .pct-red { color: #dc2626; }
+    .account-row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 13px; }
+    .account-name { color: #374151; }
+    .account-balance { font-weight: 600; }
+    .nw-card { background: #f0fdfa; border-radius: 8px; padding: 20px; text-align: center; }
+    .nw-value { font-size: 28px; font-weight: 700; color: #0f766e; }
+    .nw-breakdown { display: flex; justify-content: center; gap: 24px; margin-top: 8px; font-size: 13px; }
+    .badge { display: inline-block; background: #fef2f2; color: #dc2626; border-radius: 12px; padding: 2px 10px; font-size: 12px; font-weight: 600; }
+    .badge-info { background: #eff6ff; color: #2563eb; }
+    .footer { padding: 24px; text-align: center; font-size: 12px; color: #9ca3af; background: #f9fafb; }
+    .footer a { color: #0f766e; text-decoration: none; }
+    .bill-row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 13px; border-bottom: 1px solid #f3f4f6; }
+    .bill-date { color: #9ca3af; font-size: 12px; }
+    @media (max-width: 480px) {
+      .stat-grid { flex-direction: column; }
+      .stat-card { min-width: auto; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <h1>📊 Weekly Digest</h1>
+      <p><%= @period[:start].strftime('%b %d') %> – <%= @period[:end].strftime('%b %d, %Y') %></p>
+    </div>
+
+    <!-- Spending & Income Summary -->
+    <div class="section">
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-value"><%= format_currency(@spending[:total_cents]) %></div>
+          <div class="stat-label">Spent</div>
+          <% if @spending[:change_pct] != 0 %>
+            <div class="<%= @spending[:change_pct] > 0 ? 'change-up' : 'change-down' %>">
+              <%= @spending[:change_pct] > 0 ? '↑' : '↓' %> <%= @spending[:change_pct].abs %>% vs last week
+            </div>
+          <% end %>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value"><%= format_currency(@income[:total_cents]) %></div>
+          <div class="stat-label">Income</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value"><%= @spending[:count] + @income[:count] %></div>
+          <div class="stat-label">Transactions</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Top Categories -->
+    <% if @top_categories.any? %>
+    <div class="section">
+      <div class="section-title">Top Spending Categories</div>
+      <% max_amount = @top_categories.first[:amount_cents] %>
+      <% @top_categories.each do |cat| %>
+        <div class="bar-row">
+          <div class="bar-label"><%= cat[:category].name %></div>
+          <div class="bar-track">
+            <div class="bar-fill bar-fill-green" style="width: <%= [(cat[:amount_cents].to_f / max_amount * 100).round, 100].min %>%"></div>
+          </div>
+          <div class="bar-amount"><%= format_currency(cat[:amount_cents]) %></div>
+        </div>
+      <% end %>
+    </div>
+    <% end %>
+
+    <!-- Budget Status (MTD) -->
+    <% if @budget_status.present? && @budget_status.any? %>
+    <div class="section">
+      <div class="section-title">Budget Status (Month to Date)</div>
+      <% @budget_status.each do |b| %>
+        <div class="budget-row">
+          <div class="budget-info">
+            <div class="budget-cat"><%= b[:category_name] %></div>
+            <div class="budget-detail"><%= format_currency(b[:spent_cents]) %> of <%= format_currency(b[:budgeted_cents]) %></div>
+          </div>
+          <div class="bar-track" style="width: 120px;">
+            <div class="bar-fill <%= b[:pct] > 100 ? 'bar-fill-red' : b[:pct] > 80 ? 'bar-fill-yellow' : 'bar-fill-green' %>" style="width: <%= [b[:pct], 100].min %>%"></div>
+          </div>
+          <div class="budget-pct <%= b[:pct] > 100 ? 'pct-red' : b[:pct] > 80 ? 'pct-yellow' : 'pct-green' %>"><%= b[:pct] %>%</div>
+        </div>
+      <% end %>
+    </div>
+    <% end %>
+
+    <!-- Large Transactions -->
+    <% if @large_transactions.any? %>
+    <div class="section">
+      <div class="section-title">Large Transactions</div>
+      <% @large_transactions.each do |txn| %>
+        <div class="txn-row">
+          <div>
+            <span class="txn-name"><%= txn.merchant_name.presence || txn.name %></span>
+            <% if txn.category %>
+              <span style="color: #9ca3af; font-size: 11px;"> · <%= txn.category.name %></span>
+            <% end %>
+          </div>
+          <span class="txn-amount"><%= format_currency(txn.amount_cents.abs) %></span>
+        </div>
+      <% end %>
+    </div>
+    <% end %>
+
+    <!-- Upcoming Bills -->
+    <% if @upcoming_bills.any? %>
+    <div class="section">
+      <div class="section-title">Upcoming Bills (Next 7 Days)</div>
+      <% @upcoming_bills.each do |bill| %>
+        <div class="bill-row">
+          <div>
+            <div><%= bill.name %></div>
+            <div class="bill-date"><%= bill.next_occurrence&.strftime('%a, %b %d') %></div>
+          </div>
+          <span style="font-weight: 600;"><%= format_currency(bill.estimated_amount_cents&.abs) %></span>
+        </div>
+      <% end %>
+    </div>
+    <% end %>
+
+    <!-- Net Worth -->
+    <div class="section">
+      <div class="section-title">Net Worth</div>
+      <div class="nw-card">
+        <div class="nw-value"><%= format_currency(@net_worth[:net_worth_cents]) %></div>
+        <div class="nw-breakdown">
+          <span>Assets: <%= format_currency(@net_worth[:assets_cents]) %></span>
+          <span>Liabilities: <%= format_currency(@net_worth[:liabilities_cents]) %></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Account Balances -->
+    <% if @account_balances.any? %>
+    <div class="section">
+      <div class="section-title">Account Balances</div>
+      <% @account_balances.each do |acct| %>
+        <div class="account-row">
+          <span class="account-name"><%= acct[:name] %></span>
+          <span class="account-balance"><%= format_currency(acct[:balance_cents]) %></span>
+        </div>
+      <% end %>
+    </div>
+    <% end %>
+
+    <!-- Action Items -->
+    <% if @needs_review_count > 0 %>
+    <div class="section" style="text-align: center;">
+      <span class="badge badge-info"><%= @needs_review_count %> transaction<%= @needs_review_count == 1 ? '' : 's' %> need review</span>
+    </div>
+    <% end %>
+
+    <!-- Footer -->
+    <div class="footer">
+      <p>Sent by <a href="#">OpenFinance</a> · Your personal finance dashboard</p>
+      <p>To manage email preferences, visit Settings → Notifications</p>
+    </div>
+  </div>
+</body>
+</html>

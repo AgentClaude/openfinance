@@ -1,0 +1,46 @@
+WEEKLY FINANCIAL DIGEST
+<%= @period[:start].strftime('%b %d') %> – <%= @period[:end].strftime('%b %d, %Y') %>
+==============================
+
+SUMMARY
+  Spent: <%= format_currency(@spending[:total_cents]) %> (<%= @spending[:count] %> transactions)<% if @spending[:change_pct] != 0 %> · <%= @spending[:change_pct] > 0 ? '↑' : '↓' %> <%= @spending[:change_pct].abs %>% vs last week<% end %>
+  Income: <%= format_currency(@income[:total_cents]) %> (<%= @income[:count] %> transactions)
+
+<% if @top_categories.any? %>
+TOP SPENDING CATEGORIES
+<% @top_categories.each do |cat| %>
+  <%= cat[:category].name.ljust(25) %> <%= format_currency(cat[:amount_cents]) %>
+<% end %>
+<% end %>
+
+<% if @budget_status.present? && @budget_status.any? %>
+BUDGET STATUS (Month to Date)
+<% @budget_status.each do |b| %>
+  <%= b[:category_name].ljust(25) %> <%= format_currency(b[:spent_cents]) %> / <%= format_currency(b[:budgeted_cents]) %> (<%= b[:pct] %>%)
+<% end %>
+<% end %>
+
+<% if @large_transactions.any? %>
+LARGE TRANSACTIONS
+<% @large_transactions.each do |txn| %>
+  <%= (txn.merchant_name.presence || txn.name).ljust(25) %> <%= format_currency(txn.amount_cents.abs) %>
+<% end %>
+<% end %>
+
+NET WORTH: <%= format_currency(@net_worth[:net_worth_cents]) %>
+  Assets: <%= format_currency(@net_worth[:assets_cents]) %>
+  Liabilities: <%= format_currency(@net_worth[:liabilities_cents]) %>
+
+<% if @account_balances.any? %>
+ACCOUNTS
+<% @account_balances.each do |acct| %>
+  <%= acct[:name].ljust(25) %> <%= format_currency(acct[:balance_cents]) %>
+<% end %>
+<% end %>
+
+<% if @needs_review_count > 0 %>
+⚠ <%= @needs_review_count %> transaction<%= @needs_review_count == 1 ? '' : 's' %> need review
+<% end %>
+
+---
+Sent by OpenFinance · To manage preferences, visit Settings → Notifications
