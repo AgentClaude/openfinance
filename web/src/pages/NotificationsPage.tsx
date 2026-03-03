@@ -5,9 +5,10 @@ import {
   BellIcon,
 } from '@heroicons/react/24/outline';
 import { GET_NOTIFICATIONS } from '@/graphql/queries';
-import { MARK_NOTIFICATION_READ, MARK_ALL_NOTIFICATIONS_READ } from '@/graphql/mutations';
+import { MARK_NOTIFICATION_READ, MARK_ALL_NOTIFICATIONS_READ, TRIGGER_NOTIFICATION_CHECK } from '@/graphql/mutations';
 import PageHeader from '@/components/ui/PageHeader';
 import Button from '@/components/ui/Button';
+import toast from 'react-hot-toast';
 import Badge from '@/components/ui/Badge';
 import EmptyState from '@/components/ui/EmptyState';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
@@ -51,6 +52,17 @@ const NotificationsPage: React.FC = () => {
 
   const [markRead] = useMutation(MARK_NOTIFICATION_READ, { onCompleted: () => refetch() });
   const [markAllRead] = useMutation(MARK_ALL_NOTIFICATIONS_READ, { onCompleted: () => refetch() });
+  const [triggerCheck, { loading: checking }] = useMutation(TRIGGER_NOTIFICATION_CHECK, {
+    onCompleted: (data) => {
+      if (data.triggerNotificationCheck.success) {
+        toast.success('Notification check complete');
+        refetch();
+      } else {
+        toast.error('Check failed: ' + data.triggerNotificationCheck.errors.join(', '));
+      }
+    },
+    onError: () => toast.error('Failed to run notification check'),
+  });
 
   const notifications: Notification[] = data?.notifications || [];
   const unreadCount: number = data?.unreadNotificationCount || 0;
@@ -72,12 +84,17 @@ const NotificationsPage: React.FC = () => {
         title="Notifications"
         subtitle={unreadCount > 0 ? `${unreadCount} unread` : 'All caught up'}
         actions={
-          unreadCount > 0 ? (
-            <Button variant="secondary" size="sm" onClick={() => markAllRead()}>
-              <CheckIcon className="h-4 w-4" />
-              Mark all read
+          <div className="flex items-center gap-2">
+            <Button variant="secondary" size="sm" onClick={() => triggerCheck()} disabled={checking}>
+              {checking ? 'Checking...' : 'Check Now'}
             </Button>
-          ) : undefined
+            {unreadCount > 0 && (
+              <Button variant="secondary" size="sm" onClick={() => markAllRead()}>
+                <CheckIcon className="h-4 w-4" />
+                Mark all read
+              </Button>
+            )}
+          </div>
         }
       />
 

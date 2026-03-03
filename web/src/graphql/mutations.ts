@@ -987,3 +987,12 @@ export const SUGGEST_MERCHANT_MAPPINGS = gql`
     }
   }
 `;
+
+export const TRIGGER_NOTIFICATION_CHECK = gql`
+  mutation TriggerNotificationCheck {
+    triggerNotificationCheck {
+      success
+      errors
+    }
+  }
+`;
