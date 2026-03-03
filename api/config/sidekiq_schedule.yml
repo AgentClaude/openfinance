@@ -1,0 +1,17 @@
+bill_reminders:
+  cron: "0 9 * * *"  # Daily at 9 AM
+  class: "BillReminderJob"
+  queue: "default"
+  description: "Check for upcoming bills and send reminders"
+
+weekly_digest:
+  cron: "0 8 * * 1"  # Every Monday at 8 AM
+  class: "WeeklyDigestJob"
+  queue: "default"
+  description: "Send weekly financial digest to users"
+
+budget_snapshot:
+  cron: "0 0 * * *"  # Daily at midnight
+  class: "BalanceSnapshotJob"
+  queue: "default"
+  description: "Snapshot account balances for net worth tracking"

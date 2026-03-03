@@ -30,7 +30,7 @@ import Card from '@/components/ui/Card';
 import BulkActionToolbar from '@/components/BulkActionToolbar';
 import TransactionDetailPanel from '@/components/TransactionDetailPanel';
 import TransferDetection from '@/components/TransferDetection';
-import { BULK_TRANSACTION_ACTION, EXPORT_DATA } from '@/graphql/mutations';
+import { BULK_TRANSACTION_ACTION, EXPORT_DATA, EXPORT_TRANSACTIONS_CSV } from '@/graphql/mutations';
 import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 
@@ -59,6 +59,7 @@ const TransactionsPage: React.FC = () => {
 
   const [bulkAction, { loading: bulkLoading }] = useMutation(BULK_TRANSACTION_ACTION);
   const [exportData] = useMutation(EXPORT_DATA);
+  const [exportCsvMutation] = useMutation(EXPORT_TRANSACTIONS_CSV);
 
   const handleBulkAction = async (action: string, categoryId?: string) => {
     await bulkAction({
@@ -97,32 +98,59 @@ const TransactionsPage: React.FC = () => {
     }
   }, [exportData]);
 
-  const handleExportCSV = useCallback(() => {
-    if (!transactions.length) return;
-    const headers = ['Date', 'Description', 'Merchant', 'Amount', 'Category', 'Account', 'Tags', 'Notes', 'Excluded', 'Pending'];
-    const rows = transactions.map(t => [
-      t.date,
-      `"${(t.description || '').replace(/"/g, '""')}"`,
-      `"${(t.merchantName || '').replace(/"/g, '""')}"`,
-      t.amount.toFixed(2),
-      `"${t.category?.name || ''}"`,
-      `"${t.account?.name || ''}"`,
-      `"${(t.tags || []).map(tag => tag.name).join(', ')}"`,
-      `"${(t.notes || '').replace(/"/g, '""')}"`,
-      t.excluded ? 'Yes' : 'No',
-      t.pending ? 'Yes' : 'No',
-    ]);
-    const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `transactions-${format(new Date(), 'yyyy-MM-dd')}.csv`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  }, [transactions]);
+  const handleExportCSV = useCallback(async () => {
+    try {
+      setExporting(true);
+      const variables: Record<string, unknown> = {};
+      if (filters.dateFrom) variables.startDate = filters.dateFrom;
+      if (filters.dateTo) variables.endDate = filters.dateTo;
+      if (filters.accountId) variables.accountIds = [filters.accountId];
+      if (filters.categoryId) variables.categoryIds = [filters.categoryId];
+
+      const { data } = await exportCsvMutation({ variables });
+      const csvData = data?.exportTransactionsCsv?.csvData;
+      const filename = data?.exportTransactionsCsv?.filename || `transactions-${format(new Date(), 'yyyy-MM-dd')}.csv`;
+      if (!csvData) return;
+
+      const blob = new Blob([csvData], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch {
+      // fallback: client-side export from loaded data
+      if (!transactions.length) return;
+      const headers = ['Date', 'Description', 'Merchant', 'Amount', 'Category', 'Account', 'Tags', 'Notes', 'Excluded', 'Pending'];
+      const rows = transactions.map(t => [
+        t.date,
+        `"${(t.description || '').replace(/"/g, '""')}"`,
+        `"${(t.merchantName || '').replace(/"/g, '""')}"`,
+        t.amount.toFixed(2),
+        `"${t.category?.name || ''}"`,
+        `"${t.account?.name || ''}"`,
+        `"${(t.tags || []).map(tag => tag.name).join(', ')}"`,
+        `"${(t.notes || '').replace(/"/g, '""')}"`,
+        t.excluded ? 'Yes' : 'No',
+        t.pending ? 'Yes' : 'No',
+      ]);
+      const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `transactions-${format(new Date(), 'yyyy-MM-dd')}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } finally {
+      setExporting(false);
+    }
+  }, [exportCsvMutation, filters, transactions]);
 
   const handleFilterChange = (key: keyof TransactionFilters, value: TransactionFilters[keyof TransactionFilters]) => {
     setFilters(prev => ({

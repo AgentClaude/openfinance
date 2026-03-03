@@ -2,6 +2,7 @@
 
 require 'sidekiq'
 require 'sidekiq/web'
+require 'sidekiq-cron'
 
 # Sidekiq Web UI authentication (production)
 if Rails.env.production?
@@ -110,5 +111,15 @@ Rails.application.config.after_initialize do
     rescue => e
       Rails.logger.error "Sidekiq Redis connection failed: #{e.message}"
     end
+  end
+end
+
+# Load sidekiq-cron schedule
+Sidekiq.configure_server do |config|
+  schedule_file = Rails.root.join('config', 'sidekiq_schedule.yml')
+  if File.exist?(schedule_file)
+    schedule = YAML.load_file(schedule_file)
+    Sidekiq::Cron::Job.load_from_hash(schedule) if schedule
+    Rails.logger.info "Sidekiq-cron schedule loaded: #{schedule&.keys&.join(', ')}"
   end
 end

@@ -1,0 +1,33 @@
+WEEKLY FINANCIAL SUMMARY
+<%= @week_start %> – <%= @week_end %>
+================================
+
+OVERVIEW
+  Spent:     $<%= '%.2f' % (@data[:total_spent_cents].to_i / 100.0) %>
+  Income:    $<%= '%.2f' % (@data[:total_income_cents].to_i / 100.0) %>
+  Net Worth: $<%= '%.2f' % (@data[:net_worth_cents].to_i / 100.0) %>
+
+<% if @data[:spending_by_category].present? %>
+TOP SPENDING
+<% @data[:spending_by_category].each do |cat| %>
+  <%= cat[:name].ljust(25) %> $<%= '%.2f' % (cat[:amount_cents].to_i / 100.0) %>
+<% end %>
+<% end %>
+
+<% if @data[:budget_status].present? %>
+BUDGET ALERTS
+<% @data[:budget_status].each do |b| %>
+  <%= b[:name].ljust(25) %> <%= b[:percentage] %>% ($<%= '%.2f' % (b[:spent_cents].to_i / 100.0) %> / $<%= '%.2f' % (b[:budgeted_cents].to_i / 100.0) %>)
+<% end %>
+<% end %>
+
+<% if @data[:upcoming_bills].present? %>
+UPCOMING BILLS
+<% @data[:upcoming_bills].each do |bill| %>
+  <%= bill[:name].ljust(25) %> $<%= '%.2f' % (bill[:amount_cents].to_i / 100.0) %> due <%= bill[:due_date] %>
+<% end %>
+<% end %>
+
+---
+Manage notifications: Settings → Notifications
+OpenFinance — Your finances, your way.
