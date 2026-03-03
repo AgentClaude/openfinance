@@ -149,6 +149,34 @@ FactoryBot.define do
     end
   end
 
+  factory :budget do
+    association :household
+    name { "Monthly Budget" }
+    period_type { "monthly" }
+    start_date { Date.current.beginning_of_month }
+    is_active { true }
+  end
+
+  factory :budget_item do
+    association :budget
+    association :category
+    month { Date.current.beginning_of_month }
+    amount_cents { 50_000 }
+    currency { "USD" }
+    rollover_cents { 0 }
+  end
+
+  factory :notification do
+    association :user
+    association :household
+    title { "Test Notification" }
+    body { "Test notification body" }
+    notification_type { "budget_alert" }
+    priority { "normal" }
+    is_read { false }
+    data { {} }
+  end
+
   factory :transaction do
     association :account
     association :category

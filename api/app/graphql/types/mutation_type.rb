@@ -42,6 +42,7 @@ module Types
     field :update_notification_preference, mutation: Mutations::UpdateNotificationPreference
     field :mark_notification_read, mutation: Mutations::MarkNotificationRead
     field :mark_all_notifications_read, mutation: Mutations::MarkAllNotificationsRead
+    field :trigger_notification_check, mutation: Mutations::TriggerNotificationCheck
     field :update_tag, mutation: Mutations::UpdateTag
     field :delete_tag, mutation: Mutations::DeleteTag
     field :share_account, mutation: Mutations::ShareAccount
