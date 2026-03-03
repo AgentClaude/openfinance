@@ -649,3 +649,22 @@ export const GET_MERCHANT_MAPPINGS = gql`
     }
   }
 `;
+
+export const GET_INVITATION_BY_TOKEN = gql`
+  query GetInvitationByToken($token: String!) {
+    invitationByToken(token: $token) {
+      id
+      email
+      role
+      status
+      householdName
+      invitedBy {
+        id
+        name
+        email
+      }
+      expiresAt
+      createdAt
+    }
+  }
+`;

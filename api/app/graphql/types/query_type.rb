@@ -38,6 +38,13 @@ module Types
       members
     end
 
+    field :invitation_by_token, Types::InvitationType, null: true do
+      argument :token, String, required: true
+    end
+    def invitation_by_token(token:)
+      Invitation.includes(:household, :invited_by).find_by(token: token)
+    end
+
     field :household_invitations, [Types::InvitationType], null: false
     def household_invitations
       return [] unless context[:current_user]&.household

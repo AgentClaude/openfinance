@@ -32,6 +32,7 @@ import DocsPage from '@/pages/DocsPage';
 import NetWorthPage from '@/pages/NetWorthPage';
 import OnboardingPage from '@/pages/OnboardingPage';
 import NotificationsPage from '@/pages/NotificationsPage';
+import AcceptInvitationPage from '@/pages/AcceptInvitationPage';
 
 function App() {
   return (
@@ -46,6 +47,7 @@ function App() {
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/register" element={<RegisterPage />} />
                 <Route path="/docs" element={<DocsPage />} />
+                <Route path="/invite/:token" element={<AcceptInvitationPage />} />
                 
                 {/* Onboarding (protected but no layout) */}
                 <Route path="/onboarding" element={<ProtectedRoute><OnboardingPage /></ProtectedRoute>} />
