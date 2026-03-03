@@ -13,6 +13,11 @@ if defined?(Sidekiq::Cron)
         'class' => 'NotificationSchedulerJob',
         'cron' => '0 */6 * * *',  # Every 6 hours
         'description' => 'Check for budget alerts, bill reminders, etc.'
+      },
+      'bill_reminders' => {
+        'class' => 'BillReminderJob',
+        'cron' => '0 8 * * *',  # Daily at 8 AM
+        'description' => 'Check for upcoming/overdue bills and send reminders'
       }
     )
   end

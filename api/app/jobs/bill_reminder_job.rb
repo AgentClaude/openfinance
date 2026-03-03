@@ -1,71 +1,118 @@
-# Creates notifications for upcoming bills (recurring items due within N days).
-# Designed to run daily via Sidekiq-cron or scheduler.
-class BillReminderJob < ApplicationJob
-  queue_as :notifications
+# Checks for upcoming and overdue recurring bills, creates notifications.
+# Run daily via Sidekiq-cron or scheduled job.
+#
+# Reminder schedule:
+#   - 3 days before due → normal priority
+#   - 1 day before due  → normal priority
+#   - Due today          → high priority
+#   - Overdue            → high priority (only once)
 
-  REMIND_DAYS = 3 # Remind 3 days before due
+class BillReminderJob < ApplicationJob
+  queue_as :default
+
+  REMINDER_WINDOWS = [
+    { days: 3, priority: 'normal', label: 'in 3 days' },
+    { days: 1, priority: 'normal', label: 'tomorrow' },
+    { days: 0, priority: 'high',   label: 'today' },
+  ].freeze
 
   def perform
-    Household.find_each do |household|
-      check_bills_for(household)
+    Rails.logger.info "[BillReminderJob] Checking for upcoming bills..."
+
+    households_with_bills = Household.joins(:recurring_items)
+                                     .where(recurring_items: { is_active: true })
+                                     .distinct
+
+    total_sent = 0
+
+    households_with_bills.find_each do |household|
+      household.users.find_each do |user|
+        next unless bill_reminders_enabled?(user)
+
+        total_sent += send_reminders_for(user, household)
+      end
     end
+
+    Rails.logger.info "[BillReminderJob] Sent #{total_sent} bill reminders"
   end
 
   private
 
-  def check_bills_for(household)
-    upcoming = household.recurring_items
-      .where(is_active: true)
-      .where(item_type: "expense")
-      .where("next_occurrence BETWEEN ? AND ?", Date.current, Date.current + REMIND_DAYS.days)
+  def send_reminders_for(user, household)
+    sent = 0
+    today = Date.current
 
-    upcoming.each do |item|
-      days_until = (item.next_occurrence - Date.current).to_i
-      alert_key = "bill_due_#{item.id}_#{item.next_occurrence}"
+    active_bills = household.recurring_items.active.expenses
+                            .where.not(next_occurrence: nil)
 
-      household.users.each do |user|
-        next unless notification_enabled?(user, "bill_due")
-        next if already_notified?(user, alert_key)
+    # Upcoming reminders (3 days, 1 day, today)
+    REMINDER_WINDOWS.each do |window|
+      target_date = today + window[:days].days
+      due_bills = active_bills.where(next_occurrence: target_date)
 
-        title = days_until == 0 ?
-          "Bill due today: #{item.name}" :
-          "Bill due in #{days_until} #{'day'.pluralize(days_until)}: #{item.name}"
+      due_bills.each do |bill|
+        next if already_reminded?(user, bill, window[:days])
 
-        body = "#{item.name} — #{format_currency(item.amount_cents)} due #{item.next_occurrence.strftime('%b %d')}."
-
-        priority = days_until == 0 ? "high" : "normal"
-
-        Notification.create!(
-          user: user,
-          household: household,
-          title: title,
-          body: body,
-          notification_type: "transaction_alert",
-          priority: priority,
-          data: {
-            alert_key: alert_key,
-            recurring_item_id: item.id,
-            amount_cents: item.amount_cents,
-            due_date: item.next_occurrence.iso8601,
-            days_until: days_until
-          }
-        )
+        create_reminder(user, bill, window)
+        sent += 1
       end
     end
+
+    # Overdue bills (past due, not yet reminded as overdue)
+    overdue_bills = active_bills.where('next_occurrence < ?', today)
+    overdue_bills.each do |bill|
+      next if already_reminded?(user, bill, -1) # -1 signals overdue
+
+      days_overdue = (today - bill.next_occurrence).to_i
+      NotificationService.notify(
+        user: user,
+        type: 'transaction_alert',
+        title: "Overdue bill: #{bill.name}",
+        body: "#{bill.name} ($#{'%.2f' % bill.amount}) was due #{days_overdue} #{'day'.pluralize(days_overdue)} ago.",
+        priority: 'high',
+        data: { recurring_item_id: bill.id, days_overdue: days_overdue, reminder_type: 'overdue' }
+      )
+      sent += 1
+    end
+
+    sent
   end
 
-  def already_notified?(user, alert_key)
+  def create_reminder(user, bill, window)
+    label = window[:label]
+    NotificationService.notify(
+      user: user,
+      type: 'transaction_alert',
+      title: "Bill due #{label}: #{bill.name}",
+      body: "#{bill.name} ($#{'%.2f' % bill.amount}) is due #{label}.",
+      priority: window[:priority],
+      data: {
+        recurring_item_id: bill.id,
+        days_until: window[:days],
+        due_date: bill.next_occurrence.to_s,
+        reminder_type: 'upcoming'
+      }
+    )
+  end
+
+  def already_reminded?(user, bill, days_marker)
+    # Check if we already sent a reminder for this bill at this interval today
     user.notifications
-      .where("data->>'alert_key' = ?", alert_key)
-      .exists?
+        .where(notification_type: 'transaction_alert')
+        .where('created_at >= ?', Date.current.beginning_of_day)
+        .where("data->>'recurring_item_id' = ?", bill.id.to_s)
+        .where("(data->>'days_until' = ? OR data->>'reminder_type' = ?)",
+               days_marker.to_s,
+               days_marker < 0 ? 'overdue' : 'upcoming')
+        .exists?
   end
 
-  def notification_enabled?(user, type)
-    pref = user.notification_preferences.find_by(notification_type: type, channel: "in_app")
+  def bill_reminders_enabled?(user)
+    pref = user.notification_preferences.find_by(
+      notification_type: 'bill_due',
+      channel: 'in_app'
+    )
+    # Default to enabled if no preference set
     pref.nil? || pref.enabled
-  end
-
-  def format_currency(cents)
-    "$#{'%.2f' % (cents.abs / 100.0)}"
   end
 end

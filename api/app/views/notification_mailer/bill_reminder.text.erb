@@ -1,0 +1,16 @@
+<%= @notification.title %>
+
+<%= @notification.body %>
+<% if @recurring_item %>
+
+Bill Details:
+  Amount: $<%= '%.2f' % @recurring_item.amount %>
+  Frequency: <%= @recurring_item.frequency.capitalize %>
+  Due Date: <%= @recurring_item.next_occurrence&.strftime('%B %d, %Y') %>
+<% if @recurring_item.category %>
+  Category: <%= @recurring_item.category.name %>
+<% end %>
+<% end %>
+
+View your recurring bills: <%= root_url %>recurring
+Manage notification preferences: <%= root_url %>settings
