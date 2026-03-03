@@ -48,6 +48,19 @@ class NotificationMailer < ApplicationMailer
     )
   end
 
+  # Bill reminder email with recurring item details
+  def bill_reminder(user, notification)
+    @user = user
+    @notification = notification
+    @data = notification.data || {}
+    @recurring_item = RecurringItem.find_by(id: @data['recurring_item_id'])
+
+    mail(
+      to: user.email,
+      subject: "📋 #{notification.title}"
+    )
+  end
+
   private
 
   def gather_digest_data

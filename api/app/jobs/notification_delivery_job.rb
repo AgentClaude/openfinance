@@ -1,5 +1,5 @@
-# Background job for delivering notifications via email
-# Checks user preferences before sending
+# Delivers notifications via configured channels (in_app, email, push).
+# Checks user preferences before sending through each channel.
 
 class NotificationDeliveryJob < ApplicationJob
   queue_as :notifications
@@ -10,38 +10,53 @@ class NotificationDeliveryJob < ApplicationJob
     user = notification.user
     return unless user
 
-    Rails.logger.info "Processing notification #{notification.id}: #{notification.title}"
+    Rails.logger.info "[NotificationDelivery] Delivering notification #{notification.id}: #{notification.title}"
 
-    # Check if user has email enabled for this notification type
-    pref_type = map_notification_type(notification.notification_type)
-    if pref_type && email_enabled?(user, pref_type)
-      deliver_email(notification)
-    end
+    deliver_email(user, notification) if email_enabled?(user, notification)
+    # Future: deliver_push(user, notification) if push_enabled?(user, notification)
 
-    Rails.logger.info "Notification #{notification.id} processing complete"
+    Rails.logger.info "[NotificationDelivery] Notification #{notification.id} delivered"
   end
 
   private
 
-  def map_notification_type(type)
-    case type
+  def deliver_email(user, notification)
+    return if user.email.blank?
+
+    case notification.notification_type
+    when 'transaction_alert'
+      if notification.data&.dig('recurring_item_id').present?
+        NotificationMailer.bill_reminder(user, notification).deliver_later
+      else
+        NotificationMailer.alert_email(notification).deliver_later
+      end
+    when 'budget_alert', 'large_transaction', 'sync_error', 'low_balance', 'goal_progress'
+      NotificationMailer.alert_email(notification).deliver_later
+    else
+      Rails.logger.info "[NotificationDelivery] No email template for type: #{notification.notification_type}"
+    end
+  rescue => e
+    Rails.logger.error "[NotificationDelivery] Email delivery failed: #{e.message}"
+  end
+
+  def email_enabled?(user, notification)
+    pref_type = preference_type_for(notification.notification_type)
+    return false unless pref_type
+
+    pref = user.notification_preferences.find_by(
+      notification_type: pref_type,
+      channel: 'email'
+    )
+    pref&.enabled == true
+  end
+
+  def preference_type_for(notification_type)
+    case notification_type
     when 'budget_alert' then 'budget_exceeded'
     when 'transaction_alert' then 'bill_due'
-    when 'large_transaction' then 'large_transaction'
     when 'goal_progress' then 'goal_milestone'
+    when 'large_transaction' then 'large_transaction'
     else nil
     end
-  end
-
-  def email_enabled?(user, pref_type)
-    pref = NotificationPreference.find_by(user: user, notification_type: pref_type, channel: 'email')
-    pref&.enabled? || false
-  end
-
-  def deliver_email(notification)
-    NotificationMailer.alert_email(notification).deliver_later
-    Rails.logger.info "Queued email for notification #{notification.id} to #{notification.user.email}"
-  rescue => e
-    Rails.logger.error "Failed to queue email for notification #{notification.id}: #{e.message}"
   end
 end
