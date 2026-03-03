@@ -38,6 +38,16 @@ module Types
       members
     end
 
+    # Public query — no auth required — for the accept invitation page
+    field :invitation_by_token, Types::InvitationPreviewType, null: true do
+      argument :token, String, required: true
+    end
+    def invitation_by_token(token:)
+      invitation = Invitation.includes(:household, :invited_by).find_by(token: token)
+      return nil unless invitation
+      invitation
+    end
+
     field :household_invitations, [Types::InvitationType], null: false
     def household_invitations
       return [] unless context[:current_user]&.household

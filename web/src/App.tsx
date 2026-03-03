@@ -34,6 +34,7 @@ import NetWorthPage from '@/pages/NetWorthPage';
 import OnboardingPage from '@/pages/OnboardingPage';
 import NotificationsPage from '@/pages/NotificationsPage';
 import ActivityPage from '@/pages/ActivityPage';
+import AcceptInvitationPage from '@/pages/AcceptInvitationPage';
 
 function App() {
   return (
