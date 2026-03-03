@@ -240,6 +240,22 @@ export const GET_CATEGORIZATION_RULES = gql`
   }
 `;
 
+export const GET_SUGGESTED_RULES = gql`
+  query GetSuggestedRules {
+    suggestedRules {
+      merchantName
+      categoryId
+      categoryName
+      categoryIcon
+      categoryColor
+      transactionCount
+      matchField
+      matchType
+      matchValue
+    }
+  }
+`;
+
 export const GET_RECURRING_ITEMS = gql`
   query GetRecurringItems($activeOnly: Boolean) {
     recurringItems(activeOnly: $activeOnly) {

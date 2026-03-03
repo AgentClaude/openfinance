@@ -5,9 +5,12 @@ import {
   PencilIcon,
   PlayIcon,
   BoltIcon,
+  LightBulbIcon,
+  CheckIcon,
 } from '@heroicons/react/24/outline';
 import { useRules, Rule } from '@/hooks/useRules';
 import { useCategories } from '@/hooks/useCategories';
+import { useSuggestedRules, SuggestedRule } from '@/hooks/useSuggestedRules';
 import PageHeader from '@/components/ui/PageHeader';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
@@ -58,6 +61,27 @@ const RulesPage: React.FC = () => {
     createRule, updateRule, deleteRule, applyRules,
   } = useRules();
   const { categories } = useCategories();
+  const { suggestions, loading: suggestionsLoading, refetch: refetchSuggestions } = useSuggestedRules();
+  const [acceptingSuggestion, setAcceptingSuggestion] = useState<string | null>(null);
+
+  const handleAcceptSuggestion = async (suggestion: SuggestedRule) => {
+    setAcceptingSuggestion(suggestion.matchValue);
+    try {
+      await createRule({
+        matchField: suggestion.matchField,
+        matchType: suggestion.matchType,
+        matchValue: suggestion.matchValue,
+        categoryId: suggestion.categoryId,
+        priority: 0,
+      });
+      addToast({ title: `Rule created for "${suggestion.merchantName}"`, type: 'success' });
+      refetchSuggestions();
+    } catch (e: any) {
+      addToast({ title: e.message, type: 'error' });
+    } finally {
+      setAcceptingSuggestion(null);
+    }
+  };
 
   // Flatten categories for select
   const allCategories: Category[] = [];
@@ -234,6 +258,50 @@ const RulesPage: React.FC = () => {
               </div>
             </Card>
           ))}
+        </div>
+      )}
+
+      {/* Suggested Rules */}
+      {!suggestionsLoading && suggestions.length > 0 && (
+        <div className="mt-8">
+          <div className="flex items-center gap-2 mb-4">
+            <LightBulbIcon className="h-5 w-5 text-amber-500" />
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Suggested Rules</h2>
+            <span className="text-sm text-gray-500 dark:text-gray-400">
+              Based on your categorization patterns
+            </span>
+          </div>
+          <div className="space-y-2">
+            {suggestions.map((suggestion) => (
+              <Card key={suggestion.matchValue} className="p-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div>
+                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                        "{suggestion.merchantName}" → {' '}
+                        <Badge style={{ backgroundColor: (suggestion.categoryColor || '#6b7280') + '20', color: suggestion.categoryColor || '#6b7280' }}>
+                          {suggestion.categoryIcon && <CategoryIcon icon={suggestion.categoryIcon} className="mr-1" />}
+                          {suggestion.categoryName}
+                        </Badge>
+                      </p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                        {suggestion.transactionCount} transactions match this pattern
+                      </p>
+                    </div>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    onClick={() => handleAcceptSuggestion(suggestion)}
+                    disabled={acceptingSuggestion === suggestion.matchValue}
+                  >
+                    <CheckIcon className="h-4 w-4 mr-1" />
+                    {acceptingSuggestion === suggestion.matchValue ? 'Creating...' : 'Accept'}
+                  </Button>
+                </div>
+              </Card>
+            ))}
+          </div>
         </div>
       )}
 

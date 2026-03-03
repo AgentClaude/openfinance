@@ -279,6 +279,50 @@ module Types
       account.balance_adjustments.ordered
     end
 
+    field :suggested_rules, [Types::SuggestedRuleType], null: false
+    def suggested_rules
+      return [] unless context[:current_user]&.household
+      hh = context[:current_user].household
+
+      # Find merchants with 2+ transactions consistently categorized the same way
+      # that don't already have a categorization rule
+      existing_rules = hh.categorization_rules.where(match_field: 'merchant_name').pluck(:match_value).map(&:downcase)
+
+      suggestions = hh.transactions
+        .where.not(merchant_name: [nil, ''])
+        .where.not(category_id: nil)
+        .group(:merchant_name, :category_id)
+        .having('COUNT(*) >= 2')
+        .count
+        .group_by { |(merchant, _cat), _count| merchant }
+        .filter_map do |merchant, grouped|
+          next if existing_rules.include?(merchant.downcase)
+
+          # Pick the most common category for this merchant
+          top_cat_id, top_count = grouped.max_by { |(_m, _c), count| count }
+          next if top_count < 2
+
+          category = Category.find_by(id: top_cat_id[1])
+          next unless category
+
+          OpenStruct.new(
+            merchant_name: merchant,
+            category_id: category.id,
+            category_name: category.name,
+            category_icon: category.icon,
+            category_color: category.color,
+            transaction_count: top_count,
+            match_field: 'merchant_name',
+            match_type: 'exact',
+            match_value: merchant
+          )
+        end
+        .sort_by { |s| -s.transaction_count }
+        .first(20)
+
+      suggestions
+    end
+
     field :categorization_rules, [Types::CategorizationRuleType], null: false
     def categorization_rules
       return [] unless context[:current_user]&.household
