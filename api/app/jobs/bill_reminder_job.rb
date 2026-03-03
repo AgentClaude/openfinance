@@ -1,71 +1,55 @@
-# Creates notifications for upcoming bills (recurring items due within N days).
-# Designed to run daily via Sidekiq-cron or scheduler.
-class BillReminderJob < ApplicationJob
-  queue_as :notifications
+# Checks for upcoming bills and creates notifications for them
+# Designed to run daily via Sidekiq-cron or similar scheduler
 
-  REMIND_DAYS = 3 # Remind 3 days before due
+class BillReminderJob < ApplicationJob
+  queue_as :default
+
+  REMINDER_DAYS = [7, 3, 1, 0].freeze  # Days before due date to notify
 
   def perform
-    Household.find_each do |household|
-      check_bills_for(household)
+    User.includes(:household).find_each do |user|
+      next unless bill_notifications_enabled?(user)
+      next unless user.household
+
+      check_upcoming_bills(user)
+    rescue StandardError => e
+      Rails.logger.error "Bill reminder check failed for user #{user.id}: #{e.message}"
     end
   end
 
   private
 
-  def check_bills_for(household)
-    upcoming = household.recurring_items
-      .where(is_active: true)
-      .where(item_type: "expense")
-      .where("next_occurrence BETWEEN ? AND ?", Date.current, Date.current + REMIND_DAYS.days)
-
-    upcoming.each do |item|
-      days_until = (item.next_occurrence - Date.current).to_i
-      alert_key = "bill_due_#{item.id}_#{item.next_occurrence}"
-
-      household.users.each do |user|
-        next unless notification_enabled?(user, "bill_due")
-        next if already_notified?(user, alert_key)
-
-        title = days_until == 0 ?
-          "Bill due today: #{item.name}" :
-          "Bill due in #{days_until} #{'day'.pluralize(days_until)}: #{item.name}"
-
-        body = "#{item.name} — #{format_currency(item.amount_cents)} due #{item.next_occurrence.strftime('%b %d')}."
-
-        priority = days_until == 0 ? "high" : "normal"
-
-        Notification.create!(
-          user: user,
-          household: household,
-          title: title,
-          body: body,
-          notification_type: "transaction_alert",
-          priority: priority,
-          data: {
-            alert_key: alert_key,
-            recurring_item_id: item.id,
-            amount_cents: item.amount_cents,
-            due_date: item.next_occurrence.iso8601,
-            days_until: days_until
-          }
-        )
-      end
-    end
-  end
-
-  def already_notified?(user, alert_key)
-    user.notifications
-      .where("data->>'alert_key' = ?", alert_key)
-      .exists?
-  end
-
-  def notification_enabled?(user, type)
-    pref = user.notification_preferences.find_by(notification_type: type, channel: "in_app")
+  def bill_notifications_enabled?(user)
+    pref = user.notification_preferences.find_by(notification_type: 'bill_due', channel: 'in_app')
     pref.nil? || pref.enabled
   end
 
-  def format_currency(cents)
-    "$#{'%.2f' % (cents.abs / 100.0)}"
+  def check_upcoming_bills(user)
+    household = user.household
+    today = Date.current
+
+    household.recurring_items.where(is_active: true).find_each do |item|
+      next unless item.next_occurrence
+
+      days_until = (item.next_occurrence - today).to_i
+      next unless REMINDER_DAYS.include?(days_until)
+      next if already_notified?(user, item, days_until)
+
+      NotificationService.bill_upcoming(
+        user: user,
+        recurring_item: item,
+        days_until: days_until
+      )
+    end
+  end
+
+  def already_notified?(user, item, days_until)
+    # Prevent duplicate notifications for the same bill + day
+    user.notifications
+        .where(notification_type: 'transaction_alert')
+        .where('created_at > ?', 12.hours.ago)
+        .where("data->>'recurring_item_id' = ?", item.id.to_s)
+        .where("data->>'days_until' = ?", days_until.to_s)
+        .exists?
   end
 end

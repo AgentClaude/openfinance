@@ -764,6 +764,15 @@ export const EXPORT_DATA = gql`
   }
 `;
 
+export const EXPORT_TRANSACTIONS_CSV = gql`
+  mutation ExportTransactionsCsv($startDate: String, $endDate: String, $accountIds: [ID!], $categoryIds: [ID!]) {
+    exportTransactionsCsv(startDate: $startDate, endDate: $endDate, accountIds: $accountIds, categoryIds: $categoryIds) {
+      csvData
+      filename
+    }
+  }
+`;
+
 export const ADJUST_BALANCE = gql`
   mutation AdjustBalance($accountId: ID!, $amount: Float!, $adjustedAt: String, $notes: String) {
     adjustBalance(accountId: $accountId, amount: $amount, adjustedAt: $adjustedAt, notes: $notes) {

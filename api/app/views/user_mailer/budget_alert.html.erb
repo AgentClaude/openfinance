@@ -1,0 +1,14 @@
+<div style="max-width: 500px; margin: 0 auto; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+  <div style="background: <%= @percentage >= 100 ? '#fef2f2' : '#fffbeb' %>; border: 1px solid <%= @percentage >= 100 ? '#fecaca' : '#fde68a' %>; border-radius: 12px; padding: 24px;">
+    <h2 style="margin: 0 0 8px; color: <%= @percentage >= 100 ? '#991b1b' : '#92400e' %>;">
+      ⚠️ Budget Alert: <%= @category_name %>
+    </h2>
+    <p style="margin: 0 0 16px; color: #4b5563; font-size: 15px;">
+      You've spent <strong><%= @spent %></strong> of your <strong><%= @budget %></strong> budget for <strong><%= @category_name %></strong> (<%= @percentage %>%).
+    </p>
+    <div style="background: #e5e7eb; border-radius: 4px; height: 8px; overflow: hidden;">
+      <div style="background: <%= @percentage >= 100 ? '#ef4444' : '#f59e0b' %>; height: 100%; width: <%= [(@percentage || 0), 100].min %>%; border-radius: 4px;"></div>
+    </div>
+  </div>
+  <p style="text-align: center; color: #9ca3af; font-size: 12px; margin-top: 16px;">OpenFinance</p>
+</div>

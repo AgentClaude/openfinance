@@ -18,6 +18,9 @@ module Mutations
         needs_review: input.needs_review,
         notes: input.notes
       )
+      # Check budget thresholds asynchronously
+      BudgetCheckJob.safe_perform_later(txn.id) if txn.amount_cents.negative? && txn.category_id
+
       txn
     end
   end

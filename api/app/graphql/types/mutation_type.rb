@@ -54,6 +54,7 @@ module Types
     field :update_member_role, mutation: Mutations::UpdateMemberRole
     field :redeem_referral, mutation: Mutations::RedeemReferral
     field :export_data, mutation: Mutations::ExportData
+    field :export_transactions_csv, mutation: Mutations::ExportTransactionsCsv
     field :delete_account, mutation: Mutations::DeleteAccount
 
     # Plaid connection management

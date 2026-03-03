@@ -1,13 +1,15 @@
 namespace :notifications do
-  desc "Run all notification checks (budget alerts, bill reminders, large transactions)"
-  task check: :environment do
-    NotificationSchedulerJob.new.perform
+  desc 'Send weekly digest emails to all users with digest enabled'
+  task weekly_digest: :environment do
+    puts "Running weekly digest..."
+    WeeklyDigestJob.perform_now
+    puts "Done."
   end
 
-  desc "Clean up old notifications (older than 90 days)"
-  task cleanup: :environment do
-    count = Notification.where("created_at < ?", 90.days.ago).count
-    Notification.cleanup_old_notifications
-    puts "Cleaned up #{count} old notifications"
+  desc 'Check for upcoming bills and send reminders'
+  task bill_reminders: :environment do
+    puts "Checking upcoming bills..."
+    BillReminderJob.perform_now
+    puts "Done."
   end
 end
