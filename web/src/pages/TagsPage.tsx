@@ -89,7 +89,7 @@ const TagsPage: React.FC = () => {
     total: tags.length,
     active: tags.filter(t => t.isActive !== false).length,
     inactive: tags.filter(t => t.isActive === false).length,
-    totalUsage: tags.reduce((sum, t) => sum + (t.transactionsCount || 0), 0),
+    totalUsage: tags.reduce((sum, t) => sum + ((t as any)?.transactionsCount || 0), 0),
   }), [tags]);
 
   const closeModal = () => {
@@ -232,7 +232,7 @@ const TagsPage: React.FC = () => {
                       )}
                     </div>
                     <span className="text-xs text-gray-500 dark:text-gray-400">
-                      {tag.transactionsCount || 0} transaction{(tag.transactionsCount || 0) !== 1 ? 's' : ''}
+                      {(tag as any)?.transactionsCount || 0} transaction{((tag as any)?.transactionsCount || 0) !== 1 ? 's' : ''}
                     </span>
                   </div>
                 </div>
@@ -338,8 +338,8 @@ const TagsPage: React.FC = () => {
       >
         <p className="text-sm text-gray-600 dark:text-gray-400">
           Are you sure you want to delete <strong>{deleteConfirmTag?.name}</strong>?
-          {(deleteConfirmTag?.transactionsCount || 0) > 0 && (
-            <> This tag is used on <strong>{deleteConfirmTag?.transactionsCount}</strong> transaction{(deleteConfirmTag?.transactionsCount || 0) !== 1 ? 's' : ''}. They will be untagged.</>
+          {((deleteConfirmTag as any)?.transactionsCount || 0) > 0 && (
+            <> This tag is used on <strong>{(deleteConfirmTag as any)?.transactionsCount}</strong> transaction{((deleteConfirmTag as any)?.transactionsCount || 0) !== 1 ? 's' : ''}. They will be untagged.</>
           )}
         </p>
         <div className="flex justify-end gap-3 mt-6">
