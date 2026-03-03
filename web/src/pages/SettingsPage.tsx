@@ -8,6 +8,11 @@ import { useQuery, useMutation } from '@apollo/client';
 import { GET_ACCOUNTS, GET_NOTIFICATION_PREFERENCES, GET_HOUSEHOLD_MEMBERS, GET_HOUSEHOLD_INVITATIONS, GET_MY_REFERRAL_CODE, GET_REFERRALS } from '@/graphql/queries';
 import { UPDATE_HOUSEHOLD, UPDATE_NOTIFICATION_PREFERENCE, UPDATE_TAG, DELETE_TAG, EXPORT_DATA, DELETE_ACCOUNT, INVITE_TO_HOUSEHOLD, REMOVE_HOUSEHOLD_MEMBER, UPDATE_MEMBER_ROLE } from '@/graphql/mutations';
 import { NotificationPreference } from '@/types';
+import Button from '@/components/ui/Button';
+import Input from '@/components/ui/Input';
+import Select from '@/components/ui/Select';
+import Card from '@/components/ui/Card';
+import Badge from '@/components/ui/Badge';
 import toast from 'react-hot-toast';
 
 const CURRENCIES = ['USD', 'EUR', 'GBP', 'CAD', 'AUD', 'NZD', 'JPY', 'CHF'];
@@ -23,13 +28,13 @@ const TIMEZONES = [
   'Pacific/Auckland', 'Africa/Johannesburg', 'America/Sao_Paulo',
   'America/Mexico_City', 'America/Argentina/Buenos_Aires',
 ];
-const DATE_FORMATS = [
+const DATE_FORMAT_OPTIONS = [
   { value: 'MM/DD/YYYY', label: 'MM/DD/YYYY' },
   { value: 'DD/MM/YYYY', label: 'DD/MM/YYYY' },
   { value: 'YYYY-MM-DD', label: 'YYYY-MM-DD' },
   { value: 'DD.MM.YYYY', label: 'DD.MM.YYYY' },
 ];
-const NUMBER_FORMATS = [
+const NUMBER_FORMAT_OPTIONS = [
   { value: 'comma-dot', label: '1,234.56 (US)' },
   { value: 'dot-comma', label: '1.234,56 (EU)' },
   { value: 'space-comma', label: '1 234,56 (FR)' },
@@ -298,12 +303,13 @@ export default function SettingsPage() {
     { id: 'data' as const, label: 'Data', icon: '📦' },
   ];
 
-  const inputClasses = 'mt-1 block w-full rounded-lg border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 shadow-sm focus:border-brand-500 focus:ring-brand-500 sm:text-sm px-3 py-2 border transition-colors';
-  const labelClasses = 'block text-sm font-medium text-gray-700 dark:text-gray-300';
-  const cardClasses = 'bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-6';
-  const headingClasses = 'text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4';
-  const btnPrimary = 'bg-brand-700 text-white px-4 py-2 rounded-lg hover:bg-brand-800 disabled:opacity-50 text-sm font-medium transition-colors';
-  const btnDanger = 'bg-red-600 text-white px-3 py-1.5 rounded-lg hover:bg-red-700 text-xs font-medium transition-colors';
+  const roleBadgeVariant = (role: string) => {
+    switch (role) {
+      case 'owner': return 'info' as const;
+      case 'advisor': return 'warning' as const;
+      default: return 'success' as const;
+    }
+  };
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -332,55 +338,66 @@ export default function SettingsPage() {
       {/* Profile Tab */}
       {activeTab === 'profile' && (
         <div className="space-y-6">
-          <form onSubmit={handleUpdateProfile} className="space-y-6">
-            <div className={cardClasses}>
-              <h2 className={headingClasses}>Profile Information</h2>
+          <Card title="Profile Information">
+            <form onSubmit={handleUpdateProfile} className="space-y-4">
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <div>
-                  <label htmlFor="settings-name" className={labelClasses}>Name</label>
-                  <input id="settings-name" type="text" value={name} onChange={(e) => setName(e.target.value)} className={inputClasses} />
-                </div>
-                <div>
-                  <label htmlFor="settings-email" className={labelClasses}>Email</label>
-                  <input id="settings-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} className={inputClasses} />
-                </div>
+                <Input
+                  label="Name"
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                />
+                <Input
+                  label="Email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
               </div>
-              <div className="mt-4 flex justify-end">
-                <button type="submit" disabled={updatingProfile} className={btnPrimary}>
-                  {updatingProfile ? 'Saving...' : 'Save Changes'}
-                </button>
+              <div className="flex justify-end">
+                <Button type="submit" loading={updatingProfile}>
+                  Save Changes
+                </Button>
               </div>
-            </div>
-          </form>
+            </form>
+          </Card>
 
-          <form onSubmit={handleChangePassword} className={cardClasses}>
-            <h2 className={headingClasses}>Change Password</h2>
-            <div className="space-y-4 max-w-md">
-              <div>
-                <label className={labelClasses}>Current Password</label>
-                <input type="password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} className={inputClasses} required />
-              </div>
-              <div>
-                <label className={labelClasses}>New Password</label>
-                <input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} className={inputClasses} required minLength={8} />
-              </div>
-              <div>
-                <label className={labelClasses}>Confirm New Password</label>
-                <input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className={inputClasses} required />
-              </div>
-              <button type="submit" disabled={changingPassword} className={btnPrimary}>
-                {changingPassword ? 'Changing...' : 'Change Password'}
-              </button>
-            </div>
-          </form>
+          <Card title="Change Password">
+            <form onSubmit={handleChangePassword} className="space-y-4 max-w-md">
+              <Input
+                label="Current Password"
+                type="password"
+                value={currentPassword}
+                onChange={(e) => setCurrentPassword(e.target.value)}
+                required
+              />
+              <Input
+                label="New Password"
+                type="password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                required
+                minLength={8}
+              />
+              <Input
+                label="Confirm New Password"
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+              />
+              <Button type="submit" loading={changingPassword}>
+                Change Password
+              </Button>
+            </form>
+          </Card>
         </div>
       )}
 
       {/* Preferences Tab */}
       {activeTab === 'preferences' && (
         <div className="space-y-6">
-          <div className={cardClasses}>
-            <h2 className={headingClasses}>Appearance</h2>
+          <Card title="Appearance">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Dark Mode</p>
@@ -395,94 +412,103 @@ export default function SettingsPage() {
                 <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${isDark ? 'translate-x-6' : 'translate-x-1'}`} />
               </button>
             </div>
-          </div>
+          </Card>
 
-          <div className={cardClasses}>
-            <h2 className={headingClasses}>Formatting</h2>
+          <Card title="Formatting">
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div>
-                <label className={labelClasses}>Date Format</label>
-                <select value={preferences.dateFormat} onChange={(e) => updatePreference('dateFormat', e.target.value)} className={inputClasses}>
-                  {DATE_FORMATS.map((f) => <option key={f.value} value={f.value}>{f.label}</option>)}
-                </select>
-              </div>
-              <div>
-                <label className={labelClasses}>First Day of Week</label>
-                <select value={preferences.firstDayOfWeek} onChange={(e) => updatePreference('firstDayOfWeek', e.target.value as 'sunday' | 'monday')} className={inputClasses}>
-                  <option value="sunday">Sunday</option>
-                  <option value="monday">Monday</option>
-                </select>
-              </div>
-              <div>
-                <label className={labelClasses}>Number Format</label>
-                <select value={preferences.numberFormat} onChange={(e) => updatePreference('numberFormat', e.target.value as 'comma-dot' | 'dot-comma' | 'space-comma')} className={inputClasses}>
-                  {NUMBER_FORMATS.map((f) => <option key={f.value} value={f.value}>{f.label}</option>)}
-                </select>
-              </div>
-              <div>
-                <label className={labelClasses}>Currency</label>
-                <select value={preferences.currency} onChange={(e) => updatePreference('currency', e.target.value)} className={inputClasses}>
-                  {CURRENCIES.map((c) => <option key={c} value={c}>{c}</option>)}
-                </select>
-              </div>
+              <Select
+                label="Date Format"
+                options={DATE_FORMAT_OPTIONS}
+                value={preferences.dateFormat}
+                onChange={(e) => updatePreference('dateFormat', e.target.value)}
+              />
+              <Select
+                label="First Day of Week"
+                options={[
+                  { value: 'sunday', label: 'Sunday' },
+                  { value: 'monday', label: 'Monday' },
+                ]}
+                value={preferences.firstDayOfWeek}
+                onChange={(e) => updatePreference('firstDayOfWeek', e.target.value as 'sunday' | 'monday')}
+              />
+              <Select
+                label="Number Format"
+                options={NUMBER_FORMAT_OPTIONS}
+                value={preferences.numberFormat}
+                onChange={(e) => updatePreference('numberFormat', e.target.value as 'comma-dot' | 'dot-comma' | 'space-comma')}
+              />
+              <Select
+                label="Currency"
+                options={CURRENCIES.map(c => ({ value: c, label: c }))}
+                value={preferences.currency}
+                onChange={(e) => updatePreference('currency', e.target.value)}
+              />
             </div>
-          </div>
+          </Card>
 
-          <div className={cardClasses}>
-            <h2 className={headingClasses}>Defaults</h2>
+          <Card title="Defaults">
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
-                <label className={labelClasses}>Default Account for New Transactions</label>
-                <select value={preferences.defaultAccountId} onChange={(e) => updatePreference('defaultAccountId', e.target.value)} className={inputClasses}>
-                  <option value="">None (always ask)</option>
-                  {accounts.filter((a: { isActive: boolean }) => a.isActive).map((a: { id: string; name: string }) => (
-                    <option key={a.id} value={a.id}>{a.name}</option>
-                  ))}
-                </select>
+                <Select
+                  label="Default Account for New Transactions"
+                  options={[
+                    { value: '', label: 'None (always ask)' },
+                    ...accounts.filter((a: { isActive: boolean }) => a.isActive).map((a: { id: string; name: string }) => ({
+                      value: a.id,
+                      label: a.name,
+                    })),
+                  ]}
+                  value={preferences.defaultAccountId}
+                  onChange={(e) => updatePreference('defaultAccountId', e.target.value)}
+                />
                 <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">Pre-select this account when creating new transactions.</p>
               </div>
             </div>
-          </div>
+          </Card>
         </div>
       )}
 
       {/* Household Tab */}
       {activeTab === 'household' && (
         <div className="space-y-6">
-          <form onSubmit={handleUpdateHousehold} className={cardClasses}>
-            <h2 className={headingClasses}>Household Details</h2>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div>
-                <label className={labelClasses}>Household Name</label>
-                <input type="text" value={householdName} onChange={(e) => setHouseholdName(e.target.value)} className={inputClasses} />
+          <Card title="Household Details">
+            <form onSubmit={handleUpdateHousehold} className="space-y-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <Input
+                  label="Household Name"
+                  type="text"
+                  value={householdName}
+                  onChange={(e) => setHouseholdName(e.target.value)}
+                />
+                <Select
+                  label="Currency"
+                  options={CURRENCIES.map(c => ({ value: c, label: c }))}
+                  value={householdCurrency}
+                  onChange={(e) => setHouseholdCurrency(e.target.value)}
+                />
+                <div>
+                  <Select
+                    label="Timezone"
+                    options={TIMEZONES.map(tz => ({ value: tz, label: tz.replace(/_/g, ' ') }))}
+                    value={householdTimezone}
+                    onChange={(e) => setHouseholdTimezone(e.target.value)}
+                  />
+                  <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">Used for bill due dates and report date boundaries.</p>
+                </div>
               </div>
-              <div>
-                <label className={labelClasses}>Currency</label>
-                <select value={householdCurrency} onChange={(e) => setHouseholdCurrency(e.target.value)} className={inputClasses}>
-                  {CURRENCIES.map((c) => <option key={c} value={c}>{c}</option>)}
-                </select>
+              <div className="flex justify-end">
+                <Button type="submit" loading={updatingHousehold}>
+                  Save Changes
+                </Button>
               </div>
-              <div>
-                <label className={labelClasses}>Timezone</label>
-                <select value={householdTimezone} onChange={(e) => setHouseholdTimezone(e.target.value)} className={inputClasses}>
-                  {TIMEZONES.map((tz) => <option key={tz} value={tz}>{tz.replace(/_/g, ' ')}</option>)}
-                </select>
-                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">Used for bill due dates and report date boundaries.</p>
-              </div>
-            </div>
-            <div className="mt-4 flex justify-end">
-              <button type="submit" disabled={updatingHousehold} className={btnPrimary}>
-                {updatingHousehold ? 'Saving...' : 'Save Changes'}
-              </button>
-            </div>
-          </form>
+            </form>
+          </Card>
 
-          <div className={cardClasses}>
-            <h2 className={headingClasses}>Members</h2>
+          <Card title="Members">
             <p className="text-sm text-gray-500 dark:text-gray-400">
               Manage household members in the <button onClick={() => setActiveTab('members')} className="text-brand-700 dark:text-brand-400 hover:underline font-medium">Members tab</button>.
             </p>
-          </div>
+          </Card>
         </div>
       )}
 
@@ -491,36 +517,35 @@ export default function SettingsPage() {
         <div className="space-y-6">
           {/* Invite Form (owners only) */}
           {isOwner && (
-            <form onSubmit={handleInvite} className={cardClasses}>
-              <h2 className={headingClasses}>Invite Member</h2>
-              <div className="flex flex-col sm:flex-row gap-3">
+            <Card title="Invite Member">
+              <form onSubmit={handleInvite} className="flex flex-col sm:flex-row gap-3">
                 <div className="flex-1">
-                  <input
+                  <Input
                     type="email"
                     placeholder="Email address"
                     value={inviteEmail}
                     onChange={(e) => setInviteEmail(e.target.value)}
-                    className={inputClasses}
                     required
                   />
                 </div>
-                <div>
-                  <select value={inviteRole} onChange={(e) => setInviteRole(e.target.value)} className={inputClasses}>
-                    <option value="member">Member</option>
-                    <option value="advisor">Advisor (view only)</option>
-                    <option value="owner">Owner</option>
-                  </select>
-                </div>
-                <button type="submit" disabled={inviting} className={btnPrimary}>
-                  {inviting ? 'Sending...' : 'Send Invite'}
-                </button>
-              </div>
-            </form>
+                <Select
+                  options={[
+                    { value: 'member', label: 'Member' },
+                    { value: 'advisor', label: 'Advisor (view only)' },
+                    { value: 'owner', label: 'Owner' },
+                  ]}
+                  value={inviteRole}
+                  onChange={(e) => setInviteRole(e.target.value)}
+                />
+                <Button type="submit" loading={inviting}>
+                  Send Invite
+                </Button>
+              </form>
+            </Card>
           )}
 
           {/* Members List */}
-          <div className={cardClasses}>
-            <h2 className={headingClasses}>Household Members</h2>
+          <Card title="Household Members">
             <div className="space-y-3">
               {members.map((m: { id: string; role: string; isPrimary: boolean; user: { id: string; name: string; email: string } }) => (
                 <div key={m.id} className="flex items-center justify-between py-3 border-b border-gray-100 dark:border-gray-700 last:border-0">
@@ -537,28 +562,25 @@ export default function SettingsPage() {
                   </div>
                   <div className="flex items-center space-x-3">
                     {isOwner && m.user.id !== user?.id ? (
-                      <select
+                      <Select
+                        options={[
+                          { value: 'owner', label: 'Owner' },
+                          { value: 'member', label: 'Member' },
+                          { value: 'advisor', label: 'Advisor' },
+                        ]}
                         value={m.role}
                         onChange={(e) => handleUpdateRole(m.user.id, e.target.value)}
-                        className="text-xs rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 px-2 py-1 border"
-                      >
-                        <option value="owner">Owner</option>
-                        <option value="member">Member</option>
-                        <option value="advisor">Advisor</option>
-                      </select>
+                        className="!text-xs !px-2 !py-1"
+                      />
                     ) : (
-                      <span className={`text-xs font-medium px-2 py-1 rounded-full ${
-                        m.role === 'owner' ? 'text-brand-700 dark:text-brand-400 bg-brand-50 dark:bg-indigo-900/20' :
-                        m.role === 'advisor' ? 'text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20' :
-                        'text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20'
-                      }`}>
+                      <Badge variant={roleBadgeVariant(m.role)}>
                         {m.role.charAt(0).toUpperCase() + m.role.slice(1)}
-                      </span>
+                      </Badge>
                     )}
                     {isOwner && m.user.id !== user?.id && (
-                      <button onClick={() => handleRemoveMember(m.user.id, m.user.name || m.user.email)} className={btnDanger}>
+                      <Button variant="danger" size="sm" onClick={() => handleRemoveMember(m.user.id, m.user.name || m.user.email)}>
                         Remove
-                      </button>
+                      </Button>
                     )}
                   </div>
                 </div>
@@ -567,12 +589,11 @@ export default function SettingsPage() {
                 <p className="text-sm text-gray-400 italic">No members found.</p>
               )}
             </div>
-          </div>
+          </Card>
 
           {/* Pending Invitations */}
           {isOwner && invitations.length > 0 && (
-            <div className={cardClasses}>
-              <h2 className={headingClasses}>Pending Invitations</h2>
+            <Card title="Pending Invitations">
               <div className="space-y-3">
                 {invitations.map((inv: { id: string; email: string; role: string; expiresAt: string; createdAt: string }) => (
                   <div key={inv.id} className="flex items-center justify-between py-3 border-b border-gray-100 dark:border-gray-700 last:border-0">
@@ -582,22 +603,18 @@ export default function SettingsPage() {
                         Invited as {inv.role} · Expires {new Date(inv.expiresAt).toLocaleDateString()}
                       </p>
                     </div>
-                    <span className="text-xs font-medium text-yellow-600 dark:text-yellow-400 bg-yellow-50 dark:bg-yellow-900/20 px-2 py-1 rounded-full">
-                      Pending
-                    </span>
+                    <Badge variant="warning">Pending</Badge>
                   </div>
                 ))}
               </div>
-            </div>
+            </Card>
           )}
         </div>
       )}
 
       {/* Notifications Tab */}
       {activeTab === 'notifications' && (
-        <div className={cardClasses}>
-          <h2 className={headingClasses}>Notification Preferences</h2>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">Choose which notifications you receive and how.</p>
+        <Card title="Notification Preferences" subtitle="Choose which notifications you receive and how.">
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
@@ -635,14 +652,12 @@ export default function SettingsPage() {
               </tbody>
             </table>
           </div>
-        </div>
+        </Card>
       )}
 
       {/* Tags Tab */}
       {activeTab === 'tags' && (
-        <div className={cardClasses}>
-          <h2 className={headingClasses}>Manage Tags</h2>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">Edit or remove tags used to organize your transactions.</p>
+        <Card title="Manage Tags" subtitle="Edit or remove tags used to organize your transactions.">
           {tags.length === 0 ? (
             <p className="text-sm text-gray-400 dark:text-gray-500 italic">No tags yet. Create tags from the Transactions page.</p>
           ) : (
@@ -657,14 +672,14 @@ export default function SettingsPage() {
                         onChange={(e) => setEditTagColor(e.target.value)}
                         className="h-8 w-8 rounded border-0 cursor-pointer"
                       />
-                      <input
+                      <Input
                         type="text"
                         value={editTagName}
                         onChange={(e) => setEditTagName(e.target.value)}
-                        className={inputClasses + ' !mt-0 max-w-xs'}
+                        className="max-w-xs"
                       />
-                      <button onClick={() => handleSaveTag(tag.id)} className="text-brand-700 hover:text-indigo-800 text-sm font-medium">Save</button>
-                      <button onClick={() => setEditingTagId(null)} className="text-gray-400 hover:text-gray-600 text-sm">Cancel</button>
+                      <Button variant="ghost" size="sm" onClick={() => handleSaveTag(tag.id)}>Save</Button>
+                      <Button variant="ghost" size="sm" onClick={() => setEditingTagId(null)}>Cancel</Button>
                     </div>
                   ) : (
                     <>
@@ -676,8 +691,8 @@ export default function SettingsPage() {
                         <span className="text-sm text-gray-900 dark:text-gray-100">{tag.name}</span>
                       </div>
                       <div className="flex items-center space-x-2">
-                        <button onClick={() => handleStartEditTag(tag)} className="text-gray-400 hover:text-brand-700 text-sm">Edit</button>
-                        <button onClick={() => handleDeleteTag(tag.id)} className={btnDanger}>Delete</button>
+                        <Button variant="ghost" size="sm" onClick={() => handleStartEditTag(tag)}>Edit</Button>
+                        <Button variant="danger" size="sm" onClick={() => handleDeleteTag(tag.id)}>Delete</Button>
                       </div>
                     </>
                   )}
@@ -685,29 +700,27 @@ export default function SettingsPage() {
               ))}
             </div>
           )}
-        </div>
+        </Card>
       )}
 
       {/* Referrals Tab */}
       {activeTab === 'referrals' && (
         <div className="space-y-6">
-          <div className={cardClasses}>
-            <h2 className={headingClasses}>Your Referral Code</h2>
+          <Card title="Your Referral Code">
             <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-              Share your referral code with friends. When they sign up, you'll both be tracked in the referral program.
+              Share your referral code with friends. When they sign up, you&apos;ll both be tracked in the referral program.
             </p>
             <div className="flex items-center space-x-3">
               <code className="flex-1 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 px-4 py-3 rounded-md font-mono text-lg tracking-wider">
                 {myReferralCode || '...'}
               </code>
-              <button onClick={handleCopyCode} className={btnPrimary} disabled={!myReferralCode}>
+              <Button onClick={handleCopyCode} disabled={!myReferralCode}>
                 {codeCopied ? '✓ Copied' : '📋 Copy'}
-              </button>
+              </Button>
             </div>
-          </div>
+          </Card>
 
-          <div className={cardClasses}>
-            <h2 className={headingClasses}>Your Referrals ({myReferrals.length})</h2>
+          <Card title={`Your Referrals (${myReferrals.length})`}>
             {myReferrals.length === 0 ? (
               <p className="text-sm text-gray-400 dark:text-gray-500 italic">No referrals yet. Share your code to get started!</p>
             ) : (
@@ -725,27 +738,21 @@ export default function SettingsPage() {
                         <p className="text-xs text-gray-500 dark:text-gray-400">Joined {new Date(ref.createdAt).toLocaleDateString()}</p>
                       </div>
                     </div>
-                    <span className={`text-xs font-medium px-2 py-1 rounded-full ${
-                      ref.status === 'completed' ? 'text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20' :
-                      ref.status === 'rewarded' ? 'text-brand-700 dark:text-brand-400 bg-brand-50 dark:bg-indigo-900/20' :
-                      'text-yellow-600 dark:text-yellow-400 bg-yellow-50 dark:bg-yellow-900/20'
-                    }`}>
+                    <Badge variant={ref.status === 'completed' ? 'success' : ref.status === 'rewarded' ? 'info' : 'warning'}>
                       {ref.status.charAt(0).toUpperCase() + ref.status.slice(1)}
-                    </span>
+                    </Badge>
                   </div>
                 ))}
               </div>
             )}
-          </div>
+          </Card>
         </div>
       )}
 
       {/* Security Tab */}
       {activeTab === 'security' && (
         <div className="space-y-6">
-          {/* Two-Factor Authentication */}
-          <div className={cardClasses}>
-            <h2 className={headingClasses}>Two-Factor Authentication</h2>
+          <Card title="Two-Factor Authentication">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
@@ -755,24 +762,22 @@ export default function SettingsPage() {
                   Add an extra layer of security to your account using an authenticator app.
                 </p>
               </div>
-              <button
+              <Button
+                variant={twoFactorEnabled ? 'danger' : 'primary'}
                 onClick={() => {
                   setTwoFactorEnabled(!twoFactorEnabled);
                   toast(twoFactorEnabled ? '2FA disabled (placeholder)' : '2FA enabled (placeholder)', { icon: 'ℹ️' });
                 }}
-                className={twoFactorEnabled ? btnDanger : btnPrimary}
               >
                 {twoFactorEnabled ? 'Disable 2FA' : 'Enable 2FA'}
-              </button>
+              </Button>
             </div>
             <p className="mt-3 text-xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 rounded-md p-2">
               ⚠️ Two-factor authentication is coming soon. This is a preview of the interface.
             </p>
-          </div>
+          </Card>
 
-          {/* Active Sessions */}
-          <div className={cardClasses}>
-            <h2 className={headingClasses}>Active Sessions</h2>
+          <Card title="Active Sessions">
             <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
               Manage your active login sessions across devices.
             </p>
@@ -787,69 +792,64 @@ export default function SettingsPage() {
                     </p>
                   </div>
                 </div>
-                <span className="text-xs font-medium text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20 px-2 py-1 rounded-full">
-                  Active Now
-                </span>
+                <Badge variant="success">Active Now</Badge>
               </div>
             </div>
-            <button
+            <Button
+              variant="ghost"
+              size="sm"
+              className="mt-4 !text-red-600 dark:!text-red-400"
               onClick={() => {
                 localStorage.removeItem('token');
                 window.location.href = '/login';
               }}
-              className="mt-4 text-sm text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 font-medium"
             >
               Log out all other sessions
-            </button>
-          </div>
+            </Button>
+          </Card>
         </div>
       )}
 
       {/* Data Tab */}
       {activeTab === 'data' && (
         <div className="space-y-6">
-          <div className={cardClasses}>
-            <h2 className={headingClasses}>Export Data</h2>
+          <Card title="Export Data">
             <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
               Download all your financial data as a JSON file. Includes accounts, transactions, categories, tags, budgets, goals, and recurring items.
             </p>
-            <button onClick={handleExport} disabled={exporting} className={btnPrimary}>
-              {exporting ? 'Exporting...' : '📥 Export All Data (JSON)'}
-            </button>
-          </div>
+            <Button onClick={handleExport} loading={exporting}>
+              📥 Export All Data (JSON)
+            </Button>
+          </Card>
 
-          <div className={`${cardClasses} border-2 border-red-200 dark:border-red-800`}>
-            <h2 className="text-lg font-medium text-red-600 dark:text-red-400 mb-4">Danger Zone</h2>
+          <Card title="Danger Zone" className="!border-2 !border-red-200 dark:!border-red-800">
             <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
               Permanently delete your account and anonymize all associated data. This action cannot be undone.
             </p>
             {!showDeleteForm ? (
-              <button onClick={() => setShowDeleteForm(true)} className={btnDanger + ' !px-4 !py-2 !text-sm'}>
+              <Button variant="danger" onClick={() => setShowDeleteForm(true)}>
                 Delete My Account
-              </button>
+              </Button>
             ) : (
               <div className="space-y-3 max-w-md">
-                <div>
-                  <label className={labelClasses}>Type &quot;DELETE&quot; to confirm</label>
-                  <input
-                    type="text"
-                    value={deleteConfirm}
-                    onChange={(e) => setDeleteConfirm(e.target.value)}
-                    placeholder="DELETE"
-                    className={inputClasses}
-                  />
-                </div>
-                <div>
-                  <label className={labelClasses}>Enter your password</label>
-                  <input
-                    type="password"
-                    value={deletePassword}
-                    onChange={(e) => setDeletePassword(e.target.value)}
-                    className={inputClasses}
-                  />
-                </div>
+                <Input
+                  label='Type "DELETE" to confirm'
+                  type="text"
+                  value={deleteConfirm}
+                  onChange={(e) => setDeleteConfirm(e.target.value)}
+                  placeholder="DELETE"
+                />
+                <Input
+                  label="Enter your password"
+                  type="password"
+                  value={deletePassword}
+                  onChange={(e) => setDeletePassword(e.target.value)}
+                />
                 <div className="flex space-x-3">
-                  <button
+                  <Button
+                    variant="danger"
+                    loading={deletingAccount}
+                    disabled={deleteConfirm !== 'DELETE' || !deletePassword}
                     onClick={async () => {
                       if (deleteConfirm !== 'DELETE') {
                         toast.error('Please type DELETE to confirm');
@@ -868,18 +868,16 @@ export default function SettingsPage() {
                         toast.error('Failed to delete account');
                       }
                     }}
-                    disabled={deletingAccount || deleteConfirm !== 'DELETE' || !deletePassword}
-                    className={btnDanger + ' !px-4 !py-2 !text-sm disabled:opacity-50'}
                   >
-                    {deletingAccount ? 'Deleting...' : 'Permanently Delete Account'}
-                  </button>
-                  <button onClick={() => { setShowDeleteForm(false); setDeleteConfirm(''); setDeletePassword(''); }} className="text-sm text-gray-500 hover:text-gray-700">
+                    Permanently Delete Account
+                  </Button>
+                  <Button variant="ghost" onClick={() => { setShowDeleteForm(false); setDeleteConfirm(''); setDeletePassword(''); }}>
                     Cancel
-                  </button>
+                  </Button>
                 </div>
               </div>
             )}
-          </div>
+          </Card>
         </div>
       )}
     </div>
