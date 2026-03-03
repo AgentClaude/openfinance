@@ -96,6 +96,7 @@ export interface Tag {
   colorHex?: string;
   isActive?: boolean;
   householdId: string;
+  transactionsCount?: number;
 }
 
 export interface NotificationPreference {

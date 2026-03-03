@@ -212,6 +212,8 @@ export const GET_TAGS = gql`
       name
       color
       householdId
+      transactionsCount
+      isActive
     }
   }
 `;
