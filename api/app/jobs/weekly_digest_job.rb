@@ -1,38 +1,37 @@
-# Sends weekly financial digest emails to all users who have it enabled
-# Schedule: Run every Monday morning via Sidekiq-Cron or similar
-
 class WeeklyDigestJob < ApplicationJob
-  queue_as :notifications
+  queue_as :default
+
+  def self.safe_perform_later(*)
+    perform_later(*)
+  rescue => e
+    Rails.logger.warn("WeeklyDigestJob enqueue failed: #{e.message}")
+  end
 
   def perform
-    Rails.logger.info "Starting weekly digest generation"
-
-    sent_count = 0
-    User.includes(:household, :notification_preferences).find_each do |user|
-      next unless user.household
+    users = User.where.not(household_id: nil)
+    users.find_each do |user|
       next unless digest_enabled?(user)
 
-      begin
-        NotificationMailer.weekly_digest(user).deliver_later
-        sent_count += 1
-        Rails.logger.info "Queued weekly digest for #{user.email}"
-      rescue => e
-        Rails.logger.error "Failed to queue digest for #{user.email}: #{e.message}"
-      end
-    end
+      service = WeeklyDigestService.new(user)
+      digest_data = service.generate
+      next unless digest_data
 
-    Rails.logger.info "Weekly digest complete: #{sent_count} emails queued"
+      DigestMailer.weekly_digest(user, digest_data).deliver_now
+      Rails.logger.info("Weekly digest sent to #{user.email}")
+    rescue => e
+      Rails.logger.error("Weekly digest failed for user #{user.id}: #{e.message}")
+      raise if Rails.env.test?
+    end
   end
 
   private
 
   def digest_enabled?(user)
-    pref = NotificationPreference.find_by(
-      user: user,
+    pref = user.notification_preferences.find_by(
       notification_type: 'weekly_digest',
       channel: 'email'
     )
-    # Default to true if no preference exists (opt-out model for digest)
-    pref.nil? || pref.enabled?
+    # Default to false — user must opt in
+    pref&.enabled? || false
   end
 end

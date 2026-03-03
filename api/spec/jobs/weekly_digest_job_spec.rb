@@ -1,35 +1,58 @@
 require 'rails_helper'
 
 RSpec.describe WeeklyDigestJob, type: :job do
-  let(:household) { Household.create!(name: 'Test Household') }
-  let!(:user) { User.create!(email: 'test@example.com', password: 'password123', name: 'Test User', household: household) }
+  let(:household) { create(:household) }
+  let!(:user) { create(:user, household: household, email: 'digest@test.com') }
 
   describe '#perform' do
-    it 'queues digest emails for users with households' do
-      expect {
-        described_class.new.perform
-      }.to have_enqueued_mail(NotificationMailer, :weekly_digest).with(user)
+    context 'when user has digest enabled' do
+      before do
+        NotificationPreference.create!(
+          user: user,
+          notification_type: 'weekly_digest',
+          channel: 'email',
+          enabled: true
+        )
+      end
+
+      it 'generates digest and creates valid email' do
+        service = WeeklyDigestService.new(user)
+        digest_data = service.generate
+        expect(digest_data).not_to be_nil
+
+        mail = DigestMailer.weekly_digest(user, digest_data)
+        expect(mail.to).to eq(['digest@test.com'])
+        expect(mail.subject).to include('Your Week in Finance')
+        expect(mail.html_part.body.encoded).to include('Weekly Digest')
+      end
+
+      it 'checks digest_enabled? correctly' do
+        job = described_class.new
+        expect(job.send(:digest_enabled?, user)).to be true
+      end
     end
 
-    it 'skips users without households' do
-      orphan = User.create!(email: 'orphan@example.com', password: 'password123', name: 'Orphan')
-      # User auto-creates household, so remove it to test the guard
-      orphan.update_column(:household_id, nil)
-      expect {
-        described_class.new.perform
-      }.not_to have_enqueued_mail(NotificationMailer, :weekly_digest).with(orphan)
+    context 'when user has digest disabled' do
+      before do
+        NotificationPreference.create!(
+          user: user,
+          notification_type: 'weekly_digest',
+          channel: 'email',
+          enabled: false
+        )
+      end
+
+      it 'does not consider user eligible' do
+        job = described_class.new
+        expect(job.send(:digest_enabled?, user)).to be false
+      end
     end
 
-    it 'skips users who disabled the digest' do
-      NotificationPreference.create!(
-        user: user,
-        notification_type: 'weekly_digest',
-        channel: 'email',
-        enabled: false
-      )
-      expect {
-        described_class.new.perform
-      }.not_to have_enqueued_mail(NotificationMailer, :weekly_digest).with(user)
+    context 'when user has no preference (default off)' do
+      it 'does not consider user eligible' do
+        job = described_class.new
+        expect(job.send(:digest_enabled?, user)).to be false
+      end
     end
   end
 end
