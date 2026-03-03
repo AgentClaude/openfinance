@@ -1,0 +1,47 @@
+📊 Weekly Financial Summary
+<%= @week_start.strftime('%B %d') %> — <%= @week_end.strftime('%B %d, %Y') %>
+
+Hi <%= @user.display_name %>,
+
+<% if @alerts.present? -%>
+⚠️ ALERTS
+<% @alerts.each do |alert| -%>
+  • <%= alert[:message] %>
+<% end -%>
+
+<% end -%>
+SUMMARY
+  Income:   $<%= '%.2f' % @summary[:total_income] %>
+  Expenses: $<%= '%.2f' % @summary[:total_expenses] %>
+  Net:      <%= @summary[:net] >= 0 ? '+' : '-' %>$<%= '%.2f' % @summary[:net].abs %>
+  Transactions: <%= @summary[:transaction_count] %>
+
+<% if @top_expenses.present? -%>
+💸 TOP SPENDING
+<% @top_expenses.each do |expense| -%>
+  <%= expense[:category].ljust(20) %> $<%= '%.2f' % expense[:amount] %>
+<% end -%>
+
+<% end -%>
+<% if @budget_status.present? -%>
+📋 BUDGET STATUS
+<% @budget_status.each do |b| -%>
+  <%= b[:category].ljust(20) %> $<%= '%.0f' % b[:spent] %> / $<%= '%.0f' % b[:budgeted] %> (<%= b[:percentage] %>%)
+<% end -%>
+
+<% end -%>
+<% if @upcoming_bills.present? -%>
+📅 UPCOMING BILLS
+<% @upcoming_bills.each do |bill| -%>
+  <%= bill[:name].ljust(20) %> $<%= '%.2f' % bill[:amount] %> — due <%= bill[:due_date].strftime('%b %d') %>
+<% end -%>
+
+<% end -%>
+💰 NET WORTH
+  Total:       $<%= '%.2f' % @net_worth[:current] %>
+  Assets:      $<%= '%.2f' % @net_worth[:assets] %>
+  Liabilities: $<%= '%.2f' % @net_worth[:liabilities] %>
+
+---
+To unsubscribe, update your notification preferences in Settings.
+OpenFinance — Your finances, your way.

@@ -6,7 +6,7 @@ import { usePreferences } from '@/hooks/usePreferences';
 import { useTags } from '@/hooks/useTags';
 import { useQuery, useMutation } from '@apollo/client';
 import { GET_ACCOUNTS, GET_NOTIFICATION_PREFERENCES, GET_HOUSEHOLD_MEMBERS, GET_HOUSEHOLD_INVITATIONS, GET_MY_REFERRAL_CODE, GET_REFERRALS } from '@/graphql/queries';
-import { UPDATE_HOUSEHOLD, UPDATE_NOTIFICATION_PREFERENCE, UPDATE_TAG, DELETE_TAG, EXPORT_DATA, DELETE_ACCOUNT, INVITE_TO_HOUSEHOLD, REMOVE_HOUSEHOLD_MEMBER, UPDATE_MEMBER_ROLE } from '@/graphql/mutations';
+import { UPDATE_HOUSEHOLD, UPDATE_NOTIFICATION_PREFERENCE, UPDATE_TAG, DELETE_TAG, EXPORT_DATA, DELETE_ACCOUNT, INVITE_TO_HOUSEHOLD, REMOVE_HOUSEHOLD_MEMBER, UPDATE_MEMBER_ROLE, SEND_TEST_DIGEST } from '@/graphql/mutations';
 import { NotificationPreference } from '@/types';
 import toast from 'react-hot-toast';
 
@@ -100,6 +100,7 @@ export default function SettingsPage() {
   const [inviteMutation, { loading: inviting }] = useMutation(INVITE_TO_HOUSEHOLD);
   const [removeMemberMutation] = useMutation(REMOVE_HOUSEHOLD_MEMBER);
   const [updateRoleMutation] = useMutation(UPDATE_MEMBER_ROLE);
+  const [sendTestDigestMutation, { loading: sendingDigest }] = useMutation(SEND_TEST_DIGEST);
 
   // Accounts (for default account preference)
   const { data: accountsData } = useQuery(GET_ACCOUNTS);
@@ -283,6 +284,19 @@ export default function SettingsPage() {
       toast.success('Data exported');
     } catch {
       toast.error('Failed to export data');
+    }
+  };
+
+  const handleSendTestDigest = async () => {
+    try {
+      const { data } = await sendTestDigestMutation();
+      if (data.sendTestDigest.success) {
+        toast.success('Test digest sent to your email!');
+      } else {
+        toast.error(data.sendTestDigest.errors?.[0] || 'Failed to send digest');
+      }
+    } catch {
+      toast.error('Failed to send test digest');
     }
   };
 
@@ -634,6 +648,23 @@ export default function SettingsPage() {
                 ))}
               </tbody>
             </table>
+          </div>
+
+          {/* Weekly Digest Test */}
+          <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Weekly Digest Email</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Preview your weekly financial summary email.</p>
+              </div>
+              <button
+                onClick={handleSendTestDigest}
+                disabled={sendingDigest}
+                className="px-4 py-2 text-sm font-medium text-white bg-brand-700 hover:bg-brand-800 rounded-lg disabled:opacity-50 transition-colors"
+              >
+                {sendingDigest ? 'Sending...' : 'Send Test Digest'}
+              </button>
+            </div>
           </div>
         </div>
       )}

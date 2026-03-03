@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Weekly Financial Summary</title>
+  <style>
+    body { margin: 0; padding: 0; background-color: #f4f5f7; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #1a1a2e; }
+    .container { max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 12px; overflow: hidden; margin-top: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .header { background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 32px 24px; text-align: center; }
+    .header h1 { color: #ffffff; margin: 0 0 4px; font-size: 22px; font-weight: 700; }
+    .header p { color: rgba(255,255,255,0.85); margin: 0; font-size: 14px; }
+    .content { padding: 24px; }
+    .greeting { font-size: 16px; margin-bottom: 24px; color: #374151; }
+
+    /* Summary Cards */
+    .summary-grid { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 28px; }
+    .summary-card { flex: 1; min-width: 120px; background: #f9fafb; border-radius: 8px; padding: 16px; text-align: center; }
+    .summary-card .label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #6b7280; margin-bottom: 4px; }
+    .summary-card .value { font-size: 22px; font-weight: 700; }
+    .income-val { color: #10b981; }
+    .expense-val { color: #ef4444; }
+    .net-positive { color: #10b981; }
+    .net-negative { color: #ef4444; }
+
+    /* Section */
+    .section { margin-bottom: 28px; }
+    .section-title { font-size: 16px; font-weight: 600; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid #f3f4f6; color: #1f2937; }
+
+    /* Alerts */
+    .alert { padding: 10px 14px; border-radius: 6px; margin-bottom: 8px; font-size: 13px; }
+    .alert-over { background: #fef2f2; color: #991b1b; border-left: 3px solid #ef4444; }
+    .alert-near { background: #fffbeb; color: #92400e; border-left: 3px solid #f59e0b; }
+    .alert-info { background: #eff6ff; color: #1e40af; border-left: 3px solid #3b82f6; }
+
+    /* Table */
+    .data-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    .data-table th { text-align: left; padding: 8px 12px; background: #f9fafb; color: #6b7280; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .data-table td { padding: 10px 12px; border-bottom: 1px solid #f3f4f6; }
+    .data-table .amount { text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; }
+
+    /* Progress bar */
+    .progress-container { width: 100%; height: 8px; background: #e5e7eb; border-radius: 4px; overflow: hidden; margin-top: 4px; }
+    .progress-bar { height: 100%; border-radius: 4px; transition: width 0.3s; }
+    .progress-green { background: #10b981; }
+    .progress-yellow { background: #f59e0b; }
+    .progress-red { background: #ef4444; }
+
+    /* Net worth */
+    .net-worth-box { background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%); border-radius: 8px; padding: 20px; text-align: center; }
+    .net-worth-box .nw-label { font-size: 12px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; }
+    .net-worth-box .nw-value { font-size: 32px; font-weight: 700; color: #059669; margin: 4px 0; }
+    .net-worth-row { display: flex; justify-content: center; gap: 24px; margin-top: 8px; font-size: 13px; color: #6b7280; }
+
+    /* Footer */
+    .footer { padding: 20px 24px; background: #f9fafb; text-align: center; font-size: 12px; color: #9ca3af; border-top: 1px solid #f3f4f6; }
+    .footer a { color: #6b7280; text-decoration: none; }
+
+    /* Mobile */
+    @media (max-width: 480px) {
+      .summary-card { min-width: 100px; }
+      .summary-card .value { font-size: 18px; }
+      .net-worth-box .nw-value { font-size: 26px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <h1>📊 Weekly Summary</h1>
+      <p><%= @week_start.strftime('%B %d') %> — <%= @week_end.strftime('%B %d, %Y') %></p>
+    </div>
+
+    <div class="content">
+      <p class="greeting">Hi <%= @user.display_name %>,</p>
+
+      <% if @alerts.present? %>
+        <div class="section">
+          <div class="section-title">⚠️ Alerts</div>
+          <% @alerts.each do |alert| %>
+            <div class="alert <%= alert[:type] == :over_budget ? 'alert-over' : alert[:type] == :near_budget ? 'alert-near' : 'alert-info' %>">
+              <%= alert[:message] %>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+
+      <!-- Summary -->
+      <div class="summary-grid">
+        <div class="summary-card">
+          <div class="label">Income</div>
+          <div class="value income-val">$<%= number_with_delimiter('%.2f' % @summary[:total_income]) %></div>
+        </div>
+        <div class="summary-card">
+          <div class="label">Expenses</div>
+          <div class="value expense-val">$<%= number_with_delimiter('%.2f' % @summary[:total_expenses]) %></div>
+        </div>
+        <div class="summary-card">
+          <div class="label">Net</div>
+          <div class="value <%= @summary[:net] >= 0 ? 'net-positive' : 'net-negative' %>">
+            <%= @summary[:net] >= 0 ? '+' : '-' %>$<%= number_with_delimiter('%.2f' % @summary[:net].abs) %>
+          </div>
+        </div>
+      </div>
+
+      <!-- Top Expenses -->
+      <% if @top_expenses.present? %>
+        <div class="section">
+          <div class="section-title">💸 Top Spending Categories</div>
+          <table class="data-table">
+            <thead>
+              <tr><th>Category</th><th style="text-align:right">Amount</th></tr>
+            </thead>
+            <tbody>
+              <% @top_expenses.each do |expense| %>
+                <tr>
+                  <td><%= expense[:category] %></td>
+                  <td class="amount">$<%= number_with_delimiter('%.2f' % expense[:amount]) %></td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      <% end %>
+
+      <!-- Budget Status -->
+      <% if @budget_status.present? %>
+        <div class="section">
+          <div class="section-title">📋 Budget Status</div>
+          <table class="data-table">
+            <thead>
+              <tr><th>Category</th><th style="text-align:right">Spent / Budget</th><th style="width:100px"></th></tr>
+            </thead>
+            <tbody>
+              <% @budget_status.each do |b| %>
+                <tr>
+                  <td><%= b[:category] %></td>
+                  <td class="amount">$<%= '%.0f' % b[:spent] %> / $<%= '%.0f' % b[:budgeted] %></td>
+                  <td>
+                    <div class="progress-container">
+                      <div class="progress-bar <%= b[:percentage] >= 100 ? 'progress-red' : b[:percentage] >= 80 ? 'progress-yellow' : 'progress-green' %>"
+                           style="width: <%= [b[:percentage], 100].min %>%"></div>
+                    </div>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      <% end %>
+
+      <!-- Upcoming Bills -->
+      <% if @upcoming_bills.present? %>
+        <div class="section">
+          <div class="section-title">📅 Upcoming Bills</div>
+          <table class="data-table">
+            <thead>
+              <tr><th>Bill</th><th style="text-align:right">Amount</th><th style="text-align:right">Due</th></tr>
+            </thead>
+            <tbody>
+              <% @upcoming_bills.each do |bill| %>
+                <tr>
+                  <td><%= bill[:name] %></td>
+                  <td class="amount">$<%= number_with_delimiter('%.2f' % bill[:amount]) %></td>
+                  <td class="amount">
+                    <% if bill[:days_until] == 0 %>
+                      <span style="color:#ef4444;">Today</span>
+                    <% elsif bill[:days_until] <= 3 %>
+                      <span style="color:#f59e0b;"><%= bill[:days_until] %>d</span>
+                    <% else %>
+                      <%= bill[:due_date].strftime('%b %d') %>
+                    <% end %>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      <% end %>
+
+      <!-- Net Worth -->
+      <div class="section">
+        <div class="section-title">💰 Net Worth</div>
+        <div class="net-worth-box">
+          <div class="nw-label">Total Net Worth</div>
+          <div class="nw-value">$<%= number_with_delimiter('%.2f' % @net_worth[:current]) %></div>
+          <div class="net-worth-row">
+            <span>Assets: $<%= number_with_delimiter('%.2f' % @net_worth[:assets]) %></span>
+            <span>Liabilities: $<%= number_with_delimiter('%.2f' % @net_worth[:liabilities]) %></span>
+          </div>
+        </div>
+      </div>
+
+      <p style="font-size:13px; color:#6b7280; text-align:center; margin-top:24px;">
+        <%= @summary[:transaction_count] %> transactions this week
+      </p>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      <p>You're receiving this because you have weekly digest emails enabled.</p>
+      <p>To unsubscribe, update your notification preferences in Settings.</p>
+      <p style="margin-top: 8px;">OpenFinance — Your finances, your way.</p>
+    </div>
+  </div>
+</body>
+</html>
