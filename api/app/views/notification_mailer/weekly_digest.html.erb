@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; margin: 0; padding: 20px; color: #1a1a1a; }
+    .container { max-width: 600px; margin: 0 auto; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    .header { padding: 28px 32px; background: linear-gradient(135deg, #1e40af, #3b82f6); color: #fff; }
+    .header h1 { margin: 0 0 4px; font-size: 22px; font-weight: 700; }
+    .header p { margin: 0; opacity: 0.85; font-size: 14px; }
+    .section { padding: 24px 32px; border-bottom: 1px solid #f0f0f0; }
+    .section:last-child { border-bottom: none; }
+    .section h2 { margin: 0 0 16px; font-size: 16px; font-weight: 600; color: #374151; }
+    .stat-grid { display: flex; gap: 16px; flex-wrap: wrap; }
+    .stat-card { flex: 1; min-width: 120px; background: #f9fafb; border-radius: 8px; padding: 16px; text-align: center; }
+    .stat-value { font-size: 24px; font-weight: 700; color: #1e40af; }
+    .stat-value.red { color: #dc2626; }
+    .stat-value.green { color: #16a34a; }
+    .stat-label { font-size: 12px; color: #6b7280; margin-top: 4px; }
+    table { width: 100%; border-collapse: collapse; }
+    table th { text-align: left; font-size: 11px; text-transform: uppercase; color: #9ca3af; padding: 8px 0; border-bottom: 1px solid #f0f0f0; }
+    table td { padding: 10px 0; font-size: 14px; border-bottom: 1px solid #f9fafb; }
+    .amount { font-weight: 600; text-align: right; }
+    .bar-bg { height: 6px; background: #e5e7eb; border-radius: 3px; overflow: hidden; margin-top: 4px; }
+    .bar-fill { height: 100%; border-radius: 3px; }
+    .cta { display: inline-block; padding: 12px 28px; background: #2563eb; color: #fff !important; text-decoration: none; border-radius: 8px; font-weight: 600; }
+    .footer { padding: 20px 32px; background: #f9fafb; font-size: 12px; color: #9ca3af; text-align: center; }
+    .footer a { color: #6b7280; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <h1>📊 Weekly Digest</h1>
+      <p><%= (@start_date).strftime('%b %d') %> – <%= @end_date.strftime('%b %d, %Y') %></p>
+    </div>
+
+    <!-- Summary Stats -->
+    <div class="section">
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-value red">$<%= '%.0f' % @total_spent %></div>
+          <div class="stat-label">Spent</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value green">$<%= '%.0f' % @total_income %></div>
+          <div class="stat-label">Income</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">$<%= '%.0f' % @net_worth %></div>
+          <div class="stat-label">Net Worth</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value"><%= @transaction_count %></div>
+          <div class="stat-label">Transactions</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Top Spending Categories -->
+    <% if @top_categories.any? %>
+    <div class="section">
+      <h2>Top Spending Categories</h2>
+      <table>
+        <% max_amount = @top_categories.first&.fetch(:amount, 1) || 1 %>
+        <% @top_categories.each do |cat| %>
+        <tr>
+          <td>
+            <%= cat[:name] %>
+            <div class="bar-bg">
+              <div class="bar-fill" style="width: <%= [(cat[:amount] / max_amount * 100).round, 100].min %>%; background: #3b82f6;"></div>
+            </div>
+          </td>
+          <td class="amount">$<%= '%.2f' % cat[:amount] %></td>
+        </tr>
+        <% end %>
+      </table>
+    </div>
+    <% end %>
+
+    <!-- Largest Transactions -->
+    <% if @largest_transactions.any? %>
+    <div class="section">
+      <h2>Largest Transactions</h2>
+      <table>
+        <% @largest_transactions.each do |txn| %>
+        <tr>
+          <td>
+            <%= txn[:name] %>
+            <div style="font-size: 12px; color: #9ca3af;"><%= txn[:date]&.strftime('%b %d') %></div>
+          </td>
+          <td class="amount">$<%= '%.2f' % txn[:amount] %></td>
+        </tr>
+        <% end %>
+      </table>
+    </div>
+    <% end %>
+
+    <!-- Budget Alerts (categories at 80%+) -->
+    <% if @budget_items.any? %>
+    <div class="section">
+      <h2>⚠️ Budget Watch</h2>
+      <table>
+        <% @budget_items.each do |item| %>
+        <tr>
+          <td>
+            <%= item[:name] %>
+            <div class="bar-bg">
+              <div class="bar-fill" style="width: <%= [item[:percent], 100].min %>%; background: <%= item[:percent] >= 100 ? '#dc2626' : '#f59e0b' %>;"></div>
+            </div>
+          </td>
+          <td class="amount" style="color: <%= item[:percent] >= 100 ? '#dc2626' : '#f59e0b' %>;">
+            <%= item[:percent] %>%
+            <div style="font-size: 11px; color: #9ca3af;">$<%= '%.0f' % item[:spent] %> / $<%= '%.0f' % item[:budgeted] %></div>
+          </td>
+        </tr>
+        <% end %>
+      </table>
+    </div>
+    <% end %>
+
+    <!-- Upcoming Bills -->
+    <% if @upcoming_bills.any? %>
+    <div class="section">
+      <h2>📋 Upcoming Bills</h2>
+      <table>
+        <% @upcoming_bills.each do |bill| %>
+        <tr>
+          <td>
+            <%= bill[:name] %>
+            <div style="font-size: 12px; color: #9ca3af;">Due <%= bill[:due]&.strftime('%b %d') %></div>
+          </td>
+          <td class="amount">$<%= '%.2f' % bill[:amount] %></td>
+        </tr>
+        <% end %>
+      </table>
+    </div>
+    <% end %>
+
+    <!-- CTA -->
+    <div class="section" style="text-align: center; padding: 32px;">
+      <a href="<%= app_url %>/" class="cta">Open Dashboard →</a>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      <p>You're receiving this weekly digest from OpenFinance.</p>
+      <p><a href="<%= app_url %>/settings">Manage email preferences</a></p>
+    </div>
+  </div>
+</body>
+</html>

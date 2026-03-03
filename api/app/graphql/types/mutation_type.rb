@@ -59,5 +59,6 @@ module Types
     field :disconnect_connection, mutation: Mutations::DisconnectConnection
     field :retry_connection_sync, mutation: Mutations::RetryConnectionSync
     field :create_update_link_token, mutation: Mutations::CreateUpdateLinkToken
+    field :send_test_digest, mutation: Mutations::SendTestDigest
   end
 end
