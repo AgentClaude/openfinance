@@ -37,6 +37,8 @@ module Mutations
       )
 
       if invitation.save
+        # Send invitation email
+        InvitationMailer.invite(invitation).deliver_later
         { invitation: invitation, errors: [] }
       else
         { invitation: nil, errors: invitation.errors.full_messages }

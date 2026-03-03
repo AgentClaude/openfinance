@@ -20,6 +20,7 @@ import AccountsPage from '@/pages/AccountsPage';
 import AccountDetailPage from '@/pages/AccountDetailPage';
 import BudgetPage from '@/pages/BudgetPage';
 import GoalsPage from '@/pages/GoalsPage';
+import TagsPage from '@/pages/TagsPage';
 import CategoriesPage from '@/pages/CategoriesPage';
 import RulesPage from '@/pages/RulesPage';
 import MerchantMappingsPage from '@/pages/MerchantMappingsPage';
@@ -32,6 +33,7 @@ import DocsPage from '@/pages/DocsPage';
 import NetWorthPage from '@/pages/NetWorthPage';
 import OnboardingPage from '@/pages/OnboardingPage';
 import NotificationsPage from '@/pages/NotificationsPage';
+import AcceptInvitationPage from '@/pages/AcceptInvitationPage';
 
 function App() {
   return (
@@ -46,6 +48,7 @@ function App() {
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/register" element={<RegisterPage />} />
                 <Route path="/docs" element={<DocsPage />} />
+                <Route path="/invite/:token" element={<AcceptInvitationPage />} />
                 
                 {/* Onboarding (protected but no layout) */}
                 <Route path="/onboarding" element={<ProtectedRoute><OnboardingPage /></ProtectedRoute>} />
@@ -66,6 +69,7 @@ function App() {
                   <Route path="investments" element={<InvestmentsPage />} />
                   <Route path="import" element={<ImportPage />} />
                   <Route path="goals" element={<GoalsPage />} />
+                  <Route path="tags" element={<TagsPage />} />
                   <Route path="notifications" element={<NotificationsPage />} />
                   <Route path="settings" element={<SettingsPage />} />
                 </Route>

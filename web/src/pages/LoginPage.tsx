@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, Navigate } from 'react-router-dom';
+import { Link, Navigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/components/ui/Toast';
 import Button from '@/components/ui/Button';
@@ -10,12 +10,14 @@ const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [searchParams] = useSearchParams();
+  const redirectTo = searchParams.get('redirect');
 
   const { login, isAuthenticated } = useAuth();
   const { addToast } = useToast();
 
   if (isAuthenticated) {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to={redirectTo || "/dashboard"} replace />;
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
