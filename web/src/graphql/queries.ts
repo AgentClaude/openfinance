@@ -691,7 +691,7 @@ export const GET_MERCHANT_MAPPINGS = gql`
 `;
 
 export const GET_ACTIVITY_FEED = gql`
-  query GetActivityFeed($limit: Int, $since: String) {
+  query GetActivityFeed($limit: Int, $since: ISO8601DateTime) {
     activityFeed(limit: $limit, since: $since) {
       id
       action
