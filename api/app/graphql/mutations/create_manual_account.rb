@@ -31,6 +31,7 @@ module Mutations
       )
 
       if account.save
+        log_activity(action: 'account_added', resource: account, metadata: { account_name: account.name, account_type: account_type })
         {
           id: account.id, name: account.name,
           type: Types::AccountType::ACCOUNT_TYPE_MAP[account.account_type] || 'OTHER',

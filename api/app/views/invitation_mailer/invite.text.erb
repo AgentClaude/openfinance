@@ -1,0 +1,10 @@
+<%= @inviter.name || @inviter.email %> has invited you to join "<%= @household.name %>" on OpenFinance as a <%= @invitation.role %>.
+
+Accept the invitation here:
+<%= @accept_url %>
+
+OpenFinance is a collaborative personal finance app for tracking spending, managing budgets, and monitoring financial goals together.
+
+This invitation expires on <%= @invitation.expires_at.strftime('%B %d, %Y') %>.
+
+If you weren't expecting this invitation, you can safely ignore this email.

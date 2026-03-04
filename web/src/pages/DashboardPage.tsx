@@ -21,6 +21,7 @@ import DashboardBudgetWidget from '@/components/DashboardBudgetWidget';
 import DashboardBillsWidget from '@/components/DashboardBillsWidget';
 import DashboardGoalsWidget from '@/components/DashboardGoalsWidget';
 import DashboardInvestmentsWidget from '@/components/DashboardInvestmentsWidget';
+import DashboardActivityWidget from '@/components/DashboardActivityWidget';
 import DashboardCustomizePanel from '@/components/DashboardCustomizePanel';
 import { format } from 'date-fns';
 import clsx from 'clsx';
@@ -172,6 +173,7 @@ const DashboardPage: React.FC = () => {
     'bills': () => <DashboardBillsWidget key="bills" />,
     'goals': () => <DashboardGoalsWidget key="goals" />,
     'investments': () => <DashboardInvestmentsWidget key="investments" />,
+    'activity': () => <DashboardActivityWidget key="activity" />,
 
     'recent-transactions': () => (
       <Card
@@ -252,7 +254,7 @@ const DashboardPage: React.FC = () => {
       }
 
       // Small widgets (budget, bills, goals, investments) group into 3-col grid
-      const smallWidgets = ['budget', 'bills', 'goals', 'investments'];
+      const smallWidgets = ['budget', 'bills', 'goals', 'investments', 'activity'];
       if (smallWidgets.includes(id)) {
         const group: string[] = [id];
         while (i + 1 < visible.length && smallWidgets.includes(visible[i + 1])) {

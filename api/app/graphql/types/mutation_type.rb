@@ -32,6 +32,7 @@ module Types
     field :change_password, mutation: Mutations::ChangePassword
     field :invite_to_household, mutation: Mutations::InviteToHousehold
     field :accept_invitation, mutation: Mutations::AcceptInvitation
+    field :cancel_invitation, mutation: Mutations::CancelInvitation
     field :remove_household_member, mutation: Mutations::RemoveHouseholdMember
     field :import_csv, mutation: Mutations::ImportCsv
     field :bulk_transaction_action, mutation: Mutations::BulkTransactionAction
@@ -60,5 +61,12 @@ module Types
     field :retry_connection_sync, mutation: Mutations::RetryConnectionSync
     field :create_update_link_token, mutation: Mutations::CreateUpdateLinkToken
     field :send_test_digest, mutation: Mutations::SendTestDigest
+
+    # Merchant mapping mutations
+    field :create_merchant_mapping, mutation: Mutations::CreateMerchantMapping
+    field :update_merchant_mapping, mutation: Mutations::UpdateMerchantMapping
+    field :delete_merchant_mapping, mutation: Mutations::DeleteMerchantMapping
+    field :apply_merchant_mappings, mutation: Mutations::ApplyMerchantMappings
+    field :suggest_merchant_mappings, mutation: Mutations::SuggestMerchantMappings
   end
 end

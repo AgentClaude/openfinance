@@ -13,6 +13,11 @@ module Mutations
       item = BudgetItem.find_or_initialize_by(budget: budget, category_id: category_id, month: date)
       authorize(item, item.new_record? ? :create? : :update?)
       item.update!(amount_cents: (budgeted * 100).to_i)
+      log_activity(action: 'budget_set', resource: item, metadata: {
+        category_name: item.category&.name,
+        amount: budgeted,
+        month: month
+      })
       item
     end
   end

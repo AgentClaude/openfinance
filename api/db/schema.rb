@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_03_02_230000) do
+ActiveRecord::Schema[8.0].define(version: 2026_03_04_000001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -114,6 +114,22 @@ ActiveRecord::Schema[8.0].define(version: 2026_03_02_230000) do
     t.bigint "blob_id", null: false
     t.string "variation_digest", null: false
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
+  end
+
+  create_table "activity_events", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "household_id", null: false
+    t.uuid "user_id", null: false
+    t.string "action", null: false
+    t.string "resource_type", null: false
+    t.uuid "resource_id"
+    t.jsonb "metadata", default: {}
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["action"], name: "index_activity_events_on_action"
+    t.index ["household_id", "created_at"], name: "index_activity_events_on_household_id_and_created_at"
+    t.index ["household_id"], name: "index_activity_events_on_household_id"
+    t.index ["resource_type", "resource_id"], name: "index_activity_events_on_resource_type_and_resource_id"
+    t.index ["user_id"], name: "index_activity_events_on_user_id"
   end
 
   create_table "api_keys", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -461,6 +477,19 @@ ActiveRecord::Schema[8.0].define(version: 2026_03_02_230000) do
     t.index ["user_id"], name: "index_notifications_on_user_id"
   end
 
+  create_table "plaid_category_mappings", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "household_id", null: false
+    t.uuid "category_id"
+    t.string "plaid_primary", null: false
+    t.string "plaid_detailed"
+    t.boolean "is_active", default: true, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["category_id"], name: "index_plaid_category_mappings_on_category_id"
+    t.index ["household_id", "plaid_primary", "plaid_detailed"], name: "idx_plaid_cat_map_unique", unique: true
+    t.index ["household_id"], name: "index_plaid_category_mappings_on_household_id"
+  end
+
   create_table "recurring_items", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "household_id", null: false
     t.uuid "category_id"
@@ -511,6 +540,23 @@ ActiveRecord::Schema[8.0].define(version: 2026_03_02_230000) do
     t.index ["referred_user_id"], name: "index_referrals_on_referred_user_id"
     t.index ["referrer_id", "referred_user_id"], name: "index_referrals_on_referrer_id_and_referred_user_id", unique: true
     t.index ["referrer_id"], name: "index_referrals_on_referrer_id"
+  end
+
+  create_table "saved_filters", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "name", null: false
+    t.jsonb "filters", default: {}, null: false
+    t.string "icon", default: "📋"
+    t.string "color", default: "#3B82F6"
+    t.boolean "is_default", default: false
+    t.integer "position", default: 0
+    t.uuid "user_id", null: false
+    t.uuid "household_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["household_id", "position"], name: "index_saved_filters_on_household_id_and_position"
+    t.index ["household_id", "user_id"], name: "index_saved_filters_on_household_id_and_user_id"
+    t.index ["household_id"], name: "index_saved_filters_on_household_id"
+    t.index ["user_id"], name: "index_saved_filters_on_user_id"
   end
 
   create_table "securities", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -700,6 +746,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_03_02_230000) do
   add_foreign_key "accounts", "households"
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "activity_events", "households"
+  add_foreign_key "activity_events", "users"
   add_foreign_key "balance_adjustments", "accounts"
   add_foreign_key "balance_adjustments", "households"
   add_foreign_key "balance_adjustments", "users", column: "created_by_id"
@@ -723,11 +771,15 @@ ActiveRecord::Schema[8.0].define(version: 2026_03_02_230000) do
   add_foreign_key "notification_rules", "users"
   add_foreign_key "notifications", "households"
   add_foreign_key "notifications", "users"
+  add_foreign_key "plaid_category_mappings", "categories"
+  add_foreign_key "plaid_category_mappings", "households"
   add_foreign_key "recurring_items", "accounts"
   add_foreign_key "recurring_items", "categories"
   add_foreign_key "recurring_items", "households"
   add_foreign_key "referrals", "users", column: "referred_user_id"
   add_foreign_key "referrals", "users", column: "referrer_id"
+  add_foreign_key "saved_filters", "households"
+  add_foreign_key "saved_filters", "users"
   add_foreign_key "shared_accounts", "accounts", validate: false
   add_foreign_key "shared_accounts", "users", column: "shared_by_user_id", validate: false
   add_foreign_key "shared_accounts", "users", column: "shared_with_user_id", validate: false

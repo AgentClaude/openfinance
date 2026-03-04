@@ -6,7 +6,7 @@ import { usePreferences } from '@/hooks/usePreferences';
 import { useTags } from '@/hooks/useTags';
 import { useQuery, useMutation } from '@apollo/client';
 import { GET_ACCOUNTS, GET_NOTIFICATION_PREFERENCES, GET_HOUSEHOLD_MEMBERS, GET_HOUSEHOLD_INVITATIONS, GET_MY_REFERRAL_CODE, GET_REFERRALS } from '@/graphql/queries';
-import { UPDATE_HOUSEHOLD, UPDATE_NOTIFICATION_PREFERENCE, UPDATE_TAG, DELETE_TAG, CREATE_TAG, EXPORT_DATA, DELETE_ACCOUNT, INVITE_TO_HOUSEHOLD, REMOVE_HOUSEHOLD_MEMBER, UPDATE_MEMBER_ROLE } from '@/graphql/mutations';
+import { UPDATE_HOUSEHOLD, UPDATE_NOTIFICATION_PREFERENCE, UPDATE_TAG, DELETE_TAG, CREATE_TAG, EXPORT_DATA, DELETE_ACCOUNT, INVITE_TO_HOUSEHOLD, REMOVE_HOUSEHOLD_MEMBER, UPDATE_MEMBER_ROLE, CANCEL_INVITATION } from '@/graphql/mutations';
 import { NotificationPreference } from '@/types';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
@@ -109,6 +109,7 @@ export default function SettingsPage() {
   const { data: invitationsData, refetch: refetchInvitations } = useQuery(GET_HOUSEHOLD_INVITATIONS, { skip: activeTab !== 'members' });
   const [inviteMutation, { loading: inviting }] = useMutation(INVITE_TO_HOUSEHOLD);
   const [removeMemberMutation] = useMutation(REMOVE_HOUSEHOLD_MEMBER);
+  const [cancelInvitationMutation] = useMutation(CANCEL_INVITATION);
   const [updateRoleMutation] = useMutation(UPDATE_MEMBER_ROLE);
 
   // Accounts (for default account preference)
@@ -176,6 +177,21 @@ export default function SettingsPage() {
       }
     } catch (err: unknown) {
       toast.error((err as Error).message || 'Failed to update role');
+    }
+  };
+
+  const handleCancelInvitation = async (invId: string) => {
+    if (!confirm('Cancel this invitation?')) return;
+    try {
+      const { data } = await cancelInvitationMutation({ variables: { id: invId } });
+      if (data.cancelInvitation.errors?.length) {
+        toast.error(data.cancelInvitation.errors[0]);
+      } else {
+        toast.success('Invitation cancelled');
+        refetchInvitations();
+      }
+    } catch (err: unknown) {
+      toast.error((err as Error).message || 'Failed to cancel invitation');
     }
   };
 
@@ -622,7 +638,12 @@ export default function SettingsPage() {
                         Invited as {inv.role} · Expires {new Date(inv.expiresAt).toLocaleDateString()}
                       </p>
                     </div>
-                    <Badge variant="warning">Pending</Badge>
+                    <div className="flex items-center space-x-2">
+                      <Badge variant="warning">Pending</Badge>
+                      <Button variant="danger" size="sm" onClick={() => handleCancelInvitation(inv.id)}>
+                        Cancel
+                      </Button>
+                    </div>
                   </div>
                 ))}
               </div>

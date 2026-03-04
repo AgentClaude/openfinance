@@ -18,7 +18,24 @@ module Mutations
       attrs[:is_pending] = input.pending if input.respond_to?(:pending) && !input.pending.nil?
       attrs[:needs_review] = input.needs_review if input.respond_to?(:needs_review) && !input.needs_review.nil?
       attrs[:notes] = input.notes if input.respond_to?(:notes) && !input.notes.nil?
-      txn.update!(attrs) if attrs.any?
+      if attrs.any?
+        old_category_id = txn.category_id
+        txn.update!(attrs)
+
+        # Log categorization as a specific action
+        if attrs[:category_id] && attrs[:category_id] != old_category_id
+          cat = Category.find_by(id: attrs[:category_id])
+          log_activity(action: 'categorized', resource: txn, metadata: {
+            category_name: cat&.name,
+            transaction_name: txn.name || txn.merchant_name
+          })
+        elsif attrs.keys != [:category_id]
+          log_activity(action: 'updated', resource: txn, metadata: {
+            fields: attrs.keys.map(&:to_s),
+            transaction_name: txn.name || txn.merchant_name
+          })
+        end
+      end
       txn
     end
   end
