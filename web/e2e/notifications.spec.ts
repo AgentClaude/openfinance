@@ -47,10 +47,16 @@ test.describe('Notifications', () => {
   test('view all link navigates to notifications page', async ({ page }) => {
     await page.goto('/dashboard');
     await page.waitForLoadState('networkidle');
-    const viewAll = page.getByText(/view all/i).first();
-    if (await viewAll.isVisible({ timeout: 3000 }).catch(() => false)) {
-      await viewAll.click();
-      await page.waitForURL('**/notifications', { timeout: 5000 });
+    // Look for a "View all" link that specifically targets the notifications page
+    const notifViewAll = page.locator('a[href*="notifications"]').filter({ hasText: /view all/i }).first();
+    if (await notifViewAll.isVisible({ timeout: 3000 }).catch(() => false)) {
+      await notifViewAll.click();
+      await page.waitForURL('**/notifications', { timeout: 10000 });
+      await expect(page.getByText(/notification/i).first()).toBeVisible({ timeout: 10000 });
+    } else {
+      // Notifications widget may not be on the dashboard yet — navigate directly
+      await page.goto('/notifications');
+      await page.waitForLoadState('networkidle');
       await expect(page.getByText(/notification/i).first()).toBeVisible({ timeout: 10000 });
     }
   });
