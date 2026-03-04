@@ -166,17 +166,6 @@ FactoryBot.define do
     rollover_cents { 0 }
   end
 
-  factory :notification do
-    association :user
-    association :household
-    title { "Test Notification" }
-    body { "Test notification body" }
-    notification_type { "budget_alert" }
-    priority { "normal" }
-    is_read { false }
-    data { {} }
-  end
-
   factory :transaction do
     association :account
     association :category
