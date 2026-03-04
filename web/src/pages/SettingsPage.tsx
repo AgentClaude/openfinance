@@ -6,7 +6,7 @@ import { usePreferences } from '@/hooks/usePreferences';
 import { useTags } from '@/hooks/useTags';
 import { useQuery, useMutation } from '@apollo/client';
 import { GET_ACCOUNTS, GET_NOTIFICATION_PREFERENCES, GET_HOUSEHOLD_MEMBERS, GET_HOUSEHOLD_INVITATIONS, GET_MY_REFERRAL_CODE, GET_REFERRALS } from '@/graphql/queries';
-import { UPDATE_HOUSEHOLD, UPDATE_NOTIFICATION_PREFERENCE, UPDATE_TAG, DELETE_TAG, EXPORT_DATA, DELETE_ACCOUNT, INVITE_TO_HOUSEHOLD, REMOVE_HOUSEHOLD_MEMBER, UPDATE_MEMBER_ROLE } from '@/graphql/mutations';
+import { UPDATE_HOUSEHOLD, UPDATE_NOTIFICATION_PREFERENCE, UPDATE_TAG, DELETE_TAG, CREATE_TAG, EXPORT_DATA, DELETE_ACCOUNT, INVITE_TO_HOUSEHOLD, REMOVE_HOUSEHOLD_MEMBER, UPDATE_MEMBER_ROLE } from '@/graphql/mutations';
 import { NotificationPreference } from '@/types';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
@@ -82,12 +82,17 @@ export default function SettingsPage() {
   const [editingTagId, setEditingTagId] = useState<string | null>(null);
   const [editTagName, setEditTagName] = useState('');
   const [editTagColor, setEditTagColor] = useState('');
+  // Tag creation
+  const [showCreateTag, setShowCreateTag] = useState(false);
+  const [newTagName, setNewTagName] = useState('');
+  const [newTagColor, setNewTagColor] = useState('#3B82F6');
 
   // Mutations
   const [updateHouseholdMutation, { loading: updatingHousehold }] = useMutation(UPDATE_HOUSEHOLD);
   const [updateNotifPref] = useMutation(UPDATE_NOTIFICATION_PREFERENCE);
   const [updateTagMutation] = useMutation(UPDATE_TAG);
   const [deleteTagMutation] = useMutation(DELETE_TAG);
+  const [createTagMutation] = useMutation(CREATE_TAG);
   const [exportDataMutation, { loading: exporting }] = useMutation(EXPORT_DATA);
   const [deleteAccountMutation, { loading: deletingAccount }] = useMutation(DELETE_ACCOUNT);
 
@@ -272,6 +277,20 @@ export default function SettingsPage() {
       toast.success('Tag deleted');
     } catch {
       toast.error('Failed to delete tag');
+    }
+  };
+
+  const handleCreateTag = async () => {
+    if (!newTagName.trim()) return;
+    try {
+      await createTagMutation({ variables: { input: { name: newTagName.trim(), color: newTagColor } } });
+      refetchTags();
+      setNewTagName('');
+      setNewTagColor('#3B82F6');
+      setShowCreateTag(false);
+      toast.success('Tag created');
+    } catch {
+      toast.error('Failed to create tag');
     }
   };
 
@@ -657,9 +676,33 @@ export default function SettingsPage() {
 
       {/* Tags Tab */}
       {activeTab === 'tags' && (
-        <Card title="Manage Tags" subtitle="Edit or remove tags used to organize your transactions.">
-          {tags.length === 0 ? (
-            <p className="text-sm text-gray-400 dark:text-gray-500 italic">No tags yet. Create tags from the Transactions page.</p>
+        <Card title="Manage Tags" subtitle="Create, edit, or remove tags used to organize your transactions.">
+          <div className="mb-4">
+            {showCreateTag ? (
+              <div className="flex items-center space-x-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-md">
+                <input
+                  type="color"
+                  value={newTagColor}
+                  onChange={(e) => setNewTagColor(e.target.value)}
+                  className="h-8 w-8 rounded border-0 cursor-pointer"
+                />
+                <Input
+                  type="text"
+                  value={newTagName}
+                  onChange={(e) => setNewTagName(e.target.value)}
+                  placeholder="Tag name"
+                  className="max-w-xs"
+                  onKeyDown={(e) => e.key === 'Enter' && handleCreateTag()}
+                />
+                <Button variant="primary" size="sm" onClick={handleCreateTag}>Create</Button>
+                <Button variant="ghost" size="sm" onClick={() => { setShowCreateTag(false); setNewTagName(''); }}>Cancel</Button>
+              </div>
+            ) : (
+              <Button variant="secondary" size="sm" onClick={() => setShowCreateTag(true)}>+ New Tag</Button>
+            )}
+          </div>
+          {tags.length === 0 && !showCreateTag ? (
+            <p className="text-sm text-gray-400 dark:text-gray-500 italic">No tags yet. Click &quot;+ New Tag&quot; above to create one.</p>
           ) : (
             <div className="space-y-2">
               {tags.map((tag) => (
@@ -689,6 +732,9 @@ export default function SettingsPage() {
                           style={{ backgroundColor: tag.colorHex || tag.color || '#3B82F6' }}
                         />
                         <span className="text-sm text-gray-900 dark:text-gray-100">{tag.name}</span>
+                        <span className="text-xs text-gray-400 dark:text-gray-500">
+                          {tag.transactionsCount ?? 0} transaction{tag.transactionsCount !== 1 ? 's' : ''}
+                        </span>
                       </div>
                       <div className="flex items-center space-x-2">
                         <Button variant="ghost" size="sm" onClick={() => handleStartEditTag(tag)}>Edit</Button>
