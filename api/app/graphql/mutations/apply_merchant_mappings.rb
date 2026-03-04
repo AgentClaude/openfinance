@@ -10,18 +10,29 @@ module Mutations
       updated = 0
 
       mappings.find_each do |mapping|
-        txns = hh.transactions.where.not(merchant_name: [nil, ''])
-        matched = txns.select { |t| mapping.matches?(t.merchant_name || t.name) }
-        matched.each do |txn|
-          next if txn.merchant_name == mapping.clean_name
-
-          txn.update!(merchant_name: mapping.clean_name)
-          updated += 1
-        end
-        mapping.update!(applied_count: (mapping.applied_count || 0) + matched.size) if matched.any?
+        pattern = mapping.raw_pattern.downcase
+        scope = hh.transactions.where.not(merchant_name: [nil, ''])
+        scope = case mapping.match_type
+                when 'exact'
+                  scope.where('LOWER(merchant_name) = :p OR LOWER(name) = :p', p: pattern)
+                when 'starts_with'
+                  scope.where('LOWER(merchant_name) LIKE :p OR LOWER(name) LIKE :p', p: "#{sanitize_like(pattern)}%")
+                else # contains
+                  scope.where('LOWER(merchant_name) LIKE :p OR LOWER(name) LIKE :p', p: "%#{sanitize_like(pattern)}%")
+                end
+        scope = scope.where.not(merchant_name: mapping.clean_name)
+        count = scope.update_all(merchant_name: mapping.clean_name)
+        updated += count
+        mapping.update!(applied_count: (mapping.applied_count || 0) + count) if count > 0
       end
 
       { updated_count: updated }
+    end
+
+    private
+
+    def sanitize_like(str)
+      str.gsub(/[%_\\]/) { |m| "\\#{m}" }
     end
   end
 end

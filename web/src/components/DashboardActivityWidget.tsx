@@ -1,6 +1,7 @@
 import { useQuery } from '@apollo/client';
 import { GET_ACTIVITY_FEED } from '@/graphql/queries';
 import { Link } from 'react-router-dom';
+import { ACTION_ICONS } from '@/constants/activityConstants';
 
 interface ActivityEvent {
   id: string;
@@ -13,22 +14,6 @@ interface ActivityEvent {
     email: string;
   };
 }
-
-const ACTION_ICONS: Record<string, string> = {
-  categorized: '🏷️',
-  created: '➕',
-  updated: '✏️',
-  deleted: '🗑️',
-  split: '✂️',
-  invited: '📨',
-  joined: '🎉',
-  budget_set: '💰',
-  goal_created: '🎯',
-  account_added: '🏦',
-  rule_applied: '⚙️',
-  marked_paid: '✅',
-  transfer_linked: '🔗',
-};
 
 function timeAgo(dateStr: string): string {
   const diffMs = Date.now() - new Date(dateStr).getTime();

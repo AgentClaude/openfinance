@@ -279,12 +279,12 @@ module Types
 
     field :activity_feed, [Types::ActivityEventType], null: false do
       argument :limit, Integer, required: false, default_value: 50
-      argument :since, String, required: false
+      argument :since, GraphQL::Types::ISO8601DateTime, required: false
     end
     def activity_feed(limit: 50, since: nil)
       return [] unless context[:current_user]&.household
       scope = context[:current_user].household.activity_events.recent.includes(:user)
-      scope = scope.since(Time.parse(since)) if since.present?
+      scope = scope.since(since) if since.present?
       scope.limit([limit, 100].min)
     end
 

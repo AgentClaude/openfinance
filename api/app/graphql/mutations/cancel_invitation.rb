@@ -10,12 +10,10 @@ module Mutations
     def resolve(id:)
       hh = require_auth!
 
-      unless current_user.role == 'owner'
-        return { success: false, errors: ['Only owners can cancel invitations'] }
-      end
-
       invitation = hh.invitations.find_by(id: id)
       return { success: false, errors: ['Invitation not found'] } unless invitation
+
+      authorize(invitation, :cancel?)
 
       unless invitation.pending?
         return { success: false, errors: ['Only pending invitations can be cancelled'] }
