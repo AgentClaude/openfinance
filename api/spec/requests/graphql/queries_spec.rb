@@ -177,4 +177,92 @@ RSpec.describe 'GraphQL Queries', type: :request do
       expect(data['netWorth']).to eq(0.0)
     end
   end
+
+  describe 'suggestedCategorizationRules' do
+    let(:query) do
+      <<~GRAPHQL
+        query {
+          suggestedCategorizationRules {
+            merchantName
+            categoryId
+            categoryName
+            transactionCount
+            matchField
+            matchType
+            matchValue
+          }
+        }
+      GRAPHQL
+    end
+
+    it 'suggests rules for merchants categorized consistently' do
+      account = create(:account, household: household)
+      category = create(:category, household: household, name: 'Food & Dining')
+
+      # Create 3 transactions with same merchant and category (reviewed)
+      3.times do |i|
+        create(:transaction,
+          household: household,
+          account: account,
+          category: category,
+          merchant_name: 'Starbucks',
+          needs_review: false,
+          date: i.days.ago
+        )
+      end
+
+      result = graphql_query(query, user: user)
+      suggestions = result.dig('data', 'suggestedCategorizationRules')
+      expect(suggestions.length).to eq(1)
+      expect(suggestions[0]['merchantName']).to eq('Starbucks')
+      expect(suggestions[0]['categoryName']).to eq('Food & Dining')
+      expect(suggestions[0]['transactionCount']).to eq(3)
+    end
+
+    it 'does not suggest if merchant already has a rule' do
+      account = create(:account, household: household)
+      category = create(:category, household: household, name: 'Food & Dining')
+
+      3.times do
+        create(:transaction,
+          household: household,
+          account: account,
+          category: category,
+          merchant_name: 'Starbucks',
+          needs_review: false
+        )
+      end
+
+      # Create an existing rule for this merchant
+      CategorizationRule.create!(
+        household: household,
+        category: category,
+        match_field: 'merchant_name',
+        match_type: 'exact',
+        match_value: 'Starbucks',
+        name: 'Starbucks rule'
+      )
+
+      result = graphql_query(query, user: user)
+      suggestions = result.dig('data', 'suggestedCategorizationRules')
+      expect(suggestions.length).to eq(0)
+    end
+
+    it 'does not suggest if fewer than 2 transactions' do
+      account = create(:account, household: household)
+      category = create(:category, household: household, name: 'Food & Dining')
+
+      create(:transaction,
+        household: household,
+        account: account,
+        category: category,
+        merchant_name: 'Starbucks',
+        needs_review: false
+      )
+
+      result = graphql_query(query, user: user)
+      suggestions = result.dig('data', 'suggestedCategorizationRules')
+      expect(suggestions.length).to eq(0)
+    end
+  end
 end

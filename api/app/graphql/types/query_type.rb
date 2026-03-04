@@ -44,6 +44,14 @@ module Types
       context[:current_user].household.invitations.pending.where('expires_at > ?', Time.current).order(created_at: :desc)
     end
 
+    field :invitation_by_token, Types::InvitationType, null: true do
+      argument :token, String, required: true
+      description "Look up an invitation by token (no auth required)"
+    end
+    def invitation_by_token(token:)
+      Invitation.find_by(token: token)
+    end
+
     field :goals, [Types::GoalType], null: false do
       argument :active_only, Boolean, required: false, default_value: false
     end
@@ -284,6 +292,61 @@ module Types
       return [] unless context[:current_user]&.household
       CategorizationRulePolicy::Scope.new(context[:current_user], CategorizationRule).resolve
         .by_priority.includes(:category)
+    end
+
+    field :suggested_categorization_rules, [Types::SuggestedRuleType], null: false,
+      description: "Suggest categorization rules based on manual categorization patterns"
+    def suggested_categorization_rules
+      return [] unless context[:current_user]&.household
+      household = context[:current_user].household
+
+      # Find merchants that have been manually categorized consistently
+      # but don't have an existing rule
+      existing_rule_values = household.categorization_rules.active.pluck(:match_value).map(&:downcase)
+
+      # Group transactions by merchant_name where category was manually set
+      patterns = household.transactions
+        .where.not(merchant_name: [nil, ''])
+        .where.not(category_id: nil)
+        .where(needs_review: false)
+        .group(:merchant_name, :category_id)
+        .having('COUNT(*) >= 2')
+        .count
+
+      # Build suggestions: merchants consistently mapped to one category
+      merchant_categories = {}
+      patterns.each do |(merchant, category_id), count|
+        merchant_categories[merchant] ||= []
+        merchant_categories[merchant] << { category_id: category_id, count: count }
+      end
+
+      categories_cache = household.categories.index_by(&:id)
+
+      suggestions = []
+      merchant_categories.each do |merchant, entries|
+        # Only suggest if 80%+ of transactions go to the same category
+        total = entries.sum { |e| e[:count] }
+        top = entries.max_by { |e| e[:count] }
+        next unless top[:count].to_f / total >= 0.8
+        next if existing_rule_values.include?(merchant.downcase)
+
+        category = categories_cache[top[:category_id]]
+        next unless category
+
+        suggestions << OpenStruct.new(
+          merchant_name: merchant,
+          category_id: category.id,
+          category_name: category.name,
+          category_icon: category.icon,
+          category_color: category.color,
+          transaction_count: top[:count],
+          match_field: 'merchant_name',
+          match_type: 'exact',
+          match_value: merchant
+        )
+      end
+
+      suggestions.sort_by { |s| -s.transaction_count }
     end
 
     field :recurring_items, [Types::RecurringItemType], null: false do

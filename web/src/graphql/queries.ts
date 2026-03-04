@@ -242,6 +242,22 @@ export const GET_CATEGORIZATION_RULES = gql`
   }
 `;
 
+export const GET_SUGGESTED_RULES = gql`
+  query GetSuggestedRules {
+    suggestedCategorizationRules {
+      merchantName
+      categoryId
+      categoryName
+      categoryIcon
+      categoryColor
+      transactionCount
+      matchField
+      matchType
+      matchValue
+    }
+  }
+`;
+
 export const GET_RECURRING_ITEMS = gql`
   query GetRecurringItems($activeOnly: Boolean) {
     recurringItems(activeOnly: $activeOnly) {
@@ -536,6 +552,28 @@ export const GET_HOUSEHOLD_INVITATIONS = gql`
       expiresAt
       createdAt
       invitedBy {
+        id
+        name
+      }
+    }
+  }
+`;
+
+export const GET_INVITATION_BY_TOKEN = gql`
+  query GetInvitationByToken($token: String!) {
+    invitationByToken(token: $token) {
+      id
+      email
+      role
+      status
+      expiresAt
+      createdAt
+      invitedBy {
+        id
+        name
+        email
+      }
+      household {
         id
         name
       }
