@@ -1,0 +1,19 @@
+<div style="max-width: 500px; margin: 0 auto; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+  <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 12px; padding: 24px;">
+    <h2 style="margin: 0 0 8px; color: #1e40af;">📅 Bill Due Soon</h2>
+    <p style="margin: 0; color: #4b5563; font-size: 15px;">
+      <strong><%= @bill_name %></strong> is due
+      <% if @days_until == 0 %>
+        <strong style="color: #dc2626;">today</strong>.
+      <% elsif @days_until == 1 %>
+        <strong style="color: #f59e0b;">tomorrow</strong>.
+      <% else %>
+        in <strong><%= @days_until %> days</strong>.
+      <% end %>
+      <% if @amount %>
+        <br>Amount: <strong><%= @amount %></strong>
+      <% end %>
+    </p>
+  </div>
+  <p style="text-align: center; color: #9ca3af; font-size: 12px; margin-top: 16px;">OpenFinance</p>
+</div>
