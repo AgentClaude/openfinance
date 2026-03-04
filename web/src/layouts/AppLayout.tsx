@@ -16,6 +16,7 @@ import {
   FlagIcon,
   MagnifyingGlassIcon,
   ArrowsRightLeftIcon,
+  ClockIcon,
 } from '@heroicons/react/24/outline';
 import { useAuth } from '@/hooks/useAuth';
 import Sidebar from '@/components/ui/Sidebar';
@@ -39,6 +40,7 @@ const navigation = [
   { name: 'Import', href: '/import', icon: ArrowUpTrayIcon },
   { name: 'Rules', href: '/rules', icon: BoltIcon },
   { name: 'Merchants', href: '/merchant-mappings', icon: ArrowsRightLeftIcon },
+  { name: 'Activity', href: '/activity', icon: ClockIcon },
   { name: 'Settings', href: '/settings', icon: CogIcon },
 ];
 

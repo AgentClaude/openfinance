@@ -27,6 +27,10 @@ module Mutations
       end
 
       if invitation.accept!(user)
+        ActivityEvent.log(user: user, action: 'joined', resource: invitation, metadata: {
+          household_name: invitation.household.name,
+          role: invitation.role
+        })
         { success: true, errors: [] }
       else
         { success: false, errors: ['Failed to accept invitation'] }

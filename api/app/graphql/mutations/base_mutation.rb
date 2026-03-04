@@ -40,6 +40,10 @@ module Mutations
       Pundit.policy_scope!(current_user, scope)
     end
 
+    def log_activity(action:, resource:, metadata: {})
+      ActivityEvent.log(user: current_user, action: action, resource: resource, metadata: metadata)
+    end
+
     def default_query_for_action
       case self.class.name.demodulize
       when /^Create/ then :create?

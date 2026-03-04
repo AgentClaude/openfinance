@@ -689,3 +689,22 @@ export const GET_MERCHANT_MAPPINGS = gql`
     }
   }
 `;
+
+export const GET_ACTIVITY_FEED = gql`
+  query GetActivityFeed($limit: Int, $since: String) {
+    activityFeed(limit: $limit, since: $since) {
+      id
+      action
+      resourceType
+      resourceId
+      description
+      metadata
+      createdAt
+      user {
+        id
+        name
+        email
+      }
+    }
+  }
+`;

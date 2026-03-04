@@ -25,6 +25,10 @@ module Mutations
       ).call
 
       if result.success?
+        log_activity(action: 'split', resource: txn, metadata: {
+          transaction_name: txn.name || txn.merchant_name,
+          split_count: split_params.size
+        })
         { transaction: result.data[:transaction], splits: result.data[:splits], errors: [] }
       else
         { transaction: nil, splits: nil, errors: [result.error_message] }

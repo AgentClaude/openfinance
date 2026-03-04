@@ -23,6 +23,7 @@ module Mutations
       )
 
       goal.save!
+      log_activity(action: 'goal_created', resource: goal, metadata: { goal_name: goal.name })
       goal
     end
   end

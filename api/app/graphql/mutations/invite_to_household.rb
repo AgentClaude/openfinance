@@ -37,6 +37,8 @@ module Mutations
       )
 
       if invitation.save
+        InvitationMailer.invite(invitation).deliver_later
+        log_activity(action: 'invited', resource: invitation, metadata: { email: email, role: role })
         { invitation: invitation, errors: [] }
       else
         { invitation: nil, errors: invitation.errors.full_messages }

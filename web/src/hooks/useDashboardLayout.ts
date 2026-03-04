@@ -15,6 +15,7 @@ const DEFAULT_WIDGETS: DashboardWidget[] = [
   { id: 'goals', label: 'Goals', visible: true },
   { id: 'investments', label: 'Investments', visible: true },
   { id: 'recent-transactions', label: 'Recent Transactions', visible: true },
+  { id: 'activity', label: 'Activity Feed', visible: true },
 ];
 
 const STORAGE_KEY = 'openfinance_dashboard_layout';

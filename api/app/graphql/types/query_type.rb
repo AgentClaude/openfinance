@@ -277,6 +277,23 @@ module Types
       NotificationPreference.defaults_for(context[:current_user])
     end
 
+    field :activity_feed, [Types::ActivityEventType], null: false do
+      argument :limit, Integer, required: false, default_value: 50
+      argument :since, String, required: false
+    end
+    def activity_feed(limit: 50, since: nil)
+      return [] unless context[:current_user]&.household
+      scope = context[:current_user].household.activity_events.recent.includes(:user)
+      scope = scope.since(Time.parse(since)) if since.present?
+      scope.limit([limit, 100].min)
+    end
+
+    field :merchant_mappings, [Types::MerchantMappingType], null: false
+    def merchant_mappings
+      return [] unless context[:current_user]&.household
+      context[:current_user].household.merchant_mappings.order(:raw_pattern)
+    end
+
     field :balance_adjustments, [Types::BalanceAdjustmentType], null: false do
       argument :account_id, ID, required: true
     end
