@@ -5,6 +5,8 @@ import {
   Area, AreaChart,
   LineChart, Line,
   ComposedChart,
+  Sankey,
+  Rectangle,
 } from 'recharts';
 import { useQuery } from '@apollo/client';
 import { useReports } from '@/hooks/useReports';
@@ -28,7 +30,7 @@ const formatMonth = (month: string) => {
   return date.toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
 };
 
-type ReportTab = 'overview' | 'spending' | 'income-expenses' | 'cashflow' | 'merchants' | 'net-worth' | 'category-trends';
+type ReportTab = 'overview' | 'spending' | 'income-expenses' | 'cashflow' | 'merchants' | 'net-worth' | 'category-trends' | 'sankey';
 
 type DateRangeMode = 'preset' | 'custom';
 
@@ -81,6 +83,7 @@ const ReportsPage: React.FC = () => {
     { id: 'merchants', label: 'Top Merchants', icon: '🏪' },
     { id: 'net-worth', label: 'Net Worth', icon: '📈' },
     { id: 'category-trends', label: 'Category Trends', icon: '📉' },
+    { id: 'sankey', label: 'Money Flow', icon: '🌊' },
   ];
 
   return (
@@ -268,6 +271,7 @@ const ReportsPage: React.FC = () => {
           {activeTab === 'merchants' && <MerchantReport reports={reports} />}
           {activeTab === 'net-worth' && <NetWorthReport months={months} />}
           {activeTab === 'category-trends' && <CategoryTrendsReport months={months} />}
+          {activeTab === 'sankey' && <SankeyReport reports={reports} />}
         </>
       )}
     </div>
@@ -992,3 +996,82 @@ const CategoryTrendsReport: React.FC<{ months: number }> = ({ months }) => {
 };
 
 export default ReportsPage;
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const SankeyReport: React.FC<{ reports: any }> = ({ reports }) => {
+  const { monthlySummary, spendingByCategory } = reports;
+
+  const totalIncome = monthlySummary.reduce((s: number, m: any) => s + m.income, 0);
+  const sorted = [...spendingByCategory].sort((a: any, b: any) => b.amount - a.amount);
+  const topCategories = sorted.slice(0, 10);
+  const totalTopExpenses = topCategories.reduce((s: number, c: any) => s + c.amount, 0);
+  const otherExpenses = sorted.slice(10).reduce((s: number, c: any) => s + c.amount, 0);
+
+  const nodes: { name: string }[] = [{ name: `Income (${formatCurrency(totalIncome)})` }];
+  topCategories.forEach((c: any) => nodes.push({ name: `${c.categoryIcon || '📁'} ${c.categoryName}` }));
+  if (otherExpenses > 0) nodes.push({ name: 'Other' });
+
+  const totalExpenses = totalTopExpenses + otherExpenses;
+  const savings = totalIncome - totalExpenses;
+  if (savings > 0) nodes.push({ name: `Savings (${formatCurrency(savings)})` });
+
+  const links: { source: number; target: number; value: number }[] = [];
+  topCategories.forEach((c: any, i: number) => {
+    if (c.amount > 0) links.push({ source: 0, target: i + 1, value: Math.round(c.amount) });
+  });
+  if (otherExpenses > 0) links.push({ source: 0, target: topCategories.length + 1, value: Math.round(otherExpenses) });
+  if (savings > 0) links.push({ source: 0, target: nodes.length - 1, value: Math.round(savings) });
+
+  if (links.length === 0) {
+    return (
+      <ChartCard title="Money Flow" subtitle="See how your income flows into spending categories">
+        <div className="text-center text-gray-500 dark:text-gray-400 py-16">
+          No income or spending data for this period
+        </div>
+      </ChartCard>
+    );
+  }
+
+  const sankeyColors = ['#10B981', ...COLORS.slice(0, topCategories.length), '#9CA3AF', '#0EA5E9'];
+
+  return (
+    <ChartCard title="Money Flow" subtitle="How your income flows into spending categories">
+      <ResponsiveContainer width="100%" height={Math.max(400, nodes.length * 40)}>
+        <Sankey
+          data={{ nodes, links }}
+          nodeWidth={20}
+          nodePadding={24}
+          margin={{ top: 20, right: 200, bottom: 20, left: 20 }}
+          link={{ stroke: '#a1a1aa', strokeOpacity: 0.3 }}
+          node={({ x, y, width, height, index, payload }: any) => (
+            <g>
+              <Rectangle
+                x={x}
+                y={y}
+                width={width}
+                height={height}
+                fill={sankeyColors[index % sankeyColors.length]}
+                fillOpacity={0.9}
+                rx={3}
+              />
+              <text
+                x={x + width + 8}
+                y={y + height / 2}
+                textAnchor="start"
+                dominantBaseline="middle"
+                className="text-xs fill-gray-700 dark:fill-gray-300"
+                style={{ fontSize: 12 }}
+              >
+                {payload?.name}
+              </text>
+            </g>
+          )}
+        />
+      </ResponsiveContainer>
+      <div className="mt-4 text-sm text-gray-500 dark:text-gray-400 text-center">
+        Total Income: {formatCurrency(totalIncome)} → Expenses: {formatCurrency(totalExpenses)}
+        {savings > 0 && ` → Savings: ${formatCurrency(savings)}`}
+      </div>
+    </ChartCard>
+  );
+};
