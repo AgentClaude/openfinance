@@ -1,0 +1,49 @@
+OPENFINANCE WEEKLY DIGEST
+<%= @period[:start].strftime('%B %d') %> – <%= @period[:end].strftime('%B %d, %Y') %>
+<%= '=' * 50 %>
+
+SUMMARY
+  Spent:     $<%= '%.2f' % (@spending[:total_cents] / 100.0) %> (<%= @spending[:count] %> transactions)<%= if @spending[:change_pct]; " #{@spending[:change_pct] > 0 ? '↑' : '↓'} #{@spending[:change_pct].abs}% vs last week"; end %>
+  Income:    $<%= '%.2f' % (@income[:total_cents] / 100.0) %>
+  Net Flow:  <%= @net[:positive] ? '+' : '-' %>$<%= '%.2f' % (@net[:cents].abs / 100.0) %>
+
+<% if @top_categories.any? %>
+TOP SPENDING CATEGORIES
+<%= '-' * 40 %>
+<% @top_categories.each do |cat| %>
+  <%= cat[:name].ljust(25) %> $<%= '%.2f' % (cat[:total_cents] / 100.0) %>
+<% end %>
+<% end %>
+
+<% if @budget_status.any? %>
+BUDGET ALERTS
+<%= '-' * 40 %>
+<% @budget_status.each do |item| %>
+  <%= item[:category].ljust(20) %> <%= item[:percentage] %>% used ($<%= '%.2f' % (item[:spent_cents] / 100.0) %> / $<%= '%.2f' % (item[:budgeted_cents] / 100.0) %>)
+<% end %>
+<% end %>
+
+<% if @large_transactions.any? %>
+LARGE TRANSACTIONS
+<%= '-' * 40 %>
+<% @large_transactions.each do |txn| %>
+  $<%= '%.2f' % (txn[:amount_cents] / 100.0) %> — <%= txn[:description] %> (<%= txn[:category] %>, <%= txn[:date].strftime('%b %d') %>)
+<% end %>
+<% end %>
+
+<% if @upcoming_bills.any? %>
+UPCOMING BILLS
+<%= '-' * 40 %>
+<% @upcoming_bills.each do |bill| %>
+  <%= bill[:name].ljust(25) %> $<%= '%.2f' % (bill[:amount_cents] / 100.0) %> due <%= bill[:due_date].strftime('%b %d') %>
+<% end %>
+<% end %>
+
+NET WORTH
+<%= '-' * 40 %>
+  Assets:       $<%= '%.2f' % (@net_worth[:assets_cents] / 100.0) %>
+  Liabilities:  $<%= '%.2f' % (@net_worth[:liabilities_cents] / 100.0) %>
+  Net Worth:    $<%= '%.2f' % (@net_worth[:net_cents] / 100.0) %>
+
+---
+You're receiving this because you have weekly digest enabled.
