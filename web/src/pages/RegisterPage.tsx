@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, Navigate } from 'react-router-dom';
+import { Link, Navigate, useSearchParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/components/ui/Toast';
 import Button from '@/components/ui/Button';
@@ -7,9 +7,13 @@ import Input from '@/components/ui/Input';
 import Card from '@/components/ui/Card';
 
 const RegisterPage: React.FC = () => {
+  const [searchParams] = useSearchParams();
+  const redirectTo = searchParams.get('redirect');
+  const prefillEmail = searchParams.get('email') || '';
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: '',
-    email: '',
+    email: prefillEmail,
     password: '',
     confirmPassword: '',
   });
@@ -19,6 +23,9 @@ const RegisterPage: React.FC = () => {
   const { addToast } = useToast();
 
   if (isAuthenticated) {
+    if (redirectTo) {
+      return <Navigate to={redirectTo} replace />;
+    }
     return <Navigate to="/dashboard" replace />;
   }
 
@@ -83,6 +90,9 @@ const RegisterPage: React.FC = () => {
         title: 'Account created!',
         message: 'Welcome to OpenFinance! Your account has been created successfully.',
       });
+      if (redirectTo) {
+        navigate(redirectTo, { replace: true });
+      }
     } catch (error: any) {
       addToast({
         type: 'error',
