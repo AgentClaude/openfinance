@@ -30,7 +30,7 @@ import Card from '@/components/ui/Card';
 import BulkActionToolbar from '@/components/BulkActionToolbar';
 import TransactionDetailPanel from '@/components/TransactionDetailPanel';
 import TransferDetection from '@/components/TransferDetection';
-import { BULK_TRANSACTION_ACTION, EXPORT_DATA } from '@/graphql/mutations';
+import { BULK_TRANSACTION_ACTION, EXPORT_DATA, EXPORT_TRANSACTIONS_CSV } from '@/graphql/mutations';
 import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 
@@ -38,7 +38,7 @@ const TransactionsPage: React.FC = () => {
   const navigate = useNavigate();
   const [filters, setFilters] = useState<TransactionFilters>({
     page: 1,
-    limit: 20,
+    limit: 50,
   });
   const [selectedTransactionIds, setSelectedTransactionIds] = useState<string[]>([]);
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
@@ -52,13 +52,15 @@ const TransactionsPage: React.FC = () => {
   const [showTransfers, setShowTransfers] = useState(false);
   const [exporting, setExporting] = useState(false);
 
-  const { transactions, loading, totalCount, updateTransaction, updating, createTransaction } = useTransactions(filters);
+  const { transactions, loading, totalCount, hasMore, loadMore, updateTransaction, updating, createTransaction } = useTransactions(filters);
+  const [loadingMore, setLoadingMore] = useState(false);
   const { accounts } = useAccounts();
   const { categories } = useCategories();
   const { tags, createTag } = useTags();
 
   const [bulkAction, { loading: bulkLoading }] = useMutation(BULK_TRANSACTION_ACTION);
   const [exportData] = useMutation(EXPORT_DATA);
+  const [exportCsvMutation, { loading: csvExporting }] = useMutation(EXPORT_TRANSACTIONS_CSV);
 
   const handleBulkAction = async (action: string, categoryId?: string) => {
     await bulkAction({
@@ -97,32 +99,35 @@ const TransactionsPage: React.FC = () => {
     }
   }, [exportData]);
 
-  const handleExportCSV = useCallback(() => {
-    if (!transactions.length) return;
-    const headers = ['Date', 'Description', 'Merchant', 'Amount', 'Category', 'Account', 'Tags', 'Notes', 'Excluded', 'Pending'];
-    const rows = transactions.map(t => [
-      t.date,
-      `"${(t.description || '').replace(/"/g, '""')}"`,
-      `"${(t.merchantName || '').replace(/"/g, '""')}"`,
-      t.amount.toFixed(2),
-      `"${t.category?.name || ''}"`,
-      `"${t.account?.name || ''}"`,
-      `"${(t.tags || []).map(tag => tag.name).join(', ')}"`,
-      `"${(t.notes || '').replace(/"/g, '""')}"`,
-      t.excluded ? 'Yes' : 'No',
-      t.pending ? 'Yes' : 'No',
-    ]);
-    const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `transactions-${format(new Date(), 'yyyy-MM-dd')}.csv`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  }, [transactions]);
+  const handleExportCSV = useCallback(async () => {
+    try {
+      const { data } = await exportCsvMutation({
+        variables: {
+          search: filters.search || undefined,
+          categoryId: filters.categoryId || undefined,
+          accountIds: filters.accountId ? [filters.accountId] : undefined,
+          startDate: filters.dateFrom || undefined,
+          endDate: filters.dateTo || undefined,
+          needsReview: filters.needsReview ?? undefined,
+          minAmount: filters.minAmount ? parseFloat(String(filters.minAmount)) : undefined,
+          maxAmount: filters.maxAmount ? parseFloat(String(filters.maxAmount)) : undefined,
+        },
+      });
+      if (data?.exportTransactionsCsv?.csvData) {
+        const blob = new Blob([data.exportTransactionsCsv.csvData], { type: 'text/csv' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = data.exportTransactionsCsv.filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }
+    } catch (e) {
+      console.error('CSV export failed:', e);
+    }
+  }, [exportCsvMutation, filters]);
 
   const handleFilterChange = (key: keyof TransactionFilters, value: TransactionFilters[keyof TransactionFilters]) => {
     setFilters(prev => ({
@@ -426,7 +431,7 @@ const TransactionsPage: React.FC = () => {
           <div className="flex items-center space-x-2 flex-wrap gap-y-2">
             {/* Export buttons */}
             <div className="flex items-center">
-              <Button variant="secondary" size="sm" onClick={handleExportCSV}>
+              <Button variant="secondary" size="sm" onClick={handleExportCSV} loading={csvExporting}>
                 <ArrowDownTrayIcon className="h-4 w-4 mr-1" />
                 <span className="hidden sm:inline">CSV</span>
               </Button>
@@ -592,6 +597,32 @@ const TransactionsPage: React.FC = () => {
           sortDirection={sortDirection}
         />
       </div>
+
+      {/* Load More / Pagination */}
+      {!loading && transactions.length > 0 && (
+        <div className="mt-4 flex items-center justify-between">
+          <p className="text-sm text-gray-500">
+            Showing {transactions.length} of {totalCount} transactions
+          </p>
+          {hasMore && (
+            <Button
+              variant="secondary"
+              size="sm"
+              loading={loadingMore}
+              onClick={async () => {
+                setLoadingMore(true);
+                try {
+                  await loadMore();
+                } finally {
+                  setLoadingMore(false);
+                }
+              }}
+            >
+              Load More
+            </Button>
+          )}
+        </div>
+      )}
 
       {/* Add Transaction Modal */}
       {addModalOpen && (
