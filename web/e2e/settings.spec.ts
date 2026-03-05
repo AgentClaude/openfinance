@@ -192,7 +192,7 @@ test.describe('Settings', () => {
 
   test.describe('API Keys Tab', () => {
     test('shows API keys management UI', async ({ page }) => {
-      const apikeysTab = page.getByText(/^API Keys$/i).first();
+      const apikeysTab = page.getByText(/API Keys/i).first();
       await expect(apikeysTab).toBeVisible({ timeout: 5000 });
       await apikeysTab.click();
       await page.waitForTimeout(500);
@@ -203,7 +203,7 @@ test.describe('Settings', () => {
     });
 
     test('shows usage instructions', async ({ page }) => {
-      const apikeysTab = page.getByText(/^API Keys$/i).first();
+      const apikeysTab = page.getByText(/API Keys/i).first();
       await expect(apikeysTab).toBeVisible({ timeout: 5000 });
       await apikeysTab.click();
       await page.waitForTimeout(500);
@@ -213,7 +213,7 @@ test.describe('Settings', () => {
 
   test.describe('Sharing Tab', () => {
     test('shows share token management UI', async ({ page }) => {
-      const sharingTab = page.getByText(/^Sharing$/i).first();
+      const sharingTab = page.getByText(/Sharing/i).first();
       await expect(sharingTab).toBeVisible({ timeout: 5000 });
       await sharingTab.click();
       await page.waitForTimeout(500);
@@ -224,7 +224,7 @@ test.describe('Settings', () => {
     });
 
     test('shows embedding instructions', async ({ page }) => {
-      const sharingTab = page.getByText(/^Sharing$/i).first();
+      const sharingTab = page.getByText(/Sharing/i).first();
       await expect(sharingTab).toBeVisible({ timeout: 5000 });
       await sharingTab.click();
       await page.waitForTimeout(500);
@@ -234,7 +234,7 @@ test.describe('Settings', () => {
 
   test.describe('Data Export', () => {
     test('shows export data option on data tab', async ({ page }) => {
-      const dataTab = page.getByText(/^data$/i).first();
+      const dataTab = page.getByText(/Data/i).first();
       if (await dataTab.isVisible({ timeout: 3000 }).catch(() => false)) {
         await dataTab.click();
         await page.waitForTimeout(500);
