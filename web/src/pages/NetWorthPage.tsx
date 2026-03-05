@@ -5,9 +5,10 @@ import {
 } from 'recharts';
 import { useQuery, useMutation } from '@apollo/client';
 import { GET_NET_WORTH_HISTORY, GET_ACCOUNTS } from '@/graphql/queries';
-import { ADJUST_BALANCE } from '@/graphql/mutations';
+import { ADJUST_BALANCE, BACKFILL_BALANCE_HISTORY } from '@/graphql/mutations';
 import PageHeader from '@/components/ui/PageHeader';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import Button from '@/components/ui/Button';
 import { StatCard, ChartCard } from '@/components/shared';
 
 const COLORS = [
@@ -62,11 +63,26 @@ const NetWorthPage: React.FC = () => {
   const [timeRange, setTimeRange] = useState<TimeRange>('1Y');
   const months = TIME_RANGE_MONTHS[timeRange];
 
-  const { data: nwData, loading: nwLoading } = useQuery(GET_NET_WORTH_HISTORY, {
+  const { data: nwData, loading: nwLoading, refetch: refetchHistory } = useQuery(GET_NET_WORTH_HISTORY, {
     variables: { months },
   });
 
   const { data: accData, loading: accLoading } = useQuery(GET_ACCOUNTS);
+
+  const [backfillError, setBackfillError] = useState<string | null>(null);
+  const [backfillHistory, { loading: backfilling }] = useMutation(BACKFILL_BALANCE_HISTORY, {
+    variables: { months: 12 },
+    onCompleted: (data) => {
+      setBackfillError(null);
+      const { snapshotsCreated } = data.backfillBalanceHistory;
+      if (snapshotsCreated > 0) {
+        refetchHistory();
+      }
+    },
+    onError: (error) => {
+      setBackfillError(error.message || 'Failed to generate balance history');
+    },
+  });
 
   const history: NetWorthSnapshot[] = nwData?.netWorthHistory || [];
   const accounts: Account[] = accData?.accounts || [];
@@ -172,9 +188,23 @@ const NetWorthPage: React.FC = () => {
             </ChartCard>
           ) : (
             <ChartCard title="Net Worth Over Time">
-              <p className="text-gray-500 dark:text-gray-400 text-sm py-8 text-center">
-                No balance history data available. Net worth tracking requires account balance snapshots.
-              </p>
+              <div className="flex flex-col items-center gap-4 py-8">
+                <p className="text-gray-500 dark:text-gray-400 text-sm text-center">
+                  No balance history data available. Generate historical snapshots from your transaction data to see trends.
+                </p>
+                <Button
+                  onClick={() => backfillHistory()}
+                  disabled={backfilling}
+                  loading={backfilling}
+                  variant="primary"
+                  size="sm"
+                >
+                  Generate Balance History
+                </Button>
+                {backfillError && (
+                  <p className="text-danger-600 dark:text-danger-400 text-sm">{backfillError}</p>
+                )}
+              </div>
             </ChartCard>
           )}
 

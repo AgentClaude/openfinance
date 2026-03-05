@@ -13,6 +13,11 @@ if defined?(Sidekiq::Cron)
         'class' => 'NotificationSchedulerJob',
         'cron' => '0 */6 * * *',  # Every 6 hours
         'description' => 'Check for budget alerts, bill reminders, etc.'
+      },
+      'daily_balance_snapshot' => {
+        'class' => 'DailyBalanceSnapshotJob',
+        'cron' => '0 2 * * *',  # Every day at 2:00 AM UTC
+        'description' => 'Snapshot all account balances for net worth history'
       }
     )
   end
