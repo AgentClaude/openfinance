@@ -72,5 +72,11 @@ module Types
 
     # Balance history
     field :backfill_balance_history, mutation: Mutations::BackfillBalanceHistory
+
+    # API keys & share tokens
+    field :create_api_key, mutation: Mutations::CreateApiKey
+    field :revoke_api_key, mutation: Mutations::RevokeApiKey
+    field :create_share_token, mutation: Mutations::CreateShareToken
+    field :revoke_share_token, mutation: Mutations::RevokeShareToken
   end
 end

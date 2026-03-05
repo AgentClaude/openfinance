@@ -22,7 +22,9 @@ export const useApiKeys = () => {
 
   const createApiKey = async (name: string) => {
     const result = await createMutation({ variables: { name } });
-    return result.data?.createApiKey;
+    const payload = result.data?.createApiKey;
+    // Return plainTextKey (full key only available on creation)
+    return { ...payload, plainTextKey: payload?.plainTextKey };
   };
 
   const revokeApiKey = async (id: string) => {

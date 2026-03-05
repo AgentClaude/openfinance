@@ -26,9 +26,9 @@ import { useAuth } from '@/hooks/useAuth';
 const SEARCH_TRANSACTIONS = gql`
   query SearchTransactions($search: String!, $limit: Int) {
     transactions(search: $search, limit: $limit) {
-      nodes {
+      transactions {
         id
-        name
+        description
         merchantName
         amount
         date
@@ -141,15 +141,15 @@ export default function CommandPalette() {
   ], [isDark, toggleTheme, logout]);
 
   const transactionItems: CommandItem[] = useMemo(() => {
-    if (!txnData?.transactions?.nodes) return [];
-    return txnData.transactions.nodes.map((t: any) => ({
+    if (!txnData?.transactions?.transactions) return [];
+    return txnData.transactions.transactions.map((t: any) => ({
       id: `txn-${t.id}`,
-      label: t.merchantName || t.name,
+      label: t.merchantName || t.description,
       description: `${t.amount < 0 ? '-' : ''}$${Math.abs(t.amount).toFixed(2)} · ${t.date} · ${t.account?.name || ''}`,
       icon: t.category?.color ? (
         <span className="h-5 w-5 rounded-full inline-block" style={{ backgroundColor: t.category.color }} />
       ) : <CreditCardIcon className="h-5 w-5" />,
-      action: () => { navigate(`/transactions?search=${encodeURIComponent(t.merchantName || t.name)}`); setOpen(false); },
+      action: () => { navigate(`/transactions?search=${encodeURIComponent(t.merchantName || t.description)}`); setOpen(false); },
       category: 'transaction' as const,
     }));
   }, [txnData, navigate]);

@@ -54,14 +54,6 @@ module Types
       context[:current_user].household.invitations.pending.where('expires_at > ?', Time.current).order(created_at: :desc)
     end
 
-    field :invitation_by_token, Types::InvitationType, null: true do
-      argument :token, String, required: true
-      description "Look up an invitation by token (no auth required)"
-    end
-    def invitation_by_token(token:)
-      Invitation.find_by(token: token)
-    end
-
     field :goals, [Types::GoalType], null: false do
       argument :active_only, Boolean, required: false, default_value: false
     end
@@ -296,6 +288,18 @@ module Types
       scope = context[:current_user].household.activity_events.recent.includes(:user)
       scope = scope.since(since) if since.present?
       scope.limit([limit, 100].min)
+    end
+
+    field :api_keys, [Types::ApiKeyType], null: false
+    def api_keys
+      return [] unless context[:current_user]
+      context[:current_user].api_keys.order(created_at: :desc)
+    end
+
+    field :share_tokens, [Types::ShareTokenType], null: false
+    def share_tokens
+      return [] unless context[:current_user]
+      context[:current_user].share_tokens.active.order(created_at: :desc)
     end
 
     field :merchant_mappings, [Types::MerchantMappingType], null: false
