@@ -997,24 +997,16 @@ export const CANCEL_INVITATION = gql`
 
 export const EXPORT_TRANSACTIONS_CSV = gql`
   mutation ExportTransactionsCsv(
-    $search: String
-    $categoryId: ID
-    $accountIds: [ID!]
     $startDate: String
     $endDate: String
-    $needsReview: Boolean
-    $minAmount: Float
-    $maxAmount: Float
+    $accountIds: [ID!]
+    $categoryIds: [ID!]
   ) {
     exportTransactionsCsv(
-      search: $search
-      categoryId: $categoryId
-      accountIds: $accountIds
       startDate: $startDate
       endDate: $endDate
-      needsReview: $needsReview
-      minAmount: $minAmount
-      maxAmount: $maxAmount
+      accountIds: $accountIds
+      categoryIds: $categoryIds
     ) {
       csvData
       filename

@@ -567,16 +567,9 @@ export const GET_INVITATION_BY_TOKEN = gql`
       role
       status
       expiresAt
-      createdAt
-      invitedBy {
-        id
-        name
-        email
-      }
-      household {
-        id
-        name
-      }
+      expired
+      invitedByName
+      householdName
     }
   }
 `;

@@ -91,7 +91,7 @@ const AcceptInvitationPage: React.FC = () => {
               </div>
               <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Invitation expired</h3>
               <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                This invitation has expired. Ask {invitation.invitedBy?.name || 'the household owner'} to send a new one.
+                This invitation has expired. Ask {invitation.invitedByName || 'the household owner'} to send a new one.
               </p>
             </div>
           ) : isAlreadyUsed ? (
@@ -113,17 +113,17 @@ const AcceptInvitationPage: React.FC = () => {
             <>
               <div className="text-center mb-6">
                 <p className="text-sm text-gray-500 dark:text-gray-400">
-                  {invitation.invitedBy?.name || 'Someone'} has invited you to join
+                  {invitation.invitedByName || 'Someone'} has invited you to join
                 </p>
                 <h3 className="mt-1 text-xl font-bold text-gray-900 dark:text-gray-100">
-                  {invitation.household?.name || 'their household'}
+                  {invitation.householdName || 'their household'}
                 </h3>
               </div>
 
               <div className="bg-slate-50 dark:bg-slate-800 rounded-lg p-4 mb-6 space-y-3">
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-gray-500 dark:text-gray-400">Invited by</span>
-                  <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{invitation.invitedBy?.name}</span>
+                  <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{invitation.invitedByName}</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-gray-500 dark:text-gray-400">Role</span>

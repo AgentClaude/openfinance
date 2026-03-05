@@ -9,6 +9,8 @@ export { useLocalStorage } from './useLocalStorage';
 export { useRecurring } from './useRecurring';
 export { useReports } from './useReports';
 export { useRules } from './useRules';
+export { useApiKeys } from './useApiKeys';
+export { useShareTokens } from './useShareTokens';
 export { useSettings } from './useSettings';
 export { useTags } from './useTags';
 export { useTheme } from './useTheme';

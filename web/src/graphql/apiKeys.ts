@@ -16,7 +16,7 @@ export const GET_API_KEYS = gql`
 
 export const CREATE_API_KEY = gql`
   mutation CreateApiKey($name: String!) {
-    createApiKey(input: { name: $name }) {
+    createApiKey(name: $name) {
       apiKey {
         id
         name
@@ -31,7 +31,7 @@ export const CREATE_API_KEY = gql`
 
 export const REVOKE_API_KEY = gql`
   mutation RevokeApiKey($id: ID!) {
-    revokeApiKey(input: { id: $id }) {
+    revokeApiKey(id: $id) {
       apiKey {
         id
         revoked
@@ -57,7 +57,7 @@ export const GET_SHARE_TOKENS = gql`
 
 export const CREATE_SHARE_TOKEN = gql`
   mutation CreateShareToken($widgetType: String!, $config: JSON, $expiresInDays: Int) {
-    createShareToken(input: { widgetType: $widgetType, config: $config, expiresInDays: $expiresInDays }) {
+    createShareToken(widgetType: $widgetType, config: $config, expiresInDays: $expiresInDays) {
       shareToken {
         id
         token
@@ -73,7 +73,7 @@ export const CREATE_SHARE_TOKEN = gql`
 
 export const REVOKE_SHARE_TOKEN = gql`
   mutation RevokeShareToken($id: ID!) {
-    revokeShareToken(input: { id: $id }) {
+    revokeShareToken(id: $id) {
       success
       errors
     }

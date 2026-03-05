@@ -4,6 +4,8 @@ import { useSettings } from '@/hooks/useSettings';
 import { useThemeContext } from '@/components/ThemeProvider';
 import { usePreferences } from '@/hooks/usePreferences';
 import { useTags } from '@/hooks/useTags';
+import { useApiKeys } from '@/hooks/useApiKeys';
+import { useShareTokens } from '@/hooks/useShareTokens';
 import { useQuery, useMutation } from '@apollo/client';
 import { GET_ACCOUNTS, GET_NOTIFICATION_PREFERENCES, GET_HOUSEHOLD_MEMBERS, GET_HOUSEHOLD_INVITATIONS, GET_MY_REFERRAL_CODE, GET_REFERRALS } from '@/graphql/queries';
 import { UPDATE_HOUSEHOLD, UPDATE_NOTIFICATION_PREFERENCE, UPDATE_TAG, DELETE_TAG, CREATE_TAG, EXPORT_DATA, DELETE_ACCOUNT, INVITE_TO_HOUSEHOLD, REMOVE_HOUSEHOLD_MEMBER, UPDATE_MEMBER_ROLE, CANCEL_INVITATION } from '@/graphql/mutations';
@@ -54,7 +56,7 @@ const CHANNELS = [
   { key: 'push', label: 'Push' },
 ];
 
-type TabId = 'profile' | 'preferences' | 'household' | 'members' | 'notifications' | 'tags' | 'referrals' | 'security' | 'data';
+type TabId = 'profile' | 'preferences' | 'household' | 'members' | 'notifications' | 'tags' | 'referrals' | 'security' | 'apikeys' | 'sharing' | 'data';
 
 export default function SettingsPage() {
   const { user } = useAuth();
@@ -115,6 +117,17 @@ export default function SettingsPage() {
   // Accounts (for default account preference)
   const { data: accountsData } = useQuery(GET_ACCOUNTS);
   const accounts = accountsData?.accounts || [];
+
+  // API Keys
+  const { apiKeys, loading: apiKeysLoading, creating: creatingKey, revoking: revokingKey, createApiKey, revokeApiKey } = useApiKeys();
+  const [newKeyName, setNewKeyName] = useState('');
+  const [newlyCreatedKey, setNewlyCreatedKey] = useState<string | null>(null);
+
+  // Share Tokens
+  const { shareTokens, loading: shareTokensLoading, creating: creatingToken, revoking: revokingToken, createShareToken, revokeShareToken } = useShareTokens();
+  const [newTokenWidgetType, setNewTokenWidgetType] = useState('net_worth');
+  const [newTokenExpiry, setNewTokenExpiry] = useState('');
+  const [newlyCreatedToken, setNewlyCreatedToken] = useState<string | null>(null);
 
   // Referrals
   const { data: referralCodeData } = useQuery(GET_MY_REFERRAL_CODE, { skip: activeTab !== 'referrals' });
@@ -334,6 +347,8 @@ export default function SettingsPage() {
     { id: 'notifications' as const, label: 'Notifications', icon: '🔔' },
     { id: 'tags' as const, label: 'Tags', icon: '🏷️' },
     { id: 'referrals' as const, label: 'Referrals', icon: '🎁' },
+    { id: 'apikeys' as const, label: 'API Keys', icon: '🔑' },
+    { id: 'sharing' as const, label: 'Sharing', icon: '🔗' },
     { id: 'security' as const, label: 'Security', icon: '🔒' },
     { id: 'data' as const, label: 'Data', icon: '📦' },
   ];
@@ -812,6 +827,286 @@ export default function SettingsPage() {
                 ))}
               </div>
             )}
+          </Card>
+        </div>
+      )}
+
+      {/* API Keys Tab */}
+      {activeTab === 'apikeys' && (
+        <div className="space-y-6">
+          <Card title="API Keys" subtitle="Create and manage API keys for programmatic access to your data.">
+            <form
+              onSubmit={async (e) => {
+                e.preventDefault();
+                if (!newKeyName.trim()) return;
+                try {
+                  const result = await createApiKey(newKeyName.trim());
+                  if (result?.errors?.length) {
+                    toast.error(result.errors[0]);
+                  } else {
+                    setNewlyCreatedKey(result?.apiKey?.key || null);
+                    setNewKeyName('');
+                    toast.success('API key created');
+                  }
+                } catch {
+                  toast.error('Failed to create API key');
+                }
+              }}
+              className="flex flex-col sm:flex-row gap-3 mb-6"
+            >
+              <div className="flex-1">
+                <Input
+                  type="text"
+                  placeholder="Key name (e.g., My Dashboard)"
+                  value={newKeyName}
+                  onChange={(e) => setNewKeyName(e.target.value)}
+                  required
+                />
+              </div>
+              <Button type="submit" loading={creatingKey}>
+                Generate Key
+              </Button>
+            </form>
+
+            {newlyCreatedKey && (
+              <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4 mb-6">
+                <p className="text-sm font-medium text-green-800 dark:text-green-300 mb-2">
+                  ✅ API key created — copy it now, it won&apos;t be shown again!
+                </p>
+                <div className="flex items-center gap-2">
+                  <code className="flex-1 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 px-3 py-2 rounded border border-green-300 dark:border-green-700 font-mono text-sm break-all">
+                    {newlyCreatedKey}
+                  </code>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => {
+                      navigator.clipboard.writeText(newlyCreatedKey);
+                      toast.success('Copied!');
+                    }}
+                  >
+                    📋 Copy
+                  </Button>
+                </div>
+                <button
+                  onClick={() => setNewlyCreatedKey(null)}
+                  className="mt-2 text-xs text-green-600 dark:text-green-400 hover:underline"
+                >
+                  Dismiss
+                </button>
+              </div>
+            )}
+
+            {apiKeysLoading ? (
+              <p className="text-sm text-gray-400 italic">Loading API keys...</p>
+            ) : apiKeys.length === 0 ? (
+              <p className="text-sm text-gray-400 dark:text-gray-500 italic">No API keys yet. Create one above to get started.</p>
+            ) : (
+              <div className="space-y-3">
+                {apiKeys.map((key) => (
+                  <div key={key.id} className="flex items-center justify-between py-3 border-b border-gray-100 dark:border-gray-700 last:border-0">
+                    <div className="flex items-center space-x-3">
+                      <span className="text-lg">🔑</span>
+                      <div>
+                        <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                          {key.name}
+                          {key.revoked && <span className="ml-2 text-xs text-red-500">(Revoked)</span>}
+                        </p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                          Created {new Date(key.createdAt).toLocaleDateString()}
+                          {key.lastUsedAt && ` · Last used ${new Date(key.lastUsedAt).toLocaleDateString()}`}
+                        </p>
+                      </div>
+                    </div>
+                    {!key.revoked && (
+                      <Button
+                        variant="danger"
+                        size="sm"
+                        loading={revokingKey}
+                        onClick={async () => {
+                          if (!confirm(`Revoke API key "${key.name}"? This cannot be undone.`)) return;
+                          try {
+                            await revokeApiKey(key.id);
+                            toast.success('API key revoked');
+                          } catch {
+                            toast.error('Failed to revoke key');
+                          }
+                        }}
+                      >
+                        Revoke
+                      </Button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </Card>
+
+          <Card title="Usage">
+            <div className="text-sm text-gray-600 dark:text-gray-400 space-y-2">
+              <p>Include your API key in the <code className="bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded text-xs">X-API-Key</code> header with every request.</p>
+              <pre className="bg-gray-900 text-gray-100 rounded-lg p-4 overflow-x-auto text-xs leading-relaxed">
+{`curl -H "X-API-Key: your_key_here" \\
+  ${window.location.origin}/api/v1/accounts`}
+              </pre>
+              <p>
+                See the <a href="/docs" className="text-brand-700 dark:text-brand-400 hover:underline font-medium">API Documentation</a> for all available endpoints.
+              </p>
+            </div>
+          </Card>
+        </div>
+      )}
+
+      {/* Sharing Tab */}
+      {activeTab === 'sharing' && (
+        <div className="space-y-6">
+          <Card title="Share Tokens" subtitle="Create tokens for embeddable widgets. Share tokens provide read-only access to specific data.">
+            <div className="flex flex-col sm:flex-row gap-3 mb-6">
+              <Select
+                label="Widget Type"
+                options={[
+                  { value: 'net_worth', label: 'Net Worth' },
+                  { value: 'spending', label: 'Monthly Spending' },
+                ]}
+                value={newTokenWidgetType}
+                onChange={(e) => setNewTokenWidgetType(e.target.value)}
+              />
+              <Select
+                label="Expires"
+                options={[
+                  { value: '', label: 'Never' },
+                  { value: '7', label: '7 days' },
+                  { value: '30', label: '30 days' },
+                  { value: '90', label: '90 days' },
+                  { value: '365', label: '1 year' },
+                ]}
+                value={newTokenExpiry}
+                onChange={(e) => setNewTokenExpiry(e.target.value)}
+              />
+              <div className="flex items-end">
+                <Button
+                  loading={creatingToken}
+                  onClick={async () => {
+                    try {
+                      const result = await createShareToken(
+                        newTokenWidgetType,
+                        newTokenExpiry ? parseInt(newTokenExpiry) : undefined
+                      );
+                      if (result?.errors?.length) {
+                        toast.error(result.errors[0]);
+                      } else {
+                        setNewlyCreatedToken(result?.shareToken?.token || null);
+                        toast.success('Share token created');
+                      }
+                    } catch {
+                      toast.error('Failed to create share token');
+                    }
+                  }}
+                >
+                  Create Token
+                </Button>
+              </div>
+            </div>
+
+            {newlyCreatedToken && (
+              <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6">
+                <p className="text-sm font-medium text-blue-800 dark:text-blue-300 mb-2">
+                  ✅ Share token created
+                </p>
+                <div className="flex items-center gap-2">
+                  <code className="flex-1 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 px-3 py-2 rounded border border-blue-300 dark:border-blue-700 font-mono text-sm break-all">
+                    {newlyCreatedToken}
+                  </code>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => {
+                      navigator.clipboard.writeText(newlyCreatedToken);
+                      toast.success('Copied!');
+                    }}
+                  >
+                    📋 Copy
+                  </Button>
+                </div>
+                <button
+                  onClick={() => setNewlyCreatedToken(null)}
+                  className="mt-2 text-xs text-blue-600 dark:text-blue-400 hover:underline"
+                >
+                  Dismiss
+                </button>
+              </div>
+            )}
+
+            {shareTokensLoading ? (
+              <p className="text-sm text-gray-400 italic">Loading share tokens...</p>
+            ) : shareTokens.length === 0 ? (
+              <p className="text-sm text-gray-400 dark:text-gray-500 italic">No share tokens yet. Create one to embed widgets on external sites.</p>
+            ) : (
+              <div className="space-y-3">
+                {shareTokens.map((token) => (
+                  <div key={token.id} className="flex items-center justify-between py-3 border-b border-gray-100 dark:border-gray-700 last:border-0">
+                    <div className="flex items-center space-x-3">
+                      <span className="text-lg">🔗</span>
+                      <div>
+                        <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                          {token.widgetType === 'net_worth' ? 'Net Worth Widget' : 'Spending Widget'}
+                        </p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                          Created {new Date(token.createdAt).toLocaleDateString()}
+                          {token.expiresAt ? ` · Expires ${new Date(token.expiresAt).toLocaleDateString()}` : ' · Never expires'}
+                        </p>
+                        <p className="text-xs text-gray-400 dark:text-gray-500 font-mono mt-0.5">
+                          {token.token.slice(0, 12)}...
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        onClick={() => {
+                          navigator.clipboard.writeText(token.token);
+                          toast.success('Token copied');
+                        }}
+                      >
+                        Copy
+                      </Button>
+                      <Button
+                        variant="danger"
+                        size="sm"
+                        loading={revokingToken}
+                        onClick={async () => {
+                          if (!confirm('Revoke this share token? Any embeds using it will stop working.')) return;
+                          try {
+                            await revokeShareToken(token.id);
+                            toast.success('Share token revoked');
+                          } catch {
+                            toast.error('Failed to revoke token');
+                          }
+                        }}
+                      >
+                        Revoke
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </Card>
+
+          <Card title="Embedding">
+            <div className="text-sm text-gray-600 dark:text-gray-400 space-y-2">
+              <p>Use share tokens with the embed endpoints to display widgets on any website:</p>
+              <pre className="bg-gray-900 text-gray-100 rounded-lg p-4 overflow-x-auto text-xs leading-relaxed">
+{`<iframe
+  src="${window.location.origin}/api/v1/embed/net_worth?token=YOUR_TOKEN"
+  width="400" height="200" frameborder="0"
+></iframe>`}
+              </pre>
+              <p>
+                See the <a href="/docs#embeds" className="text-brand-700 dark:text-brand-400 hover:underline font-medium">Embeddable Widgets documentation</a> for more details.
+              </p>
+            </div>
           </Card>
         </div>
       )}
