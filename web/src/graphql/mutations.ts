@@ -1003,3 +1003,12 @@ export const TRIGGER_NOTIFICATION_CHECK = gql`
     }
   }
 `;
+
+export const BACKFILL_BALANCE_HISTORY = gql`
+  mutation BackfillBalanceHistory($months: Int) {
+    backfillBalanceHistory(months: $months) {
+      accountsProcessed
+      snapshotsCreated
+    }
+  }
+`;

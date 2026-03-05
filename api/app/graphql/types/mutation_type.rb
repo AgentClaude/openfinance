@@ -68,5 +68,8 @@ module Types
     field :delete_merchant_mapping, mutation: Mutations::DeleteMerchantMapping
     field :apply_merchant_mappings, mutation: Mutations::ApplyMerchantMappings
     field :suggest_merchant_mappings, mutation: Mutations::SuggestMerchantMappings
+
+    # Balance history
+    field :backfill_balance_history, mutation: Mutations::BackfillBalanceHistory
   end
 end

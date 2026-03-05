@@ -5,7 +5,7 @@ import {
 } from 'recharts';
 import { useQuery, useMutation } from '@apollo/client';
 import { GET_NET_WORTH_HISTORY, GET_ACCOUNTS } from '@/graphql/queries';
-import { ADJUST_BALANCE } from '@/graphql/mutations';
+import { ADJUST_BALANCE, BACKFILL_BALANCE_HISTORY } from '@/graphql/mutations';
 import PageHeader from '@/components/ui/PageHeader';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import { StatCard, ChartCard } from '@/components/shared';
@@ -62,11 +62,21 @@ const NetWorthPage: React.FC = () => {
   const [timeRange, setTimeRange] = useState<TimeRange>('1Y');
   const months = TIME_RANGE_MONTHS[timeRange];
 
-  const { data: nwData, loading: nwLoading } = useQuery(GET_NET_WORTH_HISTORY, {
+  const { data: nwData, loading: nwLoading, refetch: refetchHistory } = useQuery(GET_NET_WORTH_HISTORY, {
     variables: { months },
   });
 
   const { data: accData, loading: accLoading } = useQuery(GET_ACCOUNTS);
+
+  const [backfillHistory, { loading: backfilling }] = useMutation(BACKFILL_BALANCE_HISTORY, {
+    variables: { months: 12 },
+    onCompleted: (data) => {
+      const { snapshotsCreated } = data.backfillBalanceHistory;
+      if (snapshotsCreated > 0) {
+        refetchHistory();
+      }
+    },
+  });
 
   const history: NetWorthSnapshot[] = nwData?.netWorthHistory || [];
   const accounts: Account[] = accData?.accounts || [];
@@ -172,9 +182,18 @@ const NetWorthPage: React.FC = () => {
             </ChartCard>
           ) : (
             <ChartCard title="Net Worth Over Time">
-              <p className="text-gray-500 dark:text-gray-400 text-sm py-8 text-center">
-                No balance history data available. Net worth tracking requires account balance snapshots.
-              </p>
+              <div className="flex flex-col items-center gap-4 py-8">
+                <p className="text-gray-500 dark:text-gray-400 text-sm text-center">
+                  No balance history data available. Generate historical snapshots from your transaction data to see trends.
+                </p>
+                <button
+                  onClick={() => backfillHistory()}
+                  disabled={backfilling}
+                  className="px-4 py-2 bg-brand-600 text-white rounded-md hover:bg-brand-700 disabled:opacity-50 text-sm font-medium"
+                >
+                  {backfilling ? 'Generating...' : 'Generate Balance History'}
+                </button>
+              </div>
             </ChartCard>
           )}
 
