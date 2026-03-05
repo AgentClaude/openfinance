@@ -193,46 +193,42 @@ test.describe('Settings', () => {
   test.describe('API Keys Tab', () => {
     test('shows API keys management UI', async ({ page }) => {
       const apikeysTab = page.getByText(/^API Keys$/i).first();
-      if (await apikeysTab.isVisible({ timeout: 3000 }).catch(() => false)) {
-        await apikeysTab.click();
-        await page.waitForTimeout(500);
-        await expect(
-          page.getByRole('button', { name: /generate key/i }).first()
-        ).toBeVisible({ timeout: 5000 });
-        await takeScreenshot(page, 'settings-apikeys');
-      }
+      await expect(apikeysTab).toBeVisible({ timeout: 5000 });
+      await apikeysTab.click();
+      await page.waitForTimeout(500);
+      await expect(
+        page.getByRole('button', { name: /generate key/i }).first()
+      ).toBeVisible({ timeout: 5000 });
+      await takeScreenshot(page, 'settings-apikeys');
     });
 
     test('shows usage instructions', async ({ page }) => {
       const apikeysTab = page.getByText(/^API Keys$/i).first();
-      if (await apikeysTab.isVisible({ timeout: 3000 }).catch(() => false)) {
-        await apikeysTab.click();
-        await page.waitForTimeout(500);
-        await expect(page.getByText(/X-API-Key/i).first()).toBeVisible({ timeout: 5000 });
-      }
+      await expect(apikeysTab).toBeVisible({ timeout: 5000 });
+      await apikeysTab.click();
+      await page.waitForTimeout(500);
+      await expect(page.getByText(/X-API-Key/i).first()).toBeVisible({ timeout: 5000 });
     });
   });
 
   test.describe('Sharing Tab', () => {
     test('shows share token management UI', async ({ page }) => {
       const sharingTab = page.getByText(/^Sharing$/i).first();
-      if (await sharingTab.isVisible({ timeout: 3000 }).catch(() => false)) {
-        await sharingTab.click();
-        await page.waitForTimeout(500);
-        await expect(
-          page.getByRole('button', { name: /create token/i }).first()
-        ).toBeVisible({ timeout: 5000 });
-        await takeScreenshot(page, 'settings-sharing');
-      }
+      await expect(sharingTab).toBeVisible({ timeout: 5000 });
+      await sharingTab.click();
+      await page.waitForTimeout(500);
+      await expect(
+        page.getByRole('button', { name: /create token/i }).first()
+      ).toBeVisible({ timeout: 5000 });
+      await takeScreenshot(page, 'settings-sharing');
     });
 
     test('shows embedding instructions', async ({ page }) => {
       const sharingTab = page.getByText(/^Sharing$/i).first();
-      if (await sharingTab.isVisible({ timeout: 3000 }).catch(() => false)) {
-        await sharingTab.click();
-        await page.waitForTimeout(500);
-        await expect(page.getByText(/iframe/i).first()).toBeVisible({ timeout: 5000 });
-      }
+      await expect(sharingTab).toBeVisible({ timeout: 5000 });
+      await sharingTab.click();
+      await page.waitForTimeout(500);
+      await expect(page.getByText(/iframe/i).first()).toBeVisible({ timeout: 5000 });
     });
   });
 

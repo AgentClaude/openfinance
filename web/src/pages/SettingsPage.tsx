@@ -119,15 +119,17 @@ export default function SettingsPage() {
   const accounts = accountsData?.accounts || [];
 
   // API Keys
-  const { apiKeys, loading: apiKeysLoading, creating: creatingKey, revoking: revokingKey, createApiKey, revokeApiKey } = useApiKeys();
+  const { apiKeys, loading: apiKeysLoading, creating: creatingKey, createApiKey, revokeApiKey } = useApiKeys();
   const [newKeyName, setNewKeyName] = useState('');
   const [newlyCreatedKey, setNewlyCreatedKey] = useState<string | null>(null);
+  const [revokingKeyId, setRevokingKeyId] = useState<string | null>(null);
 
   // Share Tokens
-  const { shareTokens, loading: shareTokensLoading, creating: creatingToken, revoking: revokingToken, createShareToken, revokeShareToken } = useShareTokens();
+  const { shareTokens, loading: shareTokensLoading, creating: creatingToken, createShareToken, revokeShareToken } = useShareTokens();
   const [newTokenWidgetType, setNewTokenWidgetType] = useState('net_worth');
   const [newTokenExpiry, setNewTokenExpiry] = useState('');
   const [newlyCreatedToken, setNewlyCreatedToken] = useState<string | null>(null);
+  const [revokingTokenId, setRevokingTokenId] = useState<string | null>(null);
 
   // Referrals
   const { data: referralCodeData } = useQuery(GET_MY_REFERRAL_CODE, { skip: activeTab !== 'referrals' });
@@ -844,7 +846,7 @@ export default function SettingsPage() {
                   if (result?.errors?.length) {
                     toast.error(result.errors[0]);
                   } else {
-                    setNewlyCreatedKey(result?.apiKey?.key || null);
+                    setNewlyCreatedKey(result?.plainTextKey || null);
                     setNewKeyName('');
                     toast.success('API key created');
                   }
@@ -922,14 +924,17 @@ export default function SettingsPage() {
                       <Button
                         variant="danger"
                         size="sm"
-                        loading={revokingKey}
+                        loading={revokingKeyId === key.id}
                         onClick={async () => {
                           if (!confirm(`Revoke API key "${key.name}"? This cannot be undone.`)) return;
+                          setRevokingKeyId(key.id);
                           try {
                             await revokeApiKey(key.id);
                             toast.success('API key revoked');
                           } catch {
                             toast.error('Failed to revoke key');
+                          } finally {
+                            setRevokingKeyId(null);
                           }
                         }}
                       >
@@ -1074,14 +1079,17 @@ export default function SettingsPage() {
                       <Button
                         variant="danger"
                         size="sm"
-                        loading={revokingToken}
+                        loading={revokingTokenId === token.id}
                         onClick={async () => {
                           if (!confirm('Revoke this share token? Any embeds using it will stop working.')) return;
+                          setRevokingTokenId(token.id);
                           try {
                             await revokeShareToken(token.id);
                             toast.success('Share token revoked');
                           } catch {
                             toast.error('Failed to revoke token');
+                          } finally {
+                            setRevokingTokenId(null);
                           }
                         }}
                       >

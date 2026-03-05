@@ -24,6 +24,7 @@ export const CREATE_API_KEY = gql`
         createdAt
         revoked
       }
+      plainTextKey
       errors
     }
   }
