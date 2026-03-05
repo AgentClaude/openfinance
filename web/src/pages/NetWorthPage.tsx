@@ -8,6 +8,7 @@ import { GET_NET_WORTH_HISTORY, GET_ACCOUNTS } from '@/graphql/queries';
 import { ADJUST_BALANCE, BACKFILL_BALANCE_HISTORY } from '@/graphql/mutations';
 import PageHeader from '@/components/ui/PageHeader';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import Button from '@/components/ui/Button';
 import { StatCard, ChartCard } from '@/components/shared';
 
 const COLORS = [
@@ -68,13 +69,18 @@ const NetWorthPage: React.FC = () => {
 
   const { data: accData, loading: accLoading } = useQuery(GET_ACCOUNTS);
 
+  const [backfillError, setBackfillError] = useState<string | null>(null);
   const [backfillHistory, { loading: backfilling }] = useMutation(BACKFILL_BALANCE_HISTORY, {
     variables: { months: 12 },
     onCompleted: (data) => {
+      setBackfillError(null);
       const { snapshotsCreated } = data.backfillBalanceHistory;
       if (snapshotsCreated > 0) {
         refetchHistory();
       }
+    },
+    onError: (error) => {
+      setBackfillError(error.message || 'Failed to generate balance history');
     },
   });
 
@@ -186,13 +192,18 @@ const NetWorthPage: React.FC = () => {
                 <p className="text-gray-500 dark:text-gray-400 text-sm text-center">
                   No balance history data available. Generate historical snapshots from your transaction data to see trends.
                 </p>
-                <button
+                <Button
                   onClick={() => backfillHistory()}
                   disabled={backfilling}
-                  className="px-4 py-2 bg-brand-600 text-white rounded-md hover:bg-brand-700 disabled:opacity-50 text-sm font-medium"
+                  loading={backfilling}
+                  variant="primary"
+                  size="sm"
                 >
-                  {backfilling ? 'Generating...' : 'Generate Balance History'}
-                </button>
+                  Generate Balance History
+                </Button>
+                {backfillError && (
+                  <p className="text-danger-600 dark:text-danger-400 text-sm">{backfillError}</p>
+                )}
               </div>
             </ChartCard>
           )}

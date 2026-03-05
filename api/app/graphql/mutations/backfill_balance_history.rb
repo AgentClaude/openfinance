@@ -23,7 +23,7 @@ module Mutations
         end
       end
 
-      log_activity(action: 'backfill_balance_history', metadata: {
+      log_activity(action: 'backfill_balance_history', resource: hh, metadata: {
         accounts_processed: accounts_processed,
         snapshots_created: total_created,
         months: months

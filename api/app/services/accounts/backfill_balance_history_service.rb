@@ -21,18 +21,21 @@ module Accounts
       today = Date.current
 
       # Get monthly transaction sums (net change per month)
-      monthly_changes = account.transactions
+      # Cast to date so hash keys are Date objects matching our lookups
+      raw_changes = account.transactions
         .where('date >= ?', months.months.ago.beginning_of_month)
         .group("DATE_TRUNC('month', date)")
         .sum(:amount_cents)
 
-      # Build snapshots from most recent month backwards
+      # Normalize keys to Date for consistent lookup
+      monthly_changes = raw_changes.transform_keys { |k| k.to_date }
+
+      # Build snapshots from present backwards, subtracting each month's
+      # net transaction change to reconstruct historical balances.
       running_balance = current_balance
 
-      # First, create today's snapshot
-      months.downto(0) do |months_ago|
-        snapshot_date = (today - months_ago.months).end_of_month
-        snapshot_date = today if months_ago == 0
+      0.upto(months) do |months_ago|
+        snapshot_date = months_ago == 0 ? today : (today - months_ago.months).end_of_month
 
         # Skip future dates
         next if snapshot_date > today
@@ -48,8 +51,7 @@ module Accounts
         )
         created += 1
 
-        # For next iteration (going further back), subtract this month's transactions
-        # to estimate what the balance was before
+        # Subtract this month's net transactions to estimate prior month's balance
         month_key = snapshot_date.beginning_of_month
         month_change = monthly_changes[month_key] || 0
         running_balance -= month_change
