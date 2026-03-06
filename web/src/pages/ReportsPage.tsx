@@ -13,7 +13,9 @@ import { useReports } from '@/hooks/useReports';
 import { GET_NET_WORTH_HISTORY, GET_CATEGORY_TRENDS, GET_CATEGORIES, GET_ACCOUNTS, GET_TAGS } from '@/graphql/queries';
 import PageHeader from '@/components/ui/PageHeader';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import DataTable from '@/components/ui/DataTable';
 import { StatCard, ChartCard } from '@/components/shared';
+import { ColumnConfig } from '@/types';
 
 const COLORS = [
   '#0D9488', '#F59E0B', '#7C3AED', '#E11D48', '#0EA5E9',
@@ -459,48 +461,60 @@ const SpendingReport: React.FC<{ reports: any }> = ({ reports }) => {
 
       {/* Category breakdown table */}
       <ChartCard title="Category Breakdown">
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead>
-              <tr>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Category</th>
-                <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Amount</th>
-                <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">%</th>
-                <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Transactions</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Distribution</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-              {spendingByCategory.map((cat: any, i: number) => (
-                <tr key={cat.categoryId || i} className="hover:bg-gray-50 dark:hover:bg-slate-700/50">
-                  <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
-                    {cat.categoryIcon} {cat.categoryName}
-                  </td>
-                  <td className="px-4 py-3 text-sm text-right font-medium text-gray-900 dark:text-gray-100">
-                    {formatCurrency(cat.amount)}
-                  </td>
-                  <td className="px-4 py-3 text-sm text-right text-gray-500 dark:text-gray-400">
-                    {cat.percentage}%
-                  </td>
-                  <td className="px-4 py-3 text-sm text-right text-gray-500 dark:text-gray-400">
-                    {cat.transactionCount}
-                  </td>
-                  <td className="px-4 py-3 w-40">
+        <div className="-mx-6 -mb-4">
+          {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+          <DataTable<any>
+            columns={[
+              {
+                key: 'categoryName',
+                label: 'Category',
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                render: (cat: any) => <span>{cat.categoryIcon} {cat.categoryName}</span>,
+              },
+              {
+                key: 'amount',
+                label: 'Amount',
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                render: (cat: any) => <span className="font-medium">{formatCurrency(cat.amount)}</span>,
+              },
+              {
+                key: 'percentage',
+                label: '%',
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                render: (cat: any) => <span className="text-gray-500 dark:text-gray-400">{cat.percentage}%</span>,
+              },
+              {
+                key: 'transactionCount',
+                label: 'Transactions',
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                render: (cat: any) => <span className="text-gray-500 dark:text-gray-400">{cat.transactionCount}</span>,
+              },
+              {
+                key: 'distribution',
+                label: 'Distribution',
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                render: (cat: any) => {
+                  const idx = spendingByCategory.indexOf(cat);
+                  return (
                     <div className="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2.5">
                       <div
                         className="h-2.5 rounded-full transition-all"
                         style={{
                           width: `${cat.percentage}%`,
-                          backgroundColor: COLORS[i % COLORS.length],
+                          backgroundColor: COLORS[idx % COLORS.length],
                         }}
                       />
                     </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                  );
+                },
+              },
+            ] as ColumnConfig<any>[]}
+            data={spendingByCategory}
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            getRowId={(cat: any) => cat.categoryId || cat.categoryName}
+            emptyTitle="No spending data"
+            emptyDescription="No transactions found for the selected period."
+          />
         </div>
       </ChartCard>
     </div>

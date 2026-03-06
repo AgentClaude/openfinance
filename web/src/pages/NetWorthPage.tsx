@@ -9,7 +9,9 @@ import { ADJUST_BALANCE, BACKFILL_BALANCE_HISTORY } from '@/graphql/mutations';
 import PageHeader from '@/components/ui/PageHeader';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import Button from '@/components/ui/Button';
+import DataTable from '@/components/ui/DataTable';
 import { StatCard, ChartCard } from '@/components/shared';
+import { ColumnConfig } from '@/types';
 
 const COLORS = [
   '#0D9488', '#F59E0B', '#7C3AED', '#E11D48', '#0EA5E9',
@@ -242,90 +244,110 @@ const NetWorthPage: React.FC = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Assets Table */}
             <ChartCard title={`Assets (${formatCurrency(totalAssets)})`}>
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                  <thead>
-                    <tr>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Account</th>
-                      <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Balance</th>
-                      <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">% of Assets</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Contribution</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
-                    {assetAccounts.map((acc, i) => {
-                      const pct = totalAssets > 0 ? (acc.balance / totalAssets * 100) : 0;
-                      return (
-                        <tr key={acc.id} className="hover:bg-gray-50 dark:hover:bg-slate-700/50">
-                          <td className="px-4 py-3">
-                            <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{acc.name}</div>
-                            <div className="text-xs text-gray-500 dark:text-gray-400">{formatAccountType(acc.type)}</div>
-                          </td>
-                          <td className="px-4 py-3 text-sm text-right font-medium text-green-600">{formatCurrency(acc.balance)}</td>
-                          <td className="px-4 py-3 text-sm text-right text-gray-500 dark:text-gray-400">{pct.toFixed(1)}%</td>
-                          <td className="px-4 py-3 w-32">
-                            <div className="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2">
-                              <div
-                                className="h-2 rounded-full"
-                                style={{ width: `${Math.min(pct, 100)}%`, backgroundColor: COLORS[i % COLORS.length] }}
-                              />
-                            </div>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                    {assetAccounts.length === 0 && (
-                      <tr>
-                        <td colSpan={4} className="px-4 py-6 text-sm text-gray-500 dark:text-gray-400 text-center">No asset accounts</td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
+              <div className="-mx-6 -mb-4">
+                <DataTable<Account>
+                  columns={[
+                    {
+                      key: 'name',
+                      label: 'Account',
+                      render: (acc) => (
+                        <div>
+                          <div className="font-medium text-gray-900 dark:text-gray-100">{acc.name}</div>
+                          <div className="text-xs text-gray-500 dark:text-gray-400">{formatAccountType(acc.type)}</div>
+                        </div>
+                      ),
+                    },
+                    {
+                      key: 'balance',
+                      label: 'Balance',
+                      render: (acc) => (
+                        <span className="font-medium text-green-600">{formatCurrency(acc.balance)}</span>
+                      ),
+                    },
+                    {
+                      key: 'percent',
+                      label: '% of Assets',
+                      render: (acc) => {
+                        const pct = totalAssets > 0 ? (acc.balance / totalAssets * 100) : 0;
+                        return <span className="text-gray-500 dark:text-gray-400">{pct.toFixed(1)}%</span>;
+                      },
+                    },
+                    {
+                      key: 'contribution',
+                      label: 'Contribution',
+                      render: (acc) => {
+                        const pct = totalAssets > 0 ? (acc.balance / totalAssets * 100) : 0;
+                        const idx = assetAccounts.indexOf(acc);
+                        return (
+                          <div className="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2">
+                            <div
+                              className="h-2 rounded-full"
+                              style={{ width: `${Math.min(pct, 100)}%`, backgroundColor: COLORS[idx % COLORS.length] }}
+                            />
+                          </div>
+                        );
+                      },
+                    },
+                  ] as ColumnConfig<Account>[]}
+                  data={assetAccounts}
+                  getRowId={(acc) => acc.id}
+                  emptyTitle="No asset accounts"
+                />
               </div>
             </ChartCard>
 
             {/* Liabilities Table */}
             <ChartCard title={`Liabilities (${formatCurrency(totalLiabilities)})`}>
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                  <thead>
-                    <tr>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Account</th>
-                      <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Balance</th>
-                      <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">% of Liabilities</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Contribution</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
-                    {liabilityAccounts.map((acc, i) => {
-                      const absBalance = Math.abs(acc.balance);
-                      const pct = totalLiabilities > 0 ? (absBalance / totalLiabilities * 100) : 0;
-                      return (
-                        <tr key={acc.id} className="hover:bg-gray-50 dark:hover:bg-slate-700/50">
-                          <td className="px-4 py-3">
-                            <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{acc.name}</div>
-                            <div className="text-xs text-gray-500 dark:text-gray-400">{formatAccountType(acc.type)}</div>
-                          </td>
-                          <td className="px-4 py-3 text-sm text-right font-medium text-red-600">{formatCurrency(absBalance)}</td>
-                          <td className="px-4 py-3 text-sm text-right text-gray-500 dark:text-gray-400">{pct.toFixed(1)}%</td>
-                          <td className="px-4 py-3 w-32">
-                            <div className="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2">
-                              <div
-                                className="h-2 rounded-full"
-                                style={{ width: `${Math.min(pct, 100)}%`, backgroundColor: COLORS[(i + 5) % COLORS.length] }}
-                              />
-                            </div>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                    {liabilityAccounts.length === 0 && (
-                      <tr>
-                        <td colSpan={4} className="px-4 py-6 text-sm text-gray-500 dark:text-gray-400 text-center">No liability accounts</td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
+              <div className="-mx-6 -mb-4">
+                <DataTable<Account>
+                  columns={[
+                    {
+                      key: 'name',
+                      label: 'Account',
+                      render: (acc) => (
+                        <div>
+                          <div className="font-medium text-gray-900 dark:text-gray-100">{acc.name}</div>
+                          <div className="text-xs text-gray-500 dark:text-gray-400">{formatAccountType(acc.type)}</div>
+                        </div>
+                      ),
+                    },
+                    {
+                      key: 'balance',
+                      label: 'Balance',
+                      render: (acc) => (
+                        <span className="font-medium text-red-600">{formatCurrency(Math.abs(acc.balance))}</span>
+                      ),
+                    },
+                    {
+                      key: 'percent',
+                      label: '% of Liabilities',
+                      render: (acc) => {
+                        const pct = totalLiabilities > 0 ? (Math.abs(acc.balance) / totalLiabilities * 100) : 0;
+                        return <span className="text-gray-500 dark:text-gray-400">{pct.toFixed(1)}%</span>;
+                      },
+                    },
+                    {
+                      key: 'contribution',
+                      label: 'Contribution',
+                      render: (acc) => {
+                        const absBalance = Math.abs(acc.balance);
+                        const pct = totalLiabilities > 0 ? (absBalance / totalLiabilities * 100) : 0;
+                        const idx = liabilityAccounts.indexOf(acc);
+                        return (
+                          <div className="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2">
+                            <div
+                              className="h-2 rounded-full"
+                              style={{ width: `${Math.min(pct, 100)}%`, backgroundColor: COLORS[(idx + 5) % COLORS.length] }}
+                            />
+                          </div>
+                        );
+                      },
+                    },
+                  ] as ColumnConfig<Account>[]}
+                  data={liabilityAccounts}
+                  getRowId={(acc) => acc.id}
+                  emptyTitle="No liability accounts"
+                />
               </div>
             </ChartCard>
           </div>

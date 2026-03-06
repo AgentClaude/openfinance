@@ -1,8 +1,9 @@
 import React, { useState, useMemo } from 'react';
 import { useInvestments, PortfolioHistoryPoint } from '@/hooks/useInvestments';
 import { useAccounts } from '@/hooks/useAccounts';
-import { LoadingSpinner } from '@/components/LoadingSpinner';
+import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import { Holding, PortfolioAllocation } from '@/types';
+import { StatCard, ChartCard } from '@/components/shared';
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, Legend,
@@ -15,7 +16,6 @@ import {
   CurrencyDollarIcon,
   ChartPieIcon,
   ScaleIcon,
-  ChartBarIcon,
 } from '@heroicons/react/24/outline';
 
 const COLORS = [
@@ -388,52 +388,34 @@ const InvestmentsPage: React.FC = () => {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-5">
-          <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-1">
-            <CurrencyDollarIcon className="h-4 w-4" />
-            Portfolio Value
-          </div>
-          <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">{formatCurrency(summary.totalValue)}</div>
-        </div>
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-5">
-          <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-1">
-            <ScaleIcon className="h-4 w-4" />
-            Cost Basis
-          </div>
-          <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">{formatCurrency(summary.totalCostBasis)}</div>
-        </div>
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-5">
-          <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-1">
-            {isPositive ? <ArrowTrendingUpIcon className="h-4 w-4 text-green-500" /> : <ArrowTrendingDownIcon className="h-4 w-4 text-red-500" />}
-            Total Gain/Loss
-          </div>
-          <div className={`text-2xl font-bold ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
-            {formatCurrency(Math.abs(summary.totalGainLoss))}
-          </div>
-          <div className={`text-sm ${isPositive ? 'text-green-500' : 'text-red-500'}`}>
-            {formatPercent(summary.totalGainLossPercentage)}
-          </div>
-        </div>
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-5">
-          <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-1">
-            <ChartPieIcon className="h-4 w-4" />
-            Holdings
-          </div>
-          <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">{summary.totalHoldingsCount}</div>
-          <div className="text-sm text-gray-500 dark:text-gray-400">
-            {investmentAccounts.length} account{investmentAccounts.length !== 1 ? 's' : ''}
-          </div>
-        </div>
+        <StatCard
+          label="Portfolio Value"
+          value={formatCurrency(summary.totalValue)}
+          icon={<CurrencyDollarIcon className="h-5 w-5" />}
+        />
+        <StatCard
+          label="Cost Basis"
+          value={formatCurrency(summary.totalCostBasis)}
+          icon={<ScaleIcon className="h-5 w-5" />}
+        />
+        <StatCard
+          label="Total Gain/Loss"
+          value={formatCurrency(Math.abs(summary.totalGainLoss))}
+          valueClassName={isPositive ? 'text-green-600' : 'text-red-600'}
+          trend={{ direction: isPositive ? 'up' : 'down', value: formatPercent(summary.totalGainLossPercentage) }}
+          icon={isPositive ? <ArrowTrendingUpIcon className="h-5 w-5 text-green-500" /> : <ArrowTrendingDownIcon className="h-5 w-5 text-red-500" />}
+        />
+        <StatCard
+          label="Holdings"
+          value={summary.totalHoldingsCount}
+          icon={<ChartPieIcon className="h-5 w-5" />}
+        />
       </div>
 
       {activeTab === 'overview' ? (
         <>
           {/* Performance Chart */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-5">
-            <div className="flex items-center gap-2 mb-4">
-              <ChartBarIcon className="h-5 w-5 text-gray-400" />
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Portfolio Performance</h2>
-            </div>
+          <ChartCard title="Portfolio Performance">
             <PerformanceChart history={history} />
             {history.length >= 2 && (
               <div className="mt-3 flex items-center gap-6 text-xs text-gray-500 dark:text-gray-400">
@@ -447,34 +429,27 @@ const InvestmentsPage: React.FC = () => {
                 </div>
               </div>
             )}
-          </div>
+          </ChartCard>
 
           {/* Allocation Charts */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-5">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">By Security</h2>
+            <ChartCard title="By Security">
               <AllocationPieChart allocations={summary.allocations} />
-            </div>
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-5">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">By Asset Type</h2>
+            </ChartCard>
+            <ChartCard title="By Asset Type">
               <TypeAllocationChart allocations={summary.allocations} />
-            </div>
+            </ChartCard>
           </div>
         </>
       ) : (
         /* Holdings Table */
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden min-w-0">
-          <div className="px-5 py-4 border-b border-gray-200 dark:border-gray-700">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-              All Holdings ({holdings.length})
-            </h2>
-          </div>
+        <ChartCard title={`All Holdings (${holdings.length})`}>
           {holdings.length === 0 ? (
             <div className="p-8 text-center text-gray-400">
               No investment holdings found. Connect a brokerage account or add manual investment accounts.
             </div>
           ) : (
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto -mx-6 -mb-4">
               <table className="w-full">
                 <thead className="bg-gray-50 dark:bg-slate-800/50 text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                   <tr>
@@ -494,7 +469,7 @@ const InvestmentsPage: React.FC = () => {
               </table>
             </div>
           )}
-        </div>
+        </ChartCard>
       )}
     </div>
   );
