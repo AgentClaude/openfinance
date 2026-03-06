@@ -92,11 +92,11 @@ export const useAdjustBalance = () => {
   return { adjust, loading };
 };
 
-export const useBackfillHistory = (onSuccess?: () => void) => {
+export const useBackfillHistory = (months: number = 12, onSuccess?: () => void) => {
   const [backfillError, setBackfillError] = useState<string | null>(null);
 
   const [backfillHistory, { loading: backfilling }] = useMutation(BACKFILL_BALANCE_HISTORY, {
-    variables: { months: 12 },
+    variables: { months },
     onCompleted: (data) => {
       setBackfillError(null);
       if (data.backfillBalanceHistory.snapshotsCreated > 0) {

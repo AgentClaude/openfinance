@@ -112,7 +112,7 @@ const NetWorthPage: React.FC = () => {
     refetchHistory,
   } = useNetWorth(months);
 
-  const { backfillHistory, backfilling, backfillError } = useBackfillHistory(() => {
+  const { backfillHistory, backfilling, backfillError } = useBackfillHistory(12, () => {
     refetchHistory();
   });
 
@@ -134,8 +134,8 @@ const NetWorthPage: React.FC = () => {
     [liabilityAccounts, totalLiabilities]
   );
 
-  const assetColumns = useMemo(() => buildAccountColumns('text-green-600', 'Assets'), []);
-  const liabilityColumns = useMemo(() => buildAccountColumns('text-red-600', 'Liabilities'), []);
+  const assetColumns = useMemo(() => buildAccountColumns('text-green-600', 'Assets'), ['text-green-600', 'Assets']);
+  const liabilityColumns = useMemo(() => buildAccountColumns('text-red-600', 'Liabilities'), ['text-red-600', 'Liabilities']);
 
   const timeRanges: TimeRange[] = ['1M', '3M', '6M', '1Y', 'ALL'];
 
@@ -311,16 +311,20 @@ const ManualBalanceUpdate: React.FC<{ accounts: NetWorthAccount[] }> = ({ accoun
     e.preventDefault();
     if (!selectedAccountId || !newBalance) return;
 
-    const result = await adjust(selectedAccountId, parseFloat(newBalance), notes || undefined);
-    if (result?.errors?.length > 0) {
-      setSuccessMsg(`Error: ${result.errors.join(', ')}`);
-    } else {
-      const acctName = manualAccounts.find(a => a.id === selectedAccountId)?.name || 'Account';
-      setSuccessMsg(`${acctName} balance updated to ${formatCurrency(parseFloat(newBalance))}`);
-      setNewBalance('');
-      setNotes('');
-      setSelectedAccountId('');
-      setTimeout(() => setSuccessMsg(''), 5000);
+    try {
+      const result = await adjust(selectedAccountId, parseFloat(newBalance), notes || undefined);
+      if (result?.errors?.length > 0) {
+        setSuccessMsg(`Error: ${result.errors.join(', ')}`);
+      } else {
+        const acctName = manualAccounts.find(a => a.id === selectedAccountId)?.name || 'Account';
+        setSuccessMsg(`${acctName} balance updated to ${formatCurrency(parseFloat(newBalance))}`);
+        setNewBalance('');
+        setNotes('');
+        setSelectedAccountId('');
+        setTimeout(() => setSuccessMsg(''), 5000);
+      }
+    } catch (err) {
+      setSuccessMsg(`Error: ${err instanceof Error ? err.message : 'Failed to update balance'}`);
     }
   };
 
