@@ -62,6 +62,15 @@ Rails.application.routes.draw do
       # Embeddable widget endpoints (share token auth, no API key)
       get '/embed/net_worth', to: 'embed#net_worth'
       get '/embed/spending', to: 'embed#spending'
+
+      resources :categories, only: [:index]
+      resources :goals, only: [:index]
+      resources :recurring, only: [:index]
+      resources :webhooks, only: [:index, :show, :create, :update, :destroy] do
+        member do
+          post :test
+        end
+      end
     end
   end
 
