@@ -203,11 +203,13 @@ _See SPRINT.md for prioritized sprint plan (Sprints 1-3)_
 - ⬚ Create stories for all shared components
 - ⬚ Component documentation with props/variants/examples
 
-## Phase 19b: Deep Component Consolidation — HIGH PRIORITY
-- ⬚ Audit EVERY page for duplicate UI patterns
-- ⬚ Single DataTable component (sortable, filterable, paginated)
-- ⬚ Consistent spacing, sizing, and color tokens via Tailwind config
+## Phase 19b: Deep Component Consolidation — IN PROGRESS
+- ✅ Remove duplicate components (Button, LoadingSpinner) — canonical versions in ui/
+- ✅ Migrate InvestmentsPage, NetWorthPage, ReportsPage inline tables → DataTable
+- ✅ Migrate InvestmentsPage inline cards → StatCard + ChartCard
 - ✅ Shared ui/ library exists (Button, Input, Select, Card, Badge, ProgressBar, LoadingSpinner, EmptyState, PageHeader, AmountDisplay, CategoryIcon, Toast)
+- ⬚ Audit remaining pages for duplicate UI patterns (ImportPage, SettingsPage tables)
+- ⬚ Consistent spacing, sizing, and color tokens via Tailwind config
 
 ## Phase 20: Provider Adapter Pattern (Plaid/MX/Finicity)
 - ⬚ Create `FinancialProvider` adapter interface

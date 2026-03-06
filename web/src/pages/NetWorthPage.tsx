@@ -275,9 +275,8 @@ const NetWorthPage: React.FC = () => {
                     {
                       key: 'contribution',
                       label: 'Contribution',
-                      render: (acc) => {
+                      render: (acc, idx) => {
                         const pct = totalAssets > 0 ? (acc.balance / totalAssets * 100) : 0;
-                        const idx = assetAccounts.indexOf(acc);
                         return (
                           <div className="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2">
                             <div
@@ -329,10 +328,9 @@ const NetWorthPage: React.FC = () => {
                     {
                       key: 'contribution',
                       label: 'Contribution',
-                      render: (acc) => {
+                      render: (acc, idx) => {
                         const absBalance = Math.abs(acc.balance);
                         const pct = totalLiabilities > 0 ? (absBalance / totalLiabilities * 100) : 0;
-                        const idx = liabilityAccounts.indexOf(acc);
                         return (
                           <div className="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2">
                             <div

@@ -211,7 +211,7 @@ export interface ButtonProps {
 export interface ColumnConfig<T> {
   key: string;
   label: string;
-  render?: (item: T) => React.ReactNode;
+  render?: (item: T, index: number) => React.ReactNode;
   sortable?: boolean;
   width?: string;
 }

@@ -153,7 +153,7 @@ function DataTable<T>({
                     className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100"
                   >
                     {column.render
-                      ? column.render(item)
+                      ? column.render(item, index)
                       : (item as any)[column.key]
                     }
                   </td>

@@ -408,6 +408,7 @@ const InvestmentsPage: React.FC = () => {
         <StatCard
           label="Holdings"
           value={summary.totalHoldingsCount}
+          subtitle={`${investmentAccounts.length} account${investmentAccounts.length !== 1 ? 's' : ''}`}
           icon={<ChartPieIcon className="h-5 w-5" />}
         />
       </div>

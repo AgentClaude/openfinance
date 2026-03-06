@@ -6,6 +6,7 @@ import Card from '@/components/ui/Card';
 interface StatCardProps {
   label: string;
   value: string | number;
+  subtitle?: string;
   trend?: {
     direction: 'up' | 'down' | 'neutral';
     value: string;
@@ -18,6 +19,7 @@ interface StatCardProps {
 const StatCard: React.FC<StatCardProps> = ({
   label,
   value,
+  subtitle,
   trend,
   valueClassName,
   icon,
@@ -39,6 +41,9 @@ const StatCard: React.FC<StatCardProps> = ({
           <p className={clsx('text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1', valueClassName)}>
             {value}
           </p>
+          {subtitle && (
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">{subtitle}</p>
+          )}
           {trend && trend.direction !== 'neutral' && (
             <div className={clsx('flex items-center mt-1', trendColor)}>
               <TrendIcon className="h-4 w-4 mr-1" />

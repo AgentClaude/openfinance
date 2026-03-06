@@ -17,6 +17,15 @@ import DataTable from '@/components/ui/DataTable';
 import { StatCard, ChartCard } from '@/components/shared';
 import { ColumnConfig } from '@/types';
 
+interface SpendingCategory {
+  categoryId?: string;
+  categoryName: string;
+  categoryIcon?: string;
+  amount: number;
+  percentage: number;
+  transactionCount: number;
+}
+
 const COLORS = [
   '#0D9488', '#F59E0B', '#7C3AED', '#E11D48', '#0EA5E9',
   '#10B981', '#F97316', '#6366F1', '#84CC16', '#EC4899',
@@ -462,45 +471,38 @@ const SpendingReport: React.FC<{ reports: any }> = ({ reports }) => {
       {/* Category breakdown table */}
       <ChartCard title="Category Breakdown">
         <div className="-mx-6 -mb-4">
-          {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-          <DataTable<any>
+          <DataTable<SpendingCategory>
             columns={[
               {
                 key: 'categoryName',
                 label: 'Category',
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                render: (cat: any) => <span>{cat.categoryIcon} {cat.categoryName}</span>,
+                render: (cat) => <span>{cat.categoryIcon} {cat.categoryName}</span>,
               },
               {
                 key: 'amount',
                 label: 'Amount',
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                render: (cat: any) => <span className="font-medium">{formatCurrency(cat.amount)}</span>,
+                render: (cat) => <span className="font-medium">{formatCurrency(cat.amount)}</span>,
               },
               {
                 key: 'percentage',
                 label: '%',
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                render: (cat: any) => <span className="text-gray-500 dark:text-gray-400">{cat.percentage}%</span>,
+                render: (cat) => <span className="text-gray-500 dark:text-gray-400">{cat.percentage}%</span>,
               },
               {
                 key: 'transactionCount',
                 label: 'Transactions',
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                render: (cat: any) => <span className="text-gray-500 dark:text-gray-400">{cat.transactionCount}</span>,
+                render: (cat) => <span className="text-gray-500 dark:text-gray-400">{cat.transactionCount}</span>,
               },
               {
                 key: 'distribution',
                 label: 'Distribution',
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                render: (cat: any) => {
-                  const idx = spendingByCategory.indexOf(cat);
+                render: (_cat, idx) => {
                   return (
                     <div className="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2.5">
                       <div
                         className="h-2.5 rounded-full transition-all"
                         style={{
-                          width: `${cat.percentage}%`,
+                          width: `${_cat.percentage}%`,
                           backgroundColor: COLORS[idx % COLORS.length],
                         }}
                       />
@@ -508,7 +510,7 @@ const SpendingReport: React.FC<{ reports: any }> = ({ reports }) => {
                   );
                 },
               },
-            ] as ColumnConfig<any>[]}
+            ] as ColumnConfig<SpendingCategory>[]}
             data={spendingByCategory}
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             getRowId={(cat: any) => cat.categoryId || cat.categoryName}
