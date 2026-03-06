@@ -16,8 +16,10 @@ export { useTags } from './useTags';
 export { useTheme } from './useTheme';
 export { usePreferences } from './usePreferences';
 export { useTransactions, cleanFilters } from './useTransactions';
+export { useNetWorth, useAdjustBalance, useBackfillHistory } from './useNetWorth';
 
 // Re-export types
 export type { Rule } from './useRules';
 export type { RecurringItem } from './useRecurring';
 export type { Reports, MonthlySummary, SpendingByCategory, TopMerchant } from './useReports';
+export type { NetWorthSnapshot, NetWorthAccount } from './useNetWorth';
