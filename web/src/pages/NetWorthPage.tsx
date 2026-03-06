@@ -3,21 +3,18 @@ import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
   LineChart, Line,
 } from 'recharts';
-import { useQuery, useMutation } from '@apollo/client';
-import { GET_NET_WORTH_HISTORY, GET_ACCOUNTS } from '@/graphql/queries';
-import { ADJUST_BALANCE, BACKFILL_BALANCE_HISTORY } from '@/graphql/mutations';
+import { useNetWorth, useAdjustBalance, useBackfillHistory, NetWorthAccount } from '@/hooks/useNetWorth';
 import PageHeader from '@/components/ui/PageHeader';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import Button from '@/components/ui/Button';
+import DataTable from '@/components/ui/DataTable';
 import { StatCard, ChartCard } from '@/components/shared';
+import { ColumnConfig } from '@/types';
 
 const COLORS = [
   '#0D9488', '#F59E0B', '#7C3AED', '#E11D48', '#0EA5E9',
   '#10B981', '#F97316', '#6366F1', '#84CC16', '#EC4899',
 ];
-
-const ASSET_TYPES = ['checking', 'savings', 'investment', 'retirement', 'crypto', 'real_estate', 'vehicle', 'other_asset', 'cash', 'manual'];
-const LIABILITY_TYPES = ['credit_card', 'loan', 'mortgage', 'other_liability'];
 
 type TimeRange = '1M' | '3M' | '6M' | '1Y' | 'ALL';
 
@@ -41,74 +38,104 @@ const formatMonth = (month: string) => {
 const formatAccountType = (type: string) =>
   type.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
 
-interface NetWorthSnapshot {
-  date: string;
-  assets: number;
-  liabilities: number;
-  netWorth: number;
+interface AccountWithPct extends NetWorthAccount {
+  pct: number;
+  colorIndex: number;
 }
 
-interface Account {
-  id: string;
-  name: string;
-  type: string;
-  subtype: string | null;
-  balance: number;
-  balanceDate: string | null;
-  isActive: boolean;
-  plaidAccountId: string | null;
-}
+const buildAccountColumns = (
+  balanceColor: string,
+  totalLabel: string,
+): ColumnConfig<AccountWithPct>[] => [
+  {
+    key: 'name',
+    label: 'Account',
+    render: (acc) => (
+      <div>
+        <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{acc.name}</div>
+        <div className="text-xs text-gray-500 dark:text-gray-400">{formatAccountType(acc.type)}</div>
+      </div>
+    ),
+  },
+  {
+    key: 'balance',
+    label: 'Balance',
+    render: (acc) => (
+      <div className={`text-sm text-right font-medium ${balanceColor}`}>
+        {formatCurrency(balanceColor === 'text-red-600' ? Math.abs(acc.balance) : acc.balance)}
+      </div>
+    ),
+  },
+  {
+    key: 'pct',
+    label: `% of ${totalLabel}`,
+    render: (acc) => (
+      <div className="text-sm text-right text-gray-500 dark:text-gray-400">
+        {acc.pct.toFixed(1)}%
+      </div>
+    ),
+  },
+  {
+    key: 'contribution',
+    label: 'Contribution',
+    render: (acc) => (
+      <div className="w-32">
+        <div className="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2">
+          <div
+            className="h-2 rounded-full"
+            style={{
+              width: `${Math.min(acc.pct, 100)}%`,
+              backgroundColor: COLORS[acc.colorIndex % COLORS.length],
+            }}
+          />
+        </div>
+      </div>
+    ),
+  },
+];
 
 const NetWorthPage: React.FC = () => {
   const [timeRange, setTimeRange] = useState<TimeRange>('1Y');
   const months = TIME_RANGE_MONTHS[timeRange];
 
-  const { data: nwData, loading: nwLoading, refetch: refetchHistory } = useQuery(GET_NET_WORTH_HISTORY, {
-    variables: { months },
+  const {
+    history,
+    activeAccounts,
+    assetAccounts,
+    liabilityAccounts,
+    totalAssets,
+    totalLiabilities,
+    netWorth,
+    change,
+    changePct,
+    loading,
+    refetchHistory,
+  } = useNetWorth(months);
+
+  const { backfillHistory, backfilling, backfillError } = useBackfillHistory(12, () => {
+    refetchHistory();
   });
 
-  const { data: accData, loading: accLoading } = useQuery(GET_ACCOUNTS);
-
-  const [backfillError, setBackfillError] = useState<string | null>(null);
-  const [backfillHistory, { loading: backfilling }] = useMutation(BACKFILL_BALANCE_HISTORY, {
-    variables: { months: 12 },
-    onCompleted: (data) => {
-      setBackfillError(null);
-      const { snapshotsCreated } = data.backfillBalanceHistory;
-      if (snapshotsCreated > 0) {
-        refetchHistory();
-      }
-    },
-    onError: (error) => {
-      setBackfillError(error.message || 'Failed to generate balance history');
-    },
-  });
-
-  const history: NetWorthSnapshot[] = nwData?.netWorthHistory || [];
-  const accounts: Account[] = accData?.accounts || [];
-
-  const activeAccounts = useMemo(() => accounts.filter(a => a.isActive), [accounts]);
-
-  const assetAccounts = useMemo(
-    () => activeAccounts.filter(a => ASSET_TYPES.includes(a.type)).sort((a, b) => b.balance - a.balance),
-    [activeAccounts]
+  const assetData: AccountWithPct[] = useMemo(
+    () => assetAccounts.map((acc, i) => ({
+      ...acc,
+      pct: totalAssets > 0 ? (acc.balance / totalAssets * 100) : 0,
+      colorIndex: i,
+    })),
+    [assetAccounts, totalAssets]
   );
 
-  const liabilityAccounts = useMemo(
-    () => activeAccounts.filter(a => LIABILITY_TYPES.includes(a.type)).sort((a, b) => Math.abs(b.balance) - Math.abs(a.balance)),
-    [activeAccounts]
+  const liabilityData: AccountWithPct[] = useMemo(
+    () => liabilityAccounts.map((acc, i) => ({
+      ...acc,
+      pct: totalLiabilities > 0 ? (Math.abs(acc.balance) / totalLiabilities * 100) : 0,
+      colorIndex: i + 5,
+    })),
+    [liabilityAccounts, totalLiabilities]
   );
 
-  const totalAssets = useMemo(() => assetAccounts.reduce((s, a) => s + a.balance, 0), [assetAccounts]);
-  const totalLiabilities = useMemo(() => liabilityAccounts.reduce((s, a) => s + Math.abs(a.balance), 0), [liabilityAccounts]);
-  const netWorth = totalAssets - totalLiabilities;
-
-  const latest = history.length > 0 ? history[history.length - 1] : null;
-  const earliest = history.length > 0 ? history[0] : null;
-  const change = latest && earliest ? latest.netWorth - earliest.netWorth : 0;
-  const changePct = earliest && earliest.netWorth !== 0 ? (change / Math.abs(earliest.netWorth) * 100) : 0;
-
-  const loading = nwLoading || accLoading;
+  const assetColumns = useMemo(() => buildAccountColumns('text-green-600', 'Assets'), ['text-green-600', 'Assets']);
+  const liabilityColumns = useMemo(() => buildAccountColumns('text-red-600', 'Liabilities'), ['text-red-600', 'Liabilities']);
 
   const timeRanges: TimeRange[] = ['1M', '3M', '6M', '1Y', 'ALL'];
 
@@ -240,93 +267,22 @@ const NetWorthPage: React.FC = () => {
 
           {/* Account Contribution Breakdown */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Assets Table */}
             <ChartCard title={`Assets (${formatCurrency(totalAssets)})`}>
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                  <thead>
-                    <tr>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Account</th>
-                      <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Balance</th>
-                      <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">% of Assets</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Contribution</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
-                    {assetAccounts.map((acc, i) => {
-                      const pct = totalAssets > 0 ? (acc.balance / totalAssets * 100) : 0;
-                      return (
-                        <tr key={acc.id} className="hover:bg-gray-50 dark:hover:bg-slate-700/50">
-                          <td className="px-4 py-3">
-                            <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{acc.name}</div>
-                            <div className="text-xs text-gray-500 dark:text-gray-400">{formatAccountType(acc.type)}</div>
-                          </td>
-                          <td className="px-4 py-3 text-sm text-right font-medium text-green-600">{formatCurrency(acc.balance)}</td>
-                          <td className="px-4 py-3 text-sm text-right text-gray-500 dark:text-gray-400">{pct.toFixed(1)}%</td>
-                          <td className="px-4 py-3 w-32">
-                            <div className="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2">
-                              <div
-                                className="h-2 rounded-full"
-                                style={{ width: `${Math.min(pct, 100)}%`, backgroundColor: COLORS[i % COLORS.length] }}
-                              />
-                            </div>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                    {assetAccounts.length === 0 && (
-                      <tr>
-                        <td colSpan={4} className="px-4 py-6 text-sm text-gray-500 dark:text-gray-400 text-center">No asset accounts</td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
+              <DataTable<AccountWithPct>
+                columns={assetColumns}
+                data={assetData}
+                getRowId={(acc) => acc.id}
+                emptyTitle="No asset accounts"
+              />
             </ChartCard>
 
-            {/* Liabilities Table */}
             <ChartCard title={`Liabilities (${formatCurrency(totalLiabilities)})`}>
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                  <thead>
-                    <tr>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Account</th>
-                      <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Balance</th>
-                      <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">% of Liabilities</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Contribution</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
-                    {liabilityAccounts.map((acc, i) => {
-                      const absBalance = Math.abs(acc.balance);
-                      const pct = totalLiabilities > 0 ? (absBalance / totalLiabilities * 100) : 0;
-                      return (
-                        <tr key={acc.id} className="hover:bg-gray-50 dark:hover:bg-slate-700/50">
-                          <td className="px-4 py-3">
-                            <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{acc.name}</div>
-                            <div className="text-xs text-gray-500 dark:text-gray-400">{formatAccountType(acc.type)}</div>
-                          </td>
-                          <td className="px-4 py-3 text-sm text-right font-medium text-red-600">{formatCurrency(absBalance)}</td>
-                          <td className="px-4 py-3 text-sm text-right text-gray-500 dark:text-gray-400">{pct.toFixed(1)}%</td>
-                          <td className="px-4 py-3 w-32">
-                            <div className="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2">
-                              <div
-                                className="h-2 rounded-full"
-                                style={{ width: `${Math.min(pct, 100)}%`, backgroundColor: COLORS[(i + 5) % COLORS.length] }}
-                              />
-                            </div>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                    {liabilityAccounts.length === 0 && (
-                      <tr>
-                        <td colSpan={4} className="px-4 py-6 text-sm text-gray-500 dark:text-gray-400 text-center">No liability accounts</td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
+              <DataTable<AccountWithPct>
+                columns={liabilityColumns}
+                data={liabilityData}
+                getRowId={(acc) => acc.id}
+                emptyTitle="No liability accounts"
+              />
             </ChartCard>
           </div>
 
@@ -338,7 +294,7 @@ const NetWorthPage: React.FC = () => {
   );
 };
 
-const ManualBalanceUpdate: React.FC<{ accounts: Account[] }> = ({ accounts }) => {
+const ManualBalanceUpdate: React.FC<{ accounts: NetWorthAccount[] }> = ({ accounts }) => {
   const manualAccounts = useMemo(
     () => accounts.filter(a => !a.plaidAccountId),
     [accounts]
@@ -349,11 +305,16 @@ const ManualBalanceUpdate: React.FC<{ accounts: Account[] }> = ({ accounts }) =>
   const [notes, setNotes] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
 
-  const [adjustBalance, { loading }] = useMutation(ADJUST_BALANCE, {
-    refetchQueries: ['GetAccounts', 'GetNetWorthHistory'],
-    onCompleted: (data) => {
-      if (data.adjustBalance.errors?.length > 0) {
-        setSuccessMsg(`Error: ${data.adjustBalance.errors.join(', ')}`);
+  const { adjust, loading } = useAdjustBalance();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedAccountId || !newBalance) return;
+
+    try {
+      const result = await adjust(selectedAccountId, parseFloat(newBalance), notes || undefined);
+      if (result?.errors?.length > 0) {
+        setSuccessMsg(`Error: ${result.errors.join(', ')}`);
       } else {
         const acctName = manualAccounts.find(a => a.id === selectedAccountId)?.name || 'Account';
         setSuccessMsg(`${acctName} balance updated to ${formatCurrency(parseFloat(newBalance))}`);
@@ -362,20 +323,9 @@ const ManualBalanceUpdate: React.FC<{ accounts: Account[] }> = ({ accounts }) =>
         setSelectedAccountId('');
         setTimeout(() => setSuccessMsg(''), 5000);
       }
-    },
-  });
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!selectedAccountId || !newBalance) return;
-    adjustBalance({
-      variables: {
-        accountId: selectedAccountId,
-        amount: parseFloat(newBalance),
-        adjustedAt: new Date().toISOString().split('T')[0],
-        notes: notes || 'Manual balance update from Net Worth page',
-      },
-    });
+    } catch (err) {
+      setSuccessMsg(`Error: ${err instanceof Error ? err.message : 'Failed to update balance'}`);
+    }
   };
 
   if (manualAccounts.length === 0) return null;
