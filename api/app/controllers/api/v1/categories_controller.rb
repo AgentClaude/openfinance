@@ -18,6 +18,8 @@ module Api
         when 'expense' then categories = categories.expense_categories
         end
 
+        tx_counts = Transaction.where(category_id: categories.select(:id)).group(:category_id).count
+
         result = categories.map do |cat|
           {
             id: cat.id,
@@ -27,7 +29,7 @@ module Api
             color: cat.display_color,
             is_income: cat.is_income,
             is_system: cat.is_system,
-            transaction_count: cat.transactions.count
+            transaction_count: tx_counts[cat.id] || 0
           }
         end
 

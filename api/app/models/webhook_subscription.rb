@@ -1,3 +1,6 @@
+require 'resolv'
+require 'ipaddr'
+
 class WebhookSubscription < ApplicationRecord
   belongs_to :user
   has_many :webhook_deliveries, dependent: :destroy
@@ -16,6 +19,7 @@ class WebhookSubscription < ApplicationRecord
   validates :secret, presence: true
   validates :events, presence: true
   validate :events_are_valid
+  validate :url_not_internal
 
   before_validation :generate_secret, on: :create
 
@@ -48,6 +52,18 @@ class WebhookSubscription < ApplicationRecord
 
   def generate_secret
     self.secret ||= "whsec_#{SecureRandom.hex(32)}"
+  end
+
+  def url_not_internal
+    return if url.blank?
+
+    uri = URI.parse(url)
+    ip = IPAddr.new(Resolv.getaddress(uri.host))
+    if ip.private? || ip.loopback? || ip.link_local?
+      errors.add(:url, "must not point to internal/private addresses")
+    end
+  rescue URI::InvalidURIError, Resolv::ResolvError, IPAddr::InvalidAddressError
+    errors.add(:url, "is not a valid URL")
   end
 
   def events_are_valid

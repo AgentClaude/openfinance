@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_03_04_000001) do
+ActiveRecord::Schema[8.0].define(version: 2026_03_06_000001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -738,6 +738,37 @@ ActiveRecord::Schema[8.0].define(version: 2026_03_04_000001) do
     t.index ["unlock_token"], name: "index_users_on_unlock_token", unique: true
   end
 
+  create_table "webhook_deliveries", force: :cascade do |t|
+    t.bigint "webhook_subscription_id", null: false
+    t.string "event_type", null: false
+    t.jsonb "payload", default: {}
+    t.integer "response_code"
+    t.string "response_body", limit: 1000
+    t.boolean "success", default: false, null: false
+    t.integer "duration_ms"
+    t.datetime "delivered_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["webhook_subscription_id", "created_at"], name: "idx_on_webhook_subscription_id_created_at"
+    t.index ["webhook_subscription_id"], name: "index_webhook_deliveries_on_webhook_subscription_id"
+  end
+
+  create_table "webhook_subscriptions", force: :cascade do |t|
+    t.uuid "user_id", null: false
+    t.string "url", null: false
+    t.string "secret", null: false
+    t.string "events", default: [], array: true
+    t.boolean "is_active", default: true, null: false
+    t.integer "failure_count", default: 0, null: false
+    t.datetime "last_triggered_at"
+    t.datetime "last_failed_at"
+    t.string "last_error"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id", "is_active"], name: "index_webhook_subscriptions_on_user_id_and_is_active"
+    t.index ["user_id"], name: "index_webhook_subscriptions_on_user_id"
+  end
+
   add_foreign_key "account_balance_histories", "accounts"
   add_foreign_key "account_connections", "households"
   add_foreign_key "account_connections", "institutions"
@@ -791,4 +822,6 @@ ActiveRecord::Schema[8.0].define(version: 2026_03_04_000001) do
   add_foreign_key "transactions", "categories"
   add_foreign_key "transactions", "households"
   add_foreign_key "users", "households"
+  add_foreign_key "webhook_deliveries", "webhook_subscriptions"
+  add_foreign_key "webhook_subscriptions", "users"
 end
