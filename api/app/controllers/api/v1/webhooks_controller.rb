@@ -67,9 +67,10 @@ module Api
 
       # GET /api/v1/webhooks/:id/events
       def events
+        limit = [[params[:limit]&.to_i || 20, 1].max, 100].min
         events = @webhook.webhook_events
                          .order(created_at: :desc)
-                         .limit(params[:limit]&.to_i || 20)
+                         .limit(limit)
 
         render json: {
           events: events.map { |e| serialize_event(e) },

@@ -3,6 +3,8 @@ class WebhookSubscription < ApplicationRecord
   belongs_to :household
   has_many :webhook_events, dependent: :destroy
 
+  encrypts :secret, deterministic: true
+
   SUPPORTED_EVENTS = %w[
     transaction.created
     transaction.updated
@@ -33,20 +35,23 @@ class WebhookSubscription < ApplicationRecord
     is_active && disabled_at.nil?
   end
 
-  def disable!(reason: nil)
+  def disable!
     update!(is_active: false, disabled_at: Time.current)
   end
 
   def record_success!
-    update!(failure_count: 0, last_triggered_at: Time.current)
+    update_columns(failure_count: 0, last_triggered_at: Time.current)
   end
 
   def record_failure!
-    new_count = failure_count + 1
-    if new_count >= 10
-      disable!(reason: "Too many consecutive failures")
-    else
-      update!(failure_count: new_count, last_triggered_at: Time.current)
+    with_lock do
+      reload
+      new_count = failure_count + 1
+      if new_count >= 10
+        disable!
+      else
+        update!(failure_count: new_count, last_triggered_at: Time.current)
+      end
     end
   end
 

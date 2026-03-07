@@ -1,5 +1,5 @@
 class RebuildWebhookTables < ActiveRecord::Migration[8.0]
-  def change
+  def up
     # Drop old tables (empty, from a stale branch)
     drop_table :webhook_deliveries, if_exists: true
     drop_table :webhook_subscriptions, if_exists: true
@@ -39,5 +39,10 @@ class RebuildWebhookTables < ActiveRecord::Migration[8.0]
       t.index :event_type
       t.index :delivery_status
     end
+  end
+
+  def down
+    drop_table :webhook_events, if_exists: true
+    drop_table :webhook_subscriptions, if_exists: true
   end
 end

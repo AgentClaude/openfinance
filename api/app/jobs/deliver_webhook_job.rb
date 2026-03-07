@@ -13,6 +13,23 @@ class DeliverWebhookJob < ApplicationJob
     signature = subscription.sign_payload(payload_json)
 
     uri = URI.parse(subscription.url)
+
+    # Defense-in-depth: SSRF check at delivery time (prevents DNS rebinding)
+    begin
+      resolved_ip = IPAddr.new(Resolv.getaddress(uri.host))
+      if resolved_ip.private? || resolved_ip.loopback? || resolved_ip.link_local?
+        event.failed!(error_message: "SSRF blocked: resolved to internal address")
+        return
+      end
+    rescue Resolv::ResolvError => e
+      event.failed!(error_message: "DNS resolution failed: #{e.message}")
+      subscription.record_failure!
+      retry_delivery(event) if event.attempt < 3
+      return
+    rescue IPAddr::InvalidAddressError
+      # Not a raw IP (e.g. IPv6 hostname) — allow through
+    end
+
     start_time = Process.clock_gettime(Process::CLOCK_MONOTONIC)
 
     http = Net::HTTP.new(uri.host, uri.port)
