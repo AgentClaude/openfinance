@@ -260,7 +260,7 @@ const HoldingRow: React.FC<{ holding: Holding }> = ({ holding }) => {
   return (
     <>
       <tr
-        className="hover:bg-gray-50 dark:hover:bg-slate-700/50 cursor-pointer border-b border-gray-100 dark:border-gray-700/50"
+        className="hover:bg-gray-50 dark:hover:bg-slate-700/50 cursor-pointer"
         onClick={() => setExpanded(!expanded)}
       >
         <td className="px-4 py-3">
@@ -475,7 +475,7 @@ const InvestmentsPage: React.FC = () => {
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full">
+              <table className="w-full divide-y divide-gray-200 dark:divide-gray-700">
                 <thead className="bg-gray-50 dark:bg-slate-800/50 text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                   <tr>
                     <th className="px-4 py-3 text-left">Security</th>
@@ -486,7 +486,7 @@ const InvestmentsPage: React.FC = () => {
                     <th className="px-4 py-3 text-right">Weight</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody className="divide-y divide-gray-100 dark:divide-gray-700/50">
                   {holdings.map((h) => (
                     <HoldingRow key={h.id} holding={h} />
                   ))}

@@ -673,18 +673,18 @@ export default function SettingsPage() {
       {activeTab === 'notifications' && (
         <Card title="Notification Preferences" subtitle="Choose which notifications you receive and how.">
           <div className="overflow-x-auto">
-            <table className="w-full">
+            <table className="w-full divide-y divide-gray-200 dark:divide-gray-700">
               <thead>
-                <tr className="border-b border-gray-200 dark:border-gray-700">
+                <tr>
                   <th className="text-left text-sm font-medium text-gray-700 dark:text-gray-300 pb-3 pr-4">Notification</th>
                   {CHANNELS.map((ch) => (
                     <th key={ch.key} className="text-center text-sm font-medium text-gray-700 dark:text-gray-300 pb-3 px-4">{ch.label}</th>
                   ))}
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y divide-gray-100 dark:divide-gray-700/50">
                 {NOTIFICATION_TYPES.map((nt) => (
-                  <tr key={nt.key} className="border-b border-gray-100 dark:border-gray-700/50">
+                  <tr key={nt.key}>
                     <td className="py-4 pr-4">
                       <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{nt.label}</p>
                       <p className="text-xs text-gray-500 dark:text-gray-400">{nt.description}</p>
