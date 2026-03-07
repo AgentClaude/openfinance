@@ -190,7 +190,7 @@ const TagsPage: React.FC = () => {
               className={clsx(
                 'px-3 py-1.5 text-xs font-medium rounded-md capitalize transition-colors',
                 filterMode === mode
-                  ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm'
+                  ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm'
                   : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
               )}
             >
@@ -223,7 +223,7 @@ const TagsPage: React.FC = () => {
                     <div className="flex items-center gap-2">
                       <span className={clsx(
                         'font-medium text-sm',
-                        tag.isActive === false ? 'text-gray-400 dark:text-gray-500 line-through' : 'text-gray-900 dark:text-white'
+                        tag.isActive === false ? 'text-gray-400 dark:text-gray-500 line-through' : 'text-gray-900 dark:text-gray-100'
                       )}>
                         {tag.name}
                       </span>

@@ -102,7 +102,7 @@ const AllocationPieChart: React.FC<{ allocations: PortfolioAllocation[] }> = ({ 
             />
           );
         })}
-        <circle cx={cx} cy={cy} r={45} className="fill-white dark:fill-slate-800" />
+        <circle cx={cx} cy={cy} r={45} className="fill-white dark:fill-gray-800" />
         <text x={cx} y={cy - 6} textAnchor="middle" className="text-xs fill-gray-500 dark:fill-gray-400">Total</text>
         <text x={cx} y={cy + 12} textAnchor="middle" className="text-sm font-semibold fill-gray-900 dark:fill-gray-100">
           {formatCurrency(total)}
@@ -260,7 +260,7 @@ const HoldingRow: React.FC<{ holding: Holding }> = ({ holding }) => {
   return (
     <>
       <tr
-        className="hover:bg-gray-50 dark:hover:bg-slate-700/50 cursor-pointer"
+        className="hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer"
         onClick={() => setExpanded(!expanded)}
       >
         <td className="px-4 py-3">
@@ -287,7 +287,7 @@ const HoldingRow: React.FC<{ holding: Holding }> = ({ holding }) => {
         <td className="px-4 py-3 text-right tabular-nums text-gray-500 dark:text-gray-400">{holding.weightInAccount.toFixed(1)}%</td>
       </tr>
       {expanded && (
-        <tr className="bg-gray-50 dark:bg-slate-800/50">
+        <tr className="bg-gray-50 dark:bg-gray-800/50">
           <td colSpan={6} className="px-8 py-4">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
               <div>
@@ -343,12 +343,12 @@ const InvestmentsPage: React.FC = () => {
         <h1 className="text-2xl font-bold tracking-heading text-gray-900 dark:text-gray-100">Investments</h1>
         <div className="flex items-center gap-3">
           {/* Tab Toggle */}
-          <div className="flex bg-gray-100 dark:bg-slate-700 rounded-lg p-0.5">
+          <div className="flex bg-gray-100 dark:bg-gray-700 rounded-lg p-0.5">
             <button
               onClick={() => setActiveTab('overview')}
               className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
                 activeTab === 'overview'
-                  ? 'bg-white dark:bg-slate-600 text-gray-900 dark:text-gray-100 shadow-sm'
+                  ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-gray-100 shadow-sm'
                   : 'text-gray-500 dark:text-gray-400 hover:text-gray-700'
               }`}
             >
@@ -358,7 +358,7 @@ const InvestmentsPage: React.FC = () => {
               onClick={() => setActiveTab('holdings')}
               className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
                 activeTab === 'holdings'
-                  ? 'bg-white dark:bg-slate-600 text-gray-900 dark:text-gray-100 shadow-sm'
+                  ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-gray-100 shadow-sm'
                   : 'text-gray-500 dark:text-gray-400 hover:text-gray-700'
               }`}
             >
@@ -367,7 +367,7 @@ const InvestmentsPage: React.FC = () => {
           </div>
           {investmentAccounts.length > 1 && (
             <select
-              className="border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-slate-800 focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+              className="border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-800 focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
               value={selectedAccountId || ''}
               onChange={(e) => setSelectedAccountId(e.target.value || undefined)}
             >
@@ -476,7 +476,7 @@ const InvestmentsPage: React.FC = () => {
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full divide-y divide-gray-200 dark:divide-gray-700">
-                <thead className="bg-gray-50 dark:bg-slate-800/50 text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                <thead className="bg-gray-50 dark:bg-gray-800/50 text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                   <tr>
                     <th className="px-4 py-3 text-left">Security</th>
                     <th className="px-4 py-3 text-right">Shares</th>
@@ -486,7 +486,7 @@ const InvestmentsPage: React.FC = () => {
                     <th className="px-4 py-3 text-right">Weight</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-100 dark:divide-gray-700/50">
+                <tbody className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-800">
                   {holdings.map((h) => (
                     <HoldingRow key={h.id} holding={h} />
                   ))}
