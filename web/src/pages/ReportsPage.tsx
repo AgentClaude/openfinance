@@ -13,7 +13,9 @@ import { useReports } from '@/hooks/useReports';
 import { GET_NET_WORTH_HISTORY, GET_CATEGORY_TRENDS, GET_CATEGORIES, GET_ACCOUNTS, GET_TAGS } from '@/graphql/queries';
 import PageHeader from '@/components/ui/PageHeader';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import DataTable from '@/components/ui/DataTable';
 import { StatCard, ChartCard } from '@/components/shared';
+import { ColumnConfig } from '@/types';
 
 const COLORS = [
   '#0D9488', '#F59E0B', '#7C3AED', '#E11D48', '#0EA5E9',
@@ -459,49 +461,39 @@ const SpendingReport: React.FC<{ reports: any }> = ({ reports }) => {
 
       {/* Category breakdown table */}
       <ChartCard title="Category Breakdown">
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead>
-              <tr>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Category</th>
-                <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Amount</th>
-                <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">%</th>
-                <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Transactions</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Distribution</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-              {spendingByCategory.map((cat: any, i: number) => (
-                <tr key={cat.categoryId || i} className="hover:bg-gray-50 dark:hover:bg-slate-700/50">
-                  <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
-                    {cat.categoryIcon} {cat.categoryName}
-                  </td>
-                  <td className="px-4 py-3 text-sm text-right font-medium text-gray-900 dark:text-gray-100">
-                    {formatCurrency(cat.amount)}
-                  </td>
-                  <td className="px-4 py-3 text-sm text-right text-gray-500 dark:text-gray-400">
-                    {cat.percentage}%
-                  </td>
-                  <td className="px-4 py-3 text-sm text-right text-gray-500 dark:text-gray-400">
-                    {cat.transactionCount}
-                  </td>
-                  <td className="px-4 py-3 w-40">
-                    <div className="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2.5">
-                      <div
-                        className="h-2.5 rounded-full transition-all"
-                        style={{
-                          width: `${cat.percentage}%`,
-                          backgroundColor: COLORS[i % COLORS.length],
-                        }}
-                      />
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <DataTable
+          columns={[
+            { key: 'categoryName', label: 'Category', render: (cat: any) => (
+              <span>{cat.categoryIcon} {cat.categoryName}</span>
+            )},
+            { key: 'amount', label: 'Amount', render: (cat: any) => (
+              <span className="font-medium">{formatCurrency(cat.amount)}</span>
+            )},
+            { key: 'percentage', label: '%', render: (cat: any) => (
+              <span className="text-gray-500 dark:text-gray-400">{cat.percentage}%</span>
+            )},
+            { key: 'transactionCount', label: 'Transactions', render: (cat: any) => (
+              <span className="text-gray-500 dark:text-gray-400">{cat.transactionCount}</span>
+            )},
+            { key: 'distribution', label: 'Distribution', render: (cat: any) => {
+              const i = spendingByCategory.indexOf(cat);
+              return (
+                <div className="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2.5 min-w-[120px]">
+                  <div
+                    className="h-2.5 rounded-full transition-all"
+                    style={{
+                      width: `${cat.percentage}%`,
+                      backgroundColor: COLORS[i % COLORS.length],
+                    }}
+                  />
+                </div>
+              );
+            }},
+          ] as ColumnConfig<any>[]}
+          data={spendingByCategory}
+          getRowId={(cat: any) => cat.categoryId || String(spendingByCategory.indexOf(cat))}
+          emptyTitle="No spending data"
+        />
       </ChartCard>
     </div>
   );
@@ -581,39 +573,35 @@ const IncomeExpensesReport: React.FC<{ reports: any }> = ({ reports }) => {
 
       {/* Monthly comparison table */}
       <ChartCard title="Monthly Comparison">
-        <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Monthly Comparison</h3>
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead>
-              <tr>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Month</th>
-                <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Income</th>
-                <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Expenses</th>
-                <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Savings</th>
-                <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Rate</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-              {[...monthlySummary].reverse().map((m: any) => {
-                const rate = m.income > 0 ? ((m.cashFlow / m.income) * 100) : 0;
-                return (
-                  <tr key={m.month} className="hover:bg-gray-50 dark:hover:bg-slate-700/50">
-                    <td className="px-4 py-3 text-sm font-medium text-gray-900 dark:text-gray-100">{formatMonth(m.month)}</td>
-                    <td className="px-4 py-3 text-sm text-right text-green-600">{formatCurrency(m.income)}</td>
-                    <td className="px-4 py-3 text-sm text-right text-red-600">{formatCurrency(m.expenses)}</td>
-                    <td className={`px-4 py-3 text-sm text-right font-medium ${m.cashFlow >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                      {formatCurrency(m.cashFlow)}
-                    </td>
-                    <td className={`px-4 py-3 text-sm text-right ${rate >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                      {rate.toFixed(1)}%
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+        <DataTable
+          columns={[
+            { key: 'month', label: 'Month', render: (m: any) => (
+              <span className="font-medium">{formatMonth(m.month)}</span>
+            )},
+            { key: 'income', label: 'Income', render: (m: any) => (
+              <span className="text-green-600">{formatCurrency(m.income)}</span>
+            )},
+            { key: 'expenses', label: 'Expenses', render: (m: any) => (
+              <span className="text-red-600">{formatCurrency(m.expenses)}</span>
+            )},
+            { key: 'cashFlow', label: 'Savings', render: (m: any) => (
+              <span className={`font-medium ${m.cashFlow >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                {formatCurrency(m.cashFlow)}
+              </span>
+            )},
+            { key: 'rate', label: 'Rate', render: (m: any) => {
+              const rate = m.income > 0 ? ((m.cashFlow / m.income) * 100) : 0;
+              return (
+                <span className={rate >= 0 ? 'text-green-600' : 'text-red-600'}>
+                  {rate.toFixed(1)}%
+                </span>
+              );
+            }},
+          ] as ColumnConfig<any>[]}
+          data={[...monthlySummary].reverse()}
+          getRowId={(m: any) => m.month}
+          emptyTitle="No monthly data"
+        />
       </ChartCard>
     </div>
   );
@@ -703,35 +691,32 @@ const CashFlowReport: React.FC<{ reports: any }> = ({ reports }) => {
 
       {/* Monthly breakdown table */}
       <ChartCard title="Monthly Summary">
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead>
-              <tr>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Month</th>
-                <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Income</th>
-                <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Expenses</th>
-                <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Cash Flow</th>
-                <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Cumulative</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-              {[...waterfallData].reverse().map((m: any) => (
-                <tr key={m.month} className="hover:bg-gray-50 dark:hover:bg-slate-700/50">
-                  <td className="px-4 py-3 text-sm font-medium text-gray-900 dark:text-gray-100">{formatMonth(m.month)}</td>
-                  <td className="px-4 py-3 text-sm text-right text-green-600">{formatCurrency(m.income)}</td>
-                  <td className="px-4 py-3 text-sm text-right text-red-600">{formatCurrency(m.expenses)}</td>
-                  <td className={`px-4 py-3 text-sm text-right font-medium ${m.cashFlow >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                    {formatCurrency(m.cashFlow)}
-                  </td>
-                  <td className={`px-4 py-3 text-sm text-right ${m.runningBalance >= 0 ? 'text-brand-700' : 'text-red-600'}`}>
-                    {formatCurrency(m.runningBalance)}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <DataTable
+          columns={[
+            { key: 'month', label: 'Month', render: (m: any) => (
+              <span className="font-medium">{formatMonth(m.month)}</span>
+            )},
+            { key: 'income', label: 'Income', render: (m: any) => (
+              <span className="text-green-600">{formatCurrency(m.income)}</span>
+            )},
+            { key: 'expenses', label: 'Expenses', render: (m: any) => (
+              <span className="text-red-600">{formatCurrency(m.expenses)}</span>
+            )},
+            { key: 'cashFlow', label: 'Cash Flow', render: (m: any) => (
+              <span className={`font-medium ${m.cashFlow >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                {formatCurrency(m.cashFlow)}
+              </span>
+            )},
+            { key: 'runningBalance', label: 'Cumulative', render: (m: any) => (
+              <span className={m.runningBalance >= 0 ? 'text-brand-700' : 'text-red-600'}>
+                {formatCurrency(m.runningBalance)}
+              </span>
+            )},
+          ] as ColumnConfig<any>[]}
+          data={[...waterfallData].reverse()}
+          getRowId={(m: any) => m.month}
+          emptyTitle="No cash flow data"
+        />
       </ChartCard>
     </div>
   );
@@ -828,30 +813,27 @@ const NetWorthReport: React.FC<{ months: number }> = ({ months }) => {
       </ChartCard>
 
       <ChartCard title="Monthly Breakdown">
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead>
-              <tr>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Month</th>
-                <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Assets</th>
-                <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Liabilities</th>
-                <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Net Worth</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {[...history].reverse().map((h: { date: string; assets: number; liabilities: number; netWorth: number }) => (
-                <tr key={h.date} className="hover:bg-gray-50 dark:hover:bg-slate-700/50">
-                  <td className="px-4 py-3 text-sm font-medium text-gray-900 dark:text-gray-100">{formatMonth(h.date)}</td>
-                  <td className="px-4 py-3 text-sm text-right text-green-600">{formatCurrency(h.assets)}</td>
-                  <td className="px-4 py-3 text-sm text-right text-red-600">{formatCurrency(h.liabilities)}</td>
-                  <td className={`px-4 py-3 text-sm text-right font-medium ${h.netWorth >= 0 ? 'text-brand-700' : 'text-red-600'}`}>
-                    {formatCurrency(h.netWorth)}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <DataTable
+          columns={[
+            { key: 'date', label: 'Month', render: (h: any) => (
+              <span className="font-medium">{formatMonth(h.date)}</span>
+            )},
+            { key: 'assets', label: 'Assets', render: (h: any) => (
+              <span className="text-green-600">{formatCurrency(h.assets)}</span>
+            )},
+            { key: 'liabilities', label: 'Liabilities', render: (h: any) => (
+              <span className="text-red-600">{formatCurrency(h.liabilities)}</span>
+            )},
+            { key: 'netWorth', label: 'Net Worth', render: (h: any) => (
+              <span className={`font-medium ${h.netWorth >= 0 ? 'text-brand-700' : 'text-red-600'}`}>
+                {formatCurrency(h.netWorth)}
+              </span>
+            )},
+          ] as ColumnConfig<any>[]}
+          data={[...history].reverse()}
+          getRowId={(h: any) => h.date}
+          emptyTitle="No net worth data"
+        />
       </ChartCard>
     </div>
   );
@@ -963,31 +945,23 @@ const CategoryTrendsReport: React.FC<{ months: number }> = ({ months }) => {
           </ChartCard>
 
           <ChartCard title="Monthly Data">
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead>
-                  <tr>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Month</th>
-                    {categoryNames.map(name => (
-                      <th key={name} className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">{name}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100">
-                  {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                  {[...chartData].reverse().map((row: any) => (
-                    <tr key={row.month} className="hover:bg-gray-50 dark:hover:bg-slate-700/50">
-                      <td className="px-4 py-3 text-sm font-medium text-gray-900 dark:text-gray-100">{formatMonth(row.month)}</td>
-                      {categoryNames.map(name => (
-                        <td key={name} className="px-4 py-3 text-sm text-right text-gray-900 dark:text-gray-100">
-                          {row[name] != null ? formatCurrency(row[name]) : '—'}
-                        </td>
-                      ))}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <DataTable
+              columns={[
+                { key: 'month', label: 'Month', render: (row: any) => (
+                  <span className="font-medium">{formatMonth(row.month)}</span>
+                )},
+                ...categoryNames.map(name => ({
+                  key: name,
+                  label: name,
+                  render: (row: any) => (
+                    <span>{row[name] != null ? formatCurrency(row[name]) : '—'}</span>
+                  ),
+                })),
+              ] as ColumnConfig<any>[]}
+              data={[...chartData].reverse()}
+              getRowId={(row: any) => row.month}
+              emptyTitle="No trend data"
+            />
           </ChartCard>
         </>
       )}
