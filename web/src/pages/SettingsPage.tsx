@@ -682,7 +682,7 @@ export default function SettingsPage() {
                   ))}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100 dark:divide-gray-700/50">
+              <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                 {NOTIFICATION_TYPES.map((nt) => (
                   <tr key={nt.key}>
                     <td className="py-4 pr-4">

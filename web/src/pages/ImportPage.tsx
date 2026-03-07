@@ -156,13 +156,13 @@ const ImportPage: React.FC = () => {
           {preview && (
             <div>
               <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Column Mapping</h3>
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b dark:border-gray-700">
+              <div className="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-700">
+                <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700 text-sm">
+                  <thead className="bg-gray-50 dark:bg-gray-800/50">
+                    <tr>
                       {preview.headers.map(h => (
-                        <th key={h} className="text-left py-2 px-2 font-medium text-gray-500 dark:text-gray-400">
-                          <div className="mb-1 text-xs">{h}</div>
+                        <th key={h} className="text-left px-4 py-3 font-medium text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                          <div className="mb-1.5 normal-case text-xs tracking-normal">{h}</div>
                           <Select
                             value={columnMapping[h] || ''}
                             onChange={(e) => setColumnMapping({ ...columnMapping, [h]: e.target.value })}
@@ -172,11 +172,11 @@ const ImportPage: React.FC = () => {
                       ))}
                     </tr>
                   </thead>
-                  <tbody>
+                  <tbody className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-800">
                     {preview.rows.map((row, i) => (
-                      <tr key={i} className="border-b dark:border-gray-700">
+                      <tr key={i} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
                         {preview.headers.map(h => (
-                          <td key={h} className="py-1.5 px-2 text-gray-600 dark:text-gray-400 truncate max-w-[150px]">
+                          <td key={h} className="px-4 py-2.5 text-gray-900 dark:text-gray-100 truncate max-w-[150px]">
                             {row[h]}
                           </td>
                         ))}
@@ -200,7 +200,7 @@ const ImportPage: React.FC = () => {
                 ) : (
                   <ExclamationTriangleIcon className="h-5 w-5 text-yellow-500" />
                 )}
-                <span className="font-medium text-gray-900 dark:text-gray-100 dark:text-white">
+                <span className="font-medium text-gray-900 dark:text-gray-100">
                   {result.imported} imported, {result.skipped} skipped
                 </span>
               </div>

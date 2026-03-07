@@ -48,7 +48,7 @@ const AcceptInvitationPage: React.FC = () => {
   const emailMismatch = isAuthenticated && invitation && user?.email?.toLowerCase() !== invitation.email.toLowerCase();
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="flex justify-center">
           <div className="h-12 w-12 bg-gradient-to-br from-brand-500 to-brand-700 rounded-xl flex items-center justify-center shadow-lg shadow-brand-500/20">
@@ -120,7 +120,7 @@ const AcceptInvitationPage: React.FC = () => {
                 </h3>
               </div>
 
-              <div className="bg-slate-50 dark:bg-slate-800 rounded-lg p-4 mb-6 space-y-3">
+              <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 mb-6 space-y-3">
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-gray-500 dark:text-gray-400">Invited by</span>
                   <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{invitation.invitedByName}</span>

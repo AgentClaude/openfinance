@@ -101,7 +101,7 @@ const ReportsPage: React.FC = () => {
                 className={`px-3 py-1.5 text-xs font-medium rounded-l-md border ${
                   dateRangeMode === 'preset'
                     ? 'bg-brand-50 border-brand-300 text-brand-800'
-                    : 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-slate-700/50'
+                    : 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50'
                 }`}
               >
                 Preset
@@ -111,7 +111,7 @@ const ReportsPage: React.FC = () => {
                 className={`px-3 py-1.5 text-xs font-medium rounded-r-md border-t border-r border-b ${
                   dateRangeMode === 'custom'
                     ? 'bg-brand-50 border-brand-300 text-brand-800'
-                    : 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-slate-700/50'
+                    : 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50'
                 }`}
               >
                 Custom
@@ -157,7 +157,7 @@ const ReportsPage: React.FC = () => {
             className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-md border transition-colors ${
               activeFilterCount > 0
                 ? 'bg-brand-50 border-brand-300 text-brand-700 dark:bg-brand-900/30 dark:border-brand-700 dark:text-brand-300'
-                : 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-slate-700/50'
+                : 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50'
             }`}
           >
             <span>🔍</span>

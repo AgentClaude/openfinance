@@ -45,7 +45,7 @@ const Dropdown: React.FC<DropdownProps> = ({
       >
         <Menu.Items
           className={clsx(
-            'absolute z-10 mt-2 w-56 rounded-xl bg-white dark:bg-slate-800 shadow-lg ring-1 ring-black/5 dark:ring-white/10 focus:outline-none',
+            'absolute z-10 mt-2 w-56 rounded-xl bg-white dark:bg-gray-800 shadow-lg ring-1 ring-black/5 dark:ring-white/10 focus:outline-none',
             alignClasses[align]
           )}
         >
@@ -59,7 +59,7 @@ const Dropdown: React.FC<DropdownProps> = ({
                     className={clsx(
                       'flex items-center px-4 py-2 text-sm w-full text-left transition-colors',
                       {
-                        'bg-gray-100 dark:bg-slate-700 text-gray-900 dark:text-gray-100': active && !item.disabled && item.variant !== 'danger',
+                        'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100': active && !item.disabled && item.variant !== 'danger',
                         'text-gray-700 dark:text-gray-300': !active && !item.disabled && item.variant !== 'danger',
                         'text-gray-400 dark:text-gray-500 cursor-not-allowed': item.disabled,
                         'text-red-600 dark:text-red-400': item.variant === 'danger' && !item.disabled,

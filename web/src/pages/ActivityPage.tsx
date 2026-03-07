@@ -95,7 +95,7 @@ export default function ActivityPage() {
     <div className="max-w-3xl mx-auto px-4 py-8">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Activity Feed</h1>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Activity Feed</h1>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
             See what&apos;s happening in your household
           </p>
@@ -129,7 +129,7 @@ export default function ActivityPage() {
         <Card>
           <div className="text-center py-12">
             <div className="text-4xl mb-3">📋</div>
-            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-1">No activity yet</h3>
+            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-1">No activity yet</h3>
             <p className="text-sm text-gray-500 dark:text-gray-400">
               Activity will appear here as you and your household members make changes.
             </p>

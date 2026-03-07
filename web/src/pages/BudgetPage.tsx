@@ -257,7 +257,7 @@ const BudgetPage: React.FC = () => {
                 const isEditing = editingCategory === catId;
 
                 return (
-                  <div key={item.id} className="flex items-center gap-4 py-2 hover:bg-gray-50 dark:hover:bg-slate-700/50 rounded-lg px-2 transition-colors">
+                  <div key={item.id} className="flex items-center gap-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg px-2 transition-colors">
                     {/* Category Name */}
                     <div className="w-48 flex-shrink-0">
                       <button
