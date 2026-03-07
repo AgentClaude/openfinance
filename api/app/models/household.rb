@@ -19,6 +19,7 @@ class Household < ApplicationRecord
   has_many :notifications, dependent: :destroy
   has_many :activity_events, dependent: :destroy
   has_many :merchant_mappings, dependent: :destroy
+  has_many :webhook_subscriptions, dependent: :destroy
 
   # Validations
   validates :name, presence: true, length: { minimum: 2, maximum: 100 }

@@ -59,6 +59,14 @@ Rails.application.routes.draw do
       get '/daily_spend/:date', to: 'daily_spend#show'
       get '/account_balances', to: 'account_balances#index'
 
+      # Webhook subscriptions
+      resources :webhooks, only: [:index, :show, :create, :update, :destroy] do
+        member do
+          post :test
+          get :events
+        end
+      end
+
       # Embeddable widget endpoints (share token auth, no API key)
       get '/embed/net_worth', to: 'embed#net_worth'
       get '/embed/spending', to: 'embed#spending'

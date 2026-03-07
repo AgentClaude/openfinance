@@ -25,6 +25,7 @@ class User < ApplicationRecord
   has_many :referrals_received, class_name: 'Referral', foreign_key: :referred_user_id, dependent: :destroy
   has_many :api_keys, dependent: :destroy
   has_many :share_tokens, dependent: :destroy
+  has_many :webhook_subscriptions, dependent: :destroy
 
   # Validations
   validates :email, presence: true, uniqueness: true, format: { with: URI::MailTo::EMAIL_REGEXP }

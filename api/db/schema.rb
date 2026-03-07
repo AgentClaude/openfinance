@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_03_04_000001) do
+ActiveRecord::Schema[8.0].define(version: 2026_03_07_161700) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -738,6 +738,43 @@ ActiveRecord::Schema[8.0].define(version: 2026_03_04_000001) do
     t.index ["unlock_token"], name: "index_users_on_unlock_token", unique: true
   end
 
+  create_table "webhook_events", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "webhook_subscription_id", null: false
+    t.string "event_type", null: false
+    t.jsonb "payload", default: {}, null: false
+    t.integer "status_code"
+    t.text "response_body"
+    t.float "response_time_ms"
+    t.string "delivery_status", default: "pending", null: false
+    t.integer "attempt", default: 1, null: false
+    t.text "error_message"
+    t.datetime "delivered_at"
+    t.datetime "created_at", null: false
+    t.index ["delivery_status"], name: "index_webhook_events_on_delivery_status"
+    t.index ["event_type"], name: "index_webhook_events_on_event_type"
+    t.index ["webhook_subscription_id", "created_at"], name: "index_webhook_events_on_webhook_subscription_id_and_created_at"
+    t.index ["webhook_subscription_id"], name: "index_webhook_events_on_webhook_subscription_id"
+  end
+
+  create_table "webhook_subscriptions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "user_id", null: false
+    t.uuid "household_id", null: false
+    t.string "url", null: false
+    t.string "secret", null: false
+    t.string "name", null: false
+    t.string "events", default: [], null: false, array: true
+    t.boolean "is_active", default: true, null: false
+    t.datetime "last_triggered_at"
+    t.integer "failure_count", default: 0, null: false
+    t.datetime "disabled_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["household_id", "is_active"], name: "index_webhook_subscriptions_on_household_id_and_is_active"
+    t.index ["household_id"], name: "index_webhook_subscriptions_on_household_id"
+    t.index ["url"], name: "index_webhook_subscriptions_on_url"
+    t.index ["user_id"], name: "index_webhook_subscriptions_on_user_id"
+  end
+
   add_foreign_key "account_balance_histories", "accounts"
   add_foreign_key "account_connections", "households"
   add_foreign_key "account_connections", "institutions"
@@ -791,4 +828,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_03_04_000001) do
   add_foreign_key "transactions", "categories"
   add_foreign_key "transactions", "households"
   add_foreign_key "users", "households"
+  add_foreign_key "webhook_events", "webhook_subscriptions"
+  add_foreign_key "webhook_subscriptions", "households"
+  add_foreign_key "webhook_subscriptions", "users"
 end
