@@ -42,7 +42,7 @@ const getProgressColor = (pct: number, overdue: boolean, achieved: boolean) => {
   if (achieved) return 'bg-green-500';
   if (overdue) return 'bg-red-500';
   if (pct >= 75) return 'bg-green-500';
-  if (pct >= 50) return 'bg-blue-500';
+  if (pct >= 50) return 'bg-brand-500';
   if (pct >= 25) return 'bg-yellow-500';
   return 'bg-orange-500';
 };
@@ -51,7 +51,7 @@ const getProgressBg = (pct: number, overdue: boolean, achieved: boolean) => {
   if (achieved) return 'bg-green-100';
   if (overdue) return 'bg-red-100';
   if (pct >= 75) return 'bg-green-100';
-  if (pct >= 50) return 'bg-blue-100';
+  if (pct >= 50) return 'bg-brand-100';
   if (pct >= 25) return 'bg-yellow-100';
   return 'bg-orange-100';
 };

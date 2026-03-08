@@ -110,7 +110,7 @@ export default function ActivityPage() {
             onClick={() => setFilter(f.value)}
             className={`px-3 py-1.5 text-sm font-medium rounded-full transition-colors ${
               filter === f.value
-                ? 'bg-brand-700 text-white dark:bg-brand-600'
+                ? 'bg-brand-600 text-white dark:bg-brand-500'
                 : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
             }`}
           >

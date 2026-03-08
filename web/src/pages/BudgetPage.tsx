@@ -184,7 +184,7 @@ const BudgetPage: React.FC = () => {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
-        <StatCard label="Total Budgeted" value={formatCurrency(getTotalBudgeted())} valueClassName="text-blue-600" />
+        <StatCard label="Total Budgeted" value={formatCurrency(getTotalBudgeted())} valueClassName="text-brand-600" />
         <StatCard label="Total Spent" value={formatCurrency(getTotalSpent())} />
         <StatCard label="Left to Budget" value={formatCurrency(leftToBudget)} valueClassName={leftToBudget >= 0 ? 'text-green-600' : 'text-red-600'} />
         <StatCard label="Income" value={formatCurrency(summary?.incomeActual ?? 0)} valueClassName="text-green-600" />
@@ -315,7 +315,7 @@ const BudgetPage: React.FC = () => {
                     {/* Rollover */}
                     {item.rollover !== 0 && (
                       <div className="w-24 flex-shrink-0">
-                        <span className={`text-xs font-medium ${item.rollover >= 0 ? 'text-blue-500' : 'text-orange-500'}`}>
+                        <span className={`text-xs font-medium ${item.rollover >= 0 ? 'text-brand-500' : 'text-orange-500'}`}>
                           {item.rollover >= 0 ? '+' : ''}{formatCurrency(item.rollover)} rollover
                         </span>
                       </div>

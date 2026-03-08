@@ -118,8 +118,8 @@ const AccountDetailPage: React.FC = () => {
           <ArrowLeftIcon className="h-5 w-5 text-gray-500" />
         </button>
         <div className="flex items-center gap-3 flex-1">
-          <div className="p-3 rounded-xl bg-indigo-100 dark:bg-indigo-900/30">
-            <Icon className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
+          <div className="p-3 rounded-xl bg-brand-100 dark:bg-brand-900/30">
+            <Icon className="h-6 w-6 text-brand-600 dark:text-brand-400" />
           </div>
           <div>
             <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{account.name}</h1>
@@ -161,7 +161,7 @@ const AccountDetailPage: React.FC = () => {
                 onClick={() => setSelectedRange(r.months)}
                 className={`px-3 py-1 text-sm rounded-lg transition-colors ${
                   selectedRange === r.months
-                    ? 'bg-indigo-600 text-white'
+                    ? 'bg-brand-600 text-white'
                     : 'text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800'
                 }`}
               >

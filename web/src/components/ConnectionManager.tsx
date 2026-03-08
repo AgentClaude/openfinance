@@ -192,7 +192,7 @@ const ConnectionManager: React.FC = () => {
                         </span>
                       )}
                       {conn.syncInProgress && (
-                        <span className="flex items-center gap-1 text-blue-600">
+                        <span className="flex items-center gap-1 text-brand-600">
                           <ArrowPathIcon className="h-3.5 w-3.5 animate-spin" />
                           Syncing...
                         </span>

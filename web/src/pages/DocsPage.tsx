@@ -88,7 +88,7 @@ function Endpoint({
 }) {
   const methodColor: Record<string, string> = {
     GET: 'bg-brand-600',
-    POST: 'bg-blue-500',
+    POST: 'bg-info-500',
     PUT: 'bg-amber-500',
     PATCH: 'bg-amber-500',
     DELETE: 'bg-red-500',
@@ -269,8 +269,8 @@ export default function DocsPage() {
                 <li><strong>REST API v1</strong> — Simple, read-only endpoints for accounts, transactions, budgets, and more</li>
                 <li><strong>GraphQL API</strong> — Full-featured API with queries and mutations for all operations</li>
               </ul>
-              <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-                <p className="font-medium text-blue-800 dark:text-blue-300">Base URL</p>
+              <div className="bg-info-50 dark:bg-info-900/20 border border-info-200 dark:border-info-800 rounded-lg p-4">
+                <p className="font-medium text-info-800 dark:text-info-300">Base URL</p>
                 <code className="text-sm">{BASE}/api/v1</code> <span className="text-gray-500">(REST)</span><br />
                 <code className="text-sm">{BASE}/graphql</code> <span className="text-gray-500">(GraphQL)</span>
               </div>
@@ -592,7 +592,7 @@ export default function DocsPage() {
               ] as const).map((m) => (
                 <div key={m.name} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-white dark:bg-gray-800">
                   <div>
-                    <code className="text-sm font-semibold text-blue-600 dark:text-blue-400">{m.name}</code>
+                    <code className="text-sm font-semibold text-info-600 dark:text-info-400">{m.name}</code>
                     {m.args && <span className="text-xs text-gray-400 ml-2">({m.args})</span>}
                   </div>
                   <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{m.desc}</p>
@@ -675,8 +675,8 @@ export default function DocsPage() {
             {/* ── Rate Limits ── */}
             <SectionHeading id="rate-limits" title="Rate Limits" subtitle="Usage limits and throttling" />
             <div className="text-sm text-gray-700 dark:text-gray-300 space-y-4">
-              <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-                <p className="font-medium text-blue-800 dark:text-blue-300">60 requests per minute per API key</p>
+              <div className="bg-info-50 dark:bg-info-900/20 border border-info-200 dark:border-info-800 rounded-lg p-4">
+                <p className="font-medium text-info-800 dark:text-info-300">60 requests per minute per API key</p>
               </div>
               <p>Rate limit information is included in every response via headers:</p>
               <div className="overflow-x-auto">
