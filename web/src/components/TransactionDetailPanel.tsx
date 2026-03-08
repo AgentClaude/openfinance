@@ -245,7 +245,7 @@ const TransactionDetailPanel: React.FC<TransactionDetailPanelProps> = ({
         {transaction ? (
           <div className="flex h-full flex-col overflow-y-scroll bg-white shadow-xl">
             {/* Header */}
-            <div className="bg-brand-700 px-4 py-6 sm:px-6">
+            <div className="bg-brand-600 px-4 py-6 sm:px-6">
               <div className="flex items-center justify-between">
                 <h2 className="text-lg font-semibold text-white">Transaction Details</h2>
                 <button

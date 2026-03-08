@@ -275,7 +275,7 @@ const RulesPage: React.FC = () => {
                     <button
                       onClick={() => handleToggle(rule)}
                       className={`w-10 h-5 rounded-full transition-colors relative ${
-                        rule.isActive ? 'bg-brand-700' : 'bg-gray-300'
+                        rule.isActive ? 'bg-brand-600' : 'bg-gray-300'
                       }`}
                     >
                       <span

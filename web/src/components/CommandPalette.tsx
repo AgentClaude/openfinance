@@ -250,13 +250,13 @@ export default function CommandPalette() {
                         key={item.id}
                         className={`w-full flex items-center gap-3 px-4 py-2 text-left transition-colors ${
                           isSelected
-                            ? 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300'
+                            ? 'bg-brand-50 dark:bg-brand-900/30 text-brand-700 dark:text-brand-300'
                             : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50'
                         }`}
                         onClick={item.action}
                         onMouseEnter={() => setSelectedIndex(idx)}
                       >
-                        <span className={isSelected ? 'text-indigo-500' : 'text-gray-400'}>
+                        <span className={isSelected ? 'text-brand-500' : 'text-gray-400'}>
                           {item.icon}
                         </span>
                         <div className="flex-1 min-w-0">

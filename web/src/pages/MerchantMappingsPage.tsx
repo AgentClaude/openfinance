@@ -174,15 +174,15 @@ const MerchantMappingsPage: React.FC = () => {
 
       {/* Suggestions panel */}
       {showSuggestions && suggestions.length > 0 && (
-        <Card className="p-4 mb-6 border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/20">
+        <Card className="p-4 mb-6 border-info-200 dark:border-info-800 bg-info-50 dark:bg-info-900/20">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-semibold text-blue-700 dark:text-blue-300">
+            <h3 className="text-sm font-semibold text-info-700 dark:text-info-300">
               <SparklesIcon className="h-4 w-4 inline mr-1" />
               Suggested Mappings ({suggestions.length})
             </h3>
             <button
               onClick={() => setShowSuggestions(false)}
-              className="text-xs text-blue-500 hover:text-blue-700"
+              className="text-xs text-info-500 hover:text-info-700"
             >
               Dismiss
             </button>
@@ -230,7 +230,7 @@ const MerchantMappingsPage: React.FC = () => {
                     <button
                       onClick={() => handleToggle(mapping)}
                       className={`w-10 h-5 rounded-full transition-colors relative flex-shrink-0 ${
-                        mapping.isActive ? 'bg-brand-700' : 'bg-gray-300'
+                        mapping.isActive ? 'bg-brand-600' : 'bg-gray-300'
                       }`}
                     >
                       <span

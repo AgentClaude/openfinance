@@ -458,7 +458,7 @@ export default function SettingsPage() {
               <button
                 onClick={toggleTheme}
                 className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 ${
-                  isDark ? 'bg-brand-700' : 'bg-gray-200 dark:bg-gray-600'
+                  isDark ? 'bg-brand-600' : 'bg-gray-200 dark:bg-gray-600'
                 }`}
               >
                 <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${isDark ? 'translate-x-6' : 'translate-x-1'}`} />
@@ -602,7 +602,7 @@ export default function SettingsPage() {
               {members.map((m: { id: string; role: string; isPrimary: boolean; user: { id: string; name: string; email: string } }) => (
                 <div key={m.id} className="flex items-center justify-between py-3 border-b border-gray-100 dark:border-gray-700 last:border-0">
                   <div className="flex items-center space-x-3">
-                    <div className="h-10 w-10 rounded-full bg-brand-100 dark:bg-indigo-900/30 flex items-center justify-center">
+                    <div className="h-10 w-10 rounded-full bg-brand-100 dark:bg-brand-900/30 flex items-center justify-center">
                       <span className="text-sm font-medium text-brand-700 dark:text-brand-400">
                         {(m.user.name || m.user.email || 'U').charAt(0).toUpperCase()}
                       </span>
@@ -696,7 +696,7 @@ export default function SettingsPage() {
                           <button
                             onClick={() => handleToggleNotif(nt.key, ch.key, enabled)}
                             className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
-                              enabled ? 'bg-brand-700' : 'bg-gray-200 dark:bg-gray-600'
+                              enabled ? 'bg-brand-600' : 'bg-gray-200 dark:bg-gray-600'
                             }`}
                           >
                             <span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform ${enabled ? 'translate-x-4.5' : 'translate-x-0.5'}`} />
@@ -1014,12 +1014,12 @@ export default function SettingsPage() {
             </div>
 
             {newlyCreatedToken && (
-              <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6">
-                <p className="text-sm font-medium text-blue-800 dark:text-blue-300 mb-2">
+              <div className="bg-success-50 dark:bg-success-900/20 border border-success-200 dark:border-success-800 rounded-lg p-4 mb-6">
+                <p className="text-sm font-medium text-success-800 dark:text-success-300 mb-2">
                   ✅ Share token created
                 </p>
                 <div className="flex items-center gap-2">
-                  <code className="flex-1 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 px-3 py-2 rounded border border-blue-300 dark:border-blue-700 font-mono text-sm break-all">
+                  <code className="flex-1 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3 py-2 rounded border border-success-300 dark:border-success-700 font-mono text-sm break-all">
                     {newlyCreatedToken}
                   </code>
                   <Button
@@ -1035,7 +1035,7 @@ export default function SettingsPage() {
                 </div>
                 <button
                   onClick={() => setNewlyCreatedToken(null)}
-                  className="mt-2 text-xs text-blue-600 dark:text-blue-400 hover:underline"
+                  className="mt-2 text-xs text-brand-600 dark:text-brand-400 hover:underline"
                 >
                   Dismiss
                 </button>

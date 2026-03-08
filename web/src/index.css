@@ -101,7 +101,7 @@
   }
 
   .btn-primary {
-    @apply bg-brand-700 text-white hover:bg-brand-800 focus:ring-brand-500 active:bg-brand-900;
+    @apply bg-brand-600 text-white hover:bg-brand-700 focus:ring-brand-500 active:bg-brand-800;
   }
 
   .btn-secondary {

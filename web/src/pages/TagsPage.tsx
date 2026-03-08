@@ -156,10 +156,10 @@ const TagsPage: React.FC = () => {
       {/* Stats Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
         {[
-          { label: 'Total Tags', value: stats.total, color: 'text-blue-600 dark:text-blue-400' },
-          { label: 'Active', value: stats.active, color: 'text-green-600 dark:text-green-400' },
-          { label: 'Inactive', value: stats.inactive, color: 'text-gray-500 dark:text-gray-400' },
-          { label: 'Tagged Txns', value: stats.totalUsage, color: 'text-purple-600 dark:text-purple-400' },
+          { label: 'Total Tags', value: stats.total, color: 'text-brand-600 dark:text-brand-400' },
+          { label: 'Active', value: stats.active, color: 'text-success-600 dark:text-success-400' },
+          { label: 'Inactive', value: stats.inactive, color: 'text-slate-500 dark:text-slate-400' },
+          { label: 'Tagged Txns', value: stats.totalUsage, color: 'text-accent-600 dark:text-accent-400' },
         ].map(s => (
           <Card key={s.label}>
             <div className="p-4 text-center">
@@ -179,7 +179,7 @@ const TagsPage: React.FC = () => {
             placeholder="Search tags..."
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-brand-500 focus:border-transparent"
           />
         </div>
         <div className="flex gap-1 bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
@@ -246,7 +246,7 @@ const TagsPage: React.FC = () => {
                   </button>
                   <button
                     onClick={() => openEditModal(tag)}
-                    className="p-1.5 rounded-md text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                    className="p-1.5 rounded-md text-gray-400 hover:text-brand-600 dark:hover:text-brand-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                     title="Edit"
                   >
                     <PencilIcon className="h-4 w-4" />
