@@ -59,6 +59,7 @@ class Plaid::SeedCategoryMappingsService < ApplicationService
   def call
     return validation_failure(self) unless valid?
 
+    @categories_by_name = household.categories.index_by { |c| c.name.downcase }
     created = 0
     skipped = 0
 
@@ -87,8 +88,6 @@ class Plaid::SeedCategoryMappingsService < ApplicationService
         category = find_category(category_name)
         next unless category
 
-        plaid_primary = plaid_detailed.split('_').first(2).join('_')
-        # Handle multi-word primaries
         plaid_primary = extract_primary(plaid_detailed)
 
         mapping = PlaidCategoryMapping.find_or_initialize_by(
@@ -112,7 +111,7 @@ class Plaid::SeedCategoryMappingsService < ApplicationService
   private
 
   def find_category(name)
-    household.categories.find_by('LOWER(name) = ?', name.downcase)
+    @categories_by_name[name.downcase]
   end
 
   def extract_primary(detailed)

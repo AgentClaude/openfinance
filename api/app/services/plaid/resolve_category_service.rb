@@ -1,5 +1,5 @@
 class Plaid::ResolveCategoryService < ApplicationService
-  attr_accessor :household, :personal_finance_category
+  attr_accessor :household, :personal_finance_category, :preloaded_mappings
 
   validates :household, presence: true
 
@@ -9,22 +9,20 @@ class Plaid::ResolveCategoryService < ApplicationService
 
     primary = normalize_key(personal_finance_category['primary'])
     detailed = normalize_key(personal_finance_category['detailed'])
+    mappings = preloaded_mappings || PlaidCategoryMapping.for_household(household).includes(:category).to_a
 
     # 1. Try detailed match first (most specific)
     if detailed.present?
-      mapping = PlaidCategoryMapping.for_household(household)
-                                    .find_by(plaid_primary: primary, plaid_detailed: detailed)
+      mapping = mappings.find { |m| m.plaid_primary == primary && m.plaid_detailed == detailed }
       return success(category: mapping.category) if mapping
     end
 
     # 2. Fall back to primary match
-    mapping = PlaidCategoryMapping.for_household(household)
-                                  .find_by(plaid_primary: primary, plaid_detailed: nil)
+    mapping = mappings.find { |m| m.plaid_primary == primary && m.plaid_detailed.nil? }
     return success(category: mapping.category) if mapping
 
-    # 3. No mapping found — try categorization rules as last resort
-    category = try_categorization_rules
-    success(category: category)
+    # 3. No mapping found
+    success(category: nil)
   end
 
   private
@@ -32,10 +30,5 @@ class Plaid::ResolveCategoryService < ApplicationService
   def normalize_key(value)
     return nil if value.blank?
     value.to_s.upcase.strip
-  end
-
-  def try_categorization_rules
-    # If there's a merchant name in the transaction context, check rules
-    nil
   end
 end

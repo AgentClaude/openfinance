@@ -103,12 +103,18 @@ class Plaid::SyncTransactionsService < ApplicationService
     connection.accounts.find_by(plaid_account_id: plaid_account_id)
   end
 
+  def category_mappings
+    @category_mappings ||= PlaidCategoryMapping.for_household(connection.household)
+                                                .includes(:category).to_a
+  end
+
   def map_category(personal_finance_category)
     return nil unless personal_finance_category
 
     result = Plaid::ResolveCategoryService.call(
       household: connection.household,
-      personal_finance_category: personal_finance_category.respond_to?(:to_hash) ? personal_finance_category.to_hash : personal_finance_category
+      personal_finance_category: personal_finance_category.respond_to?(:to_hash) ? personal_finance_category.to_hash : personal_finance_category,
+      preloaded_mappings: category_mappings
     )
 
     result.success? ? result.data[:category] : nil
