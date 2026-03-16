@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import React from 'react';
 
 const EmptyState: React.FC<{ icon: string; title: string; desc: string; cta?: string }> = ({ icon, title, desc, cta }) => (

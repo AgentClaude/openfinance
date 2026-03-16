@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import React from 'react';
 
 const ToastDemo: React.FC<{ type: 'success' | 'error' | 'warning' | 'info'; title: string; message: string }> = ({ type, title, message }) => {
