@@ -56,7 +56,7 @@ _See SPRINT.md for prioritized sprint plan (Sprints 1-3)_
 - ✅ Webhook endpoint for real-time transaction updates (PR #60)
 - ✅ Connection management UI — reconnect, disconnect, status, error banners (PR #60)
 - ✅ Update mode for broken connections — ITEM_LOGIN_REQUIRED (PR #60)
-- ⬚ Plaid category → OpenFinance category mapping
+- ✅ Plaid category → OpenFinance category mapping (PR #134)
 
 ## Phase 5: Budget System ✅
 - ✅ Budget page UI (monthly view with category groups, progress bars)
