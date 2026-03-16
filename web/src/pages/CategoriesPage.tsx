@@ -4,7 +4,9 @@ import {
   PencilIcon,
   TrashIcon,
   LockClosedIcon,
-  TagIcon
+  TagIcon,
+  EyeIcon,
+  EyeSlashIcon,
 } from '@heroicons/react/24/outline';
 import { useCategories } from '@/hooks/useCategories';
 import { Category } from '@/types';
@@ -30,20 +32,30 @@ const defaultColors = [
 
 const groupOptions = [
   { value: 'Income', label: 'Income' },
-  { value: 'Food & Dining', label: 'Food & Dining' },
+  { value: 'Housing', label: 'Housing' },
   { value: 'Transportation', label: 'Transportation' },
+  { value: 'Food & Dining', label: 'Food & Dining' },
   { value: 'Shopping', label: 'Shopping' },
   { value: 'Entertainment', label: 'Entertainment' },
+  { value: 'Health', label: 'Health' },
   { value: 'Bills & Utilities', label: 'Bills & Utilities' },
-  { value: 'Healthcare', label: 'Healthcare' },
-  { value: 'Education', label: 'Education' },
+  { value: 'Personal', label: 'Personal' },
+  { value: 'Insurance', label: 'Insurance' },
+  { value: 'Debt Payments', label: 'Debt Payments' },
+  { value: 'Pets', label: 'Pets' },
+  { value: 'Kids', label: 'Kids' },
   { value: 'Travel', label: 'Travel' },
+  { value: 'Fees', label: 'Fees' },
+  { value: 'Giving', label: 'Giving' },
+  { value: 'Taxes', label: 'Taxes' },
+  { value: 'Transfer', label: 'Transfer' },
   { value: 'Other', label: 'Other' },
 ];
 
 const CategoriesPage: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+  const [showHidden, setShowHidden] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     icon: '',
@@ -60,13 +72,31 @@ const CategoriesPage: React.FC = () => {
     createCategory,
     updateCategory,
     deleteCategory,
+    toggleCategoryHidden,
     getCategoriesByGroup,
     getSubcategories,
     getSystemCategories,
     getUserCategories,
-  } = useCategories();
+  } = useCategories({ includeHidden: showHidden });
 
   const { addToast } = useToast();
+
+  const handleToggleHidden = async (category: Category) => {
+    try {
+      await toggleCategoryHidden(category.id, !category.isHidden);
+      addToast({
+        type: 'success',
+        title: category.isHidden ? 'Category shown' : 'Category hidden',
+        message: `${category.name} is now ${category.isHidden ? 'visible' : 'hidden'} in budgets and reports.`,
+      });
+    } catch (error: any) {
+      addToast({
+        type: 'error',
+        title: 'Failed to update category',
+        message: error.message || 'An error occurred.',
+      });
+    }
+  };
 
   const handleFormChange = (field: string, value: string) => {
     setFormData(prev => ({
@@ -194,12 +224,23 @@ const CategoriesPage: React.FC = () => {
     <div>
       <PageHeader 
         title="Categories" 
-        subtitle={`${getUserCategories().length} custom categories, ${getSystemCategories().length} system categories`}
+        subtitle={`${getUserCategories().length} custom, ${getSystemCategories().length} system${showHidden ? ' (showing hidden)' : ''}`}
         actions={
-          <Button onClick={() => setIsModalOpen(true)}>
-            <PlusIcon className="h-4 w-4 mr-2" />
-            Add Category
-          </Button>
+          <div className="flex items-center gap-3">
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => setShowHidden(!showHidden)}
+              className={showHidden ? 'text-brand-600 dark:text-brand-400' : ''}
+            >
+              {showHidden ? <EyeSlashIcon className="h-4 w-4 mr-1.5" /> : <EyeIcon className="h-4 w-4 mr-1.5" />}
+              {showHidden ? 'Hide Hidden' : 'Show Hidden'}
+            </Button>
+            <Button onClick={() => setIsModalOpen(true)}>
+              <PlusIcon className="h-4 w-4 mr-2" />
+              Add Category
+            </Button>
+          </div>
         }
       />
 
@@ -221,24 +262,34 @@ const CategoriesPage: React.FC = () => {
                   
                   const menuItems = [
                     {
-                      label: 'Edit',
-                      icon: <PencilIcon className="h-4 w-4" />,
-                      onClick: () => handleEdit(category),
-                      disabled: category.isSystem,
+                      label: category.isHidden ? 'Show' : 'Hide',
+                      icon: category.isHidden ? <EyeIcon className="h-4 w-4" /> : <EyeSlashIcon className="h-4 w-4" />,
+                      onClick: () => handleToggleHidden(category),
                     },
-                    {
-                      label: 'Delete',
-                      icon: <TrashIcon className="h-4 w-4" />,
-                      onClick: () => handleDelete(category),
-                      variant: 'danger' as const,
-                      disabled: category.isSystem,
-                    },
+                    ...(!category.isSystem ? [
+                      {
+                        label: 'Edit',
+                        icon: <PencilIcon className="h-4 w-4" />,
+                        onClick: () => handleEdit(category),
+                      },
+                      {
+                        label: 'Delete',
+                        icon: <TrashIcon className="h-4 w-4" />,
+                        onClick: () => handleDelete(category),
+                        variant: 'danger' as const,
+                      },
+                    ] : []),
                   ];
 
                   return (
                     <div
                       key={category.id}
-                      className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:shadow-md transition-shadow"
+                      className={clsx(
+                        'p-4 border rounded-lg hover:shadow-md transition-shadow',
+                        category.isHidden
+                          ? 'border-dashed border-gray-300 dark:border-gray-600 opacity-60'
+                          : 'border-gray-200 dark:border-gray-700'
+                      )}
                     >
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center space-x-2">
@@ -247,23 +298,27 @@ const CategoriesPage: React.FC = () => {
                             className="w-3 h-3 rounded-full"
                             style={{ backgroundColor: category.color }}
                           />
-                          <span className="font-medium text-gray-900 dark:text-gray-100">{category.name}</span>
+                          <span className={clsx(
+                            'font-medium',
+                            category.isHidden ? 'text-gray-400 dark:text-gray-500' : 'text-gray-900 dark:text-gray-100'
+                          )}>{category.name}</span>
                           {category.isSystem && (
                             <LockClosedIcon className="h-4 w-4 text-gray-400" title="System category" />
                           )}
+                          {category.isHidden && (
+                            <EyeSlashIcon className="h-4 w-4 text-gray-400" title="Hidden category" />
+                          )}
                         </div>
                         
-                        {!category.isSystem && (
-                          <Dropdown
-                            trigger={
-                              <Button variant="ghost" size="sm" className="p-1">
-                                <PencilIcon className="h-4 w-4" />
-                              </Button>
-                            }
-                            items={menuItems}
-                            align="right"
-                          />
-                        )}
+                        <Dropdown
+                          trigger={
+                            <Button variant="ghost" size="sm" className="p-1">
+                              <PencilIcon className="h-4 w-4" />
+                            </Button>
+                          }
+                          items={menuItems}
+                          align="right"
+                        />
                       </div>
 
                       {subcategories.length > 0 && (

@@ -81,31 +81,126 @@ puts "✅ #{accts.size} accounts created"
 
 categories_data = [
   # Income
-  { name: 'Salary',         icon: '💰', color_hex: '#10B981', group_name: 'Income',            is_income: true },
-  { name: 'Freelance',      icon: '💻', color_hex: '#059669', group_name: 'Income',            is_income: true },
-  { name: 'Interest Income',icon: '🏦', color_hex: '#34D399', group_name: 'Income',            is_income: true },
-  # Expenses
-  { name: 'Groceries',      icon: '🛒', color_hex: '#F59E0B', group_name: 'Food & Dining' },
-  { name: 'Restaurants',    icon: '🍽️', color_hex: '#EF4444', group_name: 'Food & Dining' },
-  { name: 'Coffee',         icon: '☕', color_hex: '#92400E', group_name: 'Food & Dining' },
-  { name: 'Gas',            icon: '⛽', color_hex: '#3B82F6', group_name: 'Transportation' },
-  { name: 'Utilities',      icon: '💡', color_hex: '#6B7280', group_name: 'Bills & Utilities' },
-  { name: 'Rent & Mortgage',icon: '🏠', color_hex: '#7C3AED', group_name: 'Housing' },
-  { name: 'Shopping',       icon: '🛍️', color_hex: '#EC4899', group_name: 'Lifestyle' },
-  { name: 'Entertainment',  icon: '🎬', color_hex: '#8B5CF6', group_name: 'Lifestyle' },
-  { name: 'Health',         icon: '🏥', color_hex: '#DC2626', group_name: 'Health' },
-  { name: 'Insurance',      icon: '🛡️', color_hex: '#9CA3AF', group_name: 'Financial' },
-  { name: 'Subscriptions',  icon: '📱', color_hex: '#0EA5E9', group_name: 'Bills & Utilities' },
-  { name: 'Travel',         icon: '✈️', color_hex: '#14B8A6', group_name: 'Lifestyle' },
-  { name: 'Education',      icon: '📚', color_hex: '#6366F1', group_name: 'Personal' },
-  { name: 'Gifts',          icon: '🎁', color_hex: '#F43F5E', group_name: 'Lifestyle' },
-  { name: 'Transfer',       icon: '↔️', color_hex: '#374151', group_name: 'Transfer' },
-  { name: 'Auto Payment',   icon: '🚗', color_hex: '#1D4ED8', group_name: 'Transportation' },
-  { name: 'Personal Care',  icon: '💆', color_hex: '#BE185D', group_name: 'Personal' },
+  { name: 'Salary',           icon: '💰', color_hex: '#10B981', group_name: 'Income',            is_income: true },
+  { name: 'Freelance',        icon: '💻', color_hex: '#059669', group_name: 'Income',            is_income: true },
+  { name: 'Interest Income',  icon: '🏦', color_hex: '#34D399', group_name: 'Income',            is_income: true },
+  { name: 'Dividends',        icon: '📈', color_hex: '#047857', group_name: 'Income',            is_income: true },
+  { name: 'Rental Income',    icon: '🏘️', color_hex: '#065F46', group_name: 'Income',            is_income: true },
+  { name: 'Refund',           icon: '🔄', color_hex: '#6EE7B7', group_name: 'Income',            is_income: true },
+  { name: 'Other Income',     icon: '💵', color_hex: '#A7F3D0', group_name: 'Income',            is_income: true },
+
+  # Housing
+  { name: 'Rent & Mortgage',  icon: '🏠', color_hex: '#7C3AED', group_name: 'Housing' },
+  { name: 'Property Tax',     icon: '🏛️', color_hex: '#6D28D9', group_name: 'Housing' },
+  { name: 'HOA Dues',         icon: '🏢', color_hex: '#8B5CF6', group_name: 'Housing' },
+  { name: 'Home Insurance',   icon: '🛡️', color_hex: '#A78BFA', group_name: 'Housing' },
+  { name: 'Home Maintenance', icon: '🔧', color_hex: '#C4B5FD', group_name: 'Housing' },
+  { name: 'Home Improvement', icon: '🏗️', color_hex: '#DDD6FE', group_name: 'Housing' },
+
+  # Transportation
+  { name: 'Gas',              icon: '⛽', color_hex: '#3B82F6', group_name: 'Transportation' },
+  { name: 'Auto Payment',     icon: '🚗', color_hex: '#1D4ED8', group_name: 'Transportation' },
+  { name: 'Car Insurance',    icon: '📋', color_hex: '#2563EB', group_name: 'Transportation' },
+  { name: 'Parking',          icon: '🅿️', color_hex: '#60A5FA', group_name: 'Transportation' },
+  { name: 'Public Transit',   icon: '🚇', color_hex: '#93C5FD', group_name: 'Transportation' },
+  { name: 'Ride Share',       icon: '🚕', color_hex: '#BFDBFE', group_name: 'Transportation' },
+  { name: 'Car Maintenance',  icon: '🔩', color_hex: '#1E40AF', group_name: 'Transportation' },
+
+  # Food & Dining
+  { name: 'Groceries',        icon: '🛒', color_hex: '#F59E0B', group_name: 'Food & Dining' },
+  { name: 'Restaurants',      icon: '🍽️', color_hex: '#EF4444', group_name: 'Food & Dining' },
+  { name: 'Coffee',           icon: '☕', color_hex: '#92400E', group_name: 'Food & Dining' },
+  { name: 'Fast Food',        icon: '🍔', color_hex: '#D97706', group_name: 'Food & Dining' },
+  { name: 'Alcohol & Bars',   icon: '🍺', color_hex: '#B45309', group_name: 'Food & Dining' },
+
+  # Shopping
+  { name: 'Clothing',         icon: '👕', color_hex: '#EC4899', group_name: 'Shopping' },
+  { name: 'Electronics',      icon: '📱', color_hex: '#DB2777', group_name: 'Shopping' },
+  { name: 'Home Goods',       icon: '🛋️', color_hex: '#F472B6', group_name: 'Shopping' },
+  { name: 'Online Shopping',  icon: '📦', color_hex: '#F9A8D4', group_name: 'Shopping' },
+  { name: 'Shopping',         icon: '🛍️', color_hex: '#BE185D', group_name: 'Shopping' },
+
+  # Entertainment
+  { name: 'Streaming Services', icon: '📺', color_hex: '#8B5CF6', group_name: 'Entertainment' },
+  { name: 'Movies & Events',  icon: '🎬', color_hex: '#7C3AED', group_name: 'Entertainment' },
+  { name: 'Hobbies',          icon: '🎨', color_hex: '#6D28D9', group_name: 'Entertainment' },
+  { name: 'Books',            icon: '📖', color_hex: '#A78BFA', group_name: 'Entertainment' },
+  { name: 'Games',            icon: '🎮', color_hex: '#C4B5FD', group_name: 'Entertainment' },
+
+  # Health
+  { name: 'Doctor',           icon: '👨‍⚕️', color_hex: '#DC2626', group_name: 'Health' },
+  { name: 'Dentist',          icon: '🦷', color_hex: '#B91C1C', group_name: 'Health' },
+  { name: 'Pharmacy',         icon: '💊', color_hex: '#EF4444', group_name: 'Health' },
+  { name: 'Gym & Fitness',    icon: '🏋️', color_hex: '#F87171', group_name: 'Health' },
+  { name: 'Vision',           icon: '👓', color_hex: '#FCA5A5', group_name: 'Health' },
+  { name: 'Health Insurance', icon: '🏥', color_hex: '#991B1B', group_name: 'Health' },
+
+  # Bills & Utilities
+  { name: 'Electric',         icon: '⚡', color_hex: '#6B7280', group_name: 'Bills & Utilities' },
+  { name: 'Gas (Utility)',    icon: '🔥', color_hex: '#4B5563', group_name: 'Bills & Utilities' },
+  { name: 'Water',            icon: '💧', color_hex: '#9CA3AF', group_name: 'Bills & Utilities' },
+  { name: 'Internet',         icon: '🌐', color_hex: '#374151', group_name: 'Bills & Utilities' },
+  { name: 'Phone',            icon: '📞', color_hex: '#D1D5DB', group_name: 'Bills & Utilities' },
+  { name: 'Subscriptions',    icon: '📱', color_hex: '#0EA5E9', group_name: 'Bills & Utilities' },
+
+  # Personal
+  { name: 'Personal Care',    icon: '💆', color_hex: '#BE185D', group_name: 'Personal' },
+  { name: 'Education',        icon: '📚', color_hex: '#6366F1', group_name: 'Personal' },
+  { name: 'Laundry',          icon: '👔', color_hex: '#818CF8', group_name: 'Personal' },
+
+  # Insurance
+  { name: 'Life Insurance',   icon: '🛡️', color_hex: '#9CA3AF', group_name: 'Insurance' },
+  { name: 'Insurance',        icon: '📄', color_hex: '#6B7280', group_name: 'Insurance' },
+
+  # Debt Payments
+  { name: 'Student Loan',     icon: '🎓', color_hex: '#0369A1', group_name: 'Debt Payments' },
+  { name: 'Credit Card Payment', icon: '💳', color_hex: '#0284C7', group_name: 'Debt Payments' },
+  { name: 'Loan Payment',     icon: '🏦', color_hex: '#0EA5E9', group_name: 'Debt Payments' },
+
+  # Pets
+  { name: 'Vet',              icon: '🐾', color_hex: '#D97706', group_name: 'Pets' },
+  { name: 'Pet Food',         icon: '🦴', color_hex: '#F59E0B', group_name: 'Pets' },
+  { name: 'Pet Supplies',     icon: '🧸', color_hex: '#FBBF24', group_name: 'Pets' },
+
+  # Kids
+  { name: 'Childcare',        icon: '👶', color_hex: '#F472B6', group_name: 'Kids' },
+  { name: 'Kids Activities',  icon: '⚽', color_hex: '#EC4899', group_name: 'Kids' },
+  { name: 'School',           icon: '🏫', color_hex: '#DB2777', group_name: 'Kids' },
+
+  # Travel
+  { name: 'Flights',          icon: '✈️', color_hex: '#14B8A6', group_name: 'Travel' },
+  { name: 'Hotels',           icon: '🏨', color_hex: '#0D9488', group_name: 'Travel' },
+  { name: 'Vacation',         icon: '🏖️', color_hex: '#2DD4BF', group_name: 'Travel' },
+
+  # Fees
+  { name: 'Bank Fee',         icon: '🏦', color_hex: '#78716C', group_name: 'Fees' },
+  { name: 'ATM Fee',          icon: '🏧', color_hex: '#A8A29E', group_name: 'Fees' },
+  { name: 'Late Fee',         icon: '⏰', color_hex: '#57534E', group_name: 'Fees' },
+  { name: 'Interest Charged', icon: '📊', color_hex: '#44403C', group_name: 'Fees' },
+
+  # Giving
+  { name: 'Donations',        icon: '❤️', color_hex: '#F43F5E', group_name: 'Giving' },
+  { name: 'Gifts',            icon: '🎁', color_hex: '#E11D48', group_name: 'Giving' },
+
+  # Taxes
+  { name: 'Federal Tax',      icon: '🏛️', color_hex: '#1E3A5F', group_name: 'Taxes' },
+  { name: 'State Tax',        icon: '📋', color_hex: '#2563EB', group_name: 'Taxes' },
+
+  # Transfer
+  { name: 'Transfer',         icon: '↔️', color_hex: '#374151', group_name: 'Transfer' },
+
+  # Uncategorized
+  { name: 'Uncategorized',    icon: '❓', color_hex: '#D1D5DB', group_name: 'Other' },
 ]
 
 # Delete existing system categories to avoid conflicts with the unique constraint
-household.categories.where(is_system: true).destroy_all
+# Clear dependent records first to avoid foreign key violations
+system_cat_ids = household.categories.where(is_system: true).pluck(:id)
+if system_cat_ids.any?
+  RecurringItem.where(category_id: system_cat_ids).update_all(category_id: nil) if defined?(RecurringItem)
+  BudgetItem.where(category_id: system_cat_ids).delete_all if defined?(BudgetItem)
+  household.categories.where(is_system: true).destroy_all
+end
 
 cats = {}
 categories_data.each_with_index do |data, i|
@@ -210,10 +305,10 @@ end
 # --- UTILITIES: monthly ---
 6.times do |i|
   m = (today - i.months).beginning_of_month
-  all_transactions << { account: checking, category: 'Utilities', date: m + 10.days, amount_cents: -(8500 + rng.rand(4000)), name: 'Electric Bill', merchant: 'Xcel Energy' }
-  all_transactions << { account: checking, category: 'Utilities', date: m + 12.days, amount_cents: -(4500 + rng.rand(1500)), name: 'Water & Sewer', merchant: 'Denver Water' }
-  all_transactions << { account: checking, category: 'Utilities', date: m + 8.days,  amount_cents: -(6999 + rng.rand(1000)), name: 'Internet', merchant: 'Comcast Xfinity' }
-  all_transactions << { account: checking, category: 'Utilities', date: m + 15.days, amount_cents: -(5500 + rng.rand(3000)), name: 'Natural Gas', merchant: 'Xcel Energy Gas' }
+  all_transactions << { account: checking, category: 'Electric', date: m + 10.days, amount_cents: -(8500 + rng.rand(4000)), name: 'Electric Bill', merchant: 'Xcel Energy' }
+  all_transactions << { account: checking, category: 'Water', date: m + 12.days, amount_cents: -(4500 + rng.rand(1500)), name: 'Water' }
+  all_transactions << { account: checking, category: 'Internet', date: m + 8.days,  amount_cents: -(6999 + rng.rand(1000)), name: 'Internet', merchant: 'Comcast Xfinity' }
+  all_transactions << { account: checking, category: 'Gas (Utility)', date: m + 15.days, amount_cents: -(5500 + rng.rand(3000)), name: 'Natural Gas', merchant: 'Xcel Energy Gas' }
 end
 
 # --- GROCERIES: ~weekly ---
@@ -293,7 +388,7 @@ ent_data = [
     d = today - month_offset.months - rng.rand(28).days
     next if d < today - 6.months || d > today
     item = ent_data[rng.rand(ent_data.size)]
-    all_transactions << { account: amex, category: 'Entertainment', date: d, amount_cents: -(item[:range][0] + rng.rand(item[:range][1] - item[:range][0])), name: item[:merchant], merchant: item[:merchant] }
+    all_transactions << { account: amex, category: 'Movies & Events', date: d, amount_cents: -(item[:range][0] + rng.rand(item[:range][1] - item[:range][0])), name: item[:merchant], merchant: item[:merchant] }
   end
 end
 
@@ -307,7 +402,7 @@ health_data = [
 3.times do
   d = today - rng.rand(180).days
   item = health_data[rng.rand(health_data.size)]
-  all_transactions << { account: amex, category: 'Health', date: d, amount_cents: -(item[:range][0] + rng.rand(item[:range][1] - item[:range][0])), name: item[:merchant], merchant: item[:merchant], tags: ['tax-deductible'] }
+  all_transactions << { account: amex, category: 'Doctor', date: d, amount_cents: -(item[:range][0] + rng.rand(item[:range][1] - item[:range][0])), name: item[:merchant], merchant: item[:merchant], tags: ['tax-deductible'] }
 end
 
 # --- TRAVEL: a vacation 2 months ago ---
@@ -320,7 +415,7 @@ vacation_base = today - 2.months
   { merchant: 'Alcatraz Cruises',    amount: -8400,  date: vacation_base + 2.days, name: 'Alcatraz tour (2 tickets)' },
   { merchant: 'Fisherman\'s Wharf',  amount: -6500,  date: vacation_base + 3.days, name: 'Dinner at the wharf' },
 ].each do |t|
-  all_transactions << { account: amex, category: 'Travel', date: t[:date], amount_cents: t[:amount], name: t[:name], merchant: t[:merchant], tags: ['vacation'] }
+  all_transactions << { account: amex, category: 'Vacation', date: t[:date], amount_cents: t[:amount], name: t[:name], merchant: t[:merchant], tags: ['vacation'] }
 end
 
 # --- EDUCATION ---
@@ -461,7 +556,7 @@ recurring_data = [
   { name: 'Mortgage Payment',    merchant: 'Wells Fargo Mortgage',        amount_cents: 218_500, frequency: 'monthly', category: 'Rent & Mortgage', account: checking, is_income: false, next_days: 1 },
   { name: 'Netflix',             merchant: 'Netflix',                     amount_cents: 1_599,   frequency: 'monthly', category: 'Subscriptions',   account: amex,     is_income: false, next_days: 8 },
   { name: 'Spotify Premium',     merchant: 'Spotify Premium',             amount_cents: 1_099,   frequency: 'monthly', category: 'Subscriptions',   account: amex,     is_income: false, next_days: 11 },
-  { name: 'Planet Fitness',      merchant: 'Planet Fitness',              amount_cents: 2_500,   frequency: 'monthly', category: 'Health',           account: amex,     is_income: false, next_days: 5 },
+  { name: 'Planet Fitness',      merchant: 'Planet Fitness',              amount_cents: 2_500,   frequency: 'monthly', category: 'Gym & Fitness',    account: amex,     is_income: false, next_days: 5 },
   { name: 'Car Payment',         merchant: 'Toyota Financial Services',   amount_cents: 38_900,  frequency: 'monthly', category: 'Auto Payment',    account: checking, is_income: false, next_days: 15 },
   { name: 'Auto Insurance',      merchant: 'State Farm Insurance',        amount_cents: 14_500,  frequency: 'monthly', category: 'Insurance',       account: checking, is_income: false, next_days: 20 },
   { name: 'Paycheck',            merchant: 'TechCorp Inc',                amount_cents: 350_000, frequency: 'biweekly',category: 'Salary',          account: checking, is_income: true,  next_days: 7 },
@@ -625,9 +720,9 @@ rules_data = [
   { match_value: 'walmart',         category: 'Shopping',       rename: 'Walmart' },
   { match_value: 'uber',            category: 'Gas',            rename: 'Uber' },
   { match_value: 'lyft',            category: 'Gas',            rename: 'Lyft' },
-  { match_value: 'planet fitness',  category: 'Health',         rename: 'Planet Fitness' },
-  { match_value: 'cvs',             category: 'Health',         rename: 'CVS Pharmacy' },
-  { match_value: 'walgreens',       category: 'Health',         rename: 'Walgreens' },
+  { match_value: 'planet fitness',  category: 'Gym & Fitness',  rename: 'Planet Fitness' },
+  { match_value: 'cvs',             category: 'Pharmacy',        rename: 'CVS Pharmacy' },
+  { match_value: 'walgreens',       category: 'Pharmacy',        rename: 'Walgreens' },
 ]
 
 rules_data.each_with_index do |rd, i|

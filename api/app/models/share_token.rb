@@ -2,7 +2,9 @@ class ShareToken < ApplicationRecord
   belongs_to :user
 
   validates :token, presence: true, uniqueness: true
-  validates :widget_type, presence: true, inclusion: { in: %w[net_worth spending] }
+  WIDGET_TYPES = %w[net_worth spending budget].freeze
+
+  validates :widget_type, presence: true, inclusion: { in: WIDGET_TYPES }
 
   before_validation :generate_token, on: :create
 

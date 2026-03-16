@@ -6,6 +6,8 @@ module Types
     field :color, String, null: true
     field :group_name, String, null: true
     field :is_system, Boolean, null: false
+    field :is_hidden, Boolean, null: false
+    field :display_order, Integer, null: false
     field :household_id, ID, null: true
     field :parent_id, ID, null: true
     field :children, [Types::CategoryType], null: false

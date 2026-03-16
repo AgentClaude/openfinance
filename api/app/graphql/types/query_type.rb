@@ -137,11 +137,15 @@ module Types
       { transactions: txns, total_count: total, has_more: (offset + limit) < total }
     end
 
-    field :categories, [Types::CategoryType], null: false
-    def categories
+    field :categories, [Types::CategoryType], null: false do
+      argument :include_hidden, Boolean, required: false, default_value: false
+    end
+    def categories(include_hidden: false)
       return [] unless context[:current_user]&.household
-      CategoryPolicy::Scope.new(context[:current_user], Category).resolve
-        .where(parent_id: nil).order(:display_order, :name)
+      scope = CategoryPolicy::Scope.new(context[:current_user], Category).resolve
+        .where(parent_id: nil)
+      scope = scope.where(is_hidden: false) unless include_hidden
+      scope.order(:display_order, :name)
     end
 
     field :tags, [Types::TagType], null: false

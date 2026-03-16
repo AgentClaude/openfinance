@@ -113,14 +113,16 @@ export const GET_TRANSACTIONS = gql`
 `;
 
 export const GET_CATEGORIES = gql`
-  query GetCategories {
-    categories {
+  query GetCategories($includeHidden: Boolean) {
+    categories(includeHidden: $includeHidden) {
       id
       name
       icon
       color
       groupName
       isSystem
+      isHidden
+      displayOrder
       householdId
       parentId
       transactionCount
@@ -130,6 +132,7 @@ export const GET_CATEGORIES = gql`
         icon
         color
         isSystem
+        isHidden
       }
     }
   }

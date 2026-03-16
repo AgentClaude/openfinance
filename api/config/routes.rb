@@ -68,8 +68,10 @@ Rails.application.routes.draw do
       end
 
       # Embeddable widget endpoints (share token auth, no API key)
+      # Supports both JSON (default) and HTML (.html suffix) for iframe embedding
       get '/embed/net_worth', to: 'embed#net_worth'
       get '/embed/spending', to: 'embed#spending'
+      get '/embed/budget', to: 'embed#budget'
     end
   end
 
