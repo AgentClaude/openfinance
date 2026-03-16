@@ -704,3 +704,22 @@ export const GET_ACTIVITY_FEED = gql`
     }
   }
 `;
+
+export const GET_PLAID_CATEGORY_MAPPINGS = gql`
+  query GetPlaidCategoryMappings {
+    plaidCategoryMappings {
+      id
+      plaidPrimary
+      plaidDetailed
+      isDefault
+      category {
+        id
+        name
+        icon
+        color
+        groupName
+      }
+    }
+    plaidPrimaryCategories
+  }
+`;

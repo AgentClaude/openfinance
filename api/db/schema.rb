@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_03_07_161700) do
+ActiveRecord::Schema[8.0].define(version: 2026_03_16_045617) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -478,16 +478,17 @@ ActiveRecord::Schema[8.0].define(version: 2026_03_07_161700) do
   end
 
   create_table "plaid_category_mappings", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.uuid "household_id", null: false
-    t.uuid "category_id"
     t.string "plaid_primary", null: false
     t.string "plaid_detailed"
-    t.boolean "is_active", default: true, null: false
+    t.uuid "category_id", null: false
+    t.uuid "household_id", null: false
+    t.boolean "is_default", default: false, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["category_id"], name: "index_plaid_category_mappings_on_category_id"
-    t.index ["household_id", "plaid_primary", "plaid_detailed"], name: "idx_plaid_cat_map_unique", unique: true
+    t.index ["household_id", "plaid_primary", "plaid_detailed"], name: "idx_plaid_mappings_unique", unique: true
     t.index ["household_id"], name: "index_plaid_category_mappings_on_household_id"
+    t.index ["plaid_primary"], name: "index_plaid_category_mappings_on_plaid_primary"
   end
 
   create_table "recurring_items", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|

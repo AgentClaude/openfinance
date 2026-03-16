@@ -10,6 +10,9 @@ module Types
     field :update_category, mutation: Mutations::UpdateCategory
     field :delete_category, mutation: Mutations::DeleteCategory
     field :toggle_category_hidden, mutation: Mutations::ToggleCategoryHidden
+    field :seed_plaid_category_mappings, mutation: Mutations::SeedPlaidCategoryMappings
+    field :update_plaid_category_mapping, mutation: Mutations::UpdatePlaidCategoryMapping
+    field :reset_plaid_category_mappings, mutation: Mutations::ResetPlaidCategoryMappings
     field :create_tag, mutation: Mutations::CreateTag
     field :update_budget_item, mutation: Mutations::UpdateBudgetItem
     field :delete_budget_item, mutation: Mutations::DeleteBudgetItem

@@ -16,6 +16,7 @@ import Select from '@/components/ui/Select';
 import Card from '@/components/ui/Card';
 import Badge from '@/components/ui/Badge';
 import toast from 'react-hot-toast';
+import PlaidMappingsTab from '@/components/settings/PlaidMappingsTab';
 
 const CURRENCIES = ['USD', 'EUR', 'GBP', 'CAD', 'AUD', 'NZD', 'JPY', 'CHF'];
 const TIMEZONES = [
@@ -56,7 +57,7 @@ const CHANNELS = [
   { key: 'push', label: 'Push' },
 ];
 
-type TabId = 'profile' | 'preferences' | 'household' | 'members' | 'notifications' | 'tags' | 'referrals' | 'security' | 'apikeys' | 'sharing' | 'data';
+type TabId = 'profile' | 'preferences' | 'household' | 'members' | 'notifications' | 'tags' | 'referrals' | 'security' | 'apikeys' | 'sharing' | 'plaid' | 'data';
 
 export default function SettingsPage() {
   const { user } = useAuth();
@@ -351,6 +352,7 @@ export default function SettingsPage() {
     { id: 'referrals' as const, label: 'Referrals', icon: '🎁' },
     { id: 'apikeys' as const, label: 'API Keys', icon: '🔑' },
     { id: 'sharing' as const, label: 'Sharing', icon: '🔗' },
+    { id: 'plaid' as const, label: 'Plaid', icon: '🏦' },
     { id: 'security' as const, label: 'Security', icon: '🔒' },
     { id: 'data' as const, label: 'Data', icon: '📦' },
   ];
@@ -1117,6 +1119,11 @@ export default function SettingsPage() {
             </div>
           </Card>
         </div>
+      )}
+
+      {/* Plaid Category Mapping Tab */}
+      {activeTab === 'plaid' && (
+        <PlaidMappingsTab />
       )}
 
       {/* Security Tab */}
