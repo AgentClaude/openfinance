@@ -49,6 +49,17 @@ setup() {
   # Generate production env if it doesn't exist
   if [ ! -f "${ENV_FILE}" ]; then
     log "Generating ${ENV_FILE} with secure secrets..."
+
+    # Pre-generate secrets so they can be embedded directly in the env file
+    # (Docker Compose does not recursively expand variables within .env values)
+    PG_PASS=$(generate_secret)
+    RAILS_MASTER=$(generate_secret)
+    SECRET_BASE=$(generate_secret)
+    JWT_SECRET=$(generate_secret)
+    SIDEKIQ_PASS=$(openssl rand -base64 18)
+    # Generate bcrypt hash for Caddy basic auth (used for Sidekiq dashboard)
+    SIDEKIQ_HASH=$(docker run --rm caddy:2-alpine caddy hash-password --plaintext "${SIDEKIQ_PASS}" 2>/dev/null || echo "GENERATE_ME")
+
     cat > "${ENV_FILE}" <<EOF
 # =============================================================================
 # OpenFinance Production Configuration
@@ -56,19 +67,20 @@ setup() {
 # =============================================================================
 
 # Domain — REQUIRED for SSL. Set to your domain or Tailscale hostname.
+# After changing, also update PLAID_WEBHOOK_URL, CORS_ORIGINS, and FROM_EMAIL below.
 DOMAIN=localhost
 
 # Database
 POSTGRES_DB=openfinance_production
 POSTGRES_USER=openfinance
-POSTGRES_PASSWORD=$(generate_secret)
-DATABASE_URL=postgres://openfinance:\${POSTGRES_PASSWORD}@db:5432/openfinance_production
+POSTGRES_PASSWORD=${PG_PASS}
+DATABASE_URL=postgres://openfinance:${PG_PASS}@db:5432/openfinance_production
 
 # Rails
 RAILS_ENV=production
-RAILS_MASTER_KEY=$(generate_secret)
-SECRET_KEY_BASE=$(generate_secret)
-JWT_SECRET_KEY=$(generate_secret)
+RAILS_MASTER_KEY=${RAILS_MASTER}
+SECRET_KEY_BASE=${SECRET_BASE}
+JWT_SECRET_KEY=${JWT_SECRET}
 JWT_EXPIRATION_HOURS=24
 
 # Redis
@@ -80,17 +92,17 @@ ENABLE_PLAID=false
 PLAID_CLIENT_ID=
 PLAID_SECRET=
 PLAID_ENVIRONMENT=sandbox
-PLAID_WEBHOOK_URL=https://\${DOMAIN}/webhooks/plaid
+PLAID_WEBHOOK_URL=https://localhost/webhooks/plaid
 
-# CORS
-CORS_ORIGINS=https://\${DOMAIN}
+# CORS — update to match your DOMAIN
+CORS_ORIGINS=https://localhost
 
-# Email (optional)
+# Email (optional) — update FROM_EMAIL to match your DOMAIN
 SMTP_ADDRESS=
 SMTP_PORT=587
 SMTP_USERNAME=
 SMTP_PASSWORD=
-FROM_EMAIL=noreply@\${DOMAIN}
+FROM_EMAIL=noreply@localhost
 
 # Feature flags
 ENABLE_EMAIL_NOTIFICATIONS=false
@@ -101,10 +113,19 @@ SEED_SAMPLE_DATA=false
 DEBUG_MODE=false
 LOG_LEVEL=info
 
+# Sidekiq dashboard auth (Caddy basic auth)
+# Username: admin, Password below
+SIDEKIQ_PASSWORD_HASH=${SIDEKIQ_HASH}
+
 # Ports (Caddy handles 80/443, these are internal)
 API_PORT=3001
 WEB_PORT=3002
 EOF
+
+    log "Sidekiq dashboard credentials — save these!"
+    log "  Username: admin"
+    log "  Password: ${SIDEKIQ_PASS}"
+    echo ""
 
     warn "⚠️  Edit ${ENV_FILE} and set your DOMAIN before starting!"
     warn "   For Tailscale: DOMAIN=your-hostname.tailnet-name.ts.net"
@@ -203,7 +224,8 @@ status() {
 
   log "Health checks:"
   for svc in api web caddy; do
-    state=$(${COMPOSE_CMD} ps --format json "${svc}" 2>/dev/null | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('Health','unknown'))" 2>/dev/null || echo "unknown")
+    state=$(${COMPOSE_CMD} ps --format '{{.Health}}' "${svc}" 2>/dev/null || echo "unknown")
+    state="${state:-unknown}"
     case "${state}" in
       healthy) echo -e "  ${GREEN}✓${NC} ${svc}: healthy" ;;
       starting) echo -e "  ${YELLOW}…${NC} ${svc}: starting" ;;

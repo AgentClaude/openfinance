@@ -14,7 +14,7 @@
 set -euo pipefail
 
 BACKUP_DIR="${BACKUP_DIR:-./backups}"
-CONTAINER="${DB_CONTAINER:-openfinance_db}"
+COMPOSE_CMD="docker compose -f docker-compose.yml -f docker-compose.prod.yml"
 DB_NAME="${POSTGRES_DB:-openfinance_production}"
 DB_USER="${POSTGRES_USER:-openfinance}"
 RETENTION_DAYS="${RETENTION_DAYS:-30}"
@@ -69,7 +69,7 @@ case "${1:-backup}" in
     docker compose stop api sidekiq 2>/dev/null || true
 
     log "Restoring from ${RESTORE_FILE}..."
-    gunzip -c "${RESTORE_FILE}" | docker exec -i "${CONTAINER}" psql -U "${DB_USER}" -d "${DB_NAME}" --set ON_ERROR_STOP=on
+    gunzip -c "${RESTORE_FILE}" | ${COMPOSE_CMD} exec -T db psql -U "${DB_USER}" -d "${DB_NAME}" --set ON_ERROR_STOP=on
 
     log "Starting API and Sidekiq..."
     docker compose start api sidekiq
@@ -84,16 +84,16 @@ case "${1:-backup}" in
     ;;
 
   backup|"")
-    # Check container is running
-    if ! docker inspect "${CONTAINER}" >/dev/null 2>&1; then
-      error "Database container '${CONTAINER}' not found. Is Docker Compose running?"
+    # Check db service is running
+    if ! ${COMPOSE_CMD} ps db --format json 2>/dev/null | grep -q running; then
+      error "Database service not running. Is Docker Compose up?"
       exit 1
     fi
 
     log "Starting backup of ${DB_NAME}..."
 
-    # Create backup with pg_dump (custom format for parallel restore support)
-    docker exec "${CONTAINER}" pg_dump \
+    # Create backup (plain SQL format, gzip compressed)
+    ${COMPOSE_CMD} exec -T db pg_dump \
       -U "${DB_USER}" \
       -d "${DB_NAME}" \
       --no-owner \

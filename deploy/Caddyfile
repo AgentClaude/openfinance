@@ -35,8 +35,9 @@
 
 	handle /sidekiq* {
 		# Basic auth for Sidekiq dashboard in production
+		# SIDEKIQ_PASSWORD_HASH must be set — generate with: caddy hash-password
 		basicauth {
-			admin {$SIDEKIQ_PASSWORD_HASH:JDJhJDE0JEVuRGVZRkVhLnBjdWR5d2FiMk1lN2VKOUVXejBuQ0t6N09YM0xUN2E3dHRhZFhhRkZYZDl5}
+			admin {$SIDEKIQ_PASSWORD_HASH}
 		}
 		reverse_proxy api:3001
 	}
