@@ -1,0 +1,111 @@
+# docker-compose.prod.yml — Production overrides
+# Usage: docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+#
+# This removes dev volume mounts, adds Caddy reverse proxy with auto-SSL,
+# tightens security, and adds production-ready configuration.
+
+services:
+  # Override DB for production security
+  db:
+    environment:
+      POSTGRES_HOST_AUTH_METHOD: scram-sha-256
+      POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256"
+    ports: []  # Don't expose DB externally
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+
+  # Don't expose Redis externally
+  redis:
+    ports: []
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+
+  # Production API overrides
+  api:
+    environment:
+      - RAILS_ENV=production
+      - RAILS_LOG_TO_STDOUT=true
+      - RAILS_SERVE_STATIC_FILES=false
+      - ENABLE_GRAPHQL_PLAYGROUND=false
+      - DEBUG_MODE=false
+      - SEED_SAMPLE_DATA=false
+    ports: []  # Caddy handles external traffic
+    volumes:
+      - rails_storage:/app/storage
+      - rails_logs:/app/log
+      # Remove: ./api:/app source mount (use built image)
+    command: >
+      sh -c "
+        rm -f /app/tmp/pids/server.pid &&
+        bundle exec rails db:prepare &&
+        bundle exec rails server -b 0.0.0.0 -p 3001
+      "
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 5
+
+  # Production Sidekiq
+  sidekiq:
+    environment:
+      - RAILS_ENV=production
+      - RAILS_LOG_TO_STDOUT=true
+    volumes:
+      - rails_storage:/app/storage
+      - rails_logs:/app/log
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 5
+
+  # Production Web (behind Caddy)
+  web:
+    ports: []  # Caddy handles external traffic
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+
+  # Caddy reverse proxy — automatic HTTPS via Let's Encrypt
+  caddy:
+    image: caddy:2-alpine
+    container_name: openfinance_caddy
+    restart: unless-stopped
+    depends_on:
+      web:
+        condition: service_healthy
+      api:
+        condition: service_healthy
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"  # HTTP/3
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    environment:
+      - DOMAIN=${DOMAIN:-localhost}
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:80"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  caddy_data:
+    driver: local
+  caddy_config:
+    driver: local

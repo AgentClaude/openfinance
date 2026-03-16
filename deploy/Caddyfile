@@ -1,0 +1,73 @@
+# Caddyfile — Reverse proxy with automatic HTTPS
+#
+# For production: set DOMAIN env var to your domain (e.g. openfinance.example.com)
+# Caddy will automatically obtain and renew Let's Encrypt certificates.
+#
+# For local/Tailscale: use localhost or the Tailscale hostname
+
+{$DOMAIN:localhost} {
+	# Encode responses
+	encode gzip zstd
+
+	# Security headers
+	header {
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "SAMEORIGIN"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		X-XSS-Protection "1; mode=block"
+		Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+		-Server
+		-X-Powered-By
+	}
+
+	# API routes → Rails backend
+	handle /graphql* {
+		reverse_proxy api:3001
+	}
+
+	handle /api/* {
+		reverse_proxy api:3001
+	}
+
+	handle /health {
+		reverse_proxy api:3001
+	}
+
+	handle /sidekiq* {
+		# Basic auth for Sidekiq dashboard in production
+		# SIDEKIQ_PASSWORD_HASH must be set — generate with: caddy hash-password
+		basicauth {
+			admin {$SIDEKIQ_PASSWORD_HASH}
+		}
+		reverse_proxy api:3001
+	}
+
+	# Plaid webhooks → Rails backend
+	handle /webhooks/* {
+		reverse_proxy api:3001
+	}
+
+	# Embed/widget routes → Rails backend
+	handle /embed/* {
+		reverse_proxy api:3001
+	}
+
+	# Static assets with long cache
+	handle /assets/* {
+		header Cache-Control "public, max-age=31536000, immutable"
+		reverse_proxy web:3000
+	}
+
+	# Everything else → React frontend
+	handle {
+		reverse_proxy web:3000
+	}
+
+	# Access logging
+	log {
+		output file /data/access.log {
+			roll_size 100mb
+			roll_keep 5
+		}
+	}
+}

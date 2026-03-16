@@ -20,6 +20,12 @@ playwright-report/
 # Docker
 *.log
 
+# Backups
+backups/
+
+# Production secrets
+.env.production
+
 # OS
 .DS_Store
 Thumbs.db
