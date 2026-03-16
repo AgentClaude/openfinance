@@ -4,9 +4,10 @@ _Last updated: 2026-03-05_
 _See MONARCH_FEATURES.md for detailed feature spec and data fields_
 _See SPRINT.md for prioritized sprint plan (Sprints 1-3)_
 
-> **Status (Mar 2026):** Core app is feature-complete through Phase 17. All Sprint 1-3 items
-> done. Phases 1-14 are ✅ or nearly so. 390 RSpec specs, TypeScript clean.
-> Remaining work: component consolidation, marketing polish, QA, and deployment.
+> **Status (Mar 2026):** Core app is feature-complete through Phase 24. All Sprint 1-3 items
+> done. Phases 1-14 ✅, Phase 24 (API/Webhooks/Widgets) ✅, Phase 26 (Deploy) mostly done.
+> 596 RSpec specs, 247 Playwright E2E tests, TypeScript clean.
+> Remaining: component consolidation (19b), Storybook (19), marketing polish (18), full QA (25).
 
 ## Legend
 - ✅ Done
@@ -236,11 +237,13 @@ _See SPRINT.md for prioritized sprint plan (Sprints 1-3)_
 - ⬚ Referral landing page (/r/:code click tracking)
 - ⬚ Subscription/billing model
 
-## Phase 24: Embeddable Widgets & Public API
-- ⬚ Public API: REST endpoints for net_worth, daily_spend, monthly_summary
-- ⬚ API key management (ApiKey model exists, UI references exist but backend queries/mutations incomplete)
-- ⬚ Embeddable widgets (iframe-ready pages)
-- ⬚ Webhook support
+## Phase 24: Embeddable Widgets & Public API ✅
+- ✅ Public API: REST endpoints (net_worth, daily_spend, monthly_summary, accounts, transactions, budgets, account_balances)
+- ✅ API key management (ApiKey model, create/revoke mutations, Settings UI)
+- ✅ Embeddable widgets (EmbedController, iframe-ready pages, category visibility toggle)
+- ✅ Webhook support (WebhookSubscription CRUD, HMAC delivery, event logging)
+- ✅ API docs controller
+- ✅ Share tokens for public dashboard access
 
 ## Phase 25: Full QA — Playwright E2E + Manual Browser Audit
 - ⬚ Comprehensive Playwright test suite covering EVERY page
@@ -248,12 +251,14 @@ _See SPRINT.md for prioritized sprint plan (Sprints 1-3)_
 - ⬚ Accessibility audit
 - ⬚ QA report in AUDIT.md
 
-## Phase 26: Deploy
-- ⬚ Production Docker config
-- ⬚ Tailscale Serve or cloud hosting
-- ⬚ SSL/TLS
-- ⬚ Backup strategy for Postgres
-- ⬚ Plaid production credentials
+## Phase 26: Deploy — Mostly Done
+- ✅ Production Docker config (docker-compose.prod.yml — Caddy reverse proxy, security hardening, resource limits)
+- ✅ Tailscale Serve or cloud hosting (deployment guide with Tailscale, VPS, and public domain options)
+- ✅ SSL/TLS (Caddy auto-SSL via Let's Encrypt, security headers)
+- ✅ Backup strategy for Postgres (deploy/backup.sh — automated daily backups, restore, prune, retention)
+- ✅ Deploy script (deploy/deploy.sh — setup, update, status, logs)
+- ✅ Production env template with auto-generated secrets
+- ⬚ Plaid production credentials (user must configure)
 
 ---
 
