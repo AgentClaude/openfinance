@@ -83,6 +83,8 @@ export interface Category {
   color?: string;
   groupName: string;
   isSystem: boolean;
+  isHidden: boolean;
+  displayOrder: number;
   householdId: string;
   parentId?: string;
   children?: Category[];

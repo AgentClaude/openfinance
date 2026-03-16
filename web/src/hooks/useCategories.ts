@@ -1,6 +1,6 @@
 import { useQuery, useMutation } from '@apollo/client';
 import { GET_CATEGORIES } from '@/graphql/queries';
-import { CREATE_CATEGORY, UPDATE_CATEGORY, DELETE_CATEGORY } from '@/graphql/mutations';
+import { CREATE_CATEGORY, UPDATE_CATEGORY, DELETE_CATEGORY, TOGGLE_CATEGORY_HIDDEN } from '@/graphql/mutations';
 import { Category } from '@/types';
 
 interface CreateCategoryInput {
@@ -13,13 +13,21 @@ interface CreateCategoryInput {
 
 interface UpdateCategoryInput extends Partial<CreateCategoryInput> {}
 
-export const useCategories = () => {
-  const { data, loading, error, refetch } = useQuery(GET_CATEGORIES);
+interface UseCategoriesOptions {
+  includeHidden?: boolean;
+}
+
+export const useCategories = (options: UseCategoriesOptions = {}) => {
+  const { includeHidden = false } = options;
+
+  const { data, loading, error, refetch } = useQuery(GET_CATEGORIES, {
+    variables: { includeHidden },
+  });
 
   const [createCategoryMutation, { loading: creating }] = useMutation(
     CREATE_CATEGORY,
     {
-      refetchQueries: [{ query: GET_CATEGORIES }],
+      refetchQueries: [{ query: GET_CATEGORIES, variables: { includeHidden } }],
     }
   );
 
@@ -30,50 +38,52 @@ export const useCategories = () => {
   const [deleteCategoryMutation, { loading: deleting }] = useMutation(
     DELETE_CATEGORY,
     {
-      refetchQueries: [{ query: GET_CATEGORIES }],
+      refetchQueries: [{ query: GET_CATEGORIES, variables: { includeHidden } }],
+    }
+  );
+
+  const [toggleHiddenMutation, { loading: togglingHidden }] = useMutation(
+    TOGGLE_CATEGORY_HIDDEN,
+    {
+      refetchQueries: [{ query: GET_CATEGORIES, variables: { includeHidden } }],
     }
   );
 
   const categories: Category[] = data?.categories || [];
 
   const createCategory = async (input: CreateCategoryInput) => {
-    try {
-      const result = await createCategoryMutation({
-        variables: { input },
-      });
-      return result.data.createCategory;
-    } catch (error) {
-      throw error;
-    }
+    const result = await createCategoryMutation({
+      variables: { input },
+    });
+    return result.data.createCategory;
   };
 
   const updateCategory = async (id: string, input: UpdateCategoryInput) => {
-    try {
-      const result = await updateCategoryMutation({
-        variables: { id, input },
-      });
-      return result.data.updateCategory;
-    } catch (error) {
-      throw error;
-    }
+    const result = await updateCategoryMutation({
+      variables: { id, input },
+    });
+    return result.data.updateCategory;
   };
 
   const deleteCategory = async (id: string) => {
-    try {
-      await deleteCategoryMutation({
-        variables: { id },
-      });
-      return true;
-    } catch (error) {
-      throw error;
-    }
+    await deleteCategoryMutation({
+      variables: { id },
+    });
+    return true;
+  };
+
+  const toggleCategoryHidden = async (id: string, hidden: boolean) => {
+    const result = await toggleHiddenMutation({
+      variables: { id, hidden },
+    });
+    return result.data.toggleCategoryHidden;
   };
 
   const getCategoriesByGroup = () => {
     const grouped: Record<string, Category[]> = {};
     
     categories.forEach(category => {
-      if (!category.parentId) { // Only top-level categories
+      if (!category.parentId) {
         if (!grouped[category.groupName]) {
           grouped[category.groupName] = [];
         }
@@ -118,11 +128,13 @@ export const useCategories = () => {
     creating,
     updating,
     deleting,
+    togglingHidden,
     error,
     refetch,
     createCategory,
     updateCategory,
     deleteCategory,
+    toggleCategoryHidden,
     getCategoriesByGroup,
     getSubcategories,
     getCategoryById,

@@ -1031,3 +1031,13 @@ export const BACKFILL_BALANCE_HISTORY = gql`
     }
   }
 `;
+
+export const TOGGLE_CATEGORY_HIDDEN = gql`
+  mutation ToggleCategoryHidden($id: ID!, $hidden: Boolean!) {
+    toggleCategoryHidden(id: $id, hidden: $hidden) {
+      id
+      name
+      isHidden
+    }
+  }
+`;

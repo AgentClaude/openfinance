@@ -79,7 +79,7 @@ class Account < ApplicationRecord
   # Callbacks
   before_create :set_default_currency
   before_create :set_default_display_order
-  after_update :track_balance_history, if: :saved_change_to_current_balance?
+  after_update :track_balance_history, if: :saved_change_to_current_balance_cents?
 
   # Balance tracking
   def track_balance_history
