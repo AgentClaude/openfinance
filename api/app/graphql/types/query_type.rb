@@ -148,6 +148,20 @@ module Types
       scope.order(:display_order, :name)
     end
 
+    field :plaid_category_mappings, [Types::PlaidCategoryMappingType], null: false
+    def plaid_category_mappings
+      return [] unless context[:current_user]&.household
+      context[:current_user].household.plaid_category_mappings
+        .includes(:category)
+        .order(:plaid_primary, :plaid_detailed)
+    end
+
+    field :plaid_primary_categories, [String], null: false,
+      description: 'List of all Plaid personal finance primary categories'
+    def plaid_primary_categories
+      PlaidCategoryMapping::PLAID_PRIMARY_CATEGORIES
+    end
+
     field :tags, [Types::TagType], null: false
     def tags
       return [] unless context[:current_user]&.household

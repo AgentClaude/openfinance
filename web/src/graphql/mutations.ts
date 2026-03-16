@@ -1041,3 +1041,37 @@ export const TOGGLE_CATEGORY_HIDDEN = gql`
     }
   }
 `;
+
+export const SEED_PLAID_CATEGORY_MAPPINGS = gql`
+  mutation SeedPlaidCategoryMappings {
+    seedPlaidCategoryMappings {
+      created
+      skipped
+    }
+  }
+`;
+
+export const UPDATE_PLAID_CATEGORY_MAPPING = gql`
+  mutation UpdatePlaidCategoryMapping($id: ID!, $categoryId: ID!) {
+    updatePlaidCategoryMapping(id: $id, categoryId: $categoryId) {
+      id
+      plaidPrimary
+      plaidDetailed
+      isDefault
+      category {
+        id
+        name
+        icon
+        color
+      }
+    }
+  }
+`;
+
+export const RESET_PLAID_CATEGORY_MAPPINGS = gql`
+  mutation ResetPlaidCategoryMappings {
+    resetPlaidCategoryMappings {
+      created
+    }
+  }
+`;

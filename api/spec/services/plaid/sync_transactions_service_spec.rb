@@ -19,6 +19,15 @@ RSpec.describe Plaid::SyncTransactionsService, type: :service do
     # Ensure account exists
     account
     category
+
+    # Set up Plaid category mapping so the resolve service can find the category
+    PlaidCategoryMapping.create!(
+      household: household,
+      category: category,
+      plaid_primary: 'FOOD_AND_DRINK',
+      plaid_detailed: nil,
+      is_default: true
+    )
   end
 
   describe '#call' do

@@ -106,33 +106,12 @@ class Plaid::SyncTransactionsService < ApplicationService
   def map_category(personal_finance_category)
     return nil unless personal_finance_category
 
-    primary = personal_finance_category['primary']&.downcase
-    household = connection.household
+    result = Plaid::ResolveCategoryService.call(
+      household: connection.household,
+      personal_finance_category: personal_finance_category.respond_to?(:to_hash) ? personal_finance_category.to_hash : personal_finance_category
+    )
 
-    # Try to map Plaid's category to our categories
-    category_mapping = {
-      'income' => 'Income',
-      'transfer_in' => 'Transfer',
-      'transfer_out' => 'Transfer',
-      'loan_payments' => 'Debt Payment',
-      'bank_fees' => 'Fees & Charges',
-      'entertainment' => 'Entertainment',
-      'food_and_drink' => 'Food & Dining',
-      'general_merchandise' => 'Shopping',
-      'home_improvement' => 'Home',
-      'medical' => 'Healthcare',
-      'personal_care' => 'Personal Care',
-      'general_services' => 'Services',
-      'government_and_non_profit' => 'Taxes',
-      'transportation' => 'Transportation',
-      'travel' => 'Travel',
-      'rent_and_utilities' => 'Bills & Utilities'
-    }
-
-    category_name = category_mapping[primary]
-    return nil unless category_name
-
-    household.categories.find_by("LOWER(name) = ?", category_name.downcase)
+    result.success? ? result.data[:category] : nil
   end
 
   def handle_plaid_error(error)
