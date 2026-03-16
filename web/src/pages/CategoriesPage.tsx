@@ -266,19 +266,19 @@ const CategoriesPage: React.FC = () => {
                       icon: category.isHidden ? <EyeIcon className="h-4 w-4" /> : <EyeSlashIcon className="h-4 w-4" />,
                       onClick: () => handleToggleHidden(category),
                     },
-                    {
-                      label: 'Edit',
-                      icon: <PencilIcon className="h-4 w-4" />,
-                      onClick: () => handleEdit(category),
-                      disabled: category.isSystem,
-                    },
-                    {
-                      label: 'Delete',
-                      icon: <TrashIcon className="h-4 w-4" />,
-                      onClick: () => handleDelete(category),
-                      variant: 'danger' as const,
-                      disabled: category.isSystem,
-                    },
+                    ...(!category.isSystem ? [
+                      {
+                        label: 'Edit',
+                        icon: <PencilIcon className="h-4 w-4" />,
+                        onClick: () => handleEdit(category),
+                      },
+                      {
+                        label: 'Delete',
+                        icon: <TrashIcon className="h-4 w-4" />,
+                        onClick: () => handleDelete(category),
+                        variant: 'danger' as const,
+                      },
+                    ] : []),
                   ];
 
                   return (

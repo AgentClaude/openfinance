@@ -49,21 +49,34 @@ module Api
         return render json: { error: 'No household' }, status: :not_found unless household
 
         month_str = params[:month] || Date.current.strftime('%Y-%m')
-        month_date = Date.parse("#{month_str}-01")
+        begin
+          month_date = Date.parse("#{month_str}-01")
+        rescue ArgumentError
+          return render json: { error: 'Invalid month format. Use YYYY-MM' }, status: :bad_request
+        end
 
         budget_record = household.budgets.find_by(is_active: true)
         items = budget_record ? budget_record.budget_items.where(month: month_date).includes(:category) : []
+
+        # Batch spending query to avoid N+1
+        spent_by_category = if items.any?
+          result = household.transactions
+            .where(category_id: items.map(&:category_id))
+            .where(date: month_date.beginning_of_month..month_date.end_of_month)
+            .where('amount_cents < 0')
+            .group(:category_id)
+            .sum(:amount_cents)
+          result.transform_values(&:abs)
+        else
+          {}
+        end
 
         total_budgeted = 0
         total_spent = 0
         categories = []
 
         items.each do |item|
-          spent_cents = household.transactions
-            .where(category: item.category)
-            .where(date: month_date.beginning_of_month..month_date.end_of_month)
-            .where('amount_cents < 0')
-            .sum(:amount_cents).abs
+          spent_cents = spent_by_category[item.category_id] || 0
 
           budgeted = (item.amount_cents / 100.0).round(2)
           spent = (spent_cents / 100.0).round(2)

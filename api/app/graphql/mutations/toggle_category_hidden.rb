@@ -7,10 +7,11 @@ module Mutations
 
     def resolve(id:, hidden:)
       hh = require_auth!
-      cat = authorize(hh.categories.find(id), :update?)
-      cat.update!(is_hidden: hidden)
-      log_activity(action: hidden ? 'category_hidden' : 'category_shown', resource: cat, metadata: { category_name: cat.name })
-      cat
+      authorize(hh.categories.find(id), :update?)
+      result = Categories::ToggleHiddenService.call(household: hh, category_id: id, hidden: hidden)
+      raise GraphQL::ExecutionError, result.error_message unless result.success?
+      log_activity(action: hidden ? 'category_hidden' : 'category_shown', resource: result.data, metadata: { category_name: result.data.name })
+      result.data
     end
   end
 end

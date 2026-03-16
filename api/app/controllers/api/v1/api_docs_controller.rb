@@ -151,7 +151,7 @@ module Api
       end
 
       def request_base_url
-        request.base_url
+        ERB::Util.html_escape(request.base_url)
       end
     end
   end
