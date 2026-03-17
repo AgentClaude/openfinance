@@ -169,9 +169,16 @@ export default {
         'modal': '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)',
       },
       spacing: {
+        '18': '4.5rem',
         '72': '18rem',
         '84': '21rem',
         '96': '24rem',
+        // Page layout tokens
+        'page-x': '2rem',     // Default horizontal page padding
+        'page-y': '1.5rem',   // Default vertical page padding
+        'section': '1.5rem',  // Space between page sections
+        'card-x': '1.5rem',   // Card internal horizontal padding
+        'card-y': '1rem',     // Card internal vertical padding
       },
       animation: {
         'fade-in': 'fadeIn 200ms ease-out',

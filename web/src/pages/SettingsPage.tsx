@@ -17,6 +17,7 @@ import Card from '@/components/ui/Card';
 import Badge from '@/components/ui/Badge';
 import toast from 'react-hot-toast';
 import PlaidMappingsTab from '@/components/settings/PlaidMappingsTab';
+import PageContainer from '@/components/ui/PageContainer';
 import PageHeader from '@/components/ui/PageHeader';
 
 const CURRENCIES = ['USD', 'EUR', 'GBP', 'CAD', 'AUD', 'NZD', 'JPY', 'CHF'];
@@ -367,7 +368,7 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <PageContainer maxWidth="4xl">
       <PageHeader title="Settings" />
 
       {/* Tabs */}
@@ -1022,7 +1023,7 @@ export default function SettingsPage() {
                   ✅ Share token created
                 </p>
                 <div className="flex items-center gap-2">
-                  <code className="flex-1 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3 py-2 rounded border border-success-300 dark:border-success-700 font-mono text-sm break-all">
+                  <code className="flex-1 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 px-3 py-2 rounded border border-success-300 dark:border-success-700 font-mono text-sm break-all">
                     {newlyCreatedToken}
                   </code>
                   <Button
@@ -1258,6 +1259,6 @@ export default function SettingsPage() {
           </Card>
         </div>
       )}
-    </div>
+    </PageContainer>
   );
 }

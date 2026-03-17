@@ -11,6 +11,7 @@ export { default as AmountDisplay } from './AmountDisplay';
 export { default as Avatar } from './Avatar';
 export { default as SearchBar } from './SearchBar';
 export { default as Sidebar } from './Sidebar';
+export { default as PageContainer } from './PageContainer';
 export { default as PageHeader } from './PageHeader';
 export { default as ProgressBar } from './ProgressBar';
 export { default as Dropdown } from './Dropdown';
