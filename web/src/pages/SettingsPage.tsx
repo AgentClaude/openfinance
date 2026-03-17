@@ -17,6 +17,7 @@ import Card from '@/components/ui/Card';
 import Badge from '@/components/ui/Badge';
 import toast from 'react-hot-toast';
 import PlaidMappingsTab from '@/components/settings/PlaidMappingsTab';
+import PageHeader from '@/components/ui/PageHeader';
 
 const CURRENCIES = ['USD', 'EUR', 'GBP', 'CAD', 'AUD', 'NZD', 'JPY', 'CHF'];
 const TIMEZONES = [
@@ -367,7 +368,7 @@ export default function SettingsPage() {
 
   return (
     <div className="max-w-4xl mx-auto">
-      <h1 className="text-2xl font-bold tracking-heading text-gray-900 dark:text-gray-100 mb-6">Settings</h1>
+      <PageHeader title="Settings" />
 
       {/* Tabs */}
       <div className="border-b border-gray-200 dark:border-gray-700 mb-6 overflow-x-auto">

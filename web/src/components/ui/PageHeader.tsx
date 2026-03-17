@@ -3,7 +3,7 @@ import clsx from 'clsx';
 
 interface PageHeaderProps {
   title: string;
-  subtitle?: string;
+  subtitle?: React.ReactNode;
   actions?: React.ReactNode;
   className?: string;
 }
@@ -22,9 +22,13 @@ const PageHeader: React.FC<PageHeaderProps> = ({
             {title}
           </h1>
           {subtitle && (
-            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-              {subtitle}
-            </p>
+            typeof subtitle === 'string' ? (
+              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                {subtitle}
+              </p>
+            ) : (
+              <div className="mt-1">{subtitle}</div>
+            )
           )}
         </div>
         
