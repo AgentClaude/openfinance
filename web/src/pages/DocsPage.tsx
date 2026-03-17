@@ -120,7 +120,7 @@ function Endpoint({
                 {params.map((p) => (
                   <tr key={p.name} className="border-t border-gray-100 dark:border-gray-700">
                     <td className="py-2 pr-4"><code className="text-xs bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded">{p.name}</code></td>
-                    <td className="py-2 pr-4 text-xs text-gray-500">{p.type}</td>
+                    <td className="py-2 pr-4 text-xs text-gray-500 dark:text-gray-400">{p.type}</td>
                     <td className="py-2 pr-4 text-xs">{p.required ? <span className="text-red-500">Yes</span> : <span className="text-gray-400">No</span>}</td>
                     <td className="py-2 text-xs text-gray-600 dark:text-gray-400">{p.description}</td>
                   </tr>
@@ -246,7 +246,7 @@ export default function DocsPage() {
         <main className="flex-1 min-w-0">
           {/* Top bar */}
           <div className="sticky top-0 z-30 bg-white/80 dark:bg-gray-950/80 backdrop-blur border-b border-gray-200 dark:border-gray-700 px-6 py-3 flex items-center justify-between">
-            <button onClick={() => setMobileOpen(true)} className="lg:hidden p-2 -ml-2 text-gray-500">
+            <button onClick={() => setMobileOpen(true)} className="lg:hidden p-2 -ml-2 text-gray-500 dark:text-gray-400">
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" /></svg>
             </button>
             <div className="text-sm text-gray-500 dark:text-gray-400 hidden lg:block">
@@ -271,8 +271,8 @@ export default function DocsPage() {
               </ul>
               <div className="bg-info-50 dark:bg-info-900/20 border border-info-200 dark:border-info-800 rounded-lg p-4">
                 <p className="font-medium text-info-800 dark:text-info-300">Base URL</p>
-                <code className="text-sm">{BASE}/api/v1</code> <span className="text-gray-500">(REST)</span><br />
-                <code className="text-sm">{BASE}/graphql</code> <span className="text-gray-500">(GraphQL)</span>
+                <code className="text-sm">{BASE}/api/v1</code> <span className="text-gray-500 dark:text-gray-400">(REST)</span><br />
+                <code className="text-sm">{BASE}/graphql</code> <span className="text-gray-500 dark:text-gray-400">(GraphQL)</span>
               </div>
               <p>All responses are JSON with this general structure:</p>
               <CodeBlock language="json" code={`{
@@ -683,8 +683,8 @@ export default function DocsPage() {
                 <table className="w-full text-sm border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
                   <thead className="bg-gray-50 dark:bg-gray-800">
                     <tr>
-                      <th className="text-left px-4 py-2 text-xs uppercase tracking-wider text-gray-500">Header</th>
-                      <th className="text-left px-4 py-2 text-xs uppercase tracking-wider text-gray-500">Description</th>
+                      <th className="text-left px-4 py-2 text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400">Header</th>
+                      <th className="text-left px-4 py-2 text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400">Description</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -717,9 +717,9 @@ export default function DocsPage() {
                 <table className="w-full text-sm border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
                   <thead className="bg-gray-50 dark:bg-gray-800">
                     <tr>
-                      <th className="text-left px-4 py-2 text-xs uppercase tracking-wider text-gray-500">Status</th>
-                      <th className="text-left px-4 py-2 text-xs uppercase tracking-wider text-gray-500">Meaning</th>
-                      <th className="text-left px-4 py-2 text-xs uppercase tracking-wider text-gray-500">Description</th>
+                      <th className="text-left px-4 py-2 text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400">Status</th>
+                      <th className="text-left px-4 py-2 text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400">Meaning</th>
+                      <th className="text-left px-4 py-2 text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400">Description</th>
                     </tr>
                   </thead>
                   <tbody>

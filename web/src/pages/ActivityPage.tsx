@@ -93,7 +93,7 @@ export default function ActivityPage() {
   const grouped = groupByDate(events);
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-8">
+    <div className="max-w-3xl mx-auto">
       <PageHeader
         title="Activity Feed"
         subtitle="See what's happening in your household"

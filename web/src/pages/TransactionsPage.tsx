@@ -220,7 +220,7 @@ const TransactionsPage: React.FC = () => {
       label: 'Date',
       sortable: true,
       render: (transaction: Transaction) => (
-        <div className="text-sm text-gray-900">
+        <div className="text-sm text-gray-900 dark:text-gray-100">
           {format(new Date(transaction.date), 'MMM d, yyyy')}
         </div>
       ),
@@ -230,11 +230,11 @@ const TransactionsPage: React.FC = () => {
       label: 'Description',
       render: (transaction: Transaction) => (
         <div>
-          <div className="text-sm font-medium text-gray-900">
+          <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
             {transaction.description}
           </div>
           {transaction.merchantName && (
-            <div className="text-xs text-gray-500">{transaction.merchantName}</div>
+            <div className="text-xs text-gray-500 dark:text-gray-400">{transaction.merchantName}</div>
           )}
           <div className="flex items-center mt-1 space-x-2 flex-wrap gap-y-1">
             {transaction.pending && <Badge variant="warning" size="sm">Pending</Badge>}
@@ -307,10 +307,10 @@ const TransactionsPage: React.FC = () => {
       key: 'account',
       label: 'Account',
       render: (transaction: Transaction) => (
-        <div className="text-sm text-gray-900">
+        <div className="text-sm text-gray-900 dark:text-gray-100">
           <div>{transaction.account.name}</div>
           {transaction.account.mask && (
-            <div className="text-xs text-gray-500">•••{transaction.account.mask}</div>
+            <div className="text-xs text-gray-500 dark:text-gray-400">•••{transaction.account.mask}</div>
           )}
         </div>
       ),
@@ -375,7 +375,7 @@ const TransactionsPage: React.FC = () => {
       <div className="flex items-start justify-between gap-3">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <span className="text-xs text-gray-500">{format(new Date(transaction.date), 'MMM d')}</span>
+            <span className="text-xs text-gray-500 dark:text-gray-400">{format(new Date(transaction.date), 'MMM d')}</span>
             {transaction.pending && <Badge variant="warning" size="sm">Pending</Badge>}
             {transaction.needsReview && <span className="h-2 w-2 rounded-full bg-amber-400 flex-shrink-0" />}
             {transaction.excluded && <EyeSlashIcon className="h-3 w-3 text-gray-400" />}
@@ -462,7 +462,7 @@ const TransactionsPage: React.FC = () => {
             <FunnelIcon className="h-4 w-4" />
             Filters
           </div>
-          {filtersExpanded ? <ChevronUpIcon className="h-4 w-4 text-gray-500" /> : <ChevronDownIcon className="h-4 w-4 text-gray-500" />}
+          {filtersExpanded ? <ChevronUpIcon className="h-4 w-4 text-gray-500 dark:text-gray-400" /> : <ChevronDownIcon className="h-4 w-4 text-gray-500 dark:text-gray-400" />}
         </button>
 
         <div className="mb-3">
@@ -495,7 +495,7 @@ const TransactionsPage: React.FC = () => {
                 onChange={(e) => handleFilterChange('needsReview', e.target.checked ? true : undefined)}
                 className="h-4 w-4 text-brand-700 focus:ring-brand-500 border-gray-300 rounded"
               />
-              <label htmlFor="needsReview" className="ml-2 block text-sm text-gray-900">
+              <label htmlFor="needsReview" className="ml-2 block text-sm text-gray-900 dark:text-gray-100">
                 Needs Review Only
               </label>
             </div>
@@ -566,7 +566,7 @@ const TransactionsPage: React.FC = () => {
             </div>
           ) : transactions.length === 0 ? (
             <div className="text-center py-12 px-4">
-              <p className="text-sm font-medium text-gray-900">No transactions found</p>
+              <p className="text-sm font-medium text-gray-900 dark:text-gray-100">No transactions found</p>
               <p className="text-xs text-gray-500 mt-1">Try adjusting your filters or add some transactions.</p>
             </div>
           ) : (
@@ -601,7 +601,7 @@ const TransactionsPage: React.FC = () => {
       {/* Load More / Pagination */}
       {!loading && transactions.length > 0 && (
         <div className="mt-4 flex items-center justify-between">
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-gray-500 dark:text-gray-400">
             Showing {transactions.length} of {totalCount} transactions
           </p>
           {hasMore && (
