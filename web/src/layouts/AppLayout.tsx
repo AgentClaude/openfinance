@@ -69,7 +69,7 @@ const AppLayout: React.FC = () => {
   ];
 
   return (
-    <div className="h-screen flex overflow-hidden bg-slate-50 dark:bg-slate-900">
+    <div className="h-screen flex overflow-hidden bg-gray-50 dark:bg-gray-900">
       <CommandPalette />
       {/* Mobile sidebar */}
       <Transition show={sidebarOpen}>
@@ -133,7 +133,7 @@ const AppLayout: React.FC = () => {
       {/* Main content */}
       <div className="flex flex-col w-0 flex-1 overflow-hidden">
         {/* Top bar */}
-        <div className="relative z-10 flex-shrink-0 flex h-16 bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700">
+        <div className="relative z-10 flex-shrink-0 flex h-16 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
           <button
             type="button"
             className="px-4 border-r border-gray-200 text-gray-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-brand-500 md:hidden"
@@ -149,11 +149,11 @@ const AppLayout: React.FC = () => {
                   // Trigger Cmd+K
                   window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true }));
                 }}
-                className="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-400 bg-gray-100 dark:bg-slate-700 rounded-lg hover:bg-gray-200 dark:hover:bg-slate-600 transition-colors"
+                className="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-400 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
               >
                 <MagnifyingGlassIcon className="h-4 w-4" />
                 <span className="hidden sm:inline">Search...</span>
-                <kbd className="hidden sm:inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-white dark:bg-slate-600 shadow-sm">⌘K</kbd>
+                <kbd className="hidden sm:inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-white dark:bg-gray-600 shadow-sm">⌘K</kbd>
               </button>
             </div>
             
@@ -163,7 +163,7 @@ const AppLayout: React.FC = () => {
               {/* Profile dropdown */}
               <Dropdown
                 trigger={
-                  <button className="max-w-xs bg-white dark:bg-slate-800 rounded-full flex items-center text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 dark:focus:ring-offset-slate-800">
+                  <button className="max-w-xs bg-white dark:bg-gray-800 rounded-full flex items-center text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 dark:focus:ring-offset-gray-800">
                     <Avatar 
                       name={user?.name || 'User'} 
                       size="sm"

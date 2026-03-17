@@ -8,6 +8,7 @@ import {
   EyeIcon,
   EyeSlashIcon,
 } from '@heroicons/react/24/outline';
+import PageContainer from '@/components/ui/PageContainer';
 import PageHeader from '@/components/ui/PageHeader';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
@@ -141,7 +142,7 @@ const TagsPage: React.FC = () => {
   if (error) return <div className="p-6 text-red-500">Error loading tags: {error.message}</div>;
 
   return (
-    <div className="max-w-5xl mx-auto">
+    <PageContainer maxWidth="5xl">
       <PageHeader
         title="Tags"
         subtitle={`${stats.total} tags · ${stats.totalUsage} transactions tagged`}
@@ -158,7 +159,7 @@ const TagsPage: React.FC = () => {
         {[
           { label: 'Total Tags', value: stats.total, color: 'text-brand-600 dark:text-brand-400' },
           { label: 'Active', value: stats.active, color: 'text-success-600 dark:text-success-400' },
-          { label: 'Inactive', value: stats.inactive, color: 'text-slate-500 dark:text-slate-400' },
+          { label: 'Inactive', value: stats.inactive, color: 'text-gray-500 dark:text-gray-400' },
           { label: 'Tagged Txns', value: stats.totalUsage, color: 'text-accent-600 dark:text-accent-400' },
         ].map(s => (
           <Card key={s.label}>
@@ -347,7 +348,7 @@ const TagsPage: React.FC = () => {
           <Button onClick={handleDelete} variant="danger" size="sm">Delete</Button>
         </div>
       </Modal>
-    </div>
+    </PageContainer>
   );
 };
 

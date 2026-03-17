@@ -33,13 +33,13 @@ const Sidebar: React.FC<SidebarProps> = ({
   return (
     <div
       className={clsx(
-        'flex flex-col bg-slate-900 transition-all duration-300 ease-in-out',
+        'flex flex-col bg-gray-900 transition-all duration-300 ease-in-out',
         isCollapsed ? 'w-16' : 'w-64',
         className
       )}
     >
       <div className="flex flex-col flex-1 min-h-0">
-        <div className="flex items-center h-16 flex-shrink-0 px-4 border-b border-slate-800">
+        <div className="flex items-center h-16 flex-shrink-0 px-4 border-b border-gray-800">
           <div className="flex items-center">
             <div className="flex-shrink-0">
               <div className="h-8 w-8 bg-gradient-to-br from-brand-500 to-brand-700 rounded-lg flex items-center justify-center shadow-sm">
@@ -67,14 +67,14 @@ const Sidebar: React.FC<SidebarProps> = ({
                 className={clsx(
                   item.current
                     ? 'bg-brand-700/20 text-brand-400 border-r-2 border-brand-400'
-                    : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200',
+                    : 'text-gray-400 hover:bg-gray-800 hover:text-gray-200',
                   'group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-150',
                   isCollapsed ? 'justify-center' : ''
                 )}
               >
                 <IconComponent
                   className={clsx(
-                    item.current ? 'text-brand-400' : 'text-slate-500 group-hover:text-slate-300',
+                    item.current ? 'text-brand-400' : 'text-gray-500 group-hover:text-gray-300',
                     'flex-shrink-0 h-5 w-5 transition-colors',
                     !isCollapsed && 'mr-3'
                   )}

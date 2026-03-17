@@ -517,7 +517,7 @@ const TransactionDetailPanel: React.FC<TransactionDetailPanelProps> = ({
                       type="text"
                       value={ruleMatchValue}
                       onChange={(e) => setRuleMatchValue(e.target.value)}
-                      className="w-full rounded-md border-gray-300 shadow-sm focus:border-brand-500 focus:ring-brand-500 text-sm dark:bg-slate-700 dark:border-slate-600 dark:text-gray-100"
+                      className="w-full rounded-md border-gray-300 shadow-sm focus:border-brand-500 focus:ring-brand-500 text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
                       placeholder="e.g. Starbucks"
                     />
                   </div>

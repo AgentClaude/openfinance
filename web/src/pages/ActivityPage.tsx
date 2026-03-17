@@ -1,6 +1,6 @@
 import { useQuery } from '@apollo/client';
 import { GET_ACTIVITY_FEED } from '@/graphql/queries';
-import { Card } from '@/components/ui';
+import { Card, PageContainer } from '@/components/ui';
 import PageHeader from '@/components/ui/PageHeader';
 import { useState } from 'react';
 import { ACTION_ICONS, ACTION_COLORS } from '@/constants/activityConstants';
@@ -93,7 +93,7 @@ export default function ActivityPage() {
   const grouped = groupByDate(events);
 
   return (
-    <div className="max-w-3xl mx-auto">
+    <PageContainer maxWidth="3xl">
       <PageHeader
         title="Activity Feed"
         subtitle="See what's happening in your household"
@@ -166,6 +166,6 @@ export default function ActivityPage() {
           ))}
         </div>
       )}
-    </div>
+    </PageContainer>
   );
 }

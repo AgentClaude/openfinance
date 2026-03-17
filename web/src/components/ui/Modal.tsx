@@ -55,7 +55,7 @@ const Modal: React.FC<ModalProps> = ({
             >
               <Dialog.Panel
                 className={clsx(
-                  'w-full transform overflow-hidden rounded-2xl bg-white dark:bg-slate-800 p-6 text-left align-middle shadow-modal dark:shadow-none dark:border dark:border-slate-700 transition-all',
+                  'w-full transform overflow-hidden rounded-2xl bg-white dark:bg-gray-800 p-6 text-left align-middle shadow-modal dark:shadow-none dark:border dark:border-gray-700 transition-all',
                   sizeClasses[size],
                   className
                 )}
