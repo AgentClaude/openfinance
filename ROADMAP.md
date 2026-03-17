@@ -207,8 +207,8 @@ _See SPRINT.md for prioritized sprint plan (Sprints 1-3)_
 ## Phase 19b: Deep Component Consolidation — HIGH PRIORITY
 - 🔧 Audit EVERY page for duplicate UI patterns (InvestmentsPage migrated PR #137, remaining: BudgetPage, ActivityPage headers)
 - ✅ Single DataTable component (sortable, filterable, paginated, expandable rows) — PR #137
-- ⬚ Consistent spacing, sizing, and color tokens via Tailwind config
-- ✅ Shared ui/ library exists (Button, Input, Select, Card, Badge, ProgressBar, LoadingSpinner, EmptyState, PageHeader, AmountDisplay, CategoryIcon, Toast)
+- ✅ Consistent spacing, sizing, and color tokens via Tailwind config — slate→gray unification, PageContainer, spacing tokens (PR #140)
+- ✅ Shared ui/ library exists (Button, Input, Select, Card, Badge, ProgressBar, LoadingSpinner, EmptyState, PageHeader, PageContainer, AmountDisplay, CategoryIcon, Toast)
 
 ## Phase 20: Provider Adapter Pattern (Plaid/MX/Finicity)
 - ⬚ Create `FinancialProvider` adapter interface
