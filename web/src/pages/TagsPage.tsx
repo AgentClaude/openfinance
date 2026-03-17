@@ -141,7 +141,7 @@ const TagsPage: React.FC = () => {
   if (error) return <div className="p-6 text-red-500">Error loading tags: {error.message}</div>;
 
   return (
-    <div className="p-6 max-w-5xl mx-auto">
+    <div className="max-w-5xl mx-auto">
       <PageHeader
         title="Tags"
         subtitle={`${stats.total} tags · ${stats.totalUsage} transactions tagged`}
