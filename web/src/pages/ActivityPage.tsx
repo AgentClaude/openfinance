@@ -1,6 +1,7 @@
 import { useQuery } from '@apollo/client';
 import { GET_ACTIVITY_FEED } from '@/graphql/queries';
 import { Card } from '@/components/ui';
+import PageHeader from '@/components/ui/PageHeader';
 import { useState } from 'react';
 import { ACTION_ICONS, ACTION_COLORS } from '@/constants/activityConstants';
 
@@ -93,14 +94,10 @@ export default function ActivityPage() {
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-8">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Activity Feed</h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-            See what&apos;s happening in your household
-          </p>
-        </div>
-      </div>
+      <PageHeader
+        title="Activity Feed"
+        subtitle="See what's happening in your household"
+      />
 
       {/* Filters */}
       <div className="flex flex-wrap gap-2 mb-6">

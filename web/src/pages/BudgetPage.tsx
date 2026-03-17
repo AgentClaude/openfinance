@@ -19,6 +19,7 @@ import EmptyState from '@/components/ui/EmptyState';
 import { useToast } from '@/components/ui/Toast';
 import { StatCard } from '@/components/shared';
 import CategoryIcon from '@/components/ui/CategoryIcon';
+import PageHeader from '@/components/ui/PageHeader';
 import { useNavigate } from 'react-router-dom';
 import { format, addMonths, subMonths, startOfMonth, endOfMonth } from 'date-fns';
 
@@ -145,10 +146,10 @@ const BudgetPage: React.FC = () => {
   return (
     <div>
       {/* Header with Month Navigation */}
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Budget</h1>
-          <div className="flex items-center mt-1 space-x-4">
+      <PageHeader
+        title="Budget"
+        subtitle={
+          <div className="flex items-center space-x-4">
             <Button variant="ghost" size="sm" onClick={() => navigateMonth('prev')} className="p-2">
               <ChevronLeftIcon className="h-4 w-4" />
             </Button>
@@ -159,28 +160,30 @@ const BudgetPage: React.FC = () => {
               <ChevronRightIcon className="h-4 w-4" />
             </Button>
           </div>
-        </div>
-        <div className="flex items-center space-x-2">
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={handleCopyFromLastMonth}
-            disabled={copying}
-          >
-            <DocumentDuplicateIcon className="h-4 w-4 mr-1" />
-            {copying ? 'Copying...' : 'Copy from last month'}
-          </Button>
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={handleFillFromAverages}
-            disabled={filling}
-          >
-            <CalculatorIcon className="h-4 w-4 mr-1" />
-            {filling ? 'Filling...' : 'Fill from averages'}
-          </Button>
-        </div>
-      </div>
+        }
+        actions={
+          <div className="flex items-center space-x-2">
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={handleCopyFromLastMonth}
+              disabled={copying}
+            >
+              <DocumentDuplicateIcon className="h-4 w-4 mr-1" />
+              {copying ? 'Copying...' : 'Copy from last month'}
+            </Button>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={handleFillFromAverages}
+              disabled={filling}
+            >
+              <CalculatorIcon className="h-4 w-4 mr-1" />
+              {filling ? 'Filling...' : 'Fill from averages'}
+            </Button>
+          </div>
+        }
+      />
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
