@@ -2,7 +2,10 @@ import React, { useState, useMemo } from 'react';
 import { useInvestments, PortfolioHistoryPoint } from '@/hooks/useInvestments';
 import { useAccounts } from '@/hooks/useAccounts';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
-import { Holding, PortfolioAllocation } from '@/types';
+import PageHeader from '@/components/ui/PageHeader';
+import DataTable from '@/components/ui/DataTable';
+import { StatCard } from '@/components/shared';
+import { Holding, PortfolioAllocation, ColumnConfig } from '@/types';
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, Legend,
@@ -10,8 +13,6 @@ import {
 import {
   ArrowTrendingUpIcon,
   ArrowTrendingDownIcon,
-  ChevronDownIcon,
-  ChevronUpIcon,
   CurrencyDollarIcon,
   ChartPieIcon,
   ScaleIcon,
@@ -252,75 +253,96 @@ const TypeAllocationChart: React.FC<{ allocations: PortfolioAllocation[] }> = ({
   );
 };
 
-// Expandable holding row
-const HoldingRow: React.FC<{ holding: Holding }> = ({ holding }) => {
-  const [expanded, setExpanded] = useState(false);
-  const isPositive = holding.unrealizedGainLoss >= 0;
-
-  return (
-    <>
-      <tr
-        className="hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer"
-        onClick={() => setExpanded(!expanded)}
-      >
-        <td className="px-4 py-3">
-          <div className="flex items-center gap-2">
-            {expanded ? <ChevronUpIcon className="h-4 w-4 text-gray-400" /> : <ChevronDownIcon className="h-4 w-4 text-gray-400" />}
-            <div>
-              <div className="font-medium text-gray-900 dark:text-gray-100">{holding.security.symbol}</div>
-              <div className="text-xs text-gray-500 dark:text-gray-400 truncate max-w-[200px]">{holding.security.name}</div>
-            </div>
-          </div>
-        </td>
-        <td className="px-4 py-3 text-right tabular-nums text-gray-700 dark:text-gray-300">{holding.quantity.toFixed(4)}</td>
-        <td className="px-4 py-3 text-right tabular-nums text-gray-700 dark:text-gray-300">
-          {holding.currentPrice != null ? formatCurrency(holding.currentPrice) : '—'}
-        </td>
-        <td className="px-4 py-3 text-right tabular-nums font-medium text-gray-900 dark:text-gray-100">{formatCurrency(holding.currentValue)}</td>
-        <td className={`px-4 py-3 text-right tabular-nums font-medium ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
+// Holdings table column definitions
+const holdingsColumns: ColumnConfig<Holding>[] = [
+  {
+    key: 'security',
+    label: 'Security',
+    render: (h) => (
+      <div>
+        <div className="font-medium text-gray-900 dark:text-gray-100">{h.security.symbol}</div>
+        <div className="text-xs text-gray-500 dark:text-gray-400 truncate max-w-[200px]">{h.security.name}</div>
+      </div>
+    ),
+  },
+  {
+    key: 'quantity',
+    label: 'Shares',
+    align: 'right',
+    cellClassName: 'tabular-nums text-gray-700 dark:text-gray-300',
+    render: (h) => h.quantity.toFixed(4),
+  },
+  {
+    key: 'currentPrice',
+    label: 'Price',
+    align: 'right',
+    cellClassName: 'tabular-nums text-gray-700 dark:text-gray-300',
+    render: (h) => h.currentPrice != null ? formatCurrency(h.currentPrice) : '—',
+  },
+  {
+    key: 'currentValue',
+    label: 'Value',
+    align: 'right',
+    sortable: true,
+    cellClassName: 'tabular-nums font-medium',
+    render: (h) => formatCurrency(h.currentValue),
+  },
+  {
+    key: 'unrealizedGainLoss',
+    label: 'Gain/Loss',
+    align: 'right',
+    sortable: true,
+    render: (h) => {
+      const isPositive = h.unrealizedGainLoss >= 0;
+      return (
+        <div className={`tabular-nums font-medium ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
           <div className="flex items-center justify-end gap-1">
             {isPositive ? <ArrowTrendingUpIcon className="h-4 w-4" /> : <ArrowTrendingDownIcon className="h-4 w-4" />}
-            <span>{formatCurrency(Math.abs(holding.unrealizedGainLoss))}</span>
+            <span>{formatCurrency(Math.abs(h.unrealizedGainLoss))}</span>
           </div>
-          <div className="text-xs">{formatPercent(holding.unrealizedGainLossPercentage)}</div>
-        </td>
-        <td className="px-4 py-3 text-right tabular-nums text-gray-500 dark:text-gray-400">{holding.weightInAccount.toFixed(1)}%</td>
-      </tr>
-      {expanded && (
-        <tr className="bg-gray-50 dark:bg-gray-800/50">
-          <td colSpan={6} className="px-8 py-4">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-              <div>
-                <div className="text-gray-500 dark:text-gray-400">Cost Basis (per share)</div>
-                <div className="font-medium text-gray-900 dark:text-gray-100">{holding.costBasis != null ? formatCurrency(holding.costBasis) : '—'}</div>
-              </div>
-              <div>
-                <div className="text-gray-500 dark:text-gray-400">Total Cost Basis</div>
-                <div className="font-medium text-gray-900 dark:text-gray-100">{formatCurrency(holding.costBasisTotal)}</div>
-              </div>
-              <div>
-                <div className="text-gray-500 dark:text-gray-400">Market Value</div>
-                <div className="font-medium text-gray-900 dark:text-gray-100">{holding.marketValue != null ? formatCurrency(holding.marketValue) : '—'}</div>
-              </div>
-              <div>
-                <div className="text-gray-500 dark:text-gray-400">Security Type</div>
-                <div className="font-medium text-gray-900 dark:text-gray-100 capitalize">{holding.security.securityType?.replace('_', ' ') || '—'}</div>
-              </div>
-              <div>
-                <div className="text-gray-500 dark:text-gray-400">As of Date</div>
-                <div className="font-medium text-gray-900 dark:text-gray-100">{new Date(holding.asOfDate).toLocaleDateString()}</div>
-              </div>
-              <div>
-                <div className="text-gray-500 dark:text-gray-400">Currency</div>
-                <div className="font-medium text-gray-900 dark:text-gray-100">{holding.currency}</div>
-              </div>
-            </div>
-          </td>
-        </tr>
-      )}
-    </>
-  );
-};
+          <div className="text-xs">{formatPercent(h.unrealizedGainLossPercentage)}</div>
+        </div>
+      );
+    },
+  },
+  {
+    key: 'weightInAccount',
+    label: 'Weight',
+    align: 'right',
+    cellClassName: 'tabular-nums text-gray-500 dark:text-gray-400',
+    render: (h) => `${h.weightInAccount.toFixed(1)}%`,
+  },
+];
+
+// Expanded row for holding detail
+const renderHoldingDetail = (holding: Holding) => (
+  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+    <div>
+      <div className="text-gray-500 dark:text-gray-400">Cost Basis (per share)</div>
+      <div className="font-medium text-gray-900 dark:text-gray-100">{holding.costBasis != null ? formatCurrency(holding.costBasis) : '—'}</div>
+    </div>
+    <div>
+      <div className="text-gray-500 dark:text-gray-400">Total Cost Basis</div>
+      <div className="font-medium text-gray-900 dark:text-gray-100">{formatCurrency(holding.costBasisTotal)}</div>
+    </div>
+    <div>
+      <div className="text-gray-500 dark:text-gray-400">Market Value</div>
+      <div className="font-medium text-gray-900 dark:text-gray-100">{holding.marketValue != null ? formatCurrency(holding.marketValue) : '—'}</div>
+    </div>
+    <div>
+      <div className="text-gray-500 dark:text-gray-400">Security Type</div>
+      <div className="font-medium text-gray-900 dark:text-gray-100 capitalize">{holding.security.securityType?.replace('_', ' ') || '—'}</div>
+    </div>
+    <div>
+      <div className="text-gray-500 dark:text-gray-400">As of Date</div>
+      <div className="font-medium text-gray-900 dark:text-gray-100">{new Date(holding.asOfDate).toLocaleDateString()}</div>
+    </div>
+    <div>
+      <div className="text-gray-500 dark:text-gray-400">Currency</div>
+      <div className="font-medium text-gray-900 dark:text-gray-100">{holding.currency}</div>
+    </div>
+  </div>
+);
 
 type ViewTab = 'overview' | 'holdings';
 
@@ -336,49 +358,48 @@ const InvestmentsPage: React.FC = () => {
 
   const isPositive = summary.totalGainLoss >= 0;
 
+  const tabToggle = (
+    <div className="flex items-center gap-3">
+      <div className="flex bg-gray-100 dark:bg-gray-700 rounded-lg p-0.5">
+        <button
+          onClick={() => setActiveTab('overview')}
+          className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+            activeTab === 'overview'
+              ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-gray-100 shadow-sm'
+              : 'text-gray-500 dark:text-gray-400 hover:text-gray-700'
+          }`}
+        >
+          Overview
+        </button>
+        <button
+          onClick={() => setActiveTab('holdings')}
+          className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+            activeTab === 'holdings'
+              ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-gray-100 shadow-sm'
+              : 'text-gray-500 dark:text-gray-400 hover:text-gray-700'
+          }`}
+        >
+          Holdings
+        </button>
+      </div>
+      {investmentAccounts.length > 1 && (
+        <select
+          className="border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-800 focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+          value={selectedAccountId || ''}
+          onChange={(e) => setSelectedAccountId(e.target.value || undefined)}
+        >
+          <option value="">All Accounts</option>
+          {investmentAccounts.map((a) => (
+            <option key={a.id} value={a.id}>{a.name}</option>
+          ))}
+        </select>
+      )}
+    </div>
+  );
+
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h1 className="text-2xl font-bold tracking-heading text-gray-900 dark:text-gray-100">Investments</h1>
-        <div className="flex items-center gap-3">
-          {/* Tab Toggle */}
-          <div className="flex bg-gray-100 dark:bg-gray-700 rounded-lg p-0.5">
-            <button
-              onClick={() => setActiveTab('overview')}
-              className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-                activeTab === 'overview'
-                  ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-gray-100 shadow-sm'
-                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700'
-              }`}
-            >
-              Overview
-            </button>
-            <button
-              onClick={() => setActiveTab('holdings')}
-              className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-                activeTab === 'holdings'
-                  ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-gray-100 shadow-sm'
-                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700'
-              }`}
-            >
-              Holdings
-            </button>
-          </div>
-          {investmentAccounts.length > 1 && (
-            <select
-              className="border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-800 focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
-              value={selectedAccountId || ''}
-              onChange={(e) => setSelectedAccountId(e.target.value || undefined)}
-            >
-              <option value="">All Accounts</option>
-              {investmentAccounts.map((a) => (
-                <option key={a.id} value={a.id}>{a.name}</option>
-              ))}
-            </select>
-          )}
-        </div>
-      </div>
+      <PageHeader title="Investments" actions={tabToggle} />
 
       {error && (
         <div className="bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 p-4 rounded-lg">
@@ -388,42 +409,31 @@ const InvestmentsPage: React.FC = () => {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-5">
-          <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-1">
-            <CurrencyDollarIcon className="h-4 w-4" />
-            Portfolio Value
-          </div>
-          <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">{formatCurrency(summary.totalValue)}</div>
-        </div>
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-5">
-          <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-1">
-            <ScaleIcon className="h-4 w-4" />
-            Cost Basis
-          </div>
-          <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">{formatCurrency(summary.totalCostBasis)}</div>
-        </div>
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-5">
-          <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-1">
-            {isPositive ? <ArrowTrendingUpIcon className="h-4 w-4 text-green-500" /> : <ArrowTrendingDownIcon className="h-4 w-4 text-red-500" />}
-            Total Gain/Loss
-          </div>
-          <div className={`text-2xl font-bold ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
-            {formatCurrency(Math.abs(summary.totalGainLoss))}
-          </div>
-          <div className={`text-sm ${isPositive ? 'text-green-500' : 'text-red-500'}`}>
-            {formatPercent(summary.totalGainLossPercentage)}
-          </div>
-        </div>
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-5">
-          <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-1">
-            <ChartPieIcon className="h-4 w-4" />
-            Holdings
-          </div>
-          <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">{summary.totalHoldingsCount}</div>
-          <div className="text-sm text-gray-500 dark:text-gray-400">
-            {investmentAccounts.length} account{investmentAccounts.length !== 1 ? 's' : ''}
-          </div>
-        </div>
+        <StatCard
+          label="Portfolio Value"
+          value={formatCurrency(summary.totalValue)}
+          icon={<CurrencyDollarIcon className="h-5 w-5" />}
+        />
+        <StatCard
+          label="Cost Basis"
+          value={formatCurrency(summary.totalCostBasis)}
+          icon={<ScaleIcon className="h-5 w-5" />}
+        />
+        <StatCard
+          label="Total Gain/Loss"
+          value={formatCurrency(Math.abs(summary.totalGainLoss))}
+          valueClassName={isPositive ? 'text-green-600' : 'text-red-600'}
+          trend={{
+            direction: isPositive ? 'up' : 'down',
+            value: formatPercent(summary.totalGainLossPercentage),
+          }}
+          icon={isPositive ? <ArrowTrendingUpIcon className="h-5 w-5 text-green-500" /> : <ArrowTrendingDownIcon className="h-5 w-5 text-red-500" />}
+        />
+        <StatCard
+          label="Holdings"
+          value={summary.totalHoldingsCount}
+          icon={<ChartPieIcon className="h-5 w-5" />}
+        />
       </div>
 
       {activeTab === 'overview' ? (
@@ -462,39 +472,23 @@ const InvestmentsPage: React.FC = () => {
           </div>
         </>
       ) : (
-        /* Holdings Table */
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden min-w-0">
-          <div className="px-5 py-4 border-b border-gray-200 dark:border-gray-700">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-              All Holdings ({holdings.length})
-            </h2>
-          </div>
-          {holdings.length === 0 ? (
-            <div className="p-8 text-center text-gray-400">
-              No investment holdings found. Connect a brokerage account or add manual investment accounts.
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full divide-y divide-gray-200 dark:divide-gray-700">
-                <thead className="bg-gray-50 dark:bg-gray-800/50 text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  <tr>
-                    <th className="px-4 py-3 text-left">Security</th>
-                    <th className="px-4 py-3 text-right">Shares</th>
-                    <th className="px-4 py-3 text-right">Price</th>
-                    <th className="px-4 py-3 text-right">Value</th>
-                    <th className="px-4 py-3 text-right">Gain/Loss</th>
-                    <th className="px-4 py-3 text-right">Weight</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-800">
-                  {holdings.map((h) => (
-                    <HoldingRow key={h.id} holding={h} />
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
+        <DataTable
+          columns={holdingsColumns}
+          data={holdings}
+          title="All Holdings"
+          subtitle={`(${holdings.length})`}
+          emptyTitle="No investment holdings found"
+          emptyDescription="Connect a brokerage account or add manual investment accounts."
+          getRowId={(h) => h.id}
+          renderExpandedRow={renderHoldingDetail}
+          searchable
+          searchPlaceholder="Search holdings..."
+          filterFn={(h, q) =>
+            h.security.symbol.toLowerCase().includes(q) ||
+            h.security.name.toLowerCase().includes(q)
+          }
+          pagination={{ pageSize: 25, pageSizeOptions: [10, 25, 50] }}
+        />
       )}
     </div>
   );
