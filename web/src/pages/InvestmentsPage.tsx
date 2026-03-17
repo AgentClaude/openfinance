@@ -475,7 +475,7 @@ const InvestmentsPage: React.FC = () => {
         <DataTable
           columns={holdingsColumns}
           data={holdings}
-          title={`All Holdings`}
+          title="All Holdings"
           subtitle={`(${holdings.length})`}
           emptyTitle="No investment holdings found"
           emptyDescription="Connect a brokerage account or add manual investment accounts."

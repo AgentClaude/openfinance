@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import clsx from 'clsx';
 import { ChevronUpIcon, ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon, MagnifyingGlassIcon } from '@heroicons/react/24/solid';
 import LoadingSpinner from './LoadingSpinner';
@@ -99,7 +99,11 @@ function DataTable<T>({
     return filteredData.slice(start, start + pageSize);
   }, [filteredData, pagination, currentPage, pageSize]);
 
-  // Reset page when filter changes
+  // Reset page when data or filter changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [data]);
+
   const handleSearch = useCallback((value: string) => {
     setSearchQuery(value);
     setCurrentPage(1);
@@ -239,7 +243,7 @@ function DataTable<T>({
               </thead>
               <tbody className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-800">
                 {paginatedData.map((item, index) => {
-                  const rowId = getRowId?.(item) || index.toString();
+                  const rowId = getRowId?.(item) || ((pagination ? (currentPage - 1) * pageSize : 0) + index).toString();
                   const isSelected = selectedIds.includes(rowId);
                   const isExpanded = expandedIds.has(rowId);
 
