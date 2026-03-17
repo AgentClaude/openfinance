@@ -216,6 +216,10 @@ export interface ColumnConfig<T> {
   render?: (item: T) => React.ReactNode;
   sortable?: boolean;
   width?: string;
+  /** Column text alignment */
+  align?: 'left' | 'center' | 'right';
+  /** Additional CSS class for td cells */
+  cellClassName?: string;
 }
 export interface Security {
   id: string;
