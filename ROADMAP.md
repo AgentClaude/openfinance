@@ -205,8 +205,8 @@ _See SPRINT.md for prioritized sprint plan (Sprints 1-3)_
 - ✅ Component documentation with props/variants/examples (autodocs enabled)
 
 ## Phase 19b: Deep Component Consolidation — HIGH PRIORITY
-- ⬚ Audit EVERY page for duplicate UI patterns
-- ⬚ Single DataTable component (sortable, filterable, paginated)
+- 🔧 Audit EVERY page for duplicate UI patterns (InvestmentsPage migrated PR #137, remaining: BudgetPage, ActivityPage headers)
+- ✅ Single DataTable component (sortable, filterable, paginated, expandable rows) — PR #137
 - ⬚ Consistent spacing, sizing, and color tokens via Tailwind config
 - ✅ Shared ui/ library exists (Button, Input, Select, Card, Badge, ProgressBar, LoadingSpinner, EmptyState, PageHeader, AmountDisplay, CategoryIcon, Toast)
 
