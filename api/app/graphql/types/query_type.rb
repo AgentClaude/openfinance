@@ -241,7 +241,7 @@ module Types
       scope = scope.for_security(security_id) if security_id.present?
       scope = scope.where(transaction_type: transaction_type) if transaction_type.present?
       scope = scope.in_year(year) if year.present?
-      scope.recent.limit(limit)
+      scope.recent.limit([limit, 500].min)
     end
 
     field :dividend_summary, Types::DividendSummaryType, null: false do

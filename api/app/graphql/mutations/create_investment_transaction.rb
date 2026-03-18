@@ -14,28 +14,29 @@ module Mutations
     def resolve(**args)
       hh = require_auth!
 
-      account = hh.accounts.find(args[:account_id])
-      security = Security.find(args[:security_id])
-
-      txn = InvestmentTransaction.new(
-        account: account,
-        security: security,
+      result = InvestmentTransactions::CreateService.call(
+        household: hh,
+        account_id: args[:account_id],
+        security_id: args[:security_id],
         transaction_type: args[:transaction_type],
-        amount_cents: (args[:amount] * 100).to_i,
-        date: Date.parse(args[:date]),
+        amount: args[:amount],
+        date: args[:date],
         quantity: args[:quantity],
-        price_cents: args[:price] ? (args[:price] * 100).to_i : nil,
+        price: args[:price],
         description: args[:description]
       )
 
-      authorize(txn, :create?)
-      txn.save!
-      log_activity(action: 'investment_transaction_created', resource: txn, metadata: {
-        type: txn.transaction_type,
-        security: security.symbol,
-        amount: args[:amount]
-      })
-      txn
+      if result.success?
+        txn = result.data[:investment_transaction]
+        log_activity(action: 'investment_transaction_created', resource: txn, metadata: {
+          type: txn.transaction_type,
+          security: txn.security.symbol,
+          amount: args[:amount]
+        })
+        txn
+      else
+        raise GraphQL::ExecutionError, result.error_message
+      end
     end
   end
 end

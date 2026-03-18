@@ -7,14 +7,13 @@ module Mutations
     def resolve(id:)
       hh = require_auth!
 
-      txn = InvestmentTransaction.joins(:account)
-              .where(accounts: { household_id: hh.id })
-              .find(id)
+      result = InvestmentTransactions::DestroyService.call(household: hh, id: id)
 
-      authorize(txn, :destroy?)
-      txn.destroy!
-
-      { success: true }
+      if result.success?
+        { success: true }
+      else
+        raise GraphQL::ExecutionError, result.error_message
+      end
     end
   end
 end

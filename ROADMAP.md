@@ -129,7 +129,7 @@ _See SPRINT.md for prioritized sprint plan (Sprints 1-3)_
 - ✅ Investments page (503 LOC — holdings table, portfolio chart, allocation)
 - ✅ Design QA fixes (PR #49)
 - ⬚ Benchmark comparison (S&P 500)
-- ⬚ Dividend tracking
+- ✅ Dividend tracking (PR #142)
 
 ## Phase 12: Transaction Enhancements ✅
 - ✅ Split transactions (divide into multiple categories)
