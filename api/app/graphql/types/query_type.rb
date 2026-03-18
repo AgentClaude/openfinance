@@ -224,6 +224,46 @@ module Types
       }
     end
 
+    field :investment_transactions, [Types::InvestmentTransactionType], null: false do
+      argument :account_id, ID, required: false
+      argument :security_id, ID, required: false
+      argument :transaction_type, String, required: false
+      argument :year, Integer, required: false
+      argument :limit, Integer, required: false, default_value: 100
+    end
+    def investment_transactions(account_id: nil, security_id: nil, transaction_type: nil, year: nil, limit: 100)
+      return [] unless context[:current_user]&.household
+
+      scope = InvestmentTransaction.joins(:account)
+                .where(accounts: { household_id: context[:current_user].household.id })
+                .includes(:security)
+      scope = scope.for_account(account_id) if account_id.present?
+      scope = scope.for_security(security_id) if security_id.present?
+      scope = scope.where(transaction_type: transaction_type) if transaction_type.present?
+      scope = scope.in_year(year) if year.present?
+      scope.recent.limit(limit)
+    end
+
+    field :dividend_summary, Types::DividendSummaryType, null: false do
+      argument :year, Integer, required: false
+      argument :account_id, ID, required: false
+    end
+    def dividend_summary(year: Date.current.year, account_id: nil)
+      return { total_dividends: 0.0, by_security: [], by_month: [], transaction_count: 0 } unless context[:current_user]&.household
+
+      InvestmentTransaction.dividend_summary(context[:current_user].household, year: year, account_id: account_id)
+    end
+
+    field :investment_income_summary, Types::InvestmentIncomeSummaryType, null: false do
+      argument :year, Integer, required: false
+      argument :account_id, ID, required: false
+    end
+    def investment_income_summary(year: Date.current.year, account_id: nil)
+      return { total_income: 0.0, dividends: 0.0, interest: 0.0, capital_gains: 0.0 } unless context[:current_user]&.household
+
+      InvestmentTransaction.income_summary(context[:current_user].household, year: year, account_id: account_id)
+    end
+
     field :holdings, [Types::HoldingType], null: false do
       argument :account_id, ID, required: false
     end

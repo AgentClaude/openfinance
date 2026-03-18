@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_03_17_000001) do
+ActiveRecord::Schema[8.0].define(version: 2026_03_18_000001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -388,6 +388,28 @@ ActiveRecord::Schema[8.0].define(version: 2026_03_17_000001) do
     t.index ["name"], name: "index_institutions_on_name"
     t.index ["plaid_institution_id"], name: "index_institutions_on_plaid_institution_id", unique: true
     t.index ["supported_products"], name: "index_institutions_on_supported_products", using: :gin
+  end
+
+  create_table "investment_transactions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "account_id", null: false
+    t.uuid "security_id", null: false
+    t.string "transaction_type", null: false
+    t.bigint "amount_cents", default: 0, null: false
+    t.string "currency", default: "USD", null: false
+    t.decimal "quantity", precision: 20, scale: 8
+    t.bigint "price_cents"
+    t.date "date", null: false
+    t.string "description"
+    t.string "plaid_investment_transaction_id"
+    t.jsonb "metadata", default: {}
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id", "security_id", "date"], name: "idx_inv_txn_acct_sec_date"
+    t.index ["account_id"], name: "index_investment_transactions_on_account_id"
+    t.index ["date"], name: "index_investment_transactions_on_date"
+    t.index ["plaid_investment_transaction_id"], name: "idx_inv_txn_plaid_id", unique: true
+    t.index ["security_id"], name: "index_investment_transactions_on_security_id"
+    t.index ["transaction_type"], name: "index_investment_transactions_on_transaction_type"
   end
 
   create_table "invitations", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -815,6 +837,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_03_17_000001) do
   add_foreign_key "household_memberships", "households"
   add_foreign_key "household_memberships", "users"
   add_foreign_key "household_memberships", "users", column: "invited_by_id"
+  add_foreign_key "investment_transactions", "accounts"
+  add_foreign_key "investment_transactions", "securities"
   add_foreign_key "merchant_name_mappings", "households"
   add_foreign_key "notification_preferences", "users"
   add_foreign_key "notification_rules", "households"

@@ -1075,3 +1075,46 @@ export const RESET_PLAID_CATEGORY_MAPPINGS = gql`
     }
   }
 `;
+
+export const CREATE_INVESTMENT_TRANSACTION = gql`
+  mutation CreateInvestmentTransaction(
+    $accountId: ID!
+    $securityId: ID!
+    $transactionType: String!
+    $amount: Float!
+    $date: String!
+    $quantity: Float
+    $price: Float
+    $description: String
+  ) {
+    createInvestmentTransaction(
+      accountId: $accountId
+      securityId: $securityId
+      transactionType: $transactionType
+      amount: $amount
+      date: $date
+      quantity: $quantity
+      price: $price
+      description: $description
+    ) {
+      id
+      transactionType
+      amount
+      date
+      description
+      security {
+        id
+        symbol
+        name
+      }
+    }
+  }
+`;
+
+export const DELETE_INVESTMENT_TRANSACTION = gql`
+  mutation DeleteInvestmentTransaction($id: ID!) {
+    deleteInvestmentTransaction(id: $id) {
+      success
+    }
+  }
+`;

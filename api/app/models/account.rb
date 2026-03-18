@@ -8,6 +8,7 @@ class Account < ApplicationRecord
   belongs_to :connection, class_name: 'AccountConnection', foreign_key: 'connection_id', optional: true
   has_many :transactions, dependent: :destroy
   has_many :holdings, dependent: :destroy
+  has_many :investment_transactions, dependent: :destroy
   has_many :balance_histories, class_name: 'AccountBalanceHistory', dependent: :destroy
   has_many :balance_adjustments, dependent: :destroy
   has_many :shared_accounts, dependent: :destroy
