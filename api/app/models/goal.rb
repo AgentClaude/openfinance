@@ -7,6 +7,7 @@ class Goal < ApplicationRecord
   belongs_to :household
   has_many :goal_accounts, dependent: :destroy
   has_many :accounts, through: :goal_accounts
+  has_many :milestones, class_name: 'GoalMilestone', dependent: :destroy
 
   # Money attributes
   monetize :target_amount_cents

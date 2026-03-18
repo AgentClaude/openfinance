@@ -20,6 +20,8 @@ module Types
     field :is_overdue, Boolean, null: false
     field :is_on_track, Boolean, null: false
     field :monthly_target, Float, null: false
+    field :milestones, [Types::GoalMilestoneType], null: false
+    field :next_milestone_percentage, Integer, null: true
     field :created_at, GraphQL::Types::ISO8601DateTime, null: false
 
     def target_amount
@@ -48,6 +50,19 @@ module Types
 
     def monthly_target
       object.monthly_target_to_complete
+    end
+
+    def milestones
+      object.milestones.sort_by(&:percentage)
+    end
+
+    def next_milestone_percentage
+      achieved = if object.milestones.loaded?
+        object.milestones.map(&:percentage)
+      else
+        object.milestones.pluck(:percentage)
+      end
+      GoalMilestone::MILESTONE_PERCENTAGES.find { |pct| !achieved.include?(pct) }
     end
   end
 end

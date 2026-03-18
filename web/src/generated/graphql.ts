@@ -425,12 +425,24 @@ export type Goal = {
   isActive: Scalars['Boolean']['output'];
   isOnTrack: Scalars['Boolean']['output'];
   isOverdue: Scalars['Boolean']['output'];
+  milestones: Array<GoalMilestone>;
   monthlyTarget: Scalars['Float']['output'];
   name: Scalars['String']['output'];
+  nextMilestonePercentage?: Maybe<Scalars['Int']['output']>;
   progressPercentage: Scalars['Float']['output'];
   startDate?: Maybe<Scalars['String']['output']>;
   targetAmount: Scalars['Float']['output'];
   targetDate?: Maybe<Scalars['String']['output']>;
+};
+
+export type GoalMilestone = {
+  __typename?: 'GoalMilestone';
+  achievedAt: Scalars['ISO8601DateTime']['output'];
+  amountAtMilestone: Scalars['Float']['output'];
+  emoji: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  label: Scalars['String']['output'];
+  percentage: Scalars['Int']['output'];
 };
 
 export type Holding = {
@@ -2357,7 +2369,7 @@ export type GetGoalsQueryVariables = Exact<{
 }>;
 
 
-export type GetGoalsQuery = { __typename?: 'Query', goals: Array<{ __typename?: 'Goal', id: string, name: string, description?: string | null, goalType: string, icon?: string | null, color?: string | null, targetAmount: number, currentAmount: number, currency: string, targetDate?: string | null, startDate?: string | null, isActive: boolean, isAchieved: boolean, achievedAt?: any | null, progressPercentage: number, amountRemaining: number, daysRemaining: number, isOverdue: boolean, isOnTrack: boolean, monthlyTarget: number, createdAt: any }> };
+export type GetGoalsQuery = { __typename?: 'Query', goals: Array<{ __typename?: 'Goal', id: string, name: string, description?: string | null, goalType: string, icon?: string | null, color?: string | null, targetAmount: number, currentAmount: number, currency: string, targetDate?: string | null, startDate?: string | null, isActive: boolean, isAchieved: boolean, achievedAt?: any | null, progressPercentage: number, amountRemaining: number, daysRemaining: number, isOverdue: boolean, isOnTrack: boolean, monthlyTarget: number, nextMilestonePercentage?: number | null, createdAt: any, milestones: Array<{ __typename?: 'GoalMilestone', id: string, percentage: number, amountAtMilestone: number, achievedAt: any, label: string, emoji: string }> }> };
 
 export type GetNotificationPreferencesQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -6770,6 +6782,15 @@ export const GetGoalsDocument = gql`
     isOverdue
     isOnTrack
     monthlyTarget
+    nextMilestonePercentage
+    milestones {
+      id
+      percentage
+      amountAtMilestone
+      achievedAt
+      label
+      emoji
+    }
     createdAt
   }
 }

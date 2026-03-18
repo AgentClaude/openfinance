@@ -121,7 +121,7 @@ _See SPRINT.md for prioritized sprint plan (Sprints 1-3)_
 - ✅ Debt payoff goals
 - ✅ Goal edit with icon/color
 - ✅ Dashboard goals summary widget (PR #54)
-- ⬚ Goal milestones & notifications
+- ✅ Goal milestones & notifications (PR #141)
 
 ## Phase 11: Investment Tracking ✅
 - ✅ Holdings model → exposed via GraphQL
