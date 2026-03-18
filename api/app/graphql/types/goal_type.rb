@@ -53,11 +53,15 @@ module Types
     end
 
     def milestones
-      object.milestones.ordered
+      object.milestones.sort_by(&:percentage)
     end
 
     def next_milestone_percentage
-      achieved = object.milestones.pluck(:percentage)
+      achieved = if object.milestones.loaded?
+        object.milestones.map(&:percentage)
+      else
+        object.milestones.pluck(:percentage)
+      end
       GoalMilestone::MILESTONE_PERCENTAGES.find { |pct| !achieved.include?(pct) }
     end
   end

@@ -4,7 +4,7 @@ class GoalMilestoneCheckJob < ApplicationJob
   queue_as :notifications
 
   def perform
-    Goal.active.includes(:milestones, household: :users).find_each do |goal|
+    Goal.active.includes(:milestones, household: { users: :notification_preferences }).find_each do |goal|
       check_milestones(goal)
     end
   end
@@ -15,19 +15,21 @@ class GoalMilestoneCheckJob < ApplicationJob
     return if goal.target_amount_cents <= 0
 
     progress = goal.progress_percentage
-    existing = goal.milestones.pluck(:percentage)
+    existing = goal.milestones.map(&:percentage)
 
     GoalMilestone::MILESTONE_PERCENTAGES.each do |pct|
       next if existing.include?(pct)
       next if progress < pct
 
-      milestone = goal.milestones.create!(
-        percentage: pct,
-        amount_at_milestone_cents: goal.current_amount_cents,
-        achieved_at: Time.current
-      )
+      ActiveRecord::Base.transaction do
+        milestone = goal.milestones.create!(
+          percentage: pct,
+          amount_at_milestone_cents: goal.current_amount_cents,
+          achieved_at: Time.current
+        )
 
-      notify_household(goal, milestone)
+        notify_household(goal, milestone)
+      end
     end
   end
 
@@ -40,10 +42,10 @@ class GoalMilestoneCheckJob < ApplicationJob
         "#{milestone.emoji} #{goal.name}: #{milestone.percentage}% milestone"
 
       body = if milestone.percentage == 100
-        "Congratulations! You've reached your goal of #{format_currency(goal.target_amount_cents)}."
+        "Congratulations! You've reached your goal of #{format_currency(goal.target_amount_cents, goal.currency)}."
       else
-        "#{milestone.label} You've saved #{format_currency(goal.current_amount_cents)} " \
-        "of your #{format_currency(goal.target_amount_cents)} goal."
+        "#{milestone.label} You've saved #{format_currency(goal.current_amount_cents, goal.currency)} " \
+        "of your #{format_currency(goal.target_amount_cents, goal.currency)} goal."
       end
 
       Notification.create!(
@@ -66,11 +68,19 @@ class GoalMilestoneCheckJob < ApplicationJob
   end
 
   def notification_enabled?(user)
-    pref = user.notification_preferences.find_by(notification_type: "goal_milestone", channel: "in_app")
+    pref = user.notification_preferences.detect { |p|
+      p.notification_type == "goal_milestone" && p.channel == "in_app"
+    }
     pref.nil? || pref.enabled
   end
 
-  def format_currency(cents)
-    "$#{'%.2f' % (cents / 100.0)}"
+  def format_currency(cents, currency = "USD")
+    symbol = case currency
+             when "USD" then "$"
+             when "EUR" then "€"
+             when "GBP" then "£"
+             else "$"
+             end
+    "#{symbol}#{'%.2f' % (cents / 100.0)}"
   end
 end

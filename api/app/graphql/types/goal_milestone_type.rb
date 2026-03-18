@@ -7,8 +7,6 @@ module Types
     field :label, String, null: false
     field :emoji, String, null: false
 
-    def amount_at_milestone
-      object.amount_at_milestone_cents / 100.0
-    end
+    # Delegates to GoalMilestone#amount_at_milestone (model method)
   end
 end
