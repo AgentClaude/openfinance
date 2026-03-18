@@ -2,13 +2,14 @@ import React, { useState, useMemo } from 'react';
 import { useInvestments, PortfolioHistoryPoint } from '@/hooks/useInvestments';
 import { useAccounts } from '@/hooks/useAccounts';
 import { useDividends } from '@/hooks/useDividends';
+import { useBenchmark, BenchmarkDataPoint } from '@/hooks/useBenchmark';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import PageHeader from '@/components/ui/PageHeader';
 import DataTable from '@/components/ui/DataTable';
 import { StatCard } from '@/components/shared';
 import { Holding, PortfolioAllocation, InvestmentTransaction, DividendBySecurity, DividendByMonth, ColumnConfig } from '@/types';
 import {
-  AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  AreaChart, Area, BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, Legend,
 } from 'recharts';
 import {
@@ -19,6 +20,7 @@ import {
   ScaleIcon,
   ChartBarIcon,
   BanknotesIcon,
+  BoltIcon,
 } from '@heroicons/react/24/outline';
 
 const COLORS = [
@@ -452,6 +454,133 @@ const dividendColumns: ColumnConfig<InvestmentTransaction>[] = [
   },
 ];
 
+// Benchmark Comparison Chart
+const BenchmarkComparisonChart: React.FC<{
+  dataPoints: BenchmarkDataPoint[];
+  portfolioReturn: number;
+  benchmarkReturn: number;
+  benchmarkName: string | null;
+  alpha: number;
+  outperforming: boolean;
+  periodMonths: number;
+  onPeriodChange: (months: number) => void;
+}> = ({ dataPoints, portfolioReturn, benchmarkReturn, benchmarkName, alpha, outperforming, periodMonths, onPeriodChange }) => {
+  if (dataPoints.length < 2) {
+    return (
+      <div className="flex items-center justify-center h-64 text-gray-400">
+        Not enough data for benchmark comparison. Portfolio history must overlap with benchmark data.
+      </div>
+    );
+  }
+
+  const chartData = dataPoints.map((p) => ({
+    date: formatDate(p.date),
+    rawDate: p.date,
+    portfolio: p.portfolioValue,
+    benchmark: p.benchmarkValue,
+  }));
+
+  const minVal = Math.min(...chartData.flatMap((d) => [d.portfolio, d.benchmark])) - 2;
+  const maxVal = Math.max(...chartData.flatMap((d) => [d.portfolio, d.benchmark])) + 2;
+
+  return (
+    <div>
+      {/* Period selector */}
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <BoltIcon className="h-5 w-5 text-gray-400" />
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">vs {benchmarkName || 'S&P 500'}</h2>
+        </div>
+        <div className="flex bg-gray-100 dark:bg-gray-700 rounded-lg p-0.5">
+          {[6, 12, 24, 36].map((m) => (
+            <button
+              key={m}
+              onClick={() => onPeriodChange(m)}
+              className={`px-2.5 py-1 rounded-md text-xs font-medium transition-colors ${
+                periodMonths === m
+                  ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-gray-100 shadow-sm'
+                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700'
+              }`}
+            >
+              {m < 12 ? `${m}M` : `${m / 12}Y`}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Return summary badges */}
+      <div className="flex items-center gap-3 mb-4">
+        <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold ${
+          portfolioReturn >= 0 ? 'bg-teal-50 dark:bg-teal-900/30 text-teal-700 dark:text-teal-400' : 'bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400'
+        }`}>
+          Portfolio: {formatPercent(portfolioReturn)}
+        </span>
+        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400">
+          {benchmarkName || 'S&P 500'}: {formatPercent(benchmarkReturn)}
+        </span>
+        <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold ${
+          outperforming
+            ? 'bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400'
+            : 'bg-orange-50 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400'
+        }`}>
+          {outperforming ? '↑' : '↓'} Alpha: {formatPercent(alpha)}
+        </span>
+      </div>
+
+      <ResponsiveContainer width="100%" height={280}>
+        <LineChart data={chartData} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
+          <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
+          <XAxis dataKey="date" tick={{ fontSize: 12 }} className="text-gray-500" />
+          <YAxis
+            domain={[minVal, maxVal]}
+            tickFormatter={(v) => `${v.toFixed(0)}`}
+            tick={{ fontSize: 12 }}
+            className="text-gray-500"
+            width={45}
+          />
+          <Tooltip
+            formatter={(value: number, name: string) => [
+              `${value.toFixed(2)}`,
+              name === 'portfolio' ? 'Your Portfolio' : (benchmarkName || 'S&P 500'),
+            ]}
+            labelStyle={{ fontWeight: 600 }}
+            contentStyle={{ borderRadius: 8, border: '1px solid #e5e7eb' }}
+          />
+          {/* Reference line at 100 */}
+          <Line
+            type="monotone"
+            dataKey="benchmark"
+            stroke="#9CA3AF"
+            strokeWidth={2}
+            strokeDasharray="6 3"
+            dot={false}
+            name="benchmark"
+          />
+          <Line
+            type="monotone"
+            dataKey="portfolio"
+            stroke="#0D9488"
+            strokeWidth={2.5}
+            dot={false}
+            name="portfolio"
+          />
+        </LineChart>
+      </ResponsiveContainer>
+      <div className="mt-3 flex items-center gap-6 text-xs text-gray-500 dark:text-gray-400">
+        <div className="flex items-center gap-1.5">
+          <span className="w-4 h-0.5 bg-teal-600 rounded" />
+          Your Portfolio
+        </div>
+        <div className="flex items-center gap-1.5">
+          <span className="w-4 h-0.5 bg-gray-400 rounded" style={{ borderTop: '2px dashed #9CA3AF' }} />
+          {benchmarkName || 'S&P 500'}
+        </div>
+        <span className="ml-auto text-gray-400">Normalized to 100 at start</span>
+      </div>
+    </div>
+  );
+};
+
 type ViewTab = 'overview' | 'holdings' | 'income';
 
 const InvestmentsPage: React.FC = () => {
@@ -460,9 +589,11 @@ const InvestmentsPage: React.FC = () => {
   const [selectedAccountId, setSelectedAccountId] = useState<string | undefined>(undefined);
   const [activeTab, setActiveTab] = useState<ViewTab>('overview');
   const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
+  const [benchmarkMonths, setBenchmarkMonths] = useState<number>(12);
 
   const { holdings, summary, history, loading, error } = useInvestments(selectedAccountId);
   const { dividendSummary, incomeSummary, transactions: dividendTxns, loading: dividendLoading } = useDividends(selectedYear, selectedAccountId);
+  const { comparison: benchmarkData, loading: benchmarkLoading } = useBenchmark(benchmarkMonths, selectedAccountId);
 
   if (loading) return <LoadingSpinner />;
 
@@ -576,6 +707,26 @@ const InvestmentsPage: React.FC = () => {
                   Cost Basis
                 </div>
               </div>
+            )}
+          </div>
+
+          {/* Benchmark Comparison */}
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-5">
+            {benchmarkLoading ? (
+              <div className="flex items-center justify-center h-64">
+                <LoadingSpinner />
+              </div>
+            ) : (
+              <BenchmarkComparisonChart
+                dataPoints={benchmarkData.dataPoints}
+                portfolioReturn={benchmarkData.portfolioReturn}
+                benchmarkReturn={benchmarkData.benchmarkReturn}
+                benchmarkName={benchmarkData.benchmarkName}
+                alpha={benchmarkData.alpha}
+                outperforming={benchmarkData.outperforming}
+                periodMonths={benchmarkMonths}
+                onPeriodChange={setBenchmarkMonths}
+              />
             )}
           </div>
 
