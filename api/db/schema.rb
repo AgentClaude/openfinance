@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_03_16_045617) do
+ActiveRecord::Schema[8.0].define(version: 2026_03_17_000001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -273,6 +273,17 @@ ActiveRecord::Schema[8.0].define(version: 2026_03_16_045617) do
     t.datetime "updated_at", null: false
     t.index ["account_id"], name: "index_goal_accounts_on_account_id"
     t.index ["goal_id", "account_id"], name: "index_goal_accounts_on_goal_id_and_account_id", unique: true
+  end
+
+  create_table "goal_milestones", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "goal_id", null: false
+    t.integer "percentage", null: false
+    t.bigint "amount_at_milestone_cents", null: false
+    t.datetime "achieved_at", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["goal_id", "percentage"], name: "index_goal_milestones_on_goal_id_and_percentage", unique: true
+    t.index ["goal_id"], name: "index_goal_milestones_on_goal_id"
   end
 
   create_table "goals", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -796,6 +807,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_03_16_045617) do
   add_foreign_key "categories", "households"
   add_foreign_key "categorization_rules", "categories"
   add_foreign_key "categorization_rules", "households"
+  add_foreign_key "goal_milestones", "goals"
   add_foreign_key "goals", "accounts", column: "target_account_id"
   add_foreign_key "goals", "households"
   add_foreign_key "holdings", "accounts"

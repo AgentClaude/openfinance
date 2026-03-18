@@ -18,6 +18,11 @@ if defined?(Sidekiq::Cron)
         'class' => 'DailyBalanceSnapshotJob',
         'cron' => '0 2 * * *',  # Every day at 2:00 AM UTC
         'description' => 'Snapshot all account balances for net worth history'
+      },
+      'goal_milestone_check' => {
+        'class' => 'GoalMilestoneCheckJob',
+        'cron' => '0 3 * * *',  # Every day at 3:00 AM UTC
+        'description' => 'Check goals for newly reached milestones and notify'
       }
     )
   end

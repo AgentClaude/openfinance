@@ -481,6 +481,15 @@ export const GET_GOALS = gql`
       isOverdue
       isOnTrack
       monthlyTarget
+      nextMilestonePercentage
+      milestones {
+        id
+        percentage
+        amountAtMilestone
+        achievedAt
+        label
+        emoji
+      }
       createdAt
     }
   }

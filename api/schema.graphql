@@ -415,12 +415,23 @@ type Goal {
   isActive: Boolean!
   isOnTrack: Boolean!
   isOverdue: Boolean!
+  milestones: [GoalMilestone!]!
   monthlyTarget: Float!
   name: String!
+  nextMilestonePercentage: Int
   progressPercentage: Float!
   startDate: String
   targetAmount: Float!
   targetDate: String
+}
+
+type GoalMilestone {
+  achievedAt: ISO8601DateTime!
+  amountAtMilestone: Float!
+  emoji: String!
+  id: ID!
+  label: String!
+  percentage: Int!
 }
 
 type Holding {
