@@ -827,6 +827,45 @@ puts "🎉 ═══════════════════════
 puts "   OpenFinance Demo Data Seeded Successfully!"
 puts "   ────────────────────────────────────────────"
 puts "   Login:        demo@openfinance.dev"
+# ==============================================================================
+# BENCHMARK INDEX DATA (S&P 500 via SPY ETF)
+# ==============================================================================
+puts "📊 Seeding benchmark index data..."
+
+spy = BenchmarkIndex.find_or_create_by!(symbol: "SPY") do |b|
+  b.name = "S&P 500 (SPY)"
+  b.description = "SPDR S&P 500 ETF Trust — tracks the S&P 500 index"
+  b.currency = "USD"
+end
+
+# Monthly closing prices for SPY (approximate historical data)
+# Covers ~3 years to support 6/12/24/36 month comparisons
+spy_monthly_prices = {
+  "2023-04-01" => 411.58, "2023-05-01" => 418.51, "2023-06-01" => 443.28,
+  "2023-07-01" => 457.43, "2023-08-01" => 450.92, "2023-09-01" => 430.15,
+  "2023-10-01" => 418.20, "2023-11-01" => 455.02, "2023-12-01" => 475.31,
+  "2024-01-01" => 482.88, "2024-02-01" => 507.44, "2024-03-01" => 523.07,
+  "2024-04-01" => 500.87, "2024-05-01" => 527.37, "2024-06-01" => 544.35,
+  "2024-07-01" => 546.49, "2024-08-01" => 563.68, "2024-09-01" => 572.43,
+  "2024-10-01" => 569.23, "2024-11-01" => 602.52, "2024-12-01" => 591.55,
+  "2025-01-01" => 603.05, "2025-02-01" => 596.15, "2025-03-01" => 564.07,
+  "2025-04-01" => 555.20, "2025-05-01" => 588.25, "2025-06-01" => 601.30,
+  "2025-07-01" => 610.45, "2025-08-01" => 615.80, "2025-09-01" => 605.90,
+  "2025-10-01" => 620.15, "2025-11-01" => 635.40, "2025-12-01" => 642.80,
+  "2026-01-01" => 648.50, "2026-02-01" => 655.20, "2026-03-01" => 660.10,
+}
+
+spy_monthly_prices.each do |date_str, price|
+  BenchmarkDataPoint.find_or_create_by!(
+    benchmark_index: spy,
+    date: Date.parse(date_str)
+  ) do |dp|
+    dp.close_price = price
+  end
+end
+
+puts "   ✅ SPY benchmark: #{spy.benchmark_data_points.count} data points"
+
 puts "   Password:     password123"
 puts "   Accounts:     #{household.accounts.count}"
 puts "   Categories:   #{household.categories.count}"
@@ -835,5 +874,6 @@ puts "   Tags:         #{household.tags.count}"
 puts "   Goals:        #{household.goals.count}"
 puts "   Holdings:     #{Holding.joins(:account).where(accounts: { household_id: household.id }).count}"
 puts "   Inv Txns:     #{InvestmentTransaction.joins(:account).where(accounts: { household_id: household.id }).count}"
+puts "   Benchmarks:   #{BenchmarkIndex.count} (#{BenchmarkDataPoint.count} data points)"
 puts "   Rules:        #{household.categorization_rules.count}"
 puts "🎉 ════════════════════════════════════════════"

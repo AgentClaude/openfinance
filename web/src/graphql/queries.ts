@@ -458,6 +458,25 @@ export const GET_PORTFOLIO_HISTORY = gql`
   }
 `;
 
+export const GET_BENCHMARK_COMPARISON = gql`
+  query GetBenchmarkComparison($benchmarkSymbol: String, $months: Int, $accountId: ID) {
+    benchmarkComparison(benchmarkSymbol: $benchmarkSymbol, months: $months, accountId: $accountId) {
+      benchmarkName
+      benchmarkSymbol
+      periodMonths
+      portfolioReturn
+      benchmarkReturn
+      alpha
+      outperforming
+      dataPoints {
+        date
+        portfolioValue
+        benchmarkValue
+      }
+    }
+  }
+`;
+
 export const GET_INVESTMENT_TRANSACTIONS = gql`
   query GetInvestmentTransactions($accountId: ID, $securityId: ID, $transactionType: String, $year: Int, $limit: Int) {
     investmentTransactions(accountId: $accountId, securityId: $securityId, transactionType: $transactionType, year: $year, limit: $limit) {

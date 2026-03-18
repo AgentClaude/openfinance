@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_03_18_000001) do
+ActiveRecord::Schema[8.0].define(version: 2026_03_18_160000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -158,6 +158,27 @@ ActiveRecord::Schema[8.0].define(version: 2026_03_18_000001) do
     t.index ["account_id"], name: "index_balance_adjustments_on_account_id"
     t.index ["created_by_id"], name: "index_balance_adjustments_on_created_by_id"
     t.index ["household_id"], name: "index_balance_adjustments_on_household_id"
+  end
+
+  create_table "benchmark_data_points", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "benchmark_index_id", null: false
+    t.date "date", null: false
+    t.decimal "close_price", precision: 12, scale: 2, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["benchmark_index_id", "date"], name: "idx_benchmark_data_points_on_index_and_date", unique: true
+    t.index ["benchmark_index_id"], name: "index_benchmark_data_points_on_benchmark_index_id"
+  end
+
+  create_table "benchmark_indices", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "symbol", null: false
+    t.string "name", null: false
+    t.string "description"
+    t.string "currency", default: "USD", null: false
+    t.jsonb "metadata", default: {}
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["symbol"], name: "index_benchmark_indices_on_symbol", unique: true
   end
 
   create_table "budget_items", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -822,6 +843,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_03_18_000001) do
   add_foreign_key "balance_adjustments", "accounts"
   add_foreign_key "balance_adjustments", "households"
   add_foreign_key "balance_adjustments", "users", column: "created_by_id"
+  add_foreign_key "benchmark_data_points", "benchmark_indices"
   add_foreign_key "budget_items", "budgets"
   add_foreign_key "budget_items", "categories"
   add_foreign_key "budgets", "households"

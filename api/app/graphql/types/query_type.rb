@@ -750,19 +750,25 @@ module Types
         top_merchants: top_merchants
       }
     end
-    private
 
-    def latest_holdings(account_id: nil)
-      household = context[:current_user].household
-      scope = Holding.joins(:account)
-                     .where(accounts: { household_id: household.id })
-                     .where('quantity > 0')
-      scope = scope.where(account_id: account_id) if account_id.present?
+    field :benchmark_comparison, Types::BenchmarkComparisonType, null: false do
+      argument :benchmark_symbol, String, required: false, default_value: "SPY"
+      argument :months, Integer, required: false, default_value: 12
+      argument :account_id, ID, required: false
+    end
+    def benchmark_comparison(benchmark_symbol: "SPY", months: 12, account_id: nil)
+      empty = { benchmark_name: nil, benchmark_symbol: benchmark_symbol, period_months: months,
+                portfolio_return: 0, benchmark_return: 0, alpha: 0, outperforming: false, data_points: [] }
+      return empty unless context[:current_user]&.household
 
-      latest_ids = scope.select('DISTINCT ON (holdings.account_id, holdings.security_id) holdings.id')
-                        .order('holdings.account_id, holdings.security_id, holdings.as_of_date DESC')
+      result = Benchmarks::ComparisonService.new(
+        household: context[:current_user].household,
+        benchmark_symbol: benchmark_symbol,
+        months: months,
+        account_id: account_id
+      ).call
 
-      Holding.where(id: latest_ids).includes(:security, :account)
+      result.except(:success, :error)
     end
 
     field :portfolio_history, [Types::PortfolioHistoryPointType], null: false do
@@ -794,6 +800,21 @@ module Types
         p[:gain_loss] = p[:total_value] - p[:total_cost_basis]
         p
       end.sort_by { |p| p[:date] }
+    end
+
+    private
+
+    def latest_holdings(account_id: nil)
+      household = context[:current_user].household
+      scope = Holding.joins(:account)
+                     .where(accounts: { household_id: household.id })
+                     .where('quantity > 0')
+      scope = scope.where(account_id: account_id) if account_id.present?
+
+      latest_ids = scope.select('DISTINCT ON (holdings.account_id, holdings.security_id) holdings.id')
+                        .order('holdings.account_id, holdings.security_id, holdings.as_of_date DESC')
+
+      Holding.where(id: latest_ids).includes(:security, :account)
     end
 
     def empty_portfolio
