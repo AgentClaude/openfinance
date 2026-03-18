@@ -262,6 +262,44 @@ export interface PortfolioSummary {
   allocations: PortfolioAllocation[];
 }
 
+export interface InvestmentTransaction {
+  id: string;
+  accountId: string;
+  security: Security;
+  transactionType: string;
+  amount: number;
+  quantity?: number;
+  price?: number;
+  date: string;
+  description?: string;
+  currency: string;
+}
+
+export interface DividendBySecurity {
+  symbol: string;
+  name: string;
+  amount: number;
+}
+
+export interface DividendByMonth {
+  month: string;
+  amount: number;
+}
+
+export interface DividendSummary {
+  totalDividends: number;
+  bySecurity: DividendBySecurity[];
+  byMonth: DividendByMonth[];
+  transactionCount: number;
+}
+
+export interface InvestmentIncomeSummary {
+  totalIncome: number;
+  dividends: number;
+  interest: number;
+  capitalGains: number;
+}
+
 export interface BalanceAdjustment {
   id: string;
   accountId: string;

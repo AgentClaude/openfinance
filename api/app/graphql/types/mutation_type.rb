@@ -32,6 +32,8 @@ module Types
     field :create_goal, mutation: Mutations::CreateGoal
     field :update_goal, mutation: Mutations::UpdateGoal
     field :delete_goal, mutation: Mutations::DeleteGoal
+    field :create_investment_transaction, mutation: Mutations::CreateInvestmentTransaction
+    field :delete_investment_transaction, mutation: Mutations::DeleteInvestmentTransaction
     field :update_profile, mutation: Mutations::UpdateProfile
     field :change_password, mutation: Mutations::ChangePassword
     field :invite_to_household, mutation: Mutations::InviteToHousehold

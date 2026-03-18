@@ -63,4 +63,43 @@ test.describe('Investments', () => {
       await expect(change).toBeVisible();
     }
   });
+
+  test('can switch to income tab and see dividend data', async ({ page }) => {
+    // Click the Income tab
+    const incomeTab = page.getByRole('button', { name: /income/i });
+    await expect(incomeTab).toBeVisible({ timeout: 10000 });
+    await incomeTab.click();
+
+    // Should show income summary cards
+    await expect(page.getByText(/total investment income|dividends/i).first()).toBeVisible({ timeout: 10000 });
+    await takeScreenshot(page, 'investments-income-tab');
+  });
+
+  test('income tab shows dividend bar chart', async ({ page }) => {
+    await page.getByRole('button', { name: /income/i }).click();
+    // Look for monthly dividends section
+    await expect(page.getByText(/monthly dividends/i)).toBeVisible({ timeout: 10000 });
+  });
+
+  test('income tab shows dividend history table', async ({ page }) => {
+    await page.getByRole('button', { name: /income/i }).click();
+    // Should show dividend history section
+    await expect(page.getByText(/dividend history/i)).toBeVisible({ timeout: 10000 });
+  });
+
+  test('income tab shows by-security breakdown', async ({ page }) => {
+    await page.getByRole('button', { name: /income/i }).click();
+    await expect(page.getByText(/by security/i).first()).toBeVisible({ timeout: 10000 });
+  });
+
+  test('income tab year navigation works', async ({ page }) => {
+    await page.getByRole('button', { name: /income/i }).click();
+    // Should show current year in the year selector
+    const currentYear = new Date().getFullYear().toString();
+    await expect(page.getByText(currentYear, { exact: true })).toBeVisible({ timeout: 10000 });
+    // Click back arrow
+    await page.getByRole('button', { name: '←' }).click();
+    const prevYear = (new Date().getFullYear() - 1).toString();
+    await expect(page.getByText(prevYear, { exact: true })).toBeVisible({ timeout: 5000 });
+  });
 });

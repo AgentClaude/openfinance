@@ -1,13 +1,14 @@
 import React, { useState, useMemo } from 'react';
 import { useInvestments, PortfolioHistoryPoint } from '@/hooks/useInvestments';
 import { useAccounts } from '@/hooks/useAccounts';
+import { useDividends } from '@/hooks/useDividends';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import PageHeader from '@/components/ui/PageHeader';
 import DataTable from '@/components/ui/DataTable';
 import { StatCard } from '@/components/shared';
-import { Holding, PortfolioAllocation, ColumnConfig } from '@/types';
+import { Holding, PortfolioAllocation, InvestmentTransaction, DividendBySecurity, DividendByMonth, ColumnConfig } from '@/types';
 import {
-  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, Legend,
 } from 'recharts';
 import {
@@ -17,6 +18,7 @@ import {
   ChartPieIcon,
   ScaleIcon,
   ChartBarIcon,
+  BanknotesIcon,
 } from '@heroicons/react/24/outline';
 
 const COLORS = [
@@ -344,15 +346,123 @@ const renderHoldingDetail = (holding: Holding) => (
   </div>
 );
 
-type ViewTab = 'overview' | 'holdings';
+// Dividend income chart
+const DividendBarChart: React.FC<{ byMonth: DividendByMonth[] }> = ({ byMonth }) => {
+  if (byMonth.length < 1) {
+    return (
+      <div className="flex items-center justify-center h-48 text-gray-400">
+        No dividend data available
+      </div>
+    );
+  }
+
+  const chartData = byMonth.map((d) => ({
+    month: d.month.slice(5), // MM from YYYY-MM
+    label: new Date(d.month + '-01').toLocaleDateString('en-US', { month: 'short' }),
+    amount: d.amount,
+  }));
+
+  return (
+    <ResponsiveContainer width="100%" height={240}>
+      <BarChart data={chartData} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
+        <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
+        <XAxis dataKey="label" tick={{ fontSize: 12 }} className="text-gray-500" />
+        <YAxis
+          tickFormatter={(v) => `$${v}`}
+          tick={{ fontSize: 12 }}
+          className="text-gray-500"
+          width={60}
+        />
+        <Tooltip
+          formatter={(value: number) => [formatCurrency(value), 'Dividends']}
+          contentStyle={{ borderRadius: 8, border: '1px solid #e5e7eb' }}
+        />
+        <Bar dataKey="amount" fill="#10B981" radius={[4, 4, 0, 0]} />
+      </BarChart>
+    </ResponsiveContainer>
+  );
+};
+
+// Dividend by Security breakdown
+const DividendSecurityBreakdown: React.FC<{ bySecurity: DividendBySecurity[] }> = ({ bySecurity }) => {
+  if (!bySecurity.length) return null;
+
+  const total = bySecurity.reduce((s, d) => s + d.amount, 0);
+
+  return (
+    <div className="space-y-3">
+      {bySecurity.map((d) => {
+        const pct = total > 0 ? (d.amount / total) * 100 : 0;
+        return (
+          <div key={d.symbol} className="flex items-center gap-3">
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center justify-between mb-1">
+                <div>
+                  <span className="font-medium text-gray-900 dark:text-gray-100">{d.symbol}</span>
+                  <span className="ml-2 text-xs text-gray-500 dark:text-gray-400 truncate">{d.name}</span>
+                </div>
+                <span className="font-medium text-gray-900 dark:text-gray-100 tabular-nums">{formatCurrency(d.amount)}</span>
+              </div>
+              <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                <div
+                  className="bg-green-500 h-2 rounded-full transition-all"
+                  style={{ width: `${Math.min(pct, 100)}%` }}
+                />
+              </div>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
+// Dividend transactions table columns
+const dividendColumns: ColumnConfig<InvestmentTransaction>[] = [
+  {
+    key: 'date',
+    label: 'Date',
+    sortable: true,
+    cellClassName: 'tabular-nums text-gray-700 dark:text-gray-300',
+    render: (t) => new Date(t.date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+  },
+  {
+    key: 'security',
+    label: 'Security',
+    render: (t) => (
+      <div>
+        <span className="font-medium text-gray-900 dark:text-gray-100">{t.security.symbol}</span>
+        <span className="ml-2 text-xs text-gray-500 dark:text-gray-400">{t.security.name}</span>
+      </div>
+    ),
+  },
+  {
+    key: 'description',
+    label: 'Description',
+    cellClassName: 'text-gray-500 dark:text-gray-400 text-sm',
+    render: (t) => t.description || '—',
+  },
+  {
+    key: 'amount',
+    label: 'Amount',
+    align: 'right',
+    sortable: true,
+    cellClassName: 'tabular-nums font-medium text-green-600',
+    render: (t) => formatCurrency(t.amount),
+  },
+];
+
+type ViewTab = 'overview' | 'holdings' | 'income';
 
 const InvestmentsPage: React.FC = () => {
   const { accounts } = useAccounts();
   const investmentAccounts = accounts.filter((a) => a.type === 'INVESTMENT');
   const [selectedAccountId, setSelectedAccountId] = useState<string | undefined>(undefined);
   const [activeTab, setActiveTab] = useState<ViewTab>('overview');
+  const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
 
   const { holdings, summary, history, loading, error } = useInvestments(selectedAccountId);
+  const { dividendSummary, incomeSummary, transactions: dividendTxns, loading: dividendLoading } = useDividends(selectedYear, selectedAccountId);
 
   if (loading) return <LoadingSpinner />;
 
@@ -380,6 +490,16 @@ const InvestmentsPage: React.FC = () => {
           }`}
         >
           Holdings
+        </button>
+        <button
+          onClick={() => setActiveTab('income')}
+          className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+            activeTab === 'income'
+              ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-gray-100 shadow-sm'
+              : 'text-gray-500 dark:text-gray-400 hover:text-gray-700'
+          }`}
+        >
+          Income
         </button>
       </div>
       {investmentAccounts.length > 1 && (
@@ -436,7 +556,7 @@ const InvestmentsPage: React.FC = () => {
         />
       </div>
 
-      {activeTab === 'overview' ? (
+      {activeTab === 'overview' && (
         <>
           {/* Performance Chart */}
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-5">
@@ -471,7 +591,9 @@ const InvestmentsPage: React.FC = () => {
             </div>
           </div>
         </>
-      ) : (
+      )}
+
+      {activeTab === 'holdings' && (
         <DataTable
           columns={holdingsColumns}
           data={holdings}
@@ -489,6 +611,90 @@ const InvestmentsPage: React.FC = () => {
           }
           pagination={{ pageSize: 25, pageSizeOptions: [10, 25, 50] }}
         />
+      )}
+
+      {activeTab === 'income' && (
+        <>
+          {/* Year Selector */}
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setSelectedYear((y) => y - 1)}
+              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400"
+            >
+              ←
+            </button>
+            <span className="text-lg font-semibold text-gray-900 dark:text-gray-100 tabular-nums">{selectedYear}</span>
+            <button
+              onClick={() => setSelectedYear((y) => y + 1)}
+              disabled={selectedYear >= new Date().getFullYear()}
+              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400 disabled:opacity-30"
+            >
+              →
+            </button>
+          </div>
+
+          {dividendLoading ? (
+            <LoadingSpinner />
+          ) : (
+            <>
+              {/* Income Summary Cards */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <StatCard
+                  label="Total Investment Income"
+                  value={formatCurrency(incomeSummary.totalIncome)}
+                  icon={<BanknotesIcon className="h-5 w-5 text-green-500" />}
+                  valueClassName="text-green-600"
+                />
+                <StatCard
+                  label="Dividends"
+                  value={formatCurrency(incomeSummary.dividends)}
+                  icon={<CurrencyDollarIcon className="h-5 w-5" />}
+                />
+                <StatCard
+                  label="Interest"
+                  value={formatCurrency(incomeSummary.interest)}
+                  icon={<ScaleIcon className="h-5 w-5" />}
+                />
+                <StatCard
+                  label="Dividend Yield (est.)"
+                  value={summary.totalValue > 0 ? `${((incomeSummary.dividends / summary.totalValue) * 100).toFixed(2)}%` : '—'}
+                  icon={<ChartPieIcon className="h-5 w-5" />}
+                />
+              </div>
+
+              {/* Charts */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-5">
+                  <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Monthly Dividends</h2>
+                  <DividendBarChart byMonth={dividendSummary.byMonth} />
+                </div>
+                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-5">
+                  <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">By Security</h2>
+                  <DividendSecurityBreakdown bySecurity={dividendSummary.bySecurity} />
+                </div>
+              </div>
+
+              {/* Dividend Transactions Table */}
+              <DataTable
+                columns={dividendColumns}
+                data={dividendTxns}
+                title="Dividend History"
+                subtitle={`(${dividendSummary.transactionCount} payments)`}
+                emptyTitle="No dividend income yet"
+                emptyDescription="Dividend payments from your holdings will appear here."
+                getRowId={(t) => t.id}
+                searchable
+                searchPlaceholder="Search dividends..."
+                filterFn={(t, q) =>
+                  t.security.symbol.toLowerCase().includes(q) ||
+                  t.security.name.toLowerCase().includes(q) ||
+                  (t.description || '').toLowerCase().includes(q)
+                }
+                pagination={{ pageSize: 25, pageSizeOptions: [10, 25, 50] }}
+              />
+            </>
+          )}
+        </>
       )}
     </div>
   );

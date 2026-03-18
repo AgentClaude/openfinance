@@ -697,6 +697,79 @@ end
 puts "✅ #{securities_data.size} securities, #{total_holdings_created} holdings (incl. 6-month history)"
 
 # ==============================================================================
+# 9b. INVESTMENT TRANSACTIONS (DIVIDENDS)
+# ==============================================================================
+
+# Realistic dividend data — quarterly dividends for dividend-paying securities
+dividend_config = {
+  'AAPL'  => { quarterly_cents: 2500, description: 'Apple Inc. Dividend' },          # $0.25/share
+  'MSFT'  => { quarterly_cents: 7500, description: 'Microsoft Corp. Dividend' },     # $0.75/share
+  'VOO'   => { quarterly_cents: 16200, description: 'Vanguard S&P 500 ETF Dist.' }, # $1.62/share
+  'VTI'   => { quarterly_cents: 8800, description: 'Vanguard Total Market ETF Dist.' }, # $0.88/share
+}
+
+total_inv_txns = 0
+dividend_months = [3, 6, 9, 12] # Quarterly: Mar, Jun, Sep, Dec
+
+holdings_config.each do |account, holdings_list|
+  holdings_list.each do |h|
+    div = dividend_config[h[:symbol]]
+    next unless div
+
+    dividend_months.each do |month|
+      # Generate dividends for last 2 years of quarters that are in the past
+      [today.year - 1, today.year].each do |year|
+        div_date = Date.new(year, month, 15)
+        next if div_date > today
+
+        # Amount = per-share dividend * quantity
+        amount_cents = (div[:quarterly_cents] * h[:qty] / 100.0).to_i
+
+        InvestmentTransaction.find_or_initialize_by(
+          account: account,
+          security: secs[h[:symbol]],
+          date: div_date,
+          transaction_type: 'dividend'
+        ).tap do |txn|
+          txn.assign_attributes(
+            amount_cents: amount_cents,
+            description: div[:description],
+            currency: 'USD'
+          )
+          txn.save!
+          total_inv_txns += 1
+        end
+      end
+    end
+  end
+end
+
+# Add some interest income for the 401k
+[today.year - 1, today.year].each do |year|
+  12.times do |i|
+    int_date = Date.new(year, i + 1, 28)
+    next if int_date > today
+
+    InvestmentTransaction.find_or_initialize_by(
+      account: vanguard,
+      security: secs['VOO'],
+      date: int_date,
+      transaction_type: 'interest'
+    ).tap do |txn|
+      txn.assign_attributes(
+        amount_cents: rand(800..2500),
+        description: 'Settlement Fund Interest',
+        currency: 'USD'
+      )
+      txn.save!
+      total_inv_txns += 1
+    end
+  end
+end
+
+puts "✅ #{total_inv_txns} investment transactions (dividends + interest)"
+
+# ==============================================================================
 # 10. CATEGORIZATION RULES
 # ==============================================================================
 
@@ -761,5 +834,6 @@ puts "   Transactions: #{household.transactions.count}"
 puts "   Tags:         #{household.tags.count}"
 puts "   Goals:        #{household.goals.count}"
 puts "   Holdings:     #{Holding.joins(:account).where(accounts: { household_id: household.id }).count}"
+puts "   Inv Txns:     #{InvestmentTransaction.joins(:account).where(accounts: { household_id: household.id }).count}"
 puts "   Rules:        #{household.categorization_rules.count}"
 puts "🎉 ════════════════════════════════════════════"

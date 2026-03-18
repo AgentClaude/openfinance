@@ -458,6 +458,57 @@ export const GET_PORTFOLIO_HISTORY = gql`
   }
 `;
 
+export const GET_INVESTMENT_TRANSACTIONS = gql`
+  query GetInvestmentTransactions($accountId: ID, $securityId: ID, $transactionType: String, $year: Int, $limit: Int) {
+    investmentTransactions(accountId: $accountId, securityId: $securityId, transactionType: $transactionType, year: $year, limit: $limit) {
+      id
+      accountId
+      security {
+        id
+        symbol
+        name
+        securityType
+      }
+      transactionType
+      amount
+      quantity
+      price
+      date
+      description
+      currency
+    }
+  }
+`;
+
+export const GET_DIVIDEND_SUMMARY = gql`
+  query GetDividendSummary($year: Int, $accountId: ID) {
+    dividendSummary(year: $year, accountId: $accountId) {
+      totalDividends
+      bySecurity {
+        symbol
+        name
+        amount
+      }
+      byMonth {
+        month
+        amount
+      }
+      transactionCount
+    }
+  }
+`;
+
+export const GET_INVESTMENT_INCOME_SUMMARY = gql`
+  query GetInvestmentIncomeSummary($year: Int, $accountId: ID) {
+    investmentIncomeSummary(year: $year, accountId: $accountId) {
+      totalIncome
+      dividends
+      interest
+      capitalGains
+    }
+  }
+`;
+
 export const GET_GOALS = gql`
   query GetGoals($activeOnly: Boolean) {
     goals(activeOnly: $activeOnly) {

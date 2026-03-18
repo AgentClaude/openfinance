@@ -1,6 +1,7 @@
 class Security < ApplicationRecord
   # Associations
   has_many :holdings, dependent: :destroy
+  has_many :investment_transactions, dependent: :destroy
   has_many :accounts, through: :holdings
 
   # Validations
