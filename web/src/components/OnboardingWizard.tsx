@@ -65,7 +65,7 @@ const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ onComplete, userNam
         variables: {
           input: {
             name: accountForm.name.trim(),
-            accountType: accountForm.type,
+            type: accountForm.type,
             balance,
           },
         },
