@@ -40,7 +40,7 @@ RSpec.describe 'GraphQL Mutations', type: :request do
       expect(data['errors']).to include(match(/email/i))
     end
 
-    it 'does not fail with duplicate category creation race condition' do
+    it 'sequential registrations succeed without duplicate category errors' do
       # Regression test: register mutation previously called
       # Category.create_system_categories_for_household which conflicted
       # with the Household after_create callback
