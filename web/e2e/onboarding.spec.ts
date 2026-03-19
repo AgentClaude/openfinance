@@ -98,6 +98,11 @@ test.describe('Onboarding Page', () => {
       await expect(nextBtn).toBeVisible({ timeout: 5000 });
       await nextBtn.click();
 
+      // Click "Add a manual account" to reveal the account form
+      const addManualBtn = page.getByText(/add a manual account/i).first();
+      await expect(addManualBtn).toBeVisible({ timeout: 5000 });
+      await addManualBtn.click();
+
       const nameInput = page.getByPlaceholder(/chase checking/i).first();
       await expect(nameInput).toBeVisible({ timeout: 5000 });
       await nameInput.fill('Test Checking');
