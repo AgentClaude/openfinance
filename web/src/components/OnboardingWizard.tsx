@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { useMutation } from '@apollo/client';
+import { useMutation, useApolloClient } from '@apollo/client';
 import { useNavigate } from 'react-router-dom';
 import {
   SparklesIcon,
@@ -14,7 +14,6 @@ import {
   RocketLaunchIcon,
 } from '@heroicons/react/24/outline';
 import { CREATE_MANUAL_ACCOUNT } from '@/graphql/mutations';
-import { GET_ACCOUNTS } from '@/graphql/queries';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
 import clsx from 'clsx';
@@ -41,15 +40,14 @@ const STEPS = ['Welcome', 'Add Accounts', 'All Set'];
 
 const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ onComplete, userName }) => {
   const navigate = useNavigate();
+  const apolloClient = useApolloClient();
   const [step, setStep] = useState(0);
   const [addedAccounts, setAddedAccounts] = useState<string[]>([]);
   const [showAccountForm, setShowAccountForm] = useState(false);
   const [accountForm, setAccountForm] = useState<ManualAccountForm>({ name: '', type: 'DEPOSITORY', balance: '' });
   const [formError, setFormError] = useState('');
 
-  const [createAccount, { loading: creatingAccount }] = useMutation(CREATE_MANUAL_ACCOUNT, {
-    refetchQueries: [{ query: GET_ACCOUNTS }],
-  });
+  const [createAccount, { loading: creatingAccount }] = useMutation(CREATE_MANUAL_ACCOUNT);
 
   const handleAddAccount = useCallback(async () => {
     if (!accountForm.name.trim()) {
@@ -82,11 +80,13 @@ const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ onComplete, userNam
     }
   }, [accountForm, createAccount]);
 
-  const handleFinish = useCallback(() => {
+  const handleFinish = useCallback(async () => {
     localStorage.setItem('onboarding_completed', 'true');
+    // Clear cached accounts so dashboard fetches fresh data including any added accounts
+    await apolloClient.resetStore().catch(() => {});
     onComplete();
     navigate('/dashboard');
-  }, [onComplete, navigate]);
+  }, [apolloClient, onComplete, navigate]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-brand-50 via-white to-teal-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 flex items-center justify-center p-4">
