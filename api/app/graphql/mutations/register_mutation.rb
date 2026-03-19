@@ -14,7 +14,8 @@ module Mutations
       user = User.new(name: name, email: email, password: password, household: household, role: 'owner')
 
       if user.save
-        Category.create_system_categories_for_household(household)
+        # Categories are created via Household after_create callback (CreateDefaultCategoriesJob)
+        # No need to call Category.create_system_categories_for_household here
         secret = ENV.fetch('DEVISE_JWT_SECRET_KEY', Rails.application.secret_key_base)
         token = JWT.encode(
           { sub: user.id, jti: SecureRandom.uuid, exp: 24.hours.from_now.to_i, iat: Time.current.to_i },
