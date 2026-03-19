@@ -4,6 +4,59 @@ RSpec.describe 'GraphQL Mutations', type: :request do
   let(:household) { create(:household) }
   let(:user) { create(:user, household: household) }
 
+  describe 'register' do
+    let(:register_query) do
+      <<~GRAPHQL
+        mutation($email: String!, $password: String!, $name: String!) {
+          register(email: $email, password: $password, name: $name) {
+            token
+            user { id email name }
+            errors
+          }
+        }
+      GRAPHQL
+    end
+
+    it 'creates a new user with household' do
+      result = graphql_query(register_query, variables: {
+        email: "new-user-#{SecureRandom.hex(4)}@test.dev",
+        password: 'securepass123',
+        name: "Test User #{SecureRandom.hex(4)}"
+      })
+      data = result.dig('data', 'register')
+      expect(data['token']).to be_present
+      expect(data['user']['email']).to include('@test.dev')
+      expect(data['errors']).to be_empty
+    end
+
+    it 'returns errors for duplicate email' do
+      result = graphql_query(register_query, variables: {
+        email: user.email,
+        password: 'securepass123',
+        name: "Duplicate User #{SecureRandom.hex(4)}"
+      })
+      data = result.dig('data', 'register')
+      expect(data['token']).to be_nil
+      expect(data['errors']).to include(match(/email/i))
+    end
+
+    it 'sequential registrations succeed without duplicate category errors' do
+      # Regression test: register mutation previously called
+      # Category.create_system_categories_for_household which conflicted
+      # with the Household after_create callback
+      3.times do |i|
+        result = graphql_query(register_query, variables: {
+          email: "race-test-#{SecureRandom.hex(6)}@test.dev",
+          password: 'securepass123',
+          name: "Race Test #{SecureRandom.hex(6)}"
+        })
+        data = result.dig('data', 'register')
+        expect(data['token']).to be_present, "Registration #{i + 1} should succeed"
+        expect(data['errors']).to be_empty
+      end
+    end
+  end
+
   describe 'login' do
     let(:query) do
       <<~GRAPHQL
