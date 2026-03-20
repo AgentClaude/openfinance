@@ -1,7 +1,7 @@
 import { useQuery, useMutation } from '@apollo/client';
-import { GET_BUDGET, GET_BUDGET_SUMMARY } from '@/graphql/queries';
-import { UPDATE_BUDGET_ITEM, DELETE_BUDGET_ITEM, COPY_BUDGET_FROM_MONTH, FILL_BUDGET_FROM_AVERAGES } from '@/graphql/mutations';
-import { BudgetItem, BudgetSummary } from '@/types';
+import { GET_BUDGET, GET_BUDGET_SUMMARY, GET_BUDGET_SETTINGS } from '@/graphql/queries';
+import { UPDATE_BUDGET_ITEM, DELETE_BUDGET_ITEM, COPY_BUDGET_FROM_MONTH, FILL_BUDGET_FROM_AVERAGES, UPDATE_BUDGET_SETTINGS } from '@/graphql/mutations';
+import { BudgetItem, BudgetSummary, BudgetSettings } from '@/types';
 import { format, startOfMonth, subMonths } from 'date-fns';
 
 export const useBudget = (month?: string) => {
@@ -15,13 +15,17 @@ export const useBudget = (month?: string) => {
     variables: { month: currentMonth },
   });
 
+  const { data: settingsData } = useQuery(GET_BUDGET_SETTINGS);
+
   const [updateBudgetItemMutation, { loading: updating }] = useMutation(UPDATE_BUDGET_ITEM);
   const [deleteBudgetItemMutation, { loading: deleting }] = useMutation(DELETE_BUDGET_ITEM);
   const [copyBudgetMutation, { loading: copying }] = useMutation(COPY_BUDGET_FROM_MONTH);
   const [fillAveragesMutation, { loading: filling }] = useMutation(FILL_BUDGET_FROM_AVERAGES);
+  const [updateBudgetSettingsMutation, { loading: updatingSettings }] = useMutation(UPDATE_BUDGET_SETTINGS);
 
   const budgetItems: BudgetItem[] = data?.budget || [];
   const summary: BudgetSummary | null = summaryData?.budgetSummary || null;
+  const budgetSettings: BudgetSettings = settingsData?.budgetSettings || { budgetMode: 'per_category', spendingTarget: 0 };
 
   const updateBudgetItem = async (categoryId: string, budgeted: number) => {
     const result = await updateBudgetItemMutation({
@@ -65,6 +69,17 @@ export const useBudget = (month?: string) => {
       ],
     });
     return result.data.fillBudgetFromAverages.budgetItems;
+  };
+
+  const updateBudgetSettings = async (mode: 'per_category' | 'flex', spendingTarget?: number) => {
+    const result = await updateBudgetSettingsMutation({
+      variables: { budgetMode: mode, spendingTarget },
+      refetchQueries: [
+        { query: GET_BUDGET_SETTINGS },
+        { query: GET_BUDGET_SUMMARY, variables: { month: currentMonth } },
+      ],
+    });
+    return result.data.updateBudgetSettings;
   };
 
   const getBudgetItemByCategory = (categoryId: string) => {
@@ -119,9 +134,10 @@ export const useBudget = (month?: string) => {
   return {
     budgetItems,
     summary,
+    budgetSettings,
     currentMonth,
     loading: loading || summaryLoading,
-    updating: updating || deleting || copying || filling,
+    updating: updating || deleting || copying || filling || updatingSettings,
     copying,
     filling,
     error,
@@ -130,6 +146,7 @@ export const useBudget = (month?: string) => {
     deleteBudgetItem,
     copyFromLastMonth,
     fillFromAverages,
+    updateBudgetSettings,
     getBudgetItemByCategory,
     getTotalBudgeted,
     getTotalSpent,

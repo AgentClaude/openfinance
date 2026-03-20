@@ -11,6 +11,10 @@ class Budget < ApplicationRecord
   validates :household, presence: true
   validates :name, presence: true, length: { minimum: 1, maximum: 255 }
   validates :period_type, inclusion: { in: %w[monthly weekly yearly] }
+  validates :budget_mode, inclusion: { in: %w[per_category flex] }
+  validates :spending_target_cents, numericality: { greater_than_or_equal_to: 0 }
+
+  monetize :spending_target_cents
 
   # Scopes
   scope :active, -> { where(is_active: true) }

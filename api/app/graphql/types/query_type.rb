@@ -551,7 +551,21 @@ module Types
         # Represents how much income hasn't been assigned to expense categories yet.
         # Positive = unallocated funds available; Negative = over-budgeted.
         left_to_budget: total_income - total_budgeted,
-        category_groups: category_groups
+        category_groups: category_groups,
+        budget_mode: budget.budget_mode,
+        spending_target: budget.spending_target_cents / 100.0
+      }
+    end
+
+    field :budget_settings, GraphQL::Types::JSON, null: true
+    def budget_settings
+      household = context[:current_user]&.household
+      return nil unless household
+      budget = household.budgets.first
+      return { budgetMode: 'per_category', spendingTarget: 0.0 } unless budget
+      {
+        budgetMode: budget.budget_mode,
+        spendingTarget: budget.spending_target_cents / 100.0
       }
     end
 

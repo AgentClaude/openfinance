@@ -18,6 +18,7 @@ module Types
     field :delete_budget_item, mutation: Mutations::DeleteBudgetItem
     field :copy_budget_from_month, mutation: Mutations::CopyBudgetFromMonth
     field :fill_budget_from_averages, mutation: Mutations::FillBudgetFromAverages
+    field :update_budget_settings, mutation: Mutations::UpdateBudgetSettings
     field :create_plaid_link_token, mutation: Mutations::CreatePlaidLinkToken
     field :exchange_plaid_token, mutation: Mutations::ExchangePlaidToken
     field :create_categorization_rule, mutation: Mutations::CreateCategorizationRule
