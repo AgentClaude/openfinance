@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_03_18_160000) do
+ActiveRecord::Schema[8.0].define(version: 2026_03_20_105336) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -208,6 +208,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_03_18_160000) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.boolean "rollover_enabled", default: false, null: false
+    t.string "budget_mode", default: "per_category", null: false
+    t.integer "spending_target_cents", default: 0, null: false
+    t.index ["budget_mode"], name: "index_budgets_on_budget_mode"
     t.index ["end_date"], name: "index_budgets_on_end_date"
     t.index ["household_id", "name"], name: "index_budgets_on_household_id_and_name", unique: true
     t.index ["household_id"], name: "index_budgets_on_household_id"
