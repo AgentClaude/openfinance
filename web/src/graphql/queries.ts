@@ -379,6 +379,8 @@ export const GET_BUDGET_SUMMARY = gql`
       totalIncome
       incomeActual
       leftToBudget
+      budgetMode
+      spendingTarget
       categoryGroups {
         name
         budgeted
@@ -403,6 +405,12 @@ export const GET_BUDGET_SUMMARY = gql`
     }
   }
 `;
+export const GET_BUDGET_SETTINGS = gql`
+  query GetBudgetSettings {
+    budgetSettings
+  }
+`;
+
 export const GET_HOLDINGS = gql`
   query GetHoldings($accountId: ID) {
     holdings(accountId: $accountId) {

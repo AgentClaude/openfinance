@@ -7,5 +7,7 @@ module Types
     field :income_actual, Float, null: false
     field :left_to_budget, Float, null: false
     field :category_groups, [Types::BudgetCategoryGroupType], null: false
+    field :budget_mode, String, null: false
+    field :spending_target, Float, null: false
   end
 end

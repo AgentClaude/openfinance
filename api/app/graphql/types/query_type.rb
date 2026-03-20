@@ -551,8 +551,22 @@ module Types
         # Represents how much income hasn't been assigned to expense categories yet.
         # Positive = unallocated funds available; Negative = over-budgeted.
         left_to_budget: total_income - total_budgeted,
-        category_groups: category_groups
+        category_groups: category_groups,
+        budget_mode: budget.budget_mode,
+        spending_target: budget.spending_target_cents / 100.0
       }
+    end
+
+    field :budget_settings, Types::BudgetSettingsType, null: true
+    def budget_settings
+      household = context[:current_user]&.household
+      return nil unless household
+      budget = household.budgets.first
+      return OpenStruct.new(budget_mode: 'per_category', spending_target: 0.0) unless budget
+      OpenStruct.new(
+        budget_mode: budget.budget_mode,
+        spending_target: budget.spending_target_cents / 100.0
+      )
     end
 
     field :net_worth_history, [Types::NetWorthSnapshotType], null: false do

@@ -135,6 +135,13 @@ export interface BudgetSummary {
   incomeActual: number;
   leftToBudget: number;
   categoryGroups: BudgetCategoryGroup[];
+  budgetMode: 'per_category' | 'flex';
+  spendingTarget: number;
+}
+
+export interface BudgetSettings {
+  budgetMode: 'per_category' | 'flex';
+  spendingTarget: number;
 }
 
 export interface DashboardSummary {
