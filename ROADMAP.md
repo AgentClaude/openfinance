@@ -6,7 +6,7 @@ _See SPRINT.md for prioritized sprint plan (Sprints 1-3)_
 
 > **Status (Mar 2026):** Core app is feature-complete through Phase 24. All Sprint 1-3 items
 > done. Phases 1-14 ✅, Phase 24 (API/Webhooks/Widgets) ✅, Phase 26 (Deploy) mostly done.
-> 596 RSpec specs, 247 Playwright E2E tests, TypeScript clean.
+> 700 RSpec specs, 247+ Playwright E2E tests, TypeScript clean.
 > Remaining: component consolidation (19b), Storybook (19), marketing polish (18), full QA (25).
 
 ## Legend
@@ -70,7 +70,7 @@ _See SPRINT.md for prioritized sprint plan (Sprints 1-3)_
 - ✅ Budget rollover (backend + frontend)
 - ✅ Over-budget alerts (inline red indicators)
 - ✅ Dashboard budget summary widget
-- ⬚ Flex budget mode (total spending target vs per-category)
+- ✅ Flex budget mode (total spending target vs per-category) — PR #147
 
 ## Phase 6: Rules Engine ✅
 - ✅ CategorizationRule model → exposed via GraphQL
