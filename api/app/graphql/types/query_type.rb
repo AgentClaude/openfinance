@@ -557,16 +557,16 @@ module Types
       }
     end
 
-    field :budget_settings, GraphQL::Types::JSON, null: true
+    field :budget_settings, Types::BudgetSettingsType, null: true
     def budget_settings
       household = context[:current_user]&.household
       return nil unless household
       budget = household.budgets.first
-      return { budgetMode: 'per_category', spendingTarget: 0.0 } unless budget
-      {
-        budgetMode: budget.budget_mode,
-        spendingTarget: budget.spending_target_cents / 100.0
-      }
+      return OpenStruct.new(budget_mode: 'per_category', spending_target: 0.0) unless budget
+      OpenStruct.new(
+        budget_mode: budget.budget_mode,
+        spending_target: budget.spending_target_cents / 100.0
+      )
     end
 
     field :net_worth_history, [Types::NetWorthSnapshotType], null: false do

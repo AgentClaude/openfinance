@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { 
   ChevronLeftIcon,
   ChevronRightIcon,
@@ -183,7 +183,7 @@ const BudgetPage: React.FC = () => {
   const flexProgress = flexTarget > 0 ? (flexSpent / flexTarget) * 100 : 0;
 
   // Build spending breakdown for flex mode (all spending categories, sorted by amount)
-  const getSpendingBreakdown = () => {
+  const spendingBreakdown = useMemo(() => {
     if (!summary?.categoryGroups) return [];
     const allItems: Array<{ name: string; icon?: string; color?: string; spent: number; categoryId: string }> = [];
     for (const group of summary.categoryGroups) {
@@ -200,7 +200,7 @@ const BudgetPage: React.FC = () => {
       }
     }
     return allItems.sort((a, b) => b.spent - a.spent);
-  };
+  }, [summary?.categoryGroups]);
 
   if (loading) {
     return (
@@ -345,7 +345,7 @@ const BudgetPage: React.FC = () => {
             <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
               Spending Breakdown
             </h3>
-            {getSpendingBreakdown().length === 0 ? (
+            {spendingBreakdown.length === 0 ? (
               <EmptyState
                 title="No spending this month"
                 description="Your spending breakdown will appear here as transactions come in."
@@ -353,7 +353,7 @@ const BudgetPage: React.FC = () => {
               />
             ) : (
               <div className="space-y-3">
-                {getSpendingBreakdown().map((item) => {
+                {spendingBreakdown.map((item) => {
                   const pct = flexTarget > 0 ? (item.spent / flexTarget) * 100 : 0;
                   return (
                     <div

@@ -118,7 +118,6 @@ test.describe('Budget', () => {
     const modeBtn = page.getByRole('button', { name: /per-category/i }).first();
     if (await modeBtn.isVisible({ timeout: 5000 }).catch(() => false)) {
       await modeBtn.click();
-      await page.waitForTimeout(1500);
       // After switching, button should say "Flex Mode"
       await expect(
         page.getByRole('button', { name: /flex mode/i }).first()
@@ -136,7 +135,6 @@ test.describe('Budget', () => {
     const modeBtn = page.getByRole('button', { name: /per-category/i }).first();
     if (await modeBtn.isVisible({ timeout: 5000 }).catch(() => false)) {
       await modeBtn.click();
-      await page.waitForTimeout(1500);
       await expect(
         page.getByText(/spending breakdown/i).first()
       ).toBeVisible({ timeout: 10000 });
@@ -148,11 +146,13 @@ test.describe('Budget', () => {
     const modeBtnStart = page.getByRole('button', { name: /per-category/i }).first();
     if (await modeBtnStart.isVisible({ timeout: 5000 }).catch(() => false)) {
       await modeBtnStart.click();
-      await page.waitForTimeout(1500);
+      // Wait for flex mode to activate
+      await expect(
+        page.getByRole('button', { name: /flex mode/i }).first()
+      ).toBeVisible({ timeout: 10000 });
       // Now switch back
       const flexBtn = page.getByRole('button', { name: /flex mode/i }).first();
       await flexBtn.click();
-      await page.waitForTimeout(1500);
       // Should show per-category UI again
       await expect(
         page.getByRole('button', { name: /per-category/i }).first()

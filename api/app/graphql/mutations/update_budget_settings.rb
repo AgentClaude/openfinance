@@ -9,30 +9,26 @@ module Mutations
 
     def resolve(budget_mode: nil, spending_target: nil)
       hh = require_auth!
-      budget = hh.budgets.first || Budget.create!(
+
+      result = Budgets::UpdateSettingsService.call(
         household: hh,
-        name: "Monthly Budget",
-        start_date: Date.current.beginning_of_month,
-        period_type: 'monthly'
+        budget_mode: budget_mode,
+        spending_target: spending_target
       )
-      authorize(budget, :update?)
 
-      attrs = {}
-      attrs[:budget_mode] = budget_mode if budget_mode.present?
-      attrs[:spending_target_cents] = (spending_target * 100).to_i if spending_target
+      if result.success?
+        budget = result.data[:budget]
+        authorize(budget, :update?)
+        log_activity(action: 'budget_settings_updated', resource: budget, metadata: { budget_mode: budget.budget_mode, spending_target_cents: budget.spending_target_cents }.transform_keys(&:to_s))
 
-      if attrs.any?
-        budget.update!(attrs)
-        log_activity(action: 'budget_settings_updated', resource: budget, metadata: attrs.transform_keys(&:to_s))
+        {
+          budget_mode: budget.budget_mode,
+          spending_target: budget.spending_target_cents / 100.0,
+          errors: []
+        }
+      else
+        { budget_mode: 'per_category', spending_target: 0.0, errors: result.errors }
       end
-
-      {
-        budget_mode: budget.budget_mode,
-        spending_target: budget.spending_target_cents / 100.0,
-        errors: []
-      }
-    rescue ActiveRecord::RecordInvalid => e
-      { budget_mode: budget&.budget_mode || 'per_category', spending_target: 0.0, errors: e.record.errors.full_messages }
     end
   end
 end
