@@ -407,7 +407,10 @@ export const GET_BUDGET_SUMMARY = gql`
 `;
 export const GET_BUDGET_SETTINGS = gql`
   query GetBudgetSettings {
-    budgetSettings
+    budgetSettings {
+      budgetMode
+      spendingTarget
+    }
   }
 `;
 
