@@ -42,6 +42,8 @@ module Types
     field :cancel_invitation, mutation: Mutations::CancelInvitation
     field :remove_household_member, mutation: Mutations::RemoveHouseholdMember
     field :import_csv, mutation: Mutations::ImportCsv
+    field :import_ofx, mutation: Mutations::ImportOfx
+    field :preview_ofx, mutation: Mutations::PreviewOfx
     field :bulk_transaction_action, mutation: Mutations::BulkTransactionAction
     field :split_transaction, mutation: Mutations::SplitTransaction
     field :detect_transfers, mutation: Mutations::DetectTransfers

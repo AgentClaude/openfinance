@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_03_20_105336) do
+ActiveRecord::Schema[8.0].define(version: 2026_03_21_050002) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -664,6 +664,23 @@ ActiveRecord::Schema[8.0].define(version: 2026_03_20_105336) do
     t.index ["shared_with_user_id"], name: "index_shared_accounts_on_shared_with_user_id"
   end
 
+  create_table "statement_imports", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "household_id", null: false
+    t.uuid "account_id", null: false
+    t.string "filename", null: false
+    t.string "format_type", default: "ofx", null: false
+    t.string "status", default: "pending", null: false
+    t.integer "total_rows", default: 0
+    t.integer "imported_rows", default: 0
+    t.integer "skipped_rows", default: 0
+    t.jsonb "metadata", default: {}
+    t.jsonb "errors_log", default: []
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_statement_imports_on_account_id"
+    t.index ["household_id"], name: "index_statement_imports_on_household_id"
+  end
+
   create_table "sync_logs", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "account_connection_id", null: false
     t.string "sync_type", null: false
@@ -733,6 +750,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_03_20_105336) do
     t.datetime "reviewed_at"
     t.uuid "transfer_pair_id"
     t.boolean "is_transfer", default: false, null: false
+    t.index "((metadata ->> 'ofx_fit_id'::text))", name: "index_transactions_on_ofx_fit_id", where: "((metadata ->> 'ofx_fit_id'::text) IS NOT NULL)"
     t.index ["account_id", "date"], name: "index_transactions_on_account_id_and_date"
     t.index ["account_id"], name: "index_transactions_on_account_id"
     t.index ["amount_cents"], name: "index_transactions_on_amount_cents"
@@ -882,6 +900,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_03_20_105336) do
   add_foreign_key "shared_accounts", "accounts", validate: false
   add_foreign_key "shared_accounts", "users", column: "shared_by_user_id", validate: false
   add_foreign_key "shared_accounts", "users", column: "shared_with_user_id", validate: false
+  add_foreign_key "statement_imports", "accounts"
+  add_foreign_key "statement_imports", "households"
   add_foreign_key "sync_logs", "account_connections"
   add_foreign_key "tags", "households"
   add_foreign_key "transaction_tags", "tags"
