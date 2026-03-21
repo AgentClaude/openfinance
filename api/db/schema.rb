@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_03_21_050001) do
+ActiveRecord::Schema[8.0].define(version: 2026_03_21_050002) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -750,6 +750,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_03_21_050001) do
     t.datetime "reviewed_at"
     t.uuid "transfer_pair_id"
     t.boolean "is_transfer", default: false, null: false
+    t.index "((metadata ->> 'ofx_fit_id'::text))", name: "index_transactions_on_ofx_fit_id", where: "((metadata ->> 'ofx_fit_id'::text) IS NOT NULL)"
     t.index ["account_id", "date"], name: "index_transactions_on_account_id_and_date"
     t.index ["account_id"], name: "index_transactions_on_account_id"
     t.index ["amount_cents"], name: "index_transactions_on_amount_cents"

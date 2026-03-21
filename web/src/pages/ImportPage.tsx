@@ -167,9 +167,15 @@ const ImportPage: React.FC = () => {
     }
   }, [previewOfx]);
 
-  const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const f = e.target.files?.[0];
-    if (!f) return;
+  const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+
+  const processFile = useCallback((f: File, detectedFormat?: ImportFormat) => {
+    if (f.size > MAX_FILE_SIZE) {
+      setOfxPreviewError('File too large (max 10MB)');
+      return;
+    }
+
+    const fmt = detectedFormat || format;
     setFile(f);
     setResult(null);
     setOfxPreview(null);
@@ -180,15 +186,16 @@ const ImportPage: React.FC = () => {
     reader.onload = (ev) => {
       const text = ev.target?.result as string;
       setFileContent(text);
-
-      if (format === 'csv') {
-        handleCsvFile(text);
-      } else {
-        handleOfxFile(text);
-      }
+      fmt === 'csv' ? handleCsvFile(text) : handleOfxFile(text);
     };
     reader.readAsText(f);
   }, [format, handleCsvFile, handleOfxFile]);
+
+  const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const f = e.target.files?.[0];
+    if (!f) return;
+    processFile(f);
+  }, [processFile]);
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -197,32 +204,17 @@ const ImportPage: React.FC = () => {
 
     // Auto-detect format from extension
     const ext = f.name.toLowerCase().split('.').pop();
+    let detectedFormat: ImportFormat | undefined;
     if (ext === 'ofx' || ext === 'qfx') {
       setFormat('ofx');
+      detectedFormat = 'ofx';
     } else if (ext === 'csv') {
       setFormat('csv');
+      detectedFormat = 'csv';
     }
 
-    setFile(f);
-    setResult(null);
-    setOfxPreview(null);
-    setOfxPreviewError(null);
-    setCsvPreview(null);
-
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      const text = ev.target?.result as string;
-      setFileContent(text);
-
-      const detectedFormat = (ext === 'ofx' || ext === 'qfx') ? 'ofx' : 'csv';
-      if (detectedFormat === 'csv') {
-        handleCsvFile(text);
-      } else {
-        handleOfxFile(text);
-      }
-    };
-    reader.readAsText(f);
-  }, [handleCsvFile, handleOfxFile]);
+    processFile(f, detectedFormat);
+  }, [processFile]);
 
   const handleImport = async () => {
     if (!accountId || !fileContent) return;
