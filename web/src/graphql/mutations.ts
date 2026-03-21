@@ -566,6 +566,34 @@ export const IMPORT_CSV = gql`
   }
 `;
 
+export const IMPORT_OFX = gql`
+  mutation ImportOfx($accountId: ID!, $fileContent: String!, $filename: String, $updateBalance: Boolean) {
+    importOfx(accountId: $accountId, fileContent: $fileContent, filename: $filename, updateBalance: $updateBalance) {
+      imported
+      skipped
+      errors
+      importId
+      accountInfo
+      balance
+      dateRange
+    }
+  }
+`;
+
+export const PREVIEW_OFX = gql`
+  mutation PreviewOfx($fileContent: String!) {
+    previewOfx(fileContent: $fileContent) {
+      transactions
+      totalCount
+      account
+      balance
+      dateRange
+      isCreditCard
+      error
+    }
+  }
+`;
+
 export const BULK_TRANSACTION_ACTION = gql`
   mutation BulkTransactionAction($transactionIds: [ID!]!, $action: String!, $categoryId: ID) {
     bulkTransactionAction(transactionIds: $transactionIds, action: $action, categoryId: $categoryId) {
