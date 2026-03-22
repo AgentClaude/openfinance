@@ -20,7 +20,7 @@ test.describe('Financial Health Page', () => {
     // Wait for score content to render
     const gradeLocator = page.getByText(/grade [A-F]/i).first();
     const scoreLocator = page.locator('text=/\\d+/').first();
-    await expect(gradeLocator.or(scoreLocator)).toBeVisible({ timeout: 10000 });
+    await expect(gradeLocator.or(scoreLocator).first()).toBeVisible({ timeout: 10000 });
   });
 
   test('shows all five health components', async ({ page }) => {
@@ -44,7 +44,7 @@ test.describe('Financial Health Page', () => {
   test('shows recommendations section', async ({ page }) => {
     const recommendations = page.getByText(/recommendation/i).first();
     const methodology = page.getByText(/how your score is calculated/i).first();
-    await expect(recommendations.or(methodology)).toBeVisible({ timeout: 10000 });
+    await expect(recommendations.or(methodology).first()).toBeVisible({ timeout: 10000 });
   });
 
   test('shows methodology explanation', async ({ page }) => {
@@ -71,7 +71,7 @@ test.describe('Financial Health Page', () => {
     const rate = page.getByText('Rate').first();
     const weight = page.getByText(/weight:/i).first();
     const contributes = page.getByText(/contributes/i).first();
-    await expect(rate.or(weight).or(contributes)).toBeVisible({ timeout: 5000 });
+    await expect(rate.or(weight).or(contributes).first()).toBeVisible({ timeout: 5000 });
   });
 });
 
