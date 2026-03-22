@@ -8,6 +8,7 @@ export interface DashboardWidget {
 
 const DEFAULT_WIDGETS: DashboardWidget[] = [
   { id: 'summary-cards', label: 'Summary Cards', visible: true },
+  { id: 'financial-health', label: 'Financial Health', visible: true },
   { id: 'spending-chart', label: 'Spending by Category', visible: true },
   { id: 'account-balances', label: 'Account Balances', visible: true },
   { id: 'budget', label: 'Budget', visible: true },

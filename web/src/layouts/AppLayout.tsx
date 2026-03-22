@@ -17,6 +17,7 @@ import {
   MagnifyingGlassIcon,
   ArrowsRightLeftIcon,
   ClockIcon,
+  HeartIcon,
 } from '@heroicons/react/24/outline';
 import { useAuth } from '@/hooks/useAuth';
 import Sidebar from '@/components/ui/Sidebar';
@@ -37,6 +38,7 @@ const navigation = [
   { name: 'Investments', href: '/investments', icon: ChartBarIcon },
   { name: 'Net Worth', href: '/net-worth', icon: ChartPieIcon },
   { name: 'Reports', href: '/reports', icon: ChartPieIcon },
+  { name: 'Health', href: '/health', icon: HeartIcon },
   { name: 'Import', href: '/import', icon: ArrowUpTrayIcon },
   { name: 'Rules', href: '/rules', icon: BoltIcon },
   { name: 'Merchants', href: '/merchant-mappings', icon: ArrowsRightLeftIcon },

@@ -34,6 +34,7 @@ import NetWorthPage from '@/pages/NetWorthPage';
 import OnboardingPage from '@/pages/OnboardingPage';
 import NotificationsPage from '@/pages/NotificationsPage';
 import ActivityPage from '@/pages/ActivityPage';
+import FinancialHealthPage from '@/pages/FinancialHealthPage';
 
 function App() {
   return (
@@ -71,6 +72,7 @@ function App() {
                   <Route path="goals" element={<GoalsPage />} />
                   <Route path="notifications" element={<NotificationsPage />} />
                   <Route path="activity" element={<ActivityPage />} />
+                  <Route path="health" element={<FinancialHealthPage />} />
                   <Route path="settings" element={<SettingsPage />} />
                 </Route>
 

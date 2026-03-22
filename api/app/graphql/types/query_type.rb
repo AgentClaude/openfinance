@@ -816,6 +816,19 @@ module Types
       end.sort_by { |p| p[:date] }
     end
 
+    field :financial_health, Types::FinancialHealthType, null: false,
+      description: 'Financial health score (0-100) with component breakdown and recommendations'
+    def financial_health
+      return { score: 0, grade: 'F', components: [], recommendations: [] } unless context[:current_user]&.household
+
+      result = Analytics::FinancialHealthService.call(household: context[:current_user].household)
+      if result.success?
+        result.data
+      else
+        { score: 0, grade: 'F', components: [], recommendations: [] }
+      end
+    end
+
     private
 
     def latest_holdings(account_id: nil)
