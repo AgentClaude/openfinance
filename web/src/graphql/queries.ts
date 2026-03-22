@@ -813,3 +813,26 @@ export const GET_PLAID_CATEGORY_MAPPINGS = gql`
     plaidPrimaryCategories
   }
 `;
+
+export const GET_FINANCIAL_HEALTH = gql`
+  query GetFinancialHealth {
+    financialHealth {
+      score
+      grade
+      components {
+        name
+        label
+        rawScore
+        weight
+        weightedScore
+        status
+        details
+      }
+      recommendations {
+        type
+        category
+        message
+      }
+    }
+  }
+`;

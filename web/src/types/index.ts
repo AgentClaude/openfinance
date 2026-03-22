@@ -329,3 +329,26 @@ export interface Notification {
   data?: Record<string, unknown>;
   createdAt: string;
 }
+
+export interface HealthComponent {
+  name: string;
+  label: string;
+  rawScore: number;
+  weight: number;
+  weightedScore: number;
+  status: string;
+  details: Record<string, number | string>;
+}
+
+export interface HealthRecommendation {
+  type: string;
+  category?: string;
+  message: string;
+}
+
+export interface FinancialHealth {
+  score: number;
+  grade: string;
+  components: HealthComponent[];
+  recommendations: HealthRecommendation[];
+}
