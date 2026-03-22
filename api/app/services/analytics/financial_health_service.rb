@@ -17,13 +17,15 @@ class Analytics::FinancialHealthService < ApplicationService
   }.freeze
 
   def call
-    return failure(['Household is required']) unless household
+    unless household
+      return success(score: 0, grade: 'F', components: [], recommendations: [])
+    end
 
     components = calculate_components
     overall_score = components.sum { |c| c[:weighted_score] }.round
 
     success(
-      score: [[overall_score, 0].max, 100].min,
+      score: overall_score.clamp(0, 100),
       grade: score_to_grade(overall_score),
       components: components,
       recommendations: generate_recommendations(components)
@@ -45,20 +47,8 @@ class Analytics::FinancialHealthService < ApplicationService
   # Savings rate: (income - expenses) / income
   # 20%+ = 100, 10-20% = 70-100, 0-10% = 30-70, negative = 0-30
   def savings_rate_component
-    now = Date.current
-    start_date = now.beginning_of_month - 2.months
-    end_date = now.end_of_month
-
-    transactions = household.transactions
-      .where(date: start_date..end_date)
-      .where(excluded: [false, nil])
-
-    income = transactions.joins(:category).where(categories: { is_income: true }).sum(:amount_cents).abs
-    transfer_category_ids = household.categories.where("LOWER(name) = 'transfer'").pluck(:id)
-    expenses = transactions.joins(:category)
-      .where(categories: { is_income: false })
-      .where.not(category_id: transfer_category_ids)
-      .sum(:amount_cents).abs
+    income = monthly_expense_data[:income]
+    expenses = monthly_expense_data[:expenses]
 
     if income <= 0
       raw_score = 50 # Can't calculate without income data
@@ -113,13 +103,17 @@ class Analytics::FinancialHealthService < ApplicationService
     on_track = 0
     over_budget = 0
 
+    category_ids = budget_items.map(&:category_id).compact.uniq
+    spending_by_category = household.transactions
+      .where(category_id: category_ids, date: month_start..month_end)
+      .where(excluded: [false, nil])
+      .group(:category_id)
+      .sum("ABS(amount_cents)")
+
     budget_items.each do |item|
       next if item.amount_cents <= 0
 
-      spent = household.transactions
-        .where(category_id: item.category_id, date: month_start..month_end)
-        .where(excluded: [false, nil])
-        .sum(:amount_cents).abs
+      spent = spending_by_category[item.category_id] || 0
 
       if spent <= item.amount_cents
         on_track += 1
@@ -178,9 +172,9 @@ class Analytics::FinancialHealthService < ApplicationService
     {
       name: 'debt_ratio',
       label: 'Debt-to-Asset Ratio',
-      raw_score: [[raw_score, 0].max, 100].min,
+      raw_score: raw_score.clamp(0, 100),
       weight: WEIGHTS[:debt_ratio],
-      weighted_score: ([[raw_score, 0].max, 100].min * WEIGHTS[:debt_ratio] / 100.0).round(1),
+      weighted_score: (raw_score.clamp(0, 100) * WEIGHTS[:debt_ratio] / 100.0).round(1),
       details: { assets: assets / 100.0, liabilities: liabilities / 100.0, ratio: ratio },
       status: ratio <= 25 ? 'excellent' : ratio <= 50 ? 'good' : ratio <= 75 ? 'needs_work' : 'critical'
     }
@@ -192,22 +186,7 @@ class Analytics::FinancialHealthService < ApplicationService
     liquid_accounts = household.accounts.where(is_hidden: [false, nil], account_type: %w[checking savings])
     liquid_balance = liquid_accounts.sum(:current_balance_cents).abs
 
-    # Calculate average monthly expenses (last 3 months)
-    now = Date.current
-    start_date = now.beginning_of_month - 2.months
-    end_date = now.end_of_month
-    months_count = 3.0
-
-    transfer_cat_ids = household.categories.where("LOWER(name) = 'transfer'").pluck(:id)
-    total_expenses = household.transactions
-      .where(date: start_date..end_date)
-      .where(excluded: [false, nil])
-      .joins(:category)
-      .where(categories: { is_income: false })
-      .where.not(category_id: transfer_cat_ids)
-      .sum(:amount_cents).abs
-
-    monthly_expenses = total_expenses / months_count
+    monthly_expenses = monthly_expense_data[:expenses] / 3.0
 
     if monthly_expenses <= 0
       return {
@@ -235,9 +214,9 @@ class Analytics::FinancialHealthService < ApplicationService
     {
       name: 'emergency_fund',
       label: 'Emergency Fund',
-      raw_score: [[raw_score, 0].max, 100].min,
+      raw_score: raw_score.clamp(0, 100),
       weight: WEIGHTS[:emergency_fund],
-      weighted_score: ([[raw_score, 0].max, 100].min * WEIGHTS[:emergency_fund] / 100.0).round(1),
+      weighted_score: (raw_score.clamp(0, 100) * WEIGHTS[:emergency_fund] / 100.0).round(1),
       details: { liquid_balance: liquid_balance / 100.0, monthly_expenses: monthly_expenses / 100.0, months_covered: months_covered },
       status: months_covered >= 6 ? 'excellent' : months_covered >= 3 ? 'good' : months_covered >= 1 ? 'needs_work' : 'critical'
     }
@@ -245,12 +224,9 @@ class Analytics::FinancialHealthService < ApplicationService
 
   # Net worth trend: positive growth over last 3 months
   def net_worth_trend_component
-    snapshots = AccountBalanceHistory
-      .where(account: household.accounts)
-      .where('date >= ?', 3.months.ago)
-      .order(:date)
+    nw_by_date = net_worth_by_date
 
-    if snapshots.count < 2
+    if nw_by_date.size < 2
       return {
         name: 'net_worth_trend',
         label: 'Net Worth Trend',
@@ -262,12 +238,9 @@ class Analytics::FinancialHealthService < ApplicationService
       }
     end
 
-    # Calculate net worth at earliest and latest snapshots
-    earliest_date = snapshots.first.date
-    latest_date = snapshots.last.date
-
-    earliest_nw = net_worth_at_date(snapshots, earliest_date)
-    latest_nw = net_worth_at_date(snapshots, latest_date)
+    sorted_dates = nw_by_date.keys.sort
+    earliest_nw = nw_by_date[sorted_dates.first]
+    latest_nw = nw_by_date[sorted_dates.last]
 
     change = latest_nw - earliest_nw
     change_pct = earliest_nw != 0 ? (change.to_f / earliest_nw.abs * 100).round(1) : 0
@@ -290,18 +263,41 @@ class Analytics::FinancialHealthService < ApplicationService
     {
       name: 'net_worth_trend',
       label: 'Net Worth Trend',
-      raw_score: [[raw_score, 0].max, 100].min,
+      raw_score: raw_score.clamp(0, 100),
       weight: WEIGHTS[:net_worth_trend],
-      weighted_score: ([[raw_score, 0].max, 100].min * WEIGHTS[:net_worth_trend] / 100.0).round(1),
+      weighted_score: (raw_score.clamp(0, 100) * WEIGHTS[:net_worth_trend] / 100.0).round(1),
       details: { change_amount: change / 100.0, change_pct: change_pct, trend: trend },
       status: trend == 'growing' ? 'excellent' : trend == 'stable' ? 'good' : 'needs_work'
     }
   end
 
-  def net_worth_at_date(snapshots, date)
-    snapshots
-      .select { |s| s.date == date }
-      .sum { |s| s.current_balance_cents || 0 }
+  def net_worth_by_date
+    @net_worth_by_date ||= AccountBalanceHistory
+      .where(account: household.accounts)
+      .where('date >= ?', 3.months.ago)
+      .group(:date)
+      .sum(:current_balance_cents)
+  end
+
+  def monthly_expense_data
+    @monthly_expense_data ||= begin
+      now = Date.current
+      start_date = now.beginning_of_month - 2.months
+      end_date = now.end_of_month
+
+      transactions = household.transactions
+        .where(date: start_date..end_date)
+        .where(excluded: [false, nil])
+
+      income = transactions.joins(:category).where(categories: { is_income: true }).sum(:amount_cents).abs
+      transfer_category_ids = household.categories.where("LOWER(name) = 'transfer'").pluck(:id)
+      expenses = transactions.joins(:category)
+        .where(categories: { is_income: false })
+        .where.not(category_id: transfer_category_ids)
+        .sum(:amount_cents).abs
+
+      { income: income, expenses: expenses }
+    end
   end
 
   def score_to_grade(score)
