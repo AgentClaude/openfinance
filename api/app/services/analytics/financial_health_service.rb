@@ -18,7 +18,7 @@ class Analytics::FinancialHealthService < ApplicationService
 
   def call
     unless household
-      return success(score: 0, grade: 'F', components: [], recommendations: [])
+      return failure('Household is required')
     end
 
     components = calculate_components

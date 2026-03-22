@@ -819,7 +819,10 @@ module Types
     field :financial_health, Types::FinancialHealthType, null: false,
       description: 'Financial health score (0-100) with component breakdown and recommendations'
     def financial_health
-      Analytics::FinancialHealthService.call(household: context[:current_user]&.household).data
+      result = Analytics::FinancialHealthService.call(household: context[:current_user]&.household)
+      return { score: 0, grade: 'F', components: [], recommendations: [] } if result.failure?
+
+      result.data
     end
 
     private
