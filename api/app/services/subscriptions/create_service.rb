@@ -29,8 +29,7 @@ module Subscriptions
         success(subscription: subscription)
       rescue Stripe::StripeError => e
         failure("Payment processing failed: #{e.message}")
-      rescue => e
-        Rails.logger.error("Subscription creation failed: #{e.message}")
+      rescue ActiveRecord::RecordInvalid => e
         failure("Failed to create subscription: #{e.message}")
       end
     end
@@ -83,7 +82,6 @@ module Subscriptions
 
     def find_or_create_stripe_customer
       owner = household.owners.first
-      return Stripe::Customer.retrieve(household.subscription&.stripe_customer_id) if household.subscription&.stripe_customer_id.present?
 
       Stripe::Customer.create(
         email: owner.email,

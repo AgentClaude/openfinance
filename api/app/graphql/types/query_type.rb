@@ -836,7 +836,7 @@ module Types
       description: "Current household subscription"
     def my_subscription
       return nil unless context[:current_user]&.household
-      context[:current_user].household.subscription&.tap { |s| s.plan } # eager load plan
+      context[:current_user].household.subscription
     end
 
     private

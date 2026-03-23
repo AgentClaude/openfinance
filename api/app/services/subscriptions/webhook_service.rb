@@ -44,7 +44,6 @@ module Subscriptions
       subscription = find_subscription(stripe_sub.id)
       return failure("Subscription not found") unless subscription
 
-      # Downgrade to free plan
       free_plan = Plan.find_by(slug: 'free')
       subscription.update!(
         status: 'canceled',
@@ -52,18 +51,9 @@ module Subscriptions
         plan: free_plan || subscription.plan
       )
 
-      # Notify household owner
-      owner = subscription.household.owners.first
-      if owner
-        Notification.create(
-          user: owner,
-          household: subscription.household,
-          notification_type: 'security_alert',
-          title: 'Subscription Canceled',
-          message: 'Your subscription has been canceled. You have been moved to the Free plan.',
-          is_read: false
-        )
-      end
+      notify_owner(subscription,
+        title: 'Subscription Canceled',
+        message: 'Your subscription has been canceled. You have been moved to the Free plan.')
 
       success(subscription: subscription)
     end
@@ -86,18 +76,9 @@ module Subscriptions
 
       subscription.update!(status: 'past_due')
 
-      # Notify household owner
-      owner = subscription.household.owners.first
-      if owner
-        Notification.create(
-          user: owner,
-          household: subscription.household,
-          notification_type: 'security_alert',
-          title: 'Payment Failed',
-          message: 'Your payment failed. Please update your payment method to avoid service interruption.',
-          is_read: false
-        )
-      end
+      notify_owner(subscription,
+        title: 'Payment Failed',
+        message: 'Your payment failed. Please update your payment method to avoid service interruption.')
 
       success(subscription: subscription)
     end
@@ -106,23 +87,29 @@ module Subscriptions
       subscription = find_subscription(stripe_sub.id)
       return failure("Subscription not found") unless subscription
 
-      owner = subscription.household.owners.first
-      if owner
-        Notification.create(
-          user: owner,
-          household: subscription.household,
-          notification_type: 'security_alert',
-          title: 'Trial Ending Soon',
-          message: "Your free trial ends in #{subscription.trial_days_remaining} days. Add a payment method to continue your subscription.",
-          is_read: false
-        )
-      end
+      notify_owner(subscription,
+        title: 'Trial Ending Soon',
+        message: "Your free trial ends in #{subscription.trial_days_remaining} days. Add a payment method to continue your subscription.")
 
       success(subscription: subscription)
     end
 
     def find_subscription(stripe_subscription_id)
       Subscription.find_by(stripe_subscription_id: stripe_subscription_id)
+    end
+
+    def notify_owner(subscription, title:, message:)
+      owner = subscription.household.owners.first
+      return unless owner
+
+      Notification.create(
+        user: owner,
+        household: subscription.household,
+        notification_type: 'security_alert',
+        title: title,
+        message: message,
+        is_read: false
+      )
     end
   end
 end

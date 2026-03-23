@@ -10,10 +10,12 @@ class StripeWebhooksController < ApplicationController
     begin
       event = if endpoint_secret.present?
         Stripe::Webhook.construct_event(payload, sig_header, endpoint_secret)
-      else
+      elsif Rails.env.development? || Rails.env.test?
         # Dev/test mode — parse without signature verification
         data = JSON.parse(payload, symbolize_names: true)
         Stripe::Event.construct_from(data)
+      else
+        render json: { error: 'Webhook secret not configured' }, status: :internal_server_error and return
       end
     rescue JSON::ParserError
       render json: { error: 'Invalid payload' }, status: :bad_request and return
