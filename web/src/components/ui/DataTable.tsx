@@ -347,6 +347,7 @@ function DataTable<T>({
                 <button
                   onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                   disabled={currentPage <= 1}
+                  aria-label="Previous page"
                   className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-40 disabled:cursor-not-allowed text-gray-600 dark:text-gray-400"
                 >
                   <ChevronLeftIcon className="h-4 w-4" />
@@ -372,6 +373,7 @@ function DataTable<T>({
                 <button
                   onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                   disabled={currentPage >= totalPages}
+                  aria-label="Next page"
                   className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-40 disabled:cursor-not-allowed text-gray-600 dark:text-gray-400"
                 >
                   <ChevronRightIcon className="h-4 w-4" />

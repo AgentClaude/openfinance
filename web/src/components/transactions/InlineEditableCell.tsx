@@ -110,6 +110,7 @@ const InlineEditableCell: React.FC<InlineEditableCellProps> = ({
             />
             <button
               onClick={handleSave}
+              aria-label="Save"
               className="p-0.5 text-green-600 hover:text-green-700"
               tabIndex={-1}
             >
@@ -117,6 +118,7 @@ const InlineEditableCell: React.FC<InlineEditableCellProps> = ({
             </button>
             <button
               onClick={handleCancel}
+              aria-label="Cancel"
               className="p-0.5 text-gray-400 hover:text-gray-600"
               tabIndex={-1}
             >

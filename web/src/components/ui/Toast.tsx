@@ -91,6 +91,7 @@ const ToastItem: React.FC<ToastItemProps> = ({ toast, onRemove }) => {
             </div>
             <div className="ml-4 flex-shrink-0 flex">
               <button
+                aria-label="Dismiss notification"
                 className="rounded-md inline-flex text-gray-400 hover:text-gray-500 focus:outline-none"
                 onClick={() => onRemove(toast.id)}
               >

@@ -109,7 +109,7 @@ const SplitTransactionModal: React.FC<SplitTransactionModalProps> = ({
                   <Dialog.Title className="text-lg font-semibold text-gray-900">
                     Split Transaction
                   </Dialog.Title>
-                  <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
+                  <button onClick={onClose} aria-label="Close" className="text-gray-400 hover:text-gray-600">
                     <XMarkIcon className="h-5 w-5" />
                   </button>
                 </div>

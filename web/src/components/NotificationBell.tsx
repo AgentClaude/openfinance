@@ -59,6 +59,7 @@ const NotificationBell: React.FC = () => {
     <div ref={ref} className="relative">
       <button
         onClick={() => setOpen(!open)}
+        aria-label="Notifications"
         className="relative p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 focus:outline-none focus:ring-2 focus:ring-brand-500 rounded-full"
       >
         {unreadCount > 0 ? (

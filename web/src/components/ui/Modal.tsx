@@ -70,6 +70,7 @@ const Modal: React.FC<ModalProps> = ({
                     </Dialog.Title>
                     <button
                       type="button"
+                      aria-label="Close"
                       className="rounded-md p-1 text-gray-400 hover:text-gray-500 dark:hover:text-gray-300 focus:outline-none focus:ring-2 focus:ring-brand-500"
                       onClick={onClose}
                     >
