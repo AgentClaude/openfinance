@@ -839,6 +839,21 @@ module Types
       context[:current_user].household.subscription
     end
 
+    field :referral_lookup, Types::ReferralLookupType, null: true,
+      description: "Look up a referral code (public, no auth required)" do
+      argument :code, String, required: true
+    end
+    def referral_lookup(code:)
+      user = User.find_by(referral_code: code)
+      return nil unless user
+
+      OpenStruct.new(
+        referrer_first_name: user.name.split(' ').first,
+        referral_code: code,
+        valid: true
+      )
+    end
+
     private
 
     def latest_holdings(account_id: nil)

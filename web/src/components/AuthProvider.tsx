@@ -87,10 +87,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   }
 
-  const register = async (name: string, email: string, password: string) => {
+  const register = async (name: string, email: string, password: string, referralCode?: string) => {
     try {
       const result = await registerMutation({
-        variables: { name, email, password },
+        variables: { name, email, password, referralCode: referralCode || undefined },
       })
 
       const errors = result.data?.register?.errors

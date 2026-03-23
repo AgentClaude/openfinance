@@ -7,6 +7,7 @@ export const ME = gql`
       email
       name
       householdId
+      referralClicks
       household {
         id
         name
@@ -686,6 +687,16 @@ export const GET_REFERRALS = gql`
         email
       }
       createdAt
+    }
+  }
+`;
+
+export const REFERRAL_LOOKUP = gql`
+  query ReferralLookup($code: String!) {
+    referralLookup(code: $code) {
+      referrerFirstName
+      referralCode
+      valid
     }
   }
 `;

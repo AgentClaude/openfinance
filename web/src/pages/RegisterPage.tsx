@@ -11,6 +11,7 @@ const RegisterPage: React.FC = () => {
   const [searchParams] = useSearchParams();
   const redirectTo = searchParams.get('redirect');
   const prefillEmail = searchParams.get('email') || '';
+  const referralCode = searchParams.get('ref') || localStorage.getItem('openfinance_referral_code') || '';
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: '',
@@ -85,7 +86,9 @@ const RegisterPage: React.FC = () => {
     setLoading(true);
 
     try {
-      await register(formData.name, formData.email, formData.password);
+      await register(formData.name, formData.email, formData.password, referralCode || undefined);
+      // Clear stored referral code after successful registration
+      localStorage.removeItem('openfinance_referral_code');
       addToast({
         type: 'success',
         title: 'Account created!',
@@ -123,6 +126,13 @@ const RegisterPage: React.FC = () => {
         <h2 className="mt-6 text-center text-3xl font-bold tracking-heading text-gray-900 dark:text-gray-100">
           Create your account
         </h2>
+        {referralCode && (
+          <div className="mt-3 flex justify-center">
+            <span className="inline-flex items-center gap-1.5 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 px-3 py-1 rounded-full text-xs font-medium border border-emerald-200 dark:border-emerald-800">
+              🎁 Referred by a friend
+            </span>
+          </div>
+        )}
         <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
           Already have an account?{' '}
           <Link

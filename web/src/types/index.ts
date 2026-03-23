@@ -5,6 +5,7 @@ export interface User {
   householdId: string;
   household?: Household;
   role?: string;
+  referralClicks?: number;
 }
 
 export interface Household {
@@ -194,7 +195,7 @@ export interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<void>;
-  register: (name: string, email: string, password: string) => Promise<void>;
+  register: (name: string, email: string, password: string, referralCode?: string) => Promise<void>;
   logout: () => void;
   loading: boolean;
 }

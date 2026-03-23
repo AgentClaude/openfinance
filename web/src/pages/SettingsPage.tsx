@@ -794,19 +794,58 @@ export default function SettingsPage() {
       {/* Referrals Tab */}
       {activeTab === 'referrals' && (
         <div className="space-y-6">
-          <Card title="Your Referral Code">
+          <Card title="Your Referral Link">
             <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-              Share your referral code with friends. When they sign up, you&apos;ll both be tracked in the referral program.
+              Share your referral link with friends. When they sign up through your link, they&apos;ll be tracked in the referral program.
             </p>
-            <div className="flex items-center space-x-3">
-              <code className="flex-1 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 px-4 py-3 rounded-md font-mono text-lg tracking-wider">
-                {myReferralCode || '...'}
-              </code>
-              <Button onClick={handleCopyCode} disabled={!myReferralCode}>
-                {codeCopied ? '✓ Copied' : '📋 Copy'}
-              </Button>
+            <div className="space-y-3">
+              <div className="flex items-center space-x-3">
+                <code className="flex-1 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 px-4 py-3 rounded-md font-mono text-sm truncate">
+                  {myReferralCode ? `${window.location.origin}/r/${myReferralCode}` : '...'}
+                </code>
+                <Button onClick={() => {
+                  if (myReferralCode) {
+                    navigator.clipboard.writeText(`${window.location.origin}/r/${myReferralCode}`);
+                    handleCopyCode();
+                  }
+                }} disabled={!myReferralCode}>
+                  {codeCopied ? '✓ Copied' : '🔗 Copy Link'}
+                </Button>
+              </div>
+              <div className="flex items-center space-x-3">
+                <code className="flex-1 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 px-4 py-3 rounded-md font-mono text-lg tracking-wider">
+                  {myReferralCode || '...'}
+                </code>
+                <Button onClick={handleCopyCode} disabled={!myReferralCode} variant="secondary">
+                  📋 Code
+                </Button>
+              </div>
             </div>
           </Card>
+
+          {/* Referral Stats */}
+          <div className="grid grid-cols-3 gap-4">
+            <Card>
+              <div className="text-center">
+                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{user?.referralClicks ?? 0}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Link Clicks</p>
+              </div>
+            </Card>
+            <Card>
+              <div className="text-center">
+                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{myReferrals.length}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Sign-ups</p>
+              </div>
+            </Card>
+            <Card>
+              <div className="text-center">
+                <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
+                  {myReferrals.length > 0 ? Math.round((myReferrals.length / Math.max(user?.referralClicks ?? 1, 1)) * 100) : 0}%
+                </p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Conversion</p>
+              </div>
+            </Card>
+          </div>
 
           <Card title={`Your Referrals (${myReferrals.length})`}>
             {myReferrals.length === 0 ? (

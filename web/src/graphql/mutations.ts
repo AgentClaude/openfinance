@@ -1156,3 +1156,12 @@ export const DELETE_INVESTMENT_TRANSACTION = gql`
     }
   }
 `;
+
+export const TRACK_REFERRAL_CLICK = gql`
+  mutation TrackReferralClick($referralCode: String!) {
+    trackReferralClick(referralCode: $referralCode) {
+      success
+      errors
+    }
+  }
+`;

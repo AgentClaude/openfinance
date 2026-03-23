@@ -93,5 +93,6 @@ module Types
     field :change_plan, mutation: Mutations::ChangePlan
     field :cancel_subscription, mutation: Mutations::CancelSubscription
     field :reactivate_subscription, mutation: Mutations::ReactivateSubscription
+    field :track_referral_click, mutation: Mutations::TrackReferralClick
   end
 end
