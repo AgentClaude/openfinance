@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import { useThemeContext } from '@/components/ThemeProvider';
+import SEO from '@/components/SEO';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -240,6 +241,11 @@ export default function DocsPage() {
 
   return (
     <div className={`min-h-screen ${isDark ? 'dark bg-gray-950' : 'bg-gray-50'}`}>
+      <SEO
+        title="API Documentation"
+        description="OpenFinance API documentation. REST endpoints, GraphQL queries, webhooks, and embeddable widgets for self-hosted personal finance."
+        url="/docs"
+      />
       <div className="flex">
         <Sidebar activeSection={activeSection} onNavigate={navigate} mobileOpen={mobileOpen} onClose={() => setMobileOpen(false)} />
 

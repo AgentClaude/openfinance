@@ -286,10 +286,7 @@ const ImportPage: React.FC = () => {
         <div className="p-6 space-y-6">
           {/* Account selection */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Import to Account
-            </label>
-            <Select value={accountId} onChange={(e) => setAccountId(e.target.value)} options={accountOptions} />
+            <Select label="Import to Account" value={accountId} onChange={(e) => setAccountId(e.target.value)} options={accountOptions} />
           </div>
 
           {/* File upload */}

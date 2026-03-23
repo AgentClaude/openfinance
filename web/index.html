@@ -2,10 +2,28 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="manifest" href="/manifest.json" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>OpenFinance - Personal Finance Management</title>
-    <meta name="description" content="Privacy-first personal finance management. Track expenses, manage budgets, and gain financial insights." />
+    <title>OpenFinance — Self-Hosted Personal Finance</title>
+    <meta name="description" content="Privacy-first personal finance management. Track expenses, manage budgets, monitor investments, and gain financial insights — all self-hosted and open source." />
+    
+    <!-- Open Graph fallbacks (overridden by react-helmet-async per page) -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="OpenFinance — Self-Hosted Personal Finance" />
+    <meta property="og:description" content="Privacy-first personal finance management. Track expenses, manage budgets, monitor investments, and gain financial insights — all self-hosted." />
+    <meta property="og:image" content="/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    
+    <!-- Theme & App -->
+    <meta name="theme-color" content="#0D9488" />
+    <meta name="application-name" content="OpenFinance" />
+    <meta name="apple-mobile-web-app-title" content="OpenFinance" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">

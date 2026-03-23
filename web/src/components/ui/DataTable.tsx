@@ -193,6 +193,7 @@ function DataTable<T>({
                     <th scope="col" className="relative w-12 px-6 py-3">
                       <input
                         type="checkbox"
+                        aria-label="Select all rows"
                         className="absolute left-4 top-1/2 -mt-2 h-4 w-4 rounded border-gray-300 text-brand-700 focus:ring-brand-700"
                         ref={(input) => {
                           if (input) input.indeterminate = isIndeterminate;
@@ -264,6 +265,7 @@ function DataTable<T>({
                           <td className="relative w-12 px-6 py-4">
                             <input
                               type="checkbox"
+                              aria-label={`Select row ${index + 1}`}
                               className="absolute left-4 top-1/2 -mt-2 h-4 w-4 rounded border-gray-300 text-brand-700 focus:ring-brand-700"
                               checked={isSelected}
                               onChange={(e) => {

@@ -15,6 +15,7 @@ interface DropdownProps {
   items: DropdownItem[];
   align?: 'left' | 'right';
   className?: string;
+  triggerLabel?: string;
 }
 
 const Dropdown: React.FC<DropdownProps> = ({
@@ -22,6 +23,7 @@ const Dropdown: React.FC<DropdownProps> = ({
   items,
   align = 'right',
   className,
+  triggerLabel,
 }) => {
   const alignClasses = {
     left: 'left-0 origin-top-left',
@@ -30,7 +32,7 @@ const Dropdown: React.FC<DropdownProps> = ({
 
   return (
     <Menu as="div" className={clsx('relative inline-block text-left', className)}>
-      <Menu.Button as="div">
+      <Menu.Button as="div" role="button" tabIndex={0} aria-label={triggerLabel || 'Open menu'}>
         {trigger}
       </Menu.Button>
 

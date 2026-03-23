@@ -1,0 +1,25 @@
+# OpenFinance robots.txt
+User-agent: *
+Allow: /
+Allow: /docs
+Disallow: /dashboard
+Disallow: /transactions
+Disallow: /accounts
+Disallow: /budget
+Disallow: /categories
+Disallow: /rules
+Disallow: /merchant-mappings
+Disallow: /recurring
+Disallow: /reports
+Disallow: /net-worth
+Disallow: /investments
+Disallow: /import
+Disallow: /goals
+Disallow: /notifications
+Disallow: /activity
+Disallow: /health
+Disallow: /settings
+Disallow: /onboarding
+Disallow: /graphql
+
+Sitemap: /sitemap.xml

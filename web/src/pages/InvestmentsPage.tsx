@@ -217,7 +217,7 @@ const TypeAllocationChart: React.FC<{ allocations: PortfolioAllocation[] }> = ({
   return (
     <div className="flex flex-col items-center gap-4">
       <ResponsiveContainer width="100%" height={200}>
-        <PieChart>
+        <PieChart accessibilityLayer={false}>
           <Pie
             data={byType}
             dataKey="value"
@@ -635,6 +635,7 @@ const InvestmentsPage: React.FC = () => {
       </div>
       {investmentAccounts.length > 1 && (
         <select
+          aria-label="Filter by account"
           className="border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-800 focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
           value={selectedAccountId || ''}
           onChange={(e) => setSelectedAccountId(e.target.value || undefined)}
