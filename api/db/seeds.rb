@@ -872,6 +872,57 @@ puts "   Categories:   #{household.categories.count}"
 puts "   Transactions: #{household.transactions.count}"
 puts "   Tags:         #{household.tags.count}"
 puts "   Goals:        #{household.goals.count}"
+# ── Subscription Plans ─────────────────────────────────────────
+puts "📋 Seeding subscription plans..."
+
+plans_data = [
+  {
+    name: 'Free', slug: 'free', position: 0,
+    price_cents: 0, annual_price_cents: 0,
+    max_accounts: 2, max_transactions: 500,
+    has_reports: false, has_budgets: true, has_goals: false,
+    has_investments: false, has_recurring: false, has_csv_import: false,
+    has_api_access: false, has_collaboration: false, has_priority_support: false
+  },
+  {
+    name: 'Pro', slug: 'pro', position: 1,
+    price_cents: 999, annual_price_cents: 9990,
+    max_accounts: 0, max_transactions: 0,
+    has_reports: true, has_budgets: true, has_goals: true,
+    has_investments: true, has_recurring: true, has_csv_import: true,
+    has_api_access: false, has_collaboration: false, has_priority_support: false
+  },
+  {
+    name: 'Team', slug: 'team', position: 2,
+    price_cents: 1999, annual_price_cents: 19990,
+    max_accounts: 0, max_transactions: 0,
+    has_reports: true, has_budgets: true, has_goals: true,
+    has_investments: true, has_recurring: true, has_csv_import: true,
+    has_api_access: true, has_collaboration: true, has_priority_support: true
+  }
+]
+
+plans_data.each do |attrs|
+  Plan.find_or_create_by!(slug: attrs[:slug]) do |plan|
+    plan.assign_attributes(attrs)
+  end
+end
+
+# Assign free plan to demo household
+free_plan = Plan.find_by(slug: 'pro') # Demo gets Pro for showcase
+unless household.subscription
+  household.create_subscription!(
+    plan: free_plan,
+    status: 'active',
+    billing_interval: 'monthly',
+    current_period_start: 30.days.ago,
+    current_period_end: 30.days.from_now
+  )
+end
+
+puts "   Plans:        #{Plan.count}"
+puts "   Subscription: #{household.subscription&.plan&.name || 'None'}"
+
 puts "   Holdings:     #{Holding.joins(:account).where(accounts: { household_id: household.id }).count}"
 puts "   Inv Txns:     #{InvestmentTransaction.joins(:account).where(accounts: { household_id: household.id }).count}"
 puts "   Benchmarks:   #{BenchmarkIndex.count} (#{BenchmarkDataPoint.count} data points)"

@@ -311,8 +311,9 @@ const CategoriesPage: React.FC = () => {
                         </div>
                         
                         <Dropdown
+                          triggerLabel={`Actions for ${category.name}`}
                           trigger={
-                            <Button variant="ghost" size="sm" className="p-1">
+                            <Button variant="ghost" size="sm" className="p-1" aria-label={`Actions for ${category.name}`}>
                               <PencilIcon className="h-4 w-4" />
                             </Button>
                           }

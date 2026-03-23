@@ -121,6 +121,7 @@ const ReportsPage: React.FC = () => {
               <select
                 value={months}
                 onChange={(e) => setMonths(parseInt(e.target.value))}
+                aria-label="Date range"
                 className="rounded-md border-gray-300 dark:border-gray-600 text-sm shadow-sm focus:border-brand-500 focus:ring-brand-500"
               >
                 <option value={3}>Last 3 months</option>
@@ -319,7 +320,7 @@ const OverviewReport: React.FC<{ reports: any }> = ({ reports }) => {
       <ChartCard title="Spending by Category">
         <div className="flex flex-col md:flex-row items-center gap-8">
           <ResponsiveContainer width="100%" height={300} className="max-w-sm">
-            <PieChart>
+            <PieChart accessibilityLayer={false}>
               <Pie
                 data={spendingByCategory.slice(0, 10)}
                 dataKey="amount"
@@ -396,7 +397,7 @@ const SpendingReport: React.FC<{ reports: any }> = ({ reports }) => {
         <div className="flex flex-col lg:flex-row items-center gap-8">
           <div className="w-full max-w-xs">
             <ResponsiveContainer width="100%" height={320}>
-              <PieChart>
+              <PieChart accessibilityLayer={false}>
                 <Pie
                   data={spendingByCategory.slice(0, 10)}
                   dataKey="amount"

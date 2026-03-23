@@ -151,11 +151,12 @@ const AppLayout: React.FC = () => {
                   // Trigger Cmd+K
                   window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true }));
                 }}
-                className="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-400 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                className="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                aria-label="Search (⌘K)"
               >
                 <MagnifyingGlassIcon className="h-4 w-4" />
                 <span className="hidden sm:inline">Search...</span>
-                <kbd className="hidden sm:inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-white dark:bg-gray-600 shadow-sm">⌘K</kbd>
+                <kbd className="hidden sm:inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-600 shadow-sm">⌘K</kbd>
               </button>
             </div>
             
@@ -164,8 +165,9 @@ const AppLayout: React.FC = () => {
               
               {/* Profile dropdown */}
               <Dropdown
+                triggerLabel="User menu"
                 trigger={
-                  <button className="max-w-xs bg-white dark:bg-gray-800 rounded-full flex items-center text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 dark:focus:ring-offset-gray-800">
+                  <button className="max-w-xs bg-white dark:bg-gray-800 rounded-full flex items-center text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 dark:focus:ring-offset-gray-800" aria-label="User menu">
                     <Avatar 
                       name={user?.name || 'User'} 
                       size="sm"
@@ -193,7 +195,7 @@ const AppLayout: React.FC = () => {
         </div>
 
         {/* Main content area */}
-        <main className="flex-1 relative overflow-y-auto focus:outline-none">
+        <main className="flex-1 relative overflow-y-auto focus:outline-none" tabIndex={0} role="main">
           <div className="py-6">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
               <Outlet />

@@ -299,10 +299,10 @@ const BudgetPage: React.FC = () => {
                       if (e.key === 'Escape') setEditingTarget(false);
                     }}
                   />
-                  <button onClick={handleTargetSave} disabled={updating} className="p-1">
+                  <button onClick={handleTargetSave} disabled={updating} aria-label="Save spending target" className="p-1">
                     <CheckIcon className="h-5 w-5 text-green-600" />
                   </button>
-                  <button onClick={() => setEditingTarget(false)} className="p-1">
+                  <button onClick={() => setEditingTarget(false)} aria-label="Cancel editing" className="p-1">
                     <XMarkIcon className="h-5 w-5 text-red-600" />
                   </button>
                 </div>
@@ -501,10 +501,10 @@ const BudgetPage: React.FC = () => {
                                   if (e.key === 'Escape') handleEditCancel();
                                 }}
                               />
-                              <button onClick={() => handleEditSave(catId)} disabled={updating} className="p-1">
+                              <button onClick={() => handleEditSave(catId)} disabled={updating} aria-label="Save budget amount" className="p-1">
                                 <CheckIcon className="h-4 w-4 text-green-600" />
                               </button>
-                              <button onClick={handleEditCancel} className="p-1">
+                              <button onClick={handleEditCancel} aria-label="Cancel editing" className="p-1">
                                 <XMarkIcon className="h-4 w-4 text-red-600" />
                               </button>
                             </div>
@@ -554,7 +554,7 @@ const BudgetPage: React.FC = () => {
                         </div>
 
                         {/* Delete */}
-                        <button onClick={() => handleDelete(catId)} className="p-1 opacity-0 hover:opacity-100 group-hover:opacity-100">
+                        <button onClick={() => handleDelete(catId)} aria-label="Remove budget item" className="p-1 opacity-0 hover:opacity-100 group-hover:opacity-100">
                           <TrashIcon className="h-4 w-4 text-gray-400 hover:text-red-500" />
                         </button>
                       </div>

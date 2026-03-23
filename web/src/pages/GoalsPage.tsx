@@ -200,10 +200,10 @@ const GoalsPage: React.FC = () => {
                   </span>
                 </div>
                 <div className="flex gap-1">
-                  <button onClick={() => openEdit(goal)} className="p-1 text-gray-400 hover:text-gray-600 dark:text-gray-400">
+                  <button onClick={() => openEdit(goal)} aria-label={`Edit goal: ${goal.name}`} className="p-1 text-gray-400 hover:text-gray-600 dark:text-gray-400">
                     <PencilIcon className="h-4 w-4" />
                   </button>
-                  <button onClick={() => setDeleteConfirm(goal.id)} className="p-1 text-gray-400 hover:text-red-500">
+                  <button onClick={() => setDeleteConfirm(goal.id)} aria-label={`Delete goal: ${goal.name}`} className="p-1 text-gray-400 hover:text-red-500">
                     <TrashIcon className="h-4 w-4" />
                   </button>
                 </div>

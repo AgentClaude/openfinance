@@ -52,6 +52,9 @@ gem "strong_migrations", "~> 1.8"
 # Money handling
 gem "money-rails", "~> 1.15"
 
+# Payments
+gem "stripe", "~> 10.0"
+
 # Pagination
 gem "kaminari", "~> 1.2"
 

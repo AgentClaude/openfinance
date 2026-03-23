@@ -825,6 +825,20 @@ module Types
       result.data
     end
 
+    # ── Subscription & Plans ──────────────────────────────────────
+    field :plans, [Types::PlanType], null: false,
+      description: "All available subscription plans"
+    def plans
+      Plan.visible
+    end
+
+    field :my_subscription, Types::SubscriptionType, null: true,
+      description: "Current household subscription"
+    def my_subscription
+      return nil unless context[:current_user]&.household
+      context[:current_user].household.subscription
+    end
+
     private
 
     def latest_holdings(account_id: nil)

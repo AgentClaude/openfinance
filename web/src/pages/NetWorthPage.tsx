@@ -334,8 +334,9 @@ const ManualBalanceUpdate: React.FC<{ accounts: NetWorthAccount[] }> = ({ accoun
     <ChartCard title="Update Manual Account Balance">
       <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row items-end gap-4">
         <div className="flex-1 w-full">
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Account</label>
+          <label htmlFor="nw-account-select" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Account</label>
           <select
+            id="nw-account-select"
             value={selectedAccountId}
             onChange={e => setSelectedAccountId(e.target.value)}
             className="w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-brand-500 focus:ring-brand-500 text-sm"

@@ -21,6 +21,7 @@ class Household < ApplicationRecord
   has_many :merchant_mappings, dependent: :destroy
   has_many :webhook_subscriptions, dependent: :destroy
   has_many :plaid_category_mappings, dependent: :destroy
+  has_one :subscription, dependent: :destroy
 
   # Validations
   validates :name, presence: true, length: { minimum: 2, maximum: 100 }
@@ -32,6 +33,20 @@ class Household < ApplicationRecord
   # Callbacks
   after_create :create_default_categories
   after_create :create_default_budget
+
+  # Subscription helpers
+  def current_plan
+    subscription&.plan || Plan.find_by(slug: 'free')
+  end
+
+  def subscribed?
+    subscription&.active? || subscription&.trialing?
+  end
+
+  def can_access_feature?(feature)
+    return true unless subscription # No subscription = full access (legacy/free)
+    subscription.can_access?(feature)
+  end
 
   # Financial calculations
   def total_assets

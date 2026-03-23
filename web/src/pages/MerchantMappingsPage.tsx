@@ -229,6 +229,7 @@ const MerchantMappingsPage: React.FC = () => {
                   <div className="flex items-center gap-3">
                     <button
                       onClick={() => handleToggle(mapping)}
+                      aria-label={`${mapping.isActive ? 'Disable' : 'Enable'} mapping: ${mapping.rawPattern}`}
                       className={`w-10 h-5 rounded-full transition-colors relative flex-shrink-0 ${
                         mapping.isActive ? 'bg-brand-600' : 'bg-gray-300'
                       }`}
@@ -257,12 +258,14 @@ const MerchantMappingsPage: React.FC = () => {
                   </Badge>
                   <button
                     onClick={() => openEdit(mapping)}
+                    aria-label={`Edit mapping: ${mapping.rawPattern}`}
                     className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                   >
                     <PencilIcon className="h-4 w-4" />
                   </button>
                   <button
                     onClick={() => handleDelete(mapping.id)}
+                    aria-label={`Delete mapping: ${mapping.rawPattern}`}
                     className="text-gray-400 hover:text-red-600"
                   >
                     <TrashIcon className="h-4 w-4" />

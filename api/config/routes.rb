@@ -80,6 +80,9 @@ Rails.application.routes.draw do
     post '/plaid', to: 'plaid#create'
   end
 
+  # Stripe webhooks
+  post '/stripe/webhooks', to: 'stripe_webhooks#create'
+
   # Catch all unmatched routes
   match '*path', to: proc { [404, { 'Content-Type' => 'application/json' }, ['{"error":"Not Found"}']] }, via: :all
 end

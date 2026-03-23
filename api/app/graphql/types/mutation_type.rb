@@ -87,5 +87,11 @@ module Types
     field :revoke_api_key, mutation: Mutations::RevokeApiKey
     field :create_share_token, mutation: Mutations::CreateShareToken
     field :revoke_share_token, mutation: Mutations::RevokeShareToken
+
+    # Subscription mutations
+    field :create_subscription, mutation: Mutations::CreateSubscription
+    field :change_plan, mutation: Mutations::ChangePlan
+    field :cancel_subscription, mutation: Mutations::CancelSubscription
+    field :reactivate_subscription, mutation: Mutations::ReactivateSubscription
   end
 end

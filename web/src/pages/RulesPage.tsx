@@ -274,6 +274,7 @@ const RulesPage: React.FC = () => {
                   <div className="flex items-center gap-3">
                     <button
                       onClick={() => handleToggle(rule)}
+                      aria-label={`${rule.isActive ? 'Disable' : 'Enable'} rule: ${rule.matchValue}`}
                       className={`w-10 h-5 rounded-full transition-colors relative ${
                         rule.isActive ? 'bg-brand-600' : 'bg-gray-300'
                       }`}
@@ -313,12 +314,14 @@ const RulesPage: React.FC = () => {
                   </span>
                   <button
                     onClick={() => openEdit(rule)}
+                    aria-label={`Edit rule: ${rule.matchValue}`}
                     className="text-gray-400 hover:text-gray-600 dark:text-gray-400"
                   >
                     <PencilIcon className="h-4 w-4" />
                   </button>
                   <button
                     onClick={() => handleDelete(rule.id)}
+                    aria-label={`Delete rule: ${rule.matchValue}`}
                     className="text-gray-400 hover:text-red-600"
                   >
                     <TrashIcon className="h-4 w-4" />

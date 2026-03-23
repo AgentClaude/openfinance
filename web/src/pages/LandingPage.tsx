@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
+import SEO from '@/components/SEO';
 import {
   WalletIcon,
   ChartBarIcon,
@@ -106,8 +107,41 @@ function ScreenshotImage({
 export default function LandingPage() {
   const [screenshotDark, setScreenshotDark] = useState(false);
 
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    name: 'OpenFinance',
+    applicationCategory: 'FinanceApplication',
+    operatingSystem: 'Web',
+    description:
+      'Privacy-first, self-hosted personal finance management. Track expenses, manage budgets, monitor investments, and gain financial insights.',
+    offers: {
+      '@type': 'Offer',
+      price: '0',
+      priceCurrency: 'USD',
+    },
+    featureList: [
+      'Budget tracking with category breakdowns',
+      'Investment portfolio monitoring',
+      'Recurring bill detection',
+      'Financial reports with charts',
+      'Goal tracking',
+      'Net worth monitoring',
+      'Bank sync via Plaid',
+      'CSV/OFX import',
+      'Multi-user household support',
+      'Self-hosted and open source',
+    ],
+  };
+
   return (
     <div className="min-h-screen bg-white dark:bg-gray-950">
+      <SEO
+        title="Self-Hosted Personal Finance"
+        description="Privacy-first personal finance management. Track expenses, manage budgets, monitor investments, and gain financial insights — all self-hosted and open source. A Monarch Money alternative you own."
+        url="/"
+        structuredData={structuredData}
+      />
       {/* Nav */}
       <nav className="sticky top-0 z-50 bg-white/80 dark:bg-gray-950/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
@@ -329,8 +363,8 @@ export default function LandingPage() {
               All the features you love, without the $99.99/year price tag.
             </p>
           </div>
-          <div className="mx-auto max-w-2xl overflow-hidden rounded-xl border border-gray-200 dark:border-gray-800">
-            <table className="w-full">
+          <div className="mx-auto max-w-2xl overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-800">
+            <table className="w-full min-w-[400px]">
               <thead>
                 <tr className="bg-gray-50 dark:bg-gray-900">
                   <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 dark:text-gray-400">
