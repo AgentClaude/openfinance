@@ -235,7 +235,7 @@ _See SPRINT.md for prioritized sprint plan (Sprints 1-3)_
 - ✅ Referral model (referrer_id, code, clicks, conversions)
 - ✅ Referral tracking in Settings page (referrals tab)
 - ⬚ Referral landing page (/r/:code click tracking)
-- ⬚ Subscription/billing model
+- ✅ Subscription/billing model + PricingPage + BillingTab in Settings (PR #159)
 
 ## Phase 24: Embeddable Widgets & Public API ✅
 - ✅ Public API: REST endpoints (net_worth, daily_spend, monthly_summary, accounts, transactions, budgets, account_balances)

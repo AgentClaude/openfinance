@@ -133,7 +133,7 @@ RSpec.describe 'Subscription mutations' do
       GRAPHQL
     end
 
-    context 'upgrading from free to free (downgrade to free)' do
+    context 'downgrading from pro to free' do
       let!(:subscription) do
         create(:subscription,
                household: household,
@@ -197,6 +197,23 @@ RSpec.describe 'Subscription mutations' do
         sub = result.dig('data', 'reactivateSubscription')
         expect(sub['cancelAtPeriodEnd']).to be false
         expect(sub['willCancel']).to be false
+      end
+    end
+
+    context 'with a subscription not pending cancellation' do
+      let!(:subscription) do
+        create(:subscription,
+               household: household,
+               plan: pro_plan,
+               status: 'active',
+               cancel_at_period_end: false,
+               stripe_subscription_id: 'sub_active')
+      end
+
+      it 'returns an error' do
+        result = execute(mutation)
+        expect(result['errors']).to be_present
+        expect(result['errors'].first['message']).to include('not pending cancellation')
       end
     end
   end

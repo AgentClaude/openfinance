@@ -7,11 +7,9 @@ import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import Button from '@/components/ui/Button';
 import Badge from '@/components/ui/Badge';
 import { useToast } from '@/components/ui/Toast';
+import { formatCurrency } from '@/lib/format';
 
-const formatCurrency = (amount: number) =>
-  new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount);
-
-const FEATURE_COMPARISON: { label: string; key: keyof Plan | 'limits' }[] = [
+const FEATURE_COMPARISON: { label: string; key: keyof Plan }[] = [
   { label: 'Budgets', key: 'hasBudgets' },
   { label: 'Reports & Analytics', key: 'hasReports' },
   { label: 'Goals Tracking', key: 'hasGoals' },
@@ -28,7 +26,7 @@ const PricingPage: React.FC = () => {
   const { addToast } = useToast();
   const { user } = useAuth();
   const { plans, loading: plansLoading } = usePlans();
-  const { subscription, subscribe, creating } = useSubscription();
+  const { subscription, subscribe, changePlan, creating } = useSubscription();
   const [billingInterval, setBillingInterval] = useState<'monthly' | 'annual'>('annual');
 
   const activePlans = plans.filter(p => p.isActive).sort((a, b) => a.position - b.position);
@@ -41,8 +39,21 @@ const PricingPage: React.FC = () => {
 
     if (subscription?.plan?.id === plan.id) return;
 
+    if (subscription) {
+      // Existing subscription — change plan
+      try {
+        await changePlan(plan.id, plan.priceCents === 0 ? 'monthly' : billingInterval);
+        addToast({ title: plan.priceCents === 0 ? 'Switched to Free plan' : `Switched to ${plan.name}!`, type: 'success' });
+        if (plan.priceCents > 0) navigate('/settings');
+      } catch (e: unknown) {
+        const msg = e instanceof Error ? e.message : 'Something went wrong';
+        addToast({ title: msg, type: 'error' });
+      }
+      return;
+    }
+
     if (plan.priceCents === 0) {
-      // Free plan
+      // New user — free plan
       try {
         await subscribe(plan.id, 'monthly');
         addToast({ title: 'Switched to Free plan', type: 'success' });
@@ -53,7 +64,7 @@ const PricingPage: React.FC = () => {
       return;
     }
 
-    // Paid plan — for now, subscribe with trial (no Stripe payment method in dev)
+    // New user — paid plan
     try {
       await subscribe(plan.id, billingInterval);
       addToast({ title: `Subscribed to ${plan.name}! Your 14-day trial has started.`, type: 'success' });
