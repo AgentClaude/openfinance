@@ -140,7 +140,10 @@ export default function LandingPage() {
         title="Self-Hosted Personal Finance"
         description="Privacy-first personal finance management. Track expenses, manage budgets, monitor investments, and gain financial insights — all self-hosted and open source. A Monarch Money alternative you own."
         url="/"
-        structuredData={structuredData}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
       {/* Nav */}
       <nav className="sticky top-0 z-50 bg-white/80 dark:bg-gray-950/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800">

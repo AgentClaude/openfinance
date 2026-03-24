@@ -400,6 +400,7 @@ const CategoriesPage: React.FC = () => {
                 <button
                   key={color}
                   type="button"
+                  aria-label={`Select color ${color}`}
                   className={clsx(
                     'w-8 h-8 rounded-full border-2 transition-all',
                     formData.color === color

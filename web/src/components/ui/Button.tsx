@@ -12,6 +12,7 @@ const Button: React.FC<ButtonProps> = ({
   className,
   children,
   onClick,
+  'aria-label': ariaLabel,
 }) => {
   const baseClasses = 'inline-flex items-center justify-center font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-900 disabled:opacity-50 disabled:cursor-not-allowed';
 
@@ -33,6 +34,7 @@ const Button: React.FC<ButtonProps> = ({
       type={type}
       disabled={disabled || loading}
       onClick={onClick}
+      aria-label={ariaLabel}
       className={clsx(
         baseClasses,
         variantClasses[variant],

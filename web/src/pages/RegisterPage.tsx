@@ -24,10 +24,16 @@ const RegisterPage: React.FC = () => {
   const { addToast } = useToast();
 
   if (isAuthenticated) {
-    if (redirectTo) {
-      return <Navigate to={redirectTo} replace />;
-    }
-    return <Navigate to="/dashboard" replace />;
+    return (
+      <>
+        <SEO
+          title="Create Account"
+          description="Create your free OpenFinance account. Self-hosted personal finance management with budgets, investments, and reports."
+          url="/register"
+        />
+        <Navigate to={redirectTo || '/dashboard'} replace />
+      </>
+    );
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
