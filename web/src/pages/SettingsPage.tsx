@@ -17,6 +17,7 @@ import Card from '@/components/ui/Card';
 import Badge from '@/components/ui/Badge';
 import toast from 'react-hot-toast';
 import PlaidMappingsTab from '@/components/settings/PlaidMappingsTab';
+import BillingTab from '@/components/settings/BillingTab';
 import PageContainer from '@/components/ui/PageContainer';
 import PageHeader from '@/components/ui/PageHeader';
 
@@ -59,7 +60,7 @@ const CHANNELS = [
   { key: 'push', label: 'Push' },
 ];
 
-type TabId = 'profile' | 'preferences' | 'household' | 'members' | 'notifications' | 'tags' | 'referrals' | 'security' | 'apikeys' | 'sharing' | 'plaid' | 'data';
+type TabId = 'profile' | 'preferences' | 'household' | 'members' | 'notifications' | 'tags' | 'referrals' | 'billing' | 'security' | 'apikeys' | 'sharing' | 'plaid' | 'data';
 
 export default function SettingsPage() {
   const { user } = useAuth();
@@ -355,6 +356,7 @@ export default function SettingsPage() {
     { id: 'apikeys' as const, label: 'API Keys', icon: '🔑' },
     { id: 'sharing' as const, label: 'Sharing', icon: '🔗' },
     { id: 'plaid' as const, label: 'Plaid', icon: '🏦' },
+    { id: 'billing' as const, label: 'Billing', icon: '💳' },
     { id: 'security' as const, label: 'Security', icon: '🔒' },
     { id: 'data' as const, label: 'Data', icon: '📦' },
   ];
@@ -1126,6 +1128,11 @@ export default function SettingsPage() {
       {/* Plaid Category Mapping Tab */}
       {activeTab === 'plaid' && (
         <PlaidMappingsTab />
+      )}
+
+      {/* Billing Tab */}
+      {activeTab === 'billing' && (
+        <BillingTab />
       )}
 
       {/* Security Tab */}

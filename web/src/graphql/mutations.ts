@@ -1156,3 +1156,90 @@ export const DELETE_INVESTMENT_TRANSACTION = gql`
     }
   }
 `;
+
+export const CREATE_SUBSCRIPTION = gql`
+  mutation CreateSubscription($planId: ID!, $billingInterval: String, $stripePaymentMethodId: String) {
+    createSubscription(planId: $planId, billingInterval: $billingInterval, stripePaymentMethodId: $stripePaymentMethodId) {
+      id
+      status
+      billingInterval
+      trialActive
+      trialDaysRemaining
+      trialEndsAt
+      currentPeriodStart
+      currentPeriodEnd
+      cancelAtPeriodEnd
+      willCancel
+      createdAt
+      plan {
+        id
+        name
+        slug
+        monthlyPrice
+        annualPrice
+        annualMonthlyPrice
+        annualSavingsPercentage
+        featureList
+        maxAccounts
+        maxTransactions
+      }
+    }
+  }
+`;
+
+export const CANCEL_SUBSCRIPTION = gql`
+  mutation CancelSubscription($atPeriodEnd: Boolean) {
+    cancelSubscription(atPeriodEnd: $atPeriodEnd) {
+      id
+      status
+      cancelAtPeriodEnd
+      cancelAt
+      canceledAt
+      willCancel
+      currentPeriodEnd
+      plan {
+        id
+        name
+        slug
+      }
+    }
+  }
+`;
+
+export const CHANGE_PLAN = gql`
+  mutation ChangePlan($planId: ID!, $billingInterval: String) {
+    changePlan(planId: $planId, billingInterval: $billingInterval) {
+      id
+      status
+      billingInterval
+      plan {
+        id
+        name
+        slug
+        monthlyPrice
+        annualPrice
+        annualMonthlyPrice
+        featureList
+        maxAccounts
+        maxTransactions
+      }
+    }
+  }
+`;
+
+export const REACTIVATE_SUBSCRIPTION = gql`
+  mutation ReactivateSubscription {
+    reactivateSubscription {
+      id
+      status
+      cancelAtPeriodEnd
+      cancelAt
+      willCancel
+      plan {
+        id
+        name
+        slug
+      }
+    }
+  }
+`;

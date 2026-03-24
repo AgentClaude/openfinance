@@ -35,6 +35,7 @@ import OnboardingPage from '@/pages/OnboardingPage';
 import NotificationsPage from '@/pages/NotificationsPage';
 import ActivityPage from '@/pages/ActivityPage';
 import FinancialHealthPage from '@/pages/FinancialHealthPage';
+import PricingPage from '@/pages/PricingPage';
 
 function App() {
   return (
@@ -50,6 +51,7 @@ function App() {
                 <Route path="/register" element={<RegisterPage />} />
                 <Route path="/docs" element={<DocsPage />} />
                 <Route path="/invite/:token" element={<AcceptInvitationPage />} />
+                <Route path="/pricing" element={<PricingPage />} />
                 
                 {/* Onboarding (protected but no layout) */}
                 <Route path="/onboarding" element={<ProtectedRoute><OnboardingPage /></ProtectedRoute>} />
