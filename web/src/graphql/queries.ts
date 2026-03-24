@@ -814,6 +814,70 @@ export const GET_PLAID_CATEGORY_MAPPINGS = gql`
   }
 `;
 
+export const GET_PLANS = gql`
+  query GetPlans {
+    plans {
+      id
+      name
+      slug
+      priceCents
+      annualPriceCents
+      monthlyPrice
+      annualPrice
+      annualMonthlyPrice
+      annualSavingsPercentage
+      currency
+      maxAccounts
+      maxTransactions
+      hasReports
+      hasBudgets
+      hasGoals
+      hasInvestments
+      hasRecurring
+      hasCsvImport
+      hasApiAccess
+      hasCollaboration
+      hasPrioritySupport
+      isActive
+      position
+      featureList
+    }
+  }
+`;
+
+export const GET_MY_SUBSCRIPTION = gql`
+  query GetMySubscription {
+    mySubscription {
+      id
+      status
+      billingInterval
+      trialActive
+      trialDaysRemaining
+      trialEndsAt
+      currentPeriodStart
+      currentPeriodEnd
+      daysUntilRenewal
+      cancelAtPeriodEnd
+      cancelAt
+      canceledAt
+      willCancel
+      createdAt
+      plan {
+        id
+        name
+        slug
+        monthlyPrice
+        annualPrice
+        annualMonthlyPrice
+        annualSavingsPercentage
+        featureList
+        maxAccounts
+        maxTransactions
+      }
+    }
+  }
+`;
+
 export const GET_FINANCIAL_HEALTH = gql`
   query GetFinancialHealth {
     financialHealth {
