@@ -313,9 +313,7 @@ const CategoriesPage: React.FC = () => {
                         <Dropdown
                           triggerLabel={`Actions for ${category.name}`}
                           trigger={
-                            <Button variant="ghost" size="sm" className="p-1" aria-label={`Actions for ${category.name}`}>
-                              <PencilIcon className="h-4 w-4" />
-                            </Button>
+                            <PencilIcon className="h-4 w-4 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200" />
                           }
                           items={menuItems}
                           align="right"
@@ -408,6 +406,7 @@ const CategoriesPage: React.FC = () => {
                   )}
                   style={{ backgroundColor: color }}
                   onClick={() => handleFormChange('color', color)}
+                  aria-label={`Select color ${color}`}
                 />
               ))}
             </div>

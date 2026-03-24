@@ -32,7 +32,10 @@ const Dropdown: React.FC<DropdownProps> = ({
 
   return (
     <Menu as="div" className={clsx('relative inline-block text-left', className)}>
-      <Menu.Button as="div" role="button" tabIndex={0} aria-label={triggerLabel || 'Open menu'}>
+      <Menu.Button
+        className="inline-flex items-center justify-center rounded-md focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-1"
+        aria-label={triggerLabel || 'Open menu'}
+      >
         {trigger}
       </Menu.Button>
 
