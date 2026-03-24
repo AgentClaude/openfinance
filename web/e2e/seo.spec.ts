@@ -97,6 +97,8 @@ test.describe('SEO & Meta Tags', () => {
 
     test('has meta description', async ({ page }) => {
       await page.goto('/register');
+      // Wait for Helmet to render the meta tag
+      await page.waitForSelector('meta[name="description"][content*="OpenFinance"]', { timeout: 5000 });
       const description = await page.getAttribute('meta[name="description"]', 'content');
       expect(description).toBeTruthy();
       expect(description).toContain('OpenFinance');
