@@ -140,6 +140,7 @@ const AppLayout: React.FC = () => {
             type="button"
             className="px-4 border-r border-gray-200 text-gray-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-brand-500 md:hidden"
             onClick={() => setSidebarOpen(true)}
+            aria-label="Toggle menu"
           >
             <Bars3Icon className="h-6 w-6" />
           </button>
@@ -167,13 +168,11 @@ const AppLayout: React.FC = () => {
               <Dropdown
                 triggerLabel="User menu"
                 trigger={
-                  <button className="max-w-xs bg-white dark:bg-gray-800 rounded-full flex items-center text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 dark:focus:ring-offset-gray-800" aria-label="User menu">
-                    <Avatar 
-                      name={user?.name || 'User'} 
-                      size="sm"
-                      className="hover:opacity-80 transition-opacity"
-                    />
-                  </button>
+                  <Avatar 
+                    name={user?.name || 'User'} 
+                    size="sm"
+                    className="hover:opacity-80 transition-opacity"
+                  />
                 }
                 items={userMenuItems}
                 align="right"

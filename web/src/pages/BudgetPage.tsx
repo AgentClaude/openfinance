@@ -217,13 +217,13 @@ const BudgetPage: React.FC = () => {
         title="Budget"
         subtitle={
           <div className="flex items-center space-x-4">
-            <Button variant="ghost" size="sm" onClick={() => navigateMonth('prev')} className="p-2">
+            <Button variant="ghost" size="sm" onClick={() => navigateMonth('prev')} className="p-2" aria-label="Previous month">
               <ChevronLeftIcon className="h-4 w-4" />
             </Button>
             <h2 className="text-lg font-medium text-gray-700 dark:text-gray-300 min-w-32 text-center">
               {format(currentDate, 'MMMM yyyy')}
             </h2>
-            <Button variant="ghost" size="sm" onClick={() => navigateMonth('next')} className="p-2">
+            <Button variant="ghost" size="sm" onClick={() => navigateMonth('next')} className="p-2" aria-label="Next month">
               <ChevronRightIcon className="h-4 w-4" />
             </Button>
           </div>

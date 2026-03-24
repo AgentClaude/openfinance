@@ -181,6 +181,7 @@ test.describe('Accessibility Audit — Authenticated Pages', () => {
 
 test.describe('Accessibility Audit — Generate Report', () => {
   test('generate consolidated AUDIT.md report', async ({ page }) => {
+    test.setTimeout(120_000); // This test scans all pages — needs more than 30s
     // Login first so we can scan authenticated pages
     await loginViaApi(page);
 

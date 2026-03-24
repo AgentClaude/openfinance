@@ -12,6 +12,7 @@ const Button: React.FC<ButtonProps> = ({
   className,
   children,
   onClick,
+  ...ariaProps
 }) => {
   const baseClasses = 'inline-flex items-center justify-center font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-900 disabled:opacity-50 disabled:cursor-not-allowed';
 
@@ -39,6 +40,7 @@ const Button: React.FC<ButtonProps> = ({
         sizeClasses[size],
         className
       )}
+      {...ariaProps}
     >
       {loading && <LoadingSpinner size="sm" className="mr-2" />}
       {children}

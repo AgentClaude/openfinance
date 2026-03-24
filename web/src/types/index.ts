@@ -206,7 +206,7 @@ export interface ToastType {
   message?: string;
 }
 
-export interface ButtonProps {
+export interface ButtonProps extends React.AriaAttributes {
   variant?: 'primary' | 'secondary' | 'danger' | 'ghost';
   size?: 'sm' | 'md' | 'lg';
   loading?: boolean;
