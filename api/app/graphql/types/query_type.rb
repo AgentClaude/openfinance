@@ -39,6 +39,19 @@ module Types
     end
 
     # Public query — no auth required — for the accept invitation page
+    # Public query — no auth required — for the referral landing page
+    field :referral_code_info, Types::ReferralCodeInfoType, null: false do
+      argument :code, String, required: true
+    end
+    def referral_code_info(code:)
+      user = User.find_by(referral_code: code)
+      if user
+        { valid: true, referrer_name: user.name.split(' ').first, referral_code: code }
+      else
+        { valid: false, referrer_name: nil, referral_code: code }
+      end
+    end
+
     field :invitation_by_token, Types::InvitationPreviewType, null: true do
       argument :token, String, required: true
     end

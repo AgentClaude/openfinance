@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { Link, Navigate, useSearchParams, useNavigate } from 'react-router-dom';
+import { useMutation } from '@apollo/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/components/ui/Toast';
+import { REDEEM_REFERRAL } from '@/graphql/mutations';
 import SEO from '@/components/SEO';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
@@ -11,6 +13,7 @@ const RegisterPage: React.FC = () => {
   const [searchParams] = useSearchParams();
   const redirectTo = searchParams.get('redirect');
   const prefillEmail = searchParams.get('email') || '';
+  const referralCode = searchParams.get('ref') || '';
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: '',
@@ -22,6 +25,7 @@ const RegisterPage: React.FC = () => {
 
   const { register, isAuthenticated } = useAuth();
   const { addToast } = useToast();
+  const [redeemReferral] = useMutation(REDEEM_REFERRAL);
 
   if (isAuthenticated) {
     if (redirectTo) {
@@ -86,10 +90,22 @@ const RegisterPage: React.FC = () => {
 
     try {
       await register(formData.name, formData.email, formData.password);
+
+      // Auto-redeem referral code if present
+      if (referralCode) {
+        try {
+          await redeemReferral({ variables: { referralCode } });
+        } catch {
+          // silently ignore — registration succeeded, referral is optional
+        }
+      }
+
       addToast({
         type: 'success',
         title: 'Account created!',
-        message: 'Welcome to OpenFinance! Your account has been created successfully.',
+        message: referralCode
+          ? 'Welcome to OpenFinance! Your referral has been applied.'
+          : 'Welcome to OpenFinance! Your account has been created successfully.',
       });
       if (redirectTo) {
         navigate(redirectTo, { replace: true });

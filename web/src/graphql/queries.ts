@@ -690,6 +690,16 @@ export const GET_REFERRALS = gql`
   }
 `;
 
+export const GET_REFERRAL_CODE_INFO = gql`
+  query GetReferralCodeInfo($code: String!) {
+    referralCodeInfo(code: $code) {
+      valid
+      referrerName
+      referralCode
+    }
+  }
+`;
+
 export const GET_CATEGORY_TRENDS = gql`
   query GetCategoryTrends($categoryIds: [ID!]!, $months: Int) {
     categoryTrends(categoryIds: $categoryIds, months: $months) {

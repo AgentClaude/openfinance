@@ -931,6 +931,16 @@ export const DELETE_ACCOUNT = gql`
   }
 `;
 
+export const TRACK_REFERRAL_CLICK = gql`
+  mutation TrackReferralClick($referralCode: String!) {
+    trackReferralClick(referralCode: $referralCode) {
+      success
+      referrerName
+      errors
+    }
+  }
+`;
+
 export const REDEEM_REFERRAL = gql`
   mutation RedeemReferral($referralCode: String!) {
     redeemReferral(referralCode: $referralCode) {
