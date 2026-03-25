@@ -49,6 +49,11 @@ class User < ApplicationRecord
   # Virtual attributes
   attr_accessor :skip_household_creation
 
+  # Display helpers
+  def first_name
+    name&.split(' ')&.first
+  end
+
   # Two-factor authentication
   def two_factor_enabled?
     two_factor_secret.present?
