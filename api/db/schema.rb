@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_03_22_165500) do
+ActiveRecord::Schema[8.0].define(version: 2026_03_24_225200) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -853,6 +853,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_03_22_165500) do
     t.datetime "updated_at", null: false
     t.string "referral_code"
     t.datetime "deleted_at"
+    t.integer "referral_clicks", default: 0, null: false
     t.index ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true
     t.index ["deleted_at"], name: "index_users_on_deleted_at"
     t.index ["email"], name: "index_users_on_email", unique: true

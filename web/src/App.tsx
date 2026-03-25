@@ -36,6 +36,7 @@ import NotificationsPage from '@/pages/NotificationsPage';
 import ActivityPage from '@/pages/ActivityPage';
 import FinancialHealthPage from '@/pages/FinancialHealthPage';
 import PricingPage from '@/pages/PricingPage';
+import ReferralLandingPage from '@/pages/ReferralLandingPage';
 
 function App() {
   return (
@@ -52,6 +53,7 @@ function App() {
                 <Route path="/docs" element={<DocsPage />} />
                 <Route path="/invite/:token" element={<AcceptInvitationPage />} />
                 <Route path="/pricing" element={<PricingPage />} />
+                <Route path="/r/:code" element={<ReferralLandingPage />} />
                 
                 {/* Onboarding (protected but no layout) */}
                 <Route path="/onboarding" element={<ProtectedRoute><OnboardingPage /></ProtectedRoute>} />

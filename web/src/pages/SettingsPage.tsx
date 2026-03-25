@@ -143,9 +143,10 @@ export default function SettingsPage() {
   const [codeCopied, setCodeCopied] = useState(false);
 
   const handleCopyCode = () => {
-    navigator.clipboard.writeText(myReferralCode);
+    const referralUrl = `${window.location.origin}/r/${myReferralCode}`;
+    navigator.clipboard.writeText(referralUrl);
     setCodeCopied(true);
-    toast.success('Referral code copied!');
+    toast.success('Referral link copied!');
     setTimeout(() => setCodeCopied(false), 2000);
   };
 
@@ -801,11 +802,11 @@ export default function SettingsPage() {
               Share your referral code with friends. When they sign up, you&apos;ll both be tracked in the referral program.
             </p>
             <div className="flex items-center space-x-3">
-              <code className="flex-1 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 px-4 py-3 rounded-md font-mono text-lg tracking-wider">
-                {myReferralCode || '...'}
+              <code className="flex-1 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 px-4 py-3 rounded-md font-mono text-sm tracking-wider truncate">
+                {myReferralCode ? `${window.location.origin}/r/${myReferralCode}` : '...'}
               </code>
               <Button onClick={handleCopyCode} disabled={!myReferralCode}>
-                {codeCopied ? '✓ Copied' : '📋 Copy'}
+                {codeCopied ? '✓ Copied' : '📋 Copy Link'}
               </Button>
             </div>
           </Card>

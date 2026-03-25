@@ -39,6 +39,15 @@ module Types
     end
 
     # Public query — no auth required — for the accept invitation page
+    # Public query — no auth required — for the referral landing page
+    field :referral_code_info, Types::ReferralCodeInfoType, null: false do
+      argument :code, String, required: true
+    end
+    def referral_code_info(code:)
+      result = Referrals::LookupCodeService.call(code: code)
+      result.data
+    end
+
     field :invitation_by_token, Types::InvitationPreviewType, null: true do
       argument :token, String, required: true
     end

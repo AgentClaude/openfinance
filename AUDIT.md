@@ -1,6 +1,6 @@
 # OpenFinance Accessibility Audit Report
 
-_Generated: 2026-03-24T17:02:40.167Z_
+_Generated: 2026-03-24T22:55:24.063Z_
 _Tool: axe-core via @axe-core/playwright_
 _Standards: WCAG 2.0 A/AA, WCAG 2.1 A/AA_
 
