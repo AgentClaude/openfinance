@@ -35,6 +35,7 @@ import OnboardingPage from '@/pages/OnboardingPage';
 import NotificationsPage from '@/pages/NotificationsPage';
 import ActivityPage from '@/pages/ActivityPage';
 import FinancialHealthPage from '@/pages/FinancialHealthPage';
+import InsightsPage from '@/pages/InsightsPage';
 import PricingPage from '@/pages/PricingPage';
 import ReferralLandingPage from '@/pages/ReferralLandingPage';
 
@@ -76,6 +77,7 @@ function App() {
                   <Route path="goals" element={<GoalsPage />} />
                   <Route path="notifications" element={<NotificationsPage />} />
                   <Route path="activity" element={<ActivityPage />} />
+                  <Route path="insights" element={<InsightsPage />} />
                   <Route path="health" element={<FinancialHealthPage />} />
                   <Route path="settings" element={<SettingsPage />} />
                 </Route>
