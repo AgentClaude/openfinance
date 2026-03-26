@@ -19,6 +19,7 @@ import {
   ClockIcon,
   HeartIcon,
   LightBulbIcon,
+  ArrowTrendingUpIcon,
 } from '@heroicons/react/24/outline';
 import { useAuth } from '@/hooks/useAuth';
 import Sidebar from '@/components/ui/Sidebar';
@@ -40,6 +41,7 @@ const navigation = [
   { name: 'Net Worth', href: '/net-worth', icon: ChartPieIcon },
   { name: 'Reports', href: '/reports', icon: ChartPieIcon },
   { name: 'Insights', href: '/insights', icon: LightBulbIcon },
+  { name: 'Forecast', href: '/forecast', icon: ArrowTrendingUpIcon },
   { name: 'Health', href: '/health', icon: HeartIcon },
   { name: 'Import', href: '/import', icon: ArrowUpTrayIcon },
   { name: 'Rules', href: '/rules', icon: BoltIcon },

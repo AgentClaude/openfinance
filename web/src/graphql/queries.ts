@@ -930,3 +930,42 @@ export const GET_SPENDING_INSIGHTS = gql`
     }
   }
 `;
+
+export const GET_CASH_FLOW_FORECAST = gql`
+  query GetCashFlowForecast($days: Int, $includeVariableSpending: Boolean) {
+    cashFlowForecast(days: $days, includeVariableSpending: $includeVariableSpending) {
+      startingBalance
+      endingBalance
+      forecastDays
+      totalProjectedIncome
+      totalProjectedExpenses
+      netCashFlow
+      minBalance
+      minBalanceDate
+      maxBalance
+      maxBalanceDate
+      dailyProjections {
+        date
+        balance
+        income
+        expenses
+        net
+        eventCount
+      }
+      events {
+        date
+        amount
+        name
+        categoryName
+        source
+        recurringItemId
+        confidence
+      }
+      warnings {
+        date
+        projectedBalance
+        message
+      }
+    }
+  }
+`;
