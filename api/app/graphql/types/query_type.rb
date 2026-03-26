@@ -845,6 +845,26 @@ module Types
       result.data
     end
 
+    # ── Cash Flow Forecast ─────────────────────────────────────────
+    field :cash_flow_forecast, Types::CashFlowForecastType, null: false,
+      description: 'Projected cash flow based on recurring items and historical spending' do
+      argument :days, Integer, required: false, default_value: 90
+      argument :include_variable_spending, Boolean, required: false, default_value: true
+    end
+    def cash_flow_forecast(days:, include_variable_spending:)
+      household = context[:current_user]&.household
+      return empty_forecast unless household
+
+      result = Analytics::CashFlowForecastService.call(
+        household: household,
+        days: days,
+        include_variable_spending: include_variable_spending
+      )
+      return empty_forecast if result.failure?
+
+      result.data
+    end
+
     # ── Subscription & Plans ──────────────────────────────────────
     field :plans, [Types::PlanType], null: false,
       description: "All available subscription plans"
@@ -872,6 +892,15 @@ module Types
                         .order('holdings.account_id, holdings.security_id, holdings.as_of_date DESC')
 
       Holding.where(id: latest_ids).includes(:security, :account)
+    end
+
+    def empty_forecast
+      {
+        starting_balance: 0.0, ending_balance: 0.0, forecast_days: 0,
+        total_projected_income: 0.0, total_projected_expenses: 0.0, net_cash_flow: 0.0,
+        min_balance: 0.0, min_balance_date: nil, max_balance: 0.0, max_balance_date: nil,
+        daily_projections: [], events: [], warnings: []
+      }
     end
 
     def empty_portfolio

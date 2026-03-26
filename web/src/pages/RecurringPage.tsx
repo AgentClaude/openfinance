@@ -25,6 +25,7 @@ import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import EmptyState from '@/components/ui/EmptyState';
 import { useToast } from '@/components/ui/Toast';
 import CategoryIcon from '@/components/ui/CategoryIcon';
+import BillCalendar from '@/components/BillCalendar';
 
 const formatCurrency = (amount: number) =>
   new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount);
@@ -63,7 +64,7 @@ const RecurringPage: React.FC = () => {
   } = useRecurring();
 
   const [showInactive, setShowInactive] = useState(false);
-  const [view, setView] = useState<'list' | 'upcoming'>('list');
+  const [view, setView] = useState<'list' | 'upcoming' | 'calendar'>('list');
   const [modalOpen, setModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<RecurringItem | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
@@ -181,16 +182,23 @@ const RecurringPage: React.FC = () => {
               <button
                 onClick={() => setView('list')}
                 className={`px-2.5 py-1.5 text-sm ${view === 'list' ? 'bg-brand-50 dark:bg-brand-900/30 text-brand-700 dark:text-brand-300' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'}`}
-                title="List view"
+                aria-label="List view"
               >
                 <ListBulletIcon className="h-4 w-4" />
               </button>
               <button
-                onClick={() => setView('upcoming')}
-                className={`px-2.5 py-1.5 text-sm border-l border-gray-300 dark:border-gray-600 ${view === 'upcoming' ? 'bg-brand-50 dark:bg-brand-900/30 text-brand-700 dark:text-brand-300' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'}`}
-                title="Upcoming view"
+                onClick={() => setView('calendar')}
+                className={`px-2.5 py-1.5 text-sm border-l border-gray-300 dark:border-gray-600 ${view === 'calendar' ? 'bg-brand-50 dark:bg-brand-900/30 text-brand-700 dark:text-brand-300' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'}`}
+                aria-label="Calendar view"
               >
                 <CalendarDaysIcon className="h-4 w-4" />
+              </button>
+              <button
+                onClick={() => setView('upcoming')}
+                className={`px-2.5 py-1.5 text-sm border-l border-gray-300 dark:border-gray-600 ${view === 'upcoming' ? 'bg-brand-50 dark:bg-brand-900/30 text-brand-700 dark:text-brand-300' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'}`}
+                aria-label="Upcoming view"
+              >
+                <CalendarIcon className="h-4 w-4" />
               </button>
             </div>
             <button
@@ -238,7 +246,13 @@ const RecurringPage: React.FC = () => {
         </div>
       )}
 
-      {view === 'upcoming' ? (
+      {view === 'calendar' ? (
+        <BillCalendar
+          items={items}
+          onMarkPaid={handleMarkPaid}
+          onItemClick={handleEdit}
+        />
+      ) : view === 'upcoming' ? (
         /* Upcoming Bills Timeline — next 30 days */
         <div>
           <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">

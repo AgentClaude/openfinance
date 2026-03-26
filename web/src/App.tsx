@@ -36,6 +36,7 @@ import NotificationsPage from '@/pages/NotificationsPage';
 import ActivityPage from '@/pages/ActivityPage';
 import FinancialHealthPage from '@/pages/FinancialHealthPage';
 import InsightsPage from '@/pages/InsightsPage';
+import ForecastPage from '@/pages/ForecastPage';
 import PricingPage from '@/pages/PricingPage';
 import ReferralLandingPage from '@/pages/ReferralLandingPage';
 
@@ -79,6 +80,7 @@ function App() {
                   <Route path="activity" element={<ActivityPage />} />
                   <Route path="insights" element={<InsightsPage />} />
                   <Route path="health" element={<FinancialHealthPage />} />
+                  <Route path="forecast" element={<ForecastPage />} />
                   <Route path="settings" element={<SettingsPage />} />
                 </Route>
 
