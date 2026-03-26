@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { LightBulbIcon, ArrowPathIcon, FunnelIcon } from '@heroicons/react/24/outline';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { useSpendingInsights, SpendingInsight } from '@/hooks/useSpendingInsights';
 import Card from '@/components/ui/Card';
 import Badge from '@/components/ui/Badge';

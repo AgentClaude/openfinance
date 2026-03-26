@@ -21,6 +21,7 @@ export interface SpendingInsightsResult {
 
 export function useSpendingInsights() {
   const { data, loading, error, refetch } = useQuery(GET_SPENDING_INSIGHTS, {
+    fetchPolicy: 'cache-and-network',
     pollInterval: 10 * 60 * 1000, // Refresh every 10 minutes
   });
 

@@ -110,7 +110,8 @@ class Analytics::SpendingInsightsService < ApplicationService
     days_in_month = (current_month_end - current_month_start).to_i + 1
     projection_factor = days_in_month.to_f / days_elapsed
 
-    budget = household.budgets.first
+    budget = household.budgets.find_by(is_active: true)
+    budget ||= household.budgets.order(created_at: :desc).first
     return [] unless budget
 
     items = BudgetItem.where(budget: budget, month: current_month_start).includes(:category)
@@ -182,17 +183,22 @@ class Analytics::SpendingInsightsService < ApplicationService
     recurring = household.recurring_items.where(is_active: true).where.not(amount_cents: nil)
     return [] if recurring.empty?
 
+    merchant_names = recurring.filter_map(&:merchant_name).uniq
+    return [] if merchant_names.empty?
+
+    # Batch-fetch recent transactions for all recurring merchants in one query
+    recent_by_merchant = household.transactions
+      .where("LOWER(merchant_name) IN (?)", merchant_names.map(&:downcase))
+      .where('amount_cents < 0')
+      .order(date: :desc)
+      .group_by { |t| t.merchant_name&.downcase }
+
     insights = []
 
     recurring.each do |item|
-      # Find the last 2 transactions matching this recurring item's merchant
       next unless item.merchant_name.present?
 
-      recent_txns = household.transactions
-        .where('merchant_name ILIKE ?', item.merchant_name)
-        .where('amount_cents < 0')
-        .order(date: :desc)
-        .limit(2)
+      recent_txns = (recent_by_merchant[item.merchant_name.downcase] || []).first(2)
 
       next unless recent_txns.size == 2
 
@@ -290,23 +296,23 @@ class Analytics::SpendingInsightsService < ApplicationService
     current_month_start = Date.current.beginning_of_month
     lookback_start = current_month_start - LOOKBACK_MONTHS.months
 
-    discretionary = %w[entertainment food\ &\ dining shopping personal\ care subscriptions dining]
+    discretionary = %w[entertainment food\ &\ dining shopping personal\ care subscriptions dining\ out].freeze
 
     avg_by_category = household.transactions
-      .where(date: lookback_start..Date.current)
+      .where(date: lookback_start...current_month_start)
       .where('amount_cents < 0')
       .joins(:category)
       .where('LOWER(categories.name) IN (?)', discretionary)
       .group(:category_id)
       .sum('ABS(amount_cents)')
-      .transform_values { |t| t.to_f / (LOOKBACK_MONTHS + 1) }
+      .transform_values { |t| t.to_f / LOOKBACK_MONTHS }
 
     categories = Category.where(id: avg_by_category.keys).index_by(&:id)
     total_expenses = household.transactions
-      .where(date: lookback_start..Date.current)
+      .where(date: lookback_start...current_month_start)
       .where('amount_cents < 0')
       .sum('ABS(amount_cents)')
-      .to_f / (LOOKBACK_MONTHS + 1)
+      .to_f / LOOKBACK_MONTHS
 
     insights = []
 
@@ -356,7 +362,12 @@ class Analytics::SpendingInsightsService < ApplicationService
 
     return [] if avg_income <= 0
 
-    change_pct = ((current_income - avg_income) / avg_income).round(2)
+    # Project income to end of month to avoid false positives early in the month
+    days_elapsed = [(Date.current - current_month_start).to_i + 1, 1].max
+    days_in_month = (current_month_end - current_month_start).to_i + 1
+    projected_income = (current_income.to_f / days_elapsed * days_in_month).round
+
+    change_pct = ((projected_income - avg_income) / avg_income).round(2)
 
     return [] if change_pct.abs < INCOME_CHANGE_THRESHOLD
 
@@ -365,26 +376,28 @@ class Analytics::SpendingInsightsService < ApplicationService
         type: 'income_change',
         severity: 'positive',
         title: "Income is up #{(change_pct * 100).round(0)}% this month",
-        message: "You've received $#{'%.0f' % (current_income / 100.0)} in income this month, " \
+        message: "You've received $#{'%.0f' % (current_income / 100.0)} in income so far " \
+                 "(on pace for ~$#{'%.0f' % (projected_income / 100.0)}), " \
                  "compared to your #{LOOKBACK_MONTHS}-month average of $#{'%.0f' % (avg_income / 100.0)}.",
-        amount: (current_income - avg_income) / 100.0,
+        amount: (projected_income - avg_income) / 100.0,
         category_id: nil,
         category_name: nil,
         icon: nil,
-        metadata: { current: current_income / 100.0, average: avg_income / 100.0, change_pct: (change_pct * 100).round(1) }
+        metadata: { current: current_income / 100.0, projected: projected_income / 100.0, average: avg_income / 100.0, change_pct: (change_pct * 100).round(1) }
       }]
     else
       [{
         type: 'income_change',
         severity: 'warning',
         title: "Income is down #{(change_pct.abs * 100).round(0)}% this month",
-        message: "You've received $#{'%.0f' % (current_income / 100.0)} in income so far this month, " \
+        message: "You've received $#{'%.0f' % (current_income / 100.0)} in income so far " \
+                 "(on pace for ~$#{'%.0f' % (projected_income / 100.0)}), " \
                  "compared to your #{LOOKBACK_MONTHS}-month average of $#{'%.0f' % (avg_income / 100.0)}.",
-        amount: (current_income - avg_income) / 100.0,
+        amount: (projected_income - avg_income) / 100.0,
         category_id: nil,
         category_name: nil,
         icon: nil,
-        metadata: { current: current_income / 100.0, average: avg_income / 100.0, change_pct: (change_pct * 100).round(1) }
+        metadata: { current: current_income / 100.0, projected: projected_income / 100.0, average: avg_income / 100.0, change_pct: (change_pct * 100).round(1) }
       }]
     end
   end
