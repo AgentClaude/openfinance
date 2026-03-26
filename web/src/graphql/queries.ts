@@ -910,3 +910,23 @@ export const GET_FINANCIAL_HEALTH = gql`
     }
   }
 `;
+
+export const GET_SPENDING_INSIGHTS = gql`
+  query GetSpendingInsights {
+    spendingInsights {
+      count
+      generatedAt
+      insights {
+        type
+        severity
+        title
+        message
+        amount
+        categoryId
+        categoryName
+        icon
+        metadata
+      }
+    }
+  }
+`;

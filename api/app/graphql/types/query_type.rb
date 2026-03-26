@@ -834,6 +834,17 @@ module Types
       result.data
     end
 
+    field :spending_insights, Types::SpendingInsightsResultType, null: false,
+      description: 'AI-powered spending insights: anomalies, budget projections, subscription changes, and savings opportunities'
+    def spending_insights
+      return { insights: [], generated_at: Time.current.iso8601, count: 0 } unless context[:current_user]&.household
+
+      result = Analytics::SpendingInsightsService.call(household: context[:current_user].household)
+      return { insights: [], generated_at: Time.current.iso8601, count: 0 } if result.failure?
+
+      result.data
+    end
+
     # ── Subscription & Plans ──────────────────────────────────────
     field :plans, [Types::PlanType], null: false,
       description: "All available subscription plans"
