@@ -969,3 +969,85 @@ export const GET_CASH_FLOW_FORECAST = gql`
     }
   }
 `;
+
+export const GET_ANNUAL_SUMMARY = gql`
+  query GetAnnualSummary($year: Int) {
+    annualSummary(year: $year) {
+      year
+      income {
+        total
+        monthlyAverage
+      }
+      spending {
+        total
+        monthlyAverage
+        dailyAverage
+      }
+      savings {
+        total
+        rate
+      }
+      netWorthChange {
+        startOfYear
+        endOfPeriod
+        change
+        changePercentage
+      }
+      monthlyTrends {
+        month
+        label
+        income
+        expenses
+        savings
+      }
+      topCategories {
+        categoryId
+        categoryName
+        categoryIcon
+        categoryColor
+        amount
+        percentage
+        transactionCount
+      }
+      topMerchants {
+        merchantName
+        amount
+        transactionCount
+      }
+      budgetPerformance {
+        monthsOnBudget
+        monthsOverBudget
+        totalMonths
+      }
+      highlights {
+        biggestExpense {
+          amount
+          description
+          date
+        }
+        biggestIncome {
+          amount
+          description
+          date
+        }
+        mostFrequentMerchant {
+          name
+          visitCount
+        }
+        biggestSpendingMonth {
+          month
+          label
+          expenses
+        }
+        mostFrugalMonth {
+          month
+          label
+          expenses
+        }
+        goalsAchieved
+      }
+      transactionCount
+      daysTracked
+    }
+  }
+`;
