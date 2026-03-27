@@ -33,8 +33,10 @@ import TransferDetection from '@/components/TransferDetection';
 import { BULK_TRANSACTION_ACTION, EXPORT_DATA, EXPORT_TRANSACTIONS_CSV } from '@/graphql/mutations';
 import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 const TransactionsPage: React.FC = () => {
+  usePageTitle('Transactions');
   const navigate = useNavigate();
   const [filters, setFilters] = useState<TransactionFilters>({
     page: 1,

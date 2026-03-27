@@ -16,6 +16,7 @@ import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import DataTable from '@/components/ui/DataTable';
 import { StatCard, ChartCard } from '@/components/shared';
 import { ColumnConfig } from '@/types';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 const COLORS = [
   '#0D9488', '#F59E0B', '#7C3AED', '#E11D48', '#0EA5E9',
@@ -37,6 +38,7 @@ type ReportTab = 'overview' | 'spending' | 'income-expenses' | 'cashflow' | 'mer
 type DateRangeMode = 'preset' | 'custom';
 
 const ReportsPage: React.FC = () => {
+  usePageTitle('Reports');
   const [activeTab, setActiveTab] = useState<ReportTab>('overview');
   const [months, setMonths] = useState(6);
   const [dateRangeMode, setDateRangeMode] = useState<DateRangeMode>('preset');

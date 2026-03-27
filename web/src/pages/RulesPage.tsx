@@ -25,6 +25,7 @@ import EmptyState from '@/components/ui/EmptyState';
 import { useToast } from '@/components/ui/Toast';
 import CategoryIcon from '@/components/ui/CategoryIcon';
 import { SuggestedRule } from '@/generated/graphql';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 interface Category {
   id: string;
@@ -47,6 +48,7 @@ const matchTypeOptions = [
 ];
 
 const RulesPage: React.FC = () => {
+  usePageTitle('Rules');
   const { addToast } = useToast();
   const [showModal, setShowModal] = useState(false);
   const [editingRule, setEditingRule] = useState<Rule | null>(null);

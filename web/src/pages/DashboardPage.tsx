@@ -26,6 +26,7 @@ import DashboardHealthWidget from '@/components/DashboardHealthWidget';
 import DashboardCustomizePanel from '@/components/DashboardCustomizePanel';
 import { format } from 'date-fns';
 import clsx from 'clsx';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 const COLORS = [
   '#0D9488', '#F59E0B', '#7C3AED', '#E11D48', '#0EA5E9',
@@ -33,6 +34,7 @@ const COLORS = [
 ];
 
 const DashboardPage: React.FC = () => {
+  usePageTitle('Dashboard');
   const navigate = useNavigate();
   const { summary, loading, getNetWorthTrend, getNetWorthTrendPercentage } = useDashboard();
   const {

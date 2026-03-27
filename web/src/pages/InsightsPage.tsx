@@ -7,6 +7,7 @@ import PageHeader from '@/components/ui/PageHeader';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import EmptyState from '@/components/ui/EmptyState';
 import clsx from 'clsx';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 type SeverityFilter = 'all' | 'critical' | 'warning' | 'info' | 'positive';
 
@@ -94,6 +95,7 @@ const SeveritySummary: React.FC<{
 );
 
 const InsightsPage: React.FC = () => {
+  usePageTitle('Insights');
   const {
     insights,
     count,

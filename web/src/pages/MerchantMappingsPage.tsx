@@ -18,6 +18,7 @@ import Badge from '@/components/ui/Badge';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import EmptyState from '@/components/ui/EmptyState';
 import { useToast } from '@/components/ui/Toast';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 const matchTypeOptions = [
   { value: 'contains', label: 'Contains' },
@@ -27,6 +28,7 @@ const matchTypeOptions = [
 ];
 
 const MerchantMappingsPage: React.FC = () => {
+  usePageTitle('Merchant Mappings');
   const { addToast } = useToast();
   const [showModal, setShowModal] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);

@@ -14,6 +14,7 @@ import PageHeader from '@/components/ui/PageHeader';
 import Button from '@/components/ui/Button';
 import Select from '@/components/ui/Select';
 import Card from '@/components/ui/Card';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 type ImportFormat = 'csv' | 'ofx';
 
@@ -53,6 +54,7 @@ const FORMAT_TABS: { id: ImportFormat; label: string; icon: React.ElementType; a
 ];
 
 const ImportPage: React.FC = () => {
+  usePageTitle('Import');
   const { accounts } = useAccounts();
   const [format, setFormat] = useState<ImportFormat>('csv');
   const [accountId, setAccountId] = useState('');

@@ -1,21 +1,50 @@
 {
   "name": "OpenFinance",
   "short_name": "OpenFinance",
-  "description": "Privacy-first personal finance management",
-  "start_url": "/",
+  "description": "Privacy-first personal finance management — self-hosted and open source",
+  "start_url": "/dashboard",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#0F172A",
   "theme_color": "#0D9488",
+  "orientation": "any",
+  "categories": ["finance", "productivity"],
   "icons": [
     {
       "src": "/favicon.svg",
       "type": "image/svg+xml",
-      "sizes": "any"
+      "sizes": "any",
+      "purpose": "any"
     },
     {
-      "src": "/og-image.png",
+      "src": "/icons/icon-192.png",
       "type": "image/png",
-      "sizes": "1200x630"
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Dashboard",
+      "url": "/dashboard",
+      "icons": [{ "src": "/favicon.svg", "sizes": "any" }]
+    },
+    {
+      "name": "Transactions",
+      "url": "/transactions",
+      "icons": [{ "src": "/favicon.svg", "sizes": "any" }]
+    },
+    {
+      "name": "Budget",
+      "url": "/budget",
+      "icons": [{ "src": "/favicon.svg", "sizes": "any" }]
     }
   ]
 }

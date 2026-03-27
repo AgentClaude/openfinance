@@ -5,8 +5,10 @@ import { GET_ACCOUNTS } from '@/graphql/queries';
 import { useAuth } from '@/hooks/useAuth';
 import OnboardingWizard from '@/components/OnboardingWizard';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 const OnboardingPage: React.FC = () => {
+  usePageTitle('Get Started');
   const navigate = useNavigate();
   const { user } = useAuth();
   const [completed, setCompleted] = useState(false);

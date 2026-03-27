@@ -7,6 +7,7 @@ import PageHeader from '@/components/ui/PageHeader';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import AmountDisplay from '@/components/ui/AmountDisplay';
 import clsx from 'clsx';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 const ScoreGauge: React.FC<{ score: number; grade: string; color: string }> = ({ score, grade, color }) => {
   const strokeWidth = 12;
@@ -226,6 +227,7 @@ const ComponentCard: React.FC<{
 };
 
 const FinancialHealthPage: React.FC = () => {
+  usePageTitle('Financial Health');
   const { health, loading, getScoreRingColor, getStatusBadgeVariant, getStatusLabel } = useFinancialHealth();
 
   if (loading) {

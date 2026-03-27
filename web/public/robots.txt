@@ -1,6 +1,7 @@
 # OpenFinance robots.txt
 User-agent: *
 Allow: /
+Allow: /pricing
 Allow: /docs
 Disallow: /dashboard
 Disallow: /transactions
@@ -20,6 +21,10 @@ Disallow: /activity
 Disallow: /health
 Disallow: /settings
 Disallow: /onboarding
+Disallow: /year-in-review
+Disallow: /forecast
+Disallow: /insights
+Disallow: /tags
 Disallow: /graphql
 
-Sitemap: /sitemap.xml
+Sitemap: https://openfinance.dev/sitemap.xml

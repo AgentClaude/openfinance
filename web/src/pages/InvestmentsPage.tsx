@@ -12,6 +12,7 @@ import {
   AreaChart, Area, BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, Legend,
 } from 'recharts';
+import { usePageTitle } from '@/hooks/usePageTitle';
 import {
   ArrowTrendingUpIcon,
   ArrowTrendingDownIcon,
@@ -584,6 +585,7 @@ const BenchmarkComparisonChart: React.FC<{
 type ViewTab = 'overview' | 'holdings' | 'income';
 
 const InvestmentsPage: React.FC = () => {
+  usePageTitle('Investments');
   const { accounts } = useAccounts();
   const investmentAccounts = accounts.filter((a) => a.type === 'INVESTMENT');
   const [selectedAccountId, setSelectedAccountId] = useState<string | undefined>(undefined);
