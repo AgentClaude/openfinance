@@ -39,6 +39,7 @@ import InsightsPage from '@/pages/InsightsPage';
 import ForecastPage from '@/pages/ForecastPage';
 import PricingPage from '@/pages/PricingPage';
 import ReferralLandingPage from '@/pages/ReferralLandingPage';
+import AnnualSummaryPage from '@/pages/AnnualSummaryPage';
 
 function App() {
   return (
@@ -81,6 +82,7 @@ function App() {
                   <Route path="insights" element={<InsightsPage />} />
                   <Route path="health" element={<FinancialHealthPage />} />
                   <Route path="forecast" element={<ForecastPage />} />
+                  <Route path="year-in-review" element={<AnnualSummaryPage />} />
                   <Route path="settings" element={<SettingsPage />} />
                 </Route>
 

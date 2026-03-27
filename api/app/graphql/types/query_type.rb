@@ -865,6 +865,21 @@ module Types
       result.data
     end
 
+    # ── Annual Summary ─────────────────────────────────────────────
+    field :annual_summary, Types::AnnualSummaryType, null: false,
+      description: 'Comprehensive annual financial summary with income, spending, savings, trends, and highlights' do
+      argument :year, Integer, required: false
+    end
+    def annual_summary(year: nil)
+      household = context[:current_user]&.household
+      return empty_annual_summary unless household
+
+      result = Analytics::AnnualSummaryService.call(household: household, year: year)
+      return empty_annual_summary if result.failure?
+
+      result.data
+    end
+
     # ── Subscription & Plans ──────────────────────────────────────
     field :plans, [Types::PlanType], null: false,
       description: "All available subscription plans"
@@ -909,6 +924,23 @@ module Types
 
     def empty_reports
       { monthly_summary: [], spending_by_category: [], monthly_spending_by_category: [], top_merchants: [] }
+    end
+
+    def empty_annual_summary
+      {
+        year: Date.current.year,
+        income: { total: 0.0, monthly_average: 0.0 },
+        spending: { total: 0.0, monthly_average: 0.0, daily_average: 0.0 },
+        savings: { total: 0.0, rate: 0.0 },
+        net_worth_change: { start_of_year: 0.0, end_of_period: 0.0, change: 0.0, change_percentage: 0.0 },
+        monthly_trends: [],
+        top_categories: [],
+        top_merchants: [],
+        budget_performance: { months_on_budget: 0, months_over_budget: 0, total_months: 0 },
+        highlights: { biggest_expense: nil, biggest_income: nil, most_frequent_merchant: nil, biggest_spending_month: nil, most_frugal_month: nil, goals_achieved: 0 },
+        transaction_count: 0,
+        days_tracked: 0
+      }
     end
 
     def empty_dashboard

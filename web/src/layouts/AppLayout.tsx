@@ -20,6 +20,7 @@ import {
   HeartIcon,
   LightBulbIcon,
   ArrowTrendingUpIcon,
+  CalendarDaysIcon,
 } from '@heroicons/react/24/outline';
 import { useAuth } from '@/hooks/useAuth';
 import Sidebar from '@/components/ui/Sidebar';
@@ -43,6 +44,7 @@ const navigation = [
   { name: 'Insights', href: '/insights', icon: LightBulbIcon },
   { name: 'Forecast', href: '/forecast', icon: ArrowTrendingUpIcon },
   { name: 'Health', href: '/health', icon: HeartIcon },
+  { name: 'Year in Review', href: '/year-in-review', icon: CalendarDaysIcon },
   { name: 'Import', href: '/import', icon: ArrowUpTrayIcon },
   { name: 'Rules', href: '/rules', icon: BoltIcon },
   { name: 'Merchants', href: '/merchant-mappings', icon: ArrowsRightLeftIcon },
