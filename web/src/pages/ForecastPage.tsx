@@ -22,11 +22,13 @@ import EmptyState from '@/components/ui/EmptyState';
 import { StatCard } from '@/components/shared';
 import clsx from 'clsx';
 import { format, parseISO, isToday, isTomorrow, differenceInDays } from 'date-fns';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 type TimeRange = 30 | 60 | 90 | 180 | 365;
 type EventFilter = 'all' | 'recurring' | 'estimated';
 
 const ForecastPage: React.FC = () => {
+  usePageTitle('Cash Flow Forecast');
   const [timeRange, setTimeRange] = useState<TimeRange>(90);
   const [includeEstimates, setIncludeEstimates] = useState(true);
   const [eventFilter, setEventFilter] = useState<EventFilter>('all');

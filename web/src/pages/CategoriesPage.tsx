@@ -24,6 +24,7 @@ import Dropdown from '@/components/ui/Dropdown';
 import { useToast } from '@/components/ui/Toast';
 import { FormField } from '@/components/shared';
 import clsx from 'clsx';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 const defaultColors = [
   '#ef4444', '#f97316', '#f59e0b', '#84cc16', '#22c55e',
@@ -53,6 +54,7 @@ const groupOptions = [
 ];
 
 const CategoriesPage: React.FC = () => {
+  usePageTitle('Categories');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [showHidden, setShowHidden] = useState(false);

@@ -23,6 +23,7 @@ import { GET_TAGS } from '@/graphql/queries';
 import { CREATE_TAG, UPDATE_TAG, DELETE_TAG } from '@/graphql/mutations';
 import { Tag } from '@/types';
 import clsx from 'clsx';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 const defaultColors = [
   '#ef4444', '#f97316', '#f59e0b', '#84cc16', '#22c55e',
@@ -33,6 +34,7 @@ const defaultColors = [
 type FilterMode = 'all' | 'active' | 'inactive';
 
 const TagsPage: React.FC = () => {
+  usePageTitle('Tags');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTag, setEditingTag] = useState<Tag | null>(null);
   const [deleteConfirmTag, setDeleteConfirmTag] = useState<Tag | null>(null);

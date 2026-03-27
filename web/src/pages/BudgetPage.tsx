@@ -23,6 +23,7 @@ import CategoryIcon from '@/components/ui/CategoryIcon';
 import PageHeader from '@/components/ui/PageHeader';
 import { useNavigate } from 'react-router-dom';
 import { format, addMonths, subMonths, startOfMonth, endOfMonth } from 'date-fns';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 const formatCurrency = (value: number): string => {
   const absFormatted = new Intl.NumberFormat('en-US', {
@@ -35,6 +36,7 @@ const formatCurrency = (value: number): string => {
 };
 
 const BudgetPage: React.FC = () => {
+  usePageTitle('Budget');
   const [currentDate, setCurrentDate] = useState(new Date());
   const [editingCategory, setEditingCategory] = useState<string | null>(null);
   const [editAmount, setEditAmount] = useState('');

@@ -26,6 +26,7 @@ import EmptyState from '@/components/ui/EmptyState';
 import { useToast } from '@/components/ui/Toast';
 import CategoryIcon from '@/components/ui/CategoryIcon';
 import BillCalendar from '@/components/BillCalendar';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 const formatCurrency = (amount: number) =>
   new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount);
@@ -55,6 +56,7 @@ const FREQUENCIES = [
 ];
 
 const RecurringPage: React.FC = () => {
+  usePageTitle('Recurring Transactions');
   const { addToast } = useToast();
   const {
     items, loading, detecting, creating, updating, deleting, markingPaid,

@@ -23,6 +23,7 @@ import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import EmptyState from '@/components/ui/EmptyState';
 import AdjustBalanceModal from '@/components/AdjustBalanceModal';
 import BalanceHistory from '@/components/BalanceHistory';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 const accountTypeIcons: Record<string, React.ElementType> = {
   [AccountType.DEPOSITORY]: BanknotesIcon,
@@ -52,6 +53,7 @@ const formatCurrency = (value: number) =>
   new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(value);
 
 const AccountDetailPage: React.FC = () => {
+  usePageTitle('Account Details');
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [selectedRange, setSelectedRange] = useState(12);

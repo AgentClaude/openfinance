@@ -4,6 +4,7 @@ import { Card, PageContainer } from '@/components/ui';
 import PageHeader from '@/components/ui/PageHeader';
 import { useState } from 'react';
 import { ACTION_ICONS, ACTION_COLORS } from '@/constants/activityConstants';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 interface ActivityEvent {
   id: string;
@@ -79,6 +80,7 @@ const FILTER_ACTIONS: Record<FilterType, string[] | null> = {
 };
 
 export default function ActivityPage() {
+  usePageTitle('Activity');
   const [filter, setFilter] = useState<FilterType>('all');
   const { data, loading } = useQuery(GET_ACTIVITY_FEED, {
     variables: { limit: 100 },

@@ -8,6 +8,7 @@ import Button from '@/components/ui/Button';
 import Badge from '@/components/ui/Badge';
 import { useToast } from '@/components/ui/Toast';
 import { formatCurrency } from '@/lib/format';
+import SEO from '@/components/SEO';
 
 const FEATURE_COMPARISON: { label: string; key: keyof Plan }[] = [
   { label: 'Budgets', key: 'hasBudgets' },
@@ -79,6 +80,17 @@ const PricingPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900">
+      <SEO
+        title="Pricing"
+        description="Simple, transparent pricing for OpenFinance. Start free, upgrade when you need more. All paid plans include a 14-day free trial."
+        url="/pricing"
+        structuredData={{
+          '@context': 'https://schema.org',
+          '@type': 'WebPage',
+          name: 'OpenFinance Pricing',
+          description: 'Simple, transparent pricing for OpenFinance personal finance management.',
+        }}
+      />
       {/* Header */}
       <div className="max-w-5xl mx-auto px-4 pt-16 pb-10 text-center">
         <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">

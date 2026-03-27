@@ -8,6 +8,7 @@ import { ACCEPT_INVITATION } from '@/graphql/mutations';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
 import Badge from '@/components/ui/Badge';
+import SEO from '@/components/SEO';
 
 const AcceptInvitationPage: React.FC = () => {
   const { token } = useParams<{ token: string }>();
@@ -49,6 +50,11 @@ const AcceptInvitationPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+      <SEO
+        title="Accept Invitation"
+        description="Join a household on OpenFinance to collaboratively manage your finances."
+        noIndex
+      />
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="flex justify-center">
           <div className="h-12 w-12 bg-gradient-to-br from-brand-500 to-brand-700 rounded-xl flex items-center justify-center shadow-lg shadow-brand-500/20">

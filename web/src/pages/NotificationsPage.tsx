@@ -13,6 +13,7 @@ import Badge from '@/components/ui/Badge';
 import EmptyState from '@/components/ui/EmptyState';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import type { Notification } from '@/types';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 const typeConfig: Record<string, { icon: string; label: string; variant: 'default' | 'success' | 'warning' | 'danger' | 'info' }> = {
   budget_alert: { icon: '💰', label: 'Budget', variant: 'warning' },
@@ -44,6 +45,7 @@ function formatDate(dateStr: string): string {
 }
 
 const NotificationsPage: React.FC = () => {
+  usePageTitle('Notifications');
   const [filter, setFilter] = useState<FilterType>('all');
 
   const { data, loading, refetch } = useQuery(GET_NOTIFICATIONS, {

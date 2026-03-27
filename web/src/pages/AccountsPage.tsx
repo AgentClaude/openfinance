@@ -27,6 +27,7 @@ import { useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
 import clsx from 'clsx';
 import ConnectionManager from '@/components/ConnectionManager';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 const accountTypeIcons = {
   [AccountType.DEPOSITORY]: BanknotesIcon,
@@ -53,6 +54,7 @@ const accountTypeOptions = [
 ];
 
 const AccountsPage: React.FC = () => {
+  usePageTitle('Accounts');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'manual' | 'connect'>('manual');
   const [formData, setFormData] = useState({

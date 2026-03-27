@@ -15,6 +15,7 @@ import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import EmptyState from '@/components/ui/EmptyState';
 import { StatCard, ChartCard } from '@/components/shared';
 import clsx from 'clsx';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 const COLORS = [
   '#0D9488', '#F59E0B', '#7C3AED', '#E11D48', '#0EA5E9',
@@ -33,6 +34,7 @@ const fmtPct = (value: number) =>
   `${value >= 0 ? '+' : ''}${value.toFixed(1)}%`;
 
 const AnnualSummaryPage: React.FC = () => {
+  usePageTitle('Year in Review');
   const currentYear = new Date().getFullYear();
   const [year, setYear] = useState(currentYear);
   const { summary, loading, error } = useAnnualSummary(year);

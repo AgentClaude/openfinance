@@ -14,6 +14,7 @@ import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import EmptyState from '@/components/ui/EmptyState';
 import { StatCard, FormField } from '@/components/shared';
 import { useToast } from '@/components/ui/Toast';
+import { usePageTitle } from '@/hooks/usePageTitle';
 import {
   useGetGoalsQuery,
   useCreateGoalMutation,
@@ -75,6 +76,7 @@ const emptyForm: FormData = {
 };
 
 const GoalsPage: React.FC = () => {
+  usePageTitle('Goals');
   const { addToast } = useToast();
   const [modalOpen, setModalOpen] = useState(false);
   const [editingGoal, setEditingGoal] = useState<Goal | null>(null);

@@ -20,6 +20,7 @@ import PlaidMappingsTab from '@/components/settings/PlaidMappingsTab';
 import BillingTab from '@/components/settings/BillingTab';
 import PageContainer from '@/components/ui/PageContainer';
 import PageHeader from '@/components/ui/PageHeader';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 const CURRENCIES = ['USD', 'EUR', 'GBP', 'CAD', 'AUD', 'NZD', 'JPY', 'CHF'];
 const TIMEZONES = [
@@ -63,6 +64,7 @@ const CHANNELS = [
 type TabId = 'profile' | 'preferences' | 'household' | 'members' | 'notifications' | 'tags' | 'referrals' | 'billing' | 'security' | 'apikeys' | 'sharing' | 'plaid' | 'data';
 
 export default function SettingsPage() {
+  usePageTitle('Settings');
   const { user } = useAuth();
   const { updateProfile, updatingProfile, changePassword, changingPassword } = useSettings();
   const { isDark, toggleTheme } = useThemeContext();
