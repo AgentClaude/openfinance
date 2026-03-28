@@ -38,12 +38,12 @@ puts "✅ Demo user: #{demo_user.email} / password123"
 accounts_data = [
   { name: 'Chase Total Checking',     account_type: 'checking',    current_balance_cents: 452_133,      mask: '4829', display_order: 1 },
   { name: 'Chase Savings',            account_type: 'savings',     current_balance_cents: 1_275_000,    mask: '7731', display_order: 2 },
-  { name: 'Amex Platinum',            account_type: 'credit_card', current_balance_cents: 284_792,      mask: '1008', display_order: 3, credit_limit_cents: 2_000_000 },
+  { name: 'Amex Platinum',            account_type: 'credit_card', current_balance_cents: 284_792,      mask: '1008', display_order: 3, credit_limit_cents: 2_000_000, interest_rate: 24.99, minimum_payment_cents: 5_000 },
   { name: 'Vanguard 401(k)',          account_type: 'retirement',  current_balance_cents: 8_923_456,    mask: '5512', display_order: 4, account_subtype: '401k' },
   { name: 'Robinhood Individual',     account_type: 'investment',  current_balance_cents: 1_567_210,    mask: '9943', display_order: 5, account_subtype: 'brokerage' },
   { name: 'Marcus Online Savings',    account_type: 'savings',     current_balance_cents: 2_500_000,    mask: '3320', display_order: 6 },
-  { name: 'Wells Fargo Mortgage',     account_type: 'mortgage',    current_balance_cents: 28_745_000,   mask: '6601', display_order: 7 },
-  { name: 'Toyota Auto Loan',         account_type: 'loan',        current_balance_cents: 1_823_400,    mask: '2215', display_order: 8, account_subtype: 'auto_loan' },
+  { name: 'Wells Fargo Mortgage',     account_type: 'mortgage',    current_balance_cents: 28_745_000,   mask: '6601', display_order: 7, interest_rate: 6.75, minimum_payment_cents: 186_500 },
+  { name: 'Toyota Auto Loan',         account_type: 'loan',        current_balance_cents: 1_823_400,    mask: '2215', display_order: 8, account_subtype: 'auto_loan', interest_rate: 5.49, minimum_payment_cents: 35_000 },
 ]
 
 accts = {}
@@ -55,6 +55,8 @@ accounts_data.each do |data|
     current_balance_cents: data[:current_balance_cents],
     available_balance_cents: data[:account_type] == 'credit_card' ? (data[:credit_limit_cents] - data[:current_balance_cents]) : data[:current_balance_cents],
     credit_limit_cents: data[:credit_limit_cents],
+    interest_rate: data[:interest_rate],
+    minimum_payment_cents: data[:minimum_payment_cents] || 0,
     currency: 'USD',
     is_manual: true,
     mask: data[:mask],

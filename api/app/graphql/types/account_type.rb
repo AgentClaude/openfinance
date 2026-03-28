@@ -13,6 +13,9 @@ module Types
     field :household_id, ID, null: false
     field :currency, String, null: false
     field :created_at, GraphQL::Types::ISO8601DateTime, null: false
+    field :interest_rate, Float, null: true
+    field :minimum_payment, Float, null: true
+    field :credit_limit, Float, null: true
 
     ACCOUNT_TYPE_MAP = {
       'checking' => 'DEPOSITORY', 'savings' => 'DEPOSITORY', 'money_market' => 'DEPOSITORY', 'cd' => 'DEPOSITORY',
@@ -40,6 +43,20 @@ module Types
 
     def is_active
       !object.is_hidden
+    end
+
+    def interest_rate
+      object.interest_rate&.to_f
+    end
+
+    def minimum_payment
+      return nil unless object.minimum_payment_cents&.positive?
+      object.minimum_payment_cents / 100.0
+    end
+
+    def credit_limit
+      return nil unless object.credit_limit_cents&.positive?
+      object.credit_limit_cents / 100.0
     end
   end
 end

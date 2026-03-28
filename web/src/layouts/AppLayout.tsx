@@ -40,6 +40,7 @@ const navigation = [
   { name: 'Categories', href: '/categories', icon: TagIcon },
   { name: 'Investments', href: '/investments', icon: ChartBarIcon },
   { name: 'Net Worth', href: '/net-worth', icon: ChartPieIcon },
+  { name: 'Debt Payoff', href: '/debt-payoff', icon: CreditCardIcon },
   { name: 'Reports', href: '/reports', icon: ChartPieIcon },
   { name: 'Insights', href: '/insights', icon: LightBulbIcon },
   { name: 'Forecast', href: '/forecast', icon: ArrowTrendingUpIcon },
