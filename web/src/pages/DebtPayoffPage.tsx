@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef } from 'react';
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, BarChart, Bar, Legend, Cell,
@@ -193,10 +193,11 @@ export default function DebtPayoffPage() {
   const { plan, loading, error } = useDebtPayoff(debouncedExtra * 100);
 
   // Debounce extra payment changes
+  const debounceRef = useRef<ReturnType<typeof setTimeout>>();
   const handleExtraChange = (value: number) => {
     setExtraPayment(value);
-    const timeout = setTimeout(() => setDebouncedExtra(value), 500);
-    return () => clearTimeout(timeout);
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => setDebouncedExtra(value), 500);
   };
 
   const timelineData = useMemo(() => {

@@ -24,15 +24,16 @@ class Debt::PayoffPlannerService < ApplicationService
     minimum_plan = calculate_plan(debts, :minimum_only)
 
     extra = extra_payment_cents || 0
+    total_debt = debts.sum { |d| d[:balance_cents] }
 
     success(
       debts: debts.map { |d| debt_summary(d) },
-      total_debt_cents: debts.sum { |d| d[:balance_cents] },
+      total_debt_cents: total_debt,
       total_minimum_cents: debts.sum { |d| d[:minimum_cents] },
       extra_payment_cents: extra,
-      snowball: plan_summary(snowball_plan, 'snowball'),
-      avalanche: plan_summary(avalanche_plan, 'avalanche'),
-      minimum_only: plan_summary(minimum_plan, 'minimum_only'),
+      snowball: plan_summary(snowball_plan, 'snowball', total_debt),
+      avalanche: plan_summary(avalanche_plan, 'avalanche', total_debt),
+      minimum_only: plan_summary(minimum_plan, 'minimum_only', total_debt),
       interest_saved_snowball_cents: minimum_plan[:total_interest] - snowball_plan[:total_interest],
       interest_saved_avalanche_cents: minimum_plan[:total_interest] - avalanche_plan[:total_interest],
       months_saved_snowball: minimum_plan[:months] - snowball_plan[:months],
@@ -152,15 +153,12 @@ class Debt::PayoffPlannerService < ApplicationService
     }
   end
 
-  def plan_summary(plan, strategy_name)
+  def plan_summary(plan, strategy_name, total_debt)
     {
       strategy: strategy_name,
       months_to_payoff: plan[:months],
       total_interest_cents: plan[:total_interest],
-      total_cost_cents: plan[:total_interest] + household.accounts
-        .where(account_type: %w[credit_card loan mortgage other_liability])
-        .where('current_balance_cents > 0')
-        .sum(:current_balance_cents),
+      total_cost_cents: plan[:total_interest] + total_debt,
       payoff_date: Date.current + plan[:months].months,
       timeline: plan[:timeline]
     }
