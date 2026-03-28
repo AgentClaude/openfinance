@@ -1051,3 +1051,95 @@ export const GET_ANNUAL_SUMMARY = gql`
     }
   }
 `;
+
+export const GET_MONTHLY_RECAP = gql`
+  query MonthlyRecap($month: String) {
+    monthlyRecap(month: $month) {
+      month
+      income {
+        total
+        previousMonth
+        change
+        changePercentage
+        topSources { name amount count }
+      }
+      expenses {
+        total
+        previousMonth
+        change
+        changePercentage
+        dailyAverage
+        transactionCount
+      }
+      savings {
+        amount
+        rate
+        previousAmount
+        previousRate
+      }
+      netWorth {
+        current
+        startOfMonth
+        change
+        changePercentage
+        assets
+        liabilities
+      }
+      budgetPerformance {
+        hasBudget
+        totalBudgeted
+        totalSpent
+        remaining
+        percentUsed
+        onTrack
+        categoriesOverBudget
+        categories {
+          categoryName
+          categoryIcon
+          budgeted
+          spent
+          remaining
+          percentUsed
+          overBudget
+        }
+      }
+      categoryBreakdown {
+        categoryId
+        categoryName
+        categoryIcon
+        categoryColor
+        amount
+        percentage
+        transactionCount
+        previousAmount
+        change
+        changePercentage
+      }
+      topMerchants {
+        merchantName
+        amount
+        transactionCount
+      }
+      recurringSummary {
+        totalRecurringExpenses
+        totalRecurringIncome
+        billsDueCount
+        billsPaidCount
+        upcoming { name amount dueDate isPaid }
+      }
+      notableTransactions {
+        largestExpense { id name amount date categoryName accountName }
+        largestIncome { id name amount date categoryName accountName }
+        unusualTransactions { id name amount date categoryName accountName }
+      }
+      comparison {
+        incomeChange
+        expenseChange
+        savingsChange
+        transactionCount
+        previousTransactionCount
+      }
+      dailySpending { date amount }
+    }
+  }
+`;

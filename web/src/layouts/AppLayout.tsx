@@ -45,6 +45,7 @@ const navigation = [
   { name: 'Insights', href: '/insights', icon: LightBulbIcon },
   { name: 'Forecast', href: '/forecast', icon: ArrowTrendingUpIcon },
   { name: 'Health', href: '/health', icon: HeartIcon },
+  { name: 'Monthly Recap', href: '/monthly-recap', icon: CalendarDaysIcon },
   { name: 'Year in Review', href: '/year-in-review', icon: CalendarDaysIcon },
   { name: 'Import', href: '/import', icon: ArrowUpTrayIcon },
   { name: 'Rules', href: '/rules', icon: BoltIcon },
