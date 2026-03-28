@@ -32,6 +32,8 @@ class Account < ApplicationRecord
   validates :currency, inclusion: { in: %w[USD EUR GBP CAD AUD] }, allow_blank: true
   validates :mask, format: { with: /\A\d{4}\z/ }, allow_blank: true
   validates :current_balance, presence: true, numericality: true
+  validates :interest_rate, numericality: { greater_than_or_equal_to: 0, less_than_or_equal_to: 100 }, allow_nil: true
+  validates :minimum_payment_cents, numericality: { greater_than_or_equal_to: 0 }, allow_nil: true
 
   # Enums
   enum :account_type, {

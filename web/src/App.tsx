@@ -40,6 +40,7 @@ import ForecastPage from '@/pages/ForecastPage';
 import PricingPage from '@/pages/PricingPage';
 import ReferralLandingPage from '@/pages/ReferralLandingPage';
 import AnnualSummaryPage from '@/pages/AnnualSummaryPage';
+import DebtPayoffPage from '@/pages/DebtPayoffPage';
 
 function App() {
   return (
@@ -83,6 +84,7 @@ function App() {
                   <Route path="health" element={<FinancialHealthPage />} />
                   <Route path="forecast" element={<ForecastPage />} />
                   <Route path="year-in-review" element={<AnnualSummaryPage />} />
+                  <Route path="debt-payoff" element={<DebtPayoffPage />} />
                   <Route path="settings" element={<SettingsPage />} />
                 </Route>
 

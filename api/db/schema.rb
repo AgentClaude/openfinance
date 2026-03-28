@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_03_24_225200) do
+ActiveRecord::Schema[8.0].define(version: 2026_03_28_045913) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -76,6 +76,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_03_24_225200) do
     t.jsonb "metadata", default: {}
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.decimal "interest_rate", precision: 5, scale: 2
+    t.integer "minimum_payment_cents", default: 0
     t.index ["account_subtype"], name: "index_accounts_on_account_subtype"
     t.index ["account_type"], name: "index_accounts_on_account_type"
     t.index ["connection_id"], name: "index_accounts_on_connection_id"

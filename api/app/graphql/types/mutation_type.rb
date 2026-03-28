@@ -94,5 +94,8 @@ module Types
     field :change_plan, mutation: Mutations::ChangePlan
     field :cancel_subscription, mutation: Mutations::CancelSubscription
     field :reactivate_subscription, mutation: Mutations::ReactivateSubscription
+
+    # Debt management
+    field :update_debt_details, mutation: Mutations::UpdateDebtDetails
   end
 end

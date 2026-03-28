@@ -894,6 +894,24 @@ module Types
       context[:current_user].household.subscription
     end
 
+    # ── Debt Payoff Planner ──────────────────────────────────────────
+    field :debt_payoff_plan, Types::DebtPayoffPlanType, null: true,
+      description: 'Debt payoff plan comparing snowball, avalanche, and minimum-only strategies' do
+      argument :extra_payment_cents, Integer, required: false, default_value: 0
+    end
+    def debt_payoff_plan(extra_payment_cents:)
+      household = context[:current_user]&.household
+      return nil unless household
+
+      result = Debt::PayoffPlannerService.call(
+        household: household,
+        extra_payment_cents: extra_payment_cents
+      )
+      return nil if result.failure?
+
+      result.data
+    end
+
     private
 
     def latest_holdings(account_id: nil)
