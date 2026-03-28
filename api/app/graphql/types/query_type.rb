@@ -894,6 +894,21 @@ module Types
       context[:current_user].household.subscription
     end
 
+    # ── Monthly Recap ─────────────────────────────────────────────
+    field :monthly_recap, Types::MonthlyRecapType, null: false,
+      description: 'Comprehensive monthly financial recap with income, expenses, savings, budget performance, and comparisons' do
+      argument :month, String, required: false, description: 'Month in YYYY-MM format (defaults to current month)'
+    end
+    def monthly_recap(month: nil)
+      household = context[:current_user]&.household
+      return empty_monthly_recap unless household
+
+      result = Analytics::MonthlyRecapService.call(household: household, month: month)
+      return empty_monthly_recap if result.failure?
+
+      result.data
+    end
+
     # ── Debt Payoff Planner ──────────────────────────────────────────
     field :debt_payoff_plan, Types::DebtPayoffPlanType, null: true,
       description: 'Debt payoff plan comparing snowball, avalanche, and minimum-only strategies' do
@@ -958,6 +973,23 @@ module Types
         highlights: { biggest_expense: nil, biggest_income: nil, most_frequent_merchant: nil, biggest_spending_month: nil, most_frugal_month: nil, goals_achieved: 0 },
         transaction_count: 0,
         days_tracked: 0
+      }
+    end
+
+    def empty_monthly_recap
+      {
+        month: Date.current.strftime('%Y-%m'),
+        income: { total: 0.0, previous_month: 0.0, change: 0.0, change_percentage: 0.0, top_sources: [] },
+        expenses: { total: 0.0, previous_month: 0.0, change: 0.0, change_percentage: 0.0, daily_average: 0.0, transaction_count: 0 },
+        savings: { amount: 0.0, rate: 0.0, previous_amount: 0.0, previous_rate: 0.0 },
+        net_worth: { current: 0.0, start_of_month: 0.0, change: 0.0, change_percentage: 0.0, assets: 0.0, liabilities: 0.0 },
+        budget_performance: { has_budget: false, total_budgeted: 0.0, total_spent: 0.0, remaining: 0.0, on_track: true, categories: [] },
+        category_breakdown: [],
+        top_merchants: [],
+        recurring_summary: { total_recurring_expenses: 0.0, total_recurring_income: 0.0, bills_due_count: 0, bills_paid_count: 0, upcoming: [] },
+        notable_transactions: { largest_expense: nil, largest_income: nil, unusual_transactions: [] },
+        comparison: { income_change: 0.0, expense_change: 0.0, savings_change: 0.0, transaction_count: 0, previous_transaction_count: 0 },
+        daily_spending: []
       }
     end
 

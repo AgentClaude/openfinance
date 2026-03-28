@@ -41,6 +41,7 @@ import PricingPage from '@/pages/PricingPage';
 import ReferralLandingPage from '@/pages/ReferralLandingPage';
 import AnnualSummaryPage from '@/pages/AnnualSummaryPage';
 import DebtPayoffPage from '@/pages/DebtPayoffPage';
+import MonthlyRecapPage from '@/pages/MonthlyRecapPage';
 
 function App() {
   return (
@@ -85,6 +86,7 @@ function App() {
                   <Route path="forecast" element={<ForecastPage />} />
                   <Route path="year-in-review" element={<AnnualSummaryPage />} />
                   <Route path="debt-payoff" element={<DebtPayoffPage />} />
+                  <Route path="monthly-recap" element={<MonthlyRecapPage />} />
                   <Route path="settings" element={<SettingsPage />} />
                 </Route>
 
