@@ -179,7 +179,7 @@ export interface TaxSummary {
 export function useTaxSummary(year?: number, filingStatus?: string) {
   const { data, loading, error, refetch } = useQuery<{ taxSummary: TaxSummary }>(GET_TAX_SUMMARY, {
     variables: { year, filingStatus },
-    fetchPolicy: 'network-only',
+    fetchPolicy: 'cache-and-network',
   });
 
   return {

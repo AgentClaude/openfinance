@@ -29,6 +29,16 @@ class Tax::SummaryService < ApplicationService
     { min: 751_600, max: Float::INFINITY, rate: 0.37 }
   ].freeze
 
+  BRACKETS_HOH = [
+    { min: 0,       max: 17_000,   rate: 0.10 },
+    { min: 17_000,  max: 64_850,   rate: 0.12 },
+    { min: 64_850,  max: 103_350,  rate: 0.22 },
+    { min: 103_350, max: 197_300,  rate: 0.24 },
+    { min: 197_300, max: 250_500,  rate: 0.32 },
+    { min: 250_500, max: 626_350,  rate: 0.35 },
+    { min: 626_350, max: Float::INFINITY, rate: 0.37 }
+  ].freeze
+
   STANDARD_DEDUCTION = {
     'single' => 15_000,
     'married' => 30_000,
@@ -74,6 +84,8 @@ class Tax::SummaryService < ApplicationService
     'local tax' => :state_local_taxes
   }.freeze
 
+  VALID_FILING_STATUSES = %w[single married head_of_household].freeze
+
   SELF_EMPLOYMENT_TAX_RATE = 0.153 # 15.3% (Social Security 12.4% + Medicare 2.9%)
   SE_TAX_THRESHOLD = 400 # Self-employment tax applies above $400
 
@@ -82,6 +94,9 @@ class Tax::SummaryService < ApplicationService
 
     @year = (year || Date.current.year).to_i
     @filing_status = (filing_status || 'single').to_s
+    unless VALID_FILING_STATUSES.include?(@filing_status)
+      return failure("Invalid filing status: #{@filing_status}. Must be one of: #{VALID_FILING_STATUSES.join(', ')}")
+    end
     @start_date = Date.new(@year, 1, 1)
     @end_date = Date.new(@year, 12, 31)
 
@@ -108,6 +123,10 @@ class Tax::SummaryService < ApplicationService
   end
 
   def compute_income_summary
+    @income_summary ||= compute_income_summary!
+  end
+
+  def compute_income_summary!
     income_txns = @txns.select { |t| t.amount_cents > 0 }
 
     classified = {
@@ -145,6 +164,10 @@ class Tax::SummaryService < ApplicationService
   end
 
   def compute_deduction_summary
+    @deduction_summary ||= compute_deduction_summary!
+  end
+
+  def compute_deduction_summary!
     expense_txns = @txns.select { |t| t.amount_cents < 0 }
 
     classified = {
@@ -199,7 +222,7 @@ class Tax::SummaryService < ApplicationService
     deduction_amount = deductions[:recommended_deduction]
     taxable_income = [agi - deduction_amount, 0].max
 
-    brackets = @filing_status == 'married' ? BRACKETS_MARRIED : BRACKETS_SINGLE
+    brackets = brackets_for_status
     federal_tax = calculate_tax_from_brackets(taxable_income, brackets)
     effective_rate = gross_income > 0 ? (federal_tax / gross_income * 100).round(1) : 0.0
     marginal_rate = find_marginal_rate(taxable_income, brackets)
@@ -330,6 +353,14 @@ class Tax::SummaryService < ApplicationService
   end
 
   # ── Helpers ──────────────────────────────────────────────────
+
+  def brackets_for_status
+    case @filing_status
+    when 'married' then BRACKETS_MARRIED
+    when 'head_of_household' then BRACKETS_HOH
+    else BRACKETS_SINGLE
+    end
+  end
 
   def classify_income(txn)
     cat_name = txn.category&.name&.downcase || ''
