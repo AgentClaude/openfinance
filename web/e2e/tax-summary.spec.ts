@@ -101,10 +101,10 @@ test.describe('Tax Summary', () => {
 
   test('quarterly tab shows all four quarters', async ({ page }) => {
     await page.getByLabel(/quarterly tab/i).click();
-    await expect(page.getByText('Q1')).toBeVisible({ timeout: 10000 });
-    await expect(page.getByText('Q2')).toBeVisible();
-    await expect(page.getByText('Q3')).toBeVisible();
-    await expect(page.getByText('Q4')).toBeVisible();
+    await expect(page.getByRole('cell', { name: 'Q1' })).toBeVisible({ timeout: 10000 });
+    await expect(page.getByRole('cell', { name: 'Q2' })).toBeVisible();
+    await expect(page.getByRole('cell', { name: 'Q3' })).toBeVisible();
+    await expect(page.getByRole('cell', { name: 'Q4' })).toBeVisible();
   });
 
   test('brackets tab shows bracket details', async ({ page }) => {
