@@ -894,6 +894,22 @@ module Types
       context[:current_user].household.subscription
     end
 
+    # ── Tax Summary ────────────────────────────────────────────────
+    field :tax_summary, Types::TaxSummaryType, null: false,
+      description: 'Tax summary with income classification, deductions, and estimated liability' do
+      argument :year, Integer, required: false, description: 'Tax year (defaults to current year)'
+      argument :filing_status, String, required: false, description: 'Filing status: single, married, head_of_household'
+    end
+    def tax_summary(year: nil, filing_status: nil)
+      household = context[:current_user]&.household
+      return empty_tax_summary unless household
+
+      result = Tax::SummaryService.call(household: household, year: year, filing_status: filing_status)
+      return empty_tax_summary if result.failure?
+
+      result.data
+    end
+
     # ── Monthly Recap ─────────────────────────────────────────────
     field :monthly_recap, Types::MonthlyRecapType, null: false,
       description: 'Comprehensive monthly financial recap with income, expenses, savings, budget performance, and comparisons' do
@@ -990,6 +1006,19 @@ module Types
         notable_transactions: { largest_expense: nil, largest_income: nil, unusual_transactions: [] },
         comparison: { income_change: 0.0, expense_change: 0.0, savings_change: 0.0, transaction_count: 0, previous_transaction_count: 0 },
         daily_spending: []
+      }
+    end
+
+    def empty_tax_summary
+      {
+        year: Date.current.year,
+        filing_status: 'single',
+        income_summary: { total: 0.0, buckets: [] },
+        deduction_summary: { standard_deduction: 15_000.0, itemized_total: 0.0, should_itemize: false, recommended_deduction: 15_000.0, buckets: [] },
+        tax_estimate: { gross_income: 0.0, adjustments: 0.0, agi: 0.0, deduction_amount: 15_000.0, deduction_type: 'standard', taxable_income: 0.0, federal_tax: 0.0, self_employment_tax: 0.0, total_estimated_tax: 0.0, effective_rate: 0.0, marginal_rate: 10.0, bracket_breakdown: [] },
+        quarterly_breakdown: [],
+        category_details: [],
+        tips: []
       }
     end
 
