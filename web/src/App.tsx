@@ -42,6 +42,7 @@ import ReferralLandingPage from '@/pages/ReferralLandingPage';
 import AnnualSummaryPage from '@/pages/AnnualSummaryPage';
 import DebtPayoffPage from '@/pages/DebtPayoffPage';
 import MonthlyRecapPage from '@/pages/MonthlyRecapPage';
+import TaxSummaryPage from '@/pages/TaxSummaryPage';
 
 function App() {
   return (
@@ -87,6 +88,7 @@ function App() {
                   <Route path="year-in-review" element={<AnnualSummaryPage />} />
                   <Route path="debt-payoff" element={<DebtPayoffPage />} />
                   <Route path="monthly-recap" element={<MonthlyRecapPage />} />
+                  <Route path="tax-summary" element={<TaxSummaryPage />} />
                   <Route path="settings" element={<SettingsPage />} />
                 </Route>
 
