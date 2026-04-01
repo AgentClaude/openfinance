@@ -68,6 +68,7 @@ const navigationGroups: NavGroup[] = [
       { name: 'Spending Heatmap', href: '/spending-heatmap', icon: ChartBarSquareIcon },
       { name: 'Forecast', href: '/forecast', icon: ArrowTrendingUpIcon },
       { name: 'Health Score', href: '/health', icon: HeartIcon },
+      { name: 'Savings Rate', href: '/savings-rate', icon: BanknotesIcon },
     ],
   },
   {
