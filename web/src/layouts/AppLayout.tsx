@@ -22,38 +22,80 @@ import {
   ArrowTrendingUpIcon,
   CalendarDaysIcon,
   DocumentTextIcon,
+  CalculatorIcon,
+  FireIcon,
+  ChartBarSquareIcon,
 } from '@heroicons/react/24/outline';
 import { useAuth } from '@/hooks/useAuth';
-import Sidebar from '@/components/ui/Sidebar';
+import Sidebar, { type NavGroup } from '@/components/ui/Sidebar';
 import Avatar from '@/components/ui/Avatar';
 import Dropdown from '@/components/ui/Dropdown';
 import NotificationBell from '@/components/NotificationBell';
 import CommandPalette from '@/components/CommandPalette';
 import { Transition } from '@headlessui/react';
 
-const navigation = [
-  { name: 'Dashboard', href: '/dashboard', icon: HomeIcon },
-  { name: 'Transactions', href: '/transactions', icon: CreditCardIcon },
-  { name: 'Accounts', href: '/accounts', icon: BanknotesIcon },
-  { name: 'Goals', href: '/goals', icon: FlagIcon },
-  { name: 'Budget', href: '/budget', icon: ChartBarIcon },
-  { name: 'Recurring', href: '/recurring', icon: ArrowPathIcon },
-  { name: 'Categories', href: '/categories', icon: TagIcon },
-  { name: 'Investments', href: '/investments', icon: ChartBarIcon },
-  { name: 'Net Worth', href: '/net-worth', icon: ChartPieIcon },
-  { name: 'Debt Payoff', href: '/debt-payoff', icon: CreditCardIcon },
-  { name: 'Reports', href: '/reports', icon: ChartPieIcon },
-  { name: 'Insights', href: '/insights', icon: LightBulbIcon },
-  { name: 'Forecast', href: '/forecast', icon: ArrowTrendingUpIcon },
-  { name: 'Health', href: '/health', icon: HeartIcon },
-  { name: 'Monthly Recap', href: '/monthly-recap', icon: CalendarDaysIcon },
-  { name: 'Year in Review', href: '/year-in-review', icon: CalendarDaysIcon },
-  { name: 'Tax Summary', href: '/tax-summary', icon: DocumentTextIcon },
-  { name: 'Import', href: '/import', icon: ArrowUpTrayIcon },
-  { name: 'Rules', href: '/rules', icon: BoltIcon },
-  { name: 'Merchants', href: '/merchant-mappings', icon: ArrowsRightLeftIcon },
-  { name: 'Activity', href: '/activity', icon: ClockIcon },
-  { name: 'Settings', href: '/settings', icon: CogIcon },
+const navigationGroups: NavGroup[] = [
+  {
+    label: 'Main',
+    flat: true,
+    items: [
+      { name: 'Dashboard', href: '/dashboard', icon: HomeIcon },
+    ],
+  },
+  {
+    label: 'Money',
+    items: [
+      { name: 'Transactions', href: '/transactions', icon: CreditCardIcon },
+      { name: 'Accounts', href: '/accounts', icon: BanknotesIcon },
+      { name: 'Budget', href: '/budget', icon: ChartBarIcon },
+      { name: 'Recurring', href: '/recurring', icon: ArrowPathIcon },
+      { name: 'Goals', href: '/goals', icon: FlagIcon },
+    ],
+  },
+  {
+    label: 'Wealth',
+    items: [
+      { name: 'Net Worth', href: '/net-worth', icon: ChartPieIcon },
+      { name: 'Investments', href: '/investments', icon: ArrowTrendingUpIcon },
+      { name: 'Debt Payoff', href: '/debt-payoff', icon: CalculatorIcon },
+    ],
+  },
+  {
+    label: 'Analytics',
+    items: [
+      { name: 'Reports', href: '/reports', icon: ChartPieIcon },
+      { name: 'Insights', href: '/insights', icon: LightBulbIcon },
+      { name: 'Spending Heatmap', href: '/spending-heatmap', icon: ChartBarSquareIcon },
+      { name: 'Forecast', href: '/forecast', icon: ArrowTrendingUpIcon },
+      { name: 'Health Score', href: '/health', icon: HeartIcon },
+    ],
+  },
+  {
+    label: 'Summaries',
+    items: [
+      { name: 'Monthly Recap', href: '/monthly-recap', icon: CalendarDaysIcon },
+      { name: 'Year in Review', href: '/year-in-review', icon: CalendarDaysIcon },
+      { name: 'Tax Summary', href: '/tax-summary', icon: DocumentTextIcon },
+      { name: 'FIRE Calculator', href: '/fire-calculator', icon: FireIcon },
+    ],
+  },
+  {
+    label: 'Tools',
+    items: [
+      { name: 'Import', href: '/import', icon: ArrowUpTrayIcon },
+      { name: 'Categories', href: '/categories', icon: TagIcon },
+      { name: 'Rules', href: '/rules', icon: BoltIcon },
+      { name: 'Merchants', href: '/merchant-mappings', icon: ArrowsRightLeftIcon },
+      { name: 'Activity', href: '/activity', icon: ClockIcon },
+    ],
+  },
+  {
+    label: 'Settings',
+    flat: true,
+    items: [
+      { name: 'Settings', href: '/settings', icon: CogIcon },
+    ],
+  },
 ];
 
 const AppLayout: React.FC = () => {
@@ -127,7 +169,7 @@ const AppLayout: React.FC = () => {
                   </button>
                 </div>
               </Transition.Child>
-              <Sidebar navigation={navigation} onItemClick={() => setSidebarOpen(false)} />
+              <Sidebar groups={navigationGroups} onItemClick={() => setSidebarOpen(false)} />
             </div>
           </Transition.Child>
         </div>
@@ -136,7 +178,7 @@ const AppLayout: React.FC = () => {
       {/* Desktop sidebar */}
       <div className="hidden md:flex md:flex-shrink-0">
         <Sidebar 
-          navigation={navigation} 
+          groups={navigationGroups} 
           isCollapsed={sidebarCollapsed}
           onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
         />
@@ -159,7 +201,6 @@ const AppLayout: React.FC = () => {
             <div className="flex-1 flex items-center">
               <button
                 onClick={() => {
-                  // Trigger Cmd+K
                   window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true }));
                 }}
                 className="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
@@ -174,7 +215,6 @@ const AppLayout: React.FC = () => {
             <div className="ml-4 flex items-center md:ml-6 space-x-4">
               <NotificationBell />
               
-              {/* Profile dropdown */}
               <Dropdown
                 triggerLabel="User menu"
                 trigger={
@@ -188,7 +228,6 @@ const AppLayout: React.FC = () => {
                 align="right"
               />
               
-              {/* Household name */}
               {user?.household && (
                 <div className="hidden md:flex flex-col items-end">
                   <div className="text-sm font-medium text-gray-900 dark:text-gray-100">

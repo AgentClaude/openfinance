@@ -925,6 +925,56 @@ module Types
       result.data
     end
 
+    # ── FIRE Calculator ──────────────────────────────────────────────
+    field :fire_calculator, Types::FireCalculatorType, null: false,
+      description: 'FIRE (Financial Independence, Retire Early) calculator with projections and scenarios' do
+      argument :current_age, Integer, required: false
+      argument :retirement_age, Integer, required: false
+      argument :annual_return_rate, Float, required: false
+      argument :withdrawal_rate, Float, required: false
+      argument :inflation_rate, Float, required: false
+    end
+    def fire_calculator(current_age: nil, retirement_age: nil, annual_return_rate: nil, withdrawal_rate: nil, inflation_rate: nil)
+      household = context[:current_user]&.household
+      empty = {
+        summary: { fire_number: 0, coast_fire_number: 0, coast_fire_age: nil, years_to_fire: nil, fire_age: nil,
+                   savings_rate: 0, monthly_savings: 0, progress_percent: 0, current_age: current_age || 30,
+                   retirement_age: retirement_age || 65, withdrawal_rate: withdrawal_rate || 4.0,
+                   annual_return_rate: annual_return_rate || 7.0, inflation_rate: inflation_rate || 3.0 },
+        financials: { monthly_income: 0, monthly_expenses: 0, monthly_savings: 0, annual_income: 0,
+                      annual_expenses: 0, annual_savings: 0, invested_assets: 0, total_net_worth: 0 },
+        projections: [], scenarios: [], milestones: [], tips: []
+      }
+      return empty unless household
+
+      result = Analytics::FireCalculatorService.call(
+        household: household,
+        current_age: current_age,
+        retirement_age: retirement_age,
+        annual_return_rate: annual_return_rate,
+        withdrawal_rate: withdrawal_rate,
+        inflation_rate: inflation_rate
+      )
+      return empty if result.failure?
+
+      result.data
+    end
+
+    # ── Spending Heatmap ────────────────────────────────────────────
+    field :spending_heatmap, Types::SpendingHeatmapType, null: false,
+      description: 'Daily spending heatmap with weekday averages, category breakdown, streaks, and stats' do
+      argument :year, Integer, required: false, description: 'Year to display (defaults to current year)'
+    end
+    def spending_heatmap(year: nil)
+      household = context[:current_user]&.household
+      return empty_spending_heatmap unless household
+
+      result = Analytics::SpendingHeatmapService.call(household: household, year: year)
+      return empty_spending_heatmap if result.failure?
+
+      result.data
+    end
+
     # ── Debt Payoff Planner ──────────────────────────────────────────
     field :debt_payoff_plan, Types::DebtPayoffPlanType, null: true,
       description: 'Debt payoff plan comparing snowball, avalanche, and minimum-only strategies' do
@@ -1019,6 +1069,18 @@ module Types
         quarterly_breakdown: [],
         category_details: [],
         tips: []
+      }
+    end
+
+    def empty_spending_heatmap
+      {
+        year: Date.current.year,
+        daily_spending: [],
+        weekday_averages: (0..6).map { |d| { day_of_week: d, day_name: %w[Sunday Monday Tuesday Wednesday Thursday Friday Saturday][d], average: 0.0, total: 0.0, count: 0 } },
+        monthly_totals: [],
+        category_heatmap: [],
+        stats: { total_spent: 0.0, days_tracked: 0, spending_days: 0, no_spend_days: 0, daily_average: 0.0, max_day_amount: 0.0, max_day_date: nil, min_spending_day_amount: 0.0 },
+        streaks: { longest_no_spend_days: 0, longest_no_spend_start: nil, longest_no_spend_end: nil, current_no_spend_streak: 0 }
       }
     end
 

@@ -1143,3 +1143,54 @@ export const GET_MONTHLY_RECAP = gql`
     }
   }
 `;
+
+export const GET_SPENDING_HEATMAP = gql`
+  query SpendingHeatmap($year: Int) {
+    spendingHeatmap(year: $year) {
+      year
+      dailySpending {
+        date
+        amount
+        dayOfWeek
+        week
+      }
+      weekdayAverages {
+        dayOfWeek
+        dayName
+        average
+        total
+        count
+      }
+      monthlyTotals {
+        month
+        amount
+      }
+      categoryHeatmap {
+        categoryId
+        categoryName
+        categoryIcon
+        categoryColor
+        months {
+          month
+          amount
+        }
+      }
+      stats {
+        totalSpent
+        daysTracked
+        spendingDays
+        noSpendDays
+        dailyAverage
+        maxDayAmount
+        maxDayDate
+        minSpendingDayAmount
+      }
+      streaks {
+        longestNoSpendDays
+        longestNoSpendStart
+        longestNoSpendEnd
+        currentNoSpendStreak
+      }
+    }
+  }
+`;
