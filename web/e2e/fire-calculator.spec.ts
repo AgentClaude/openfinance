@@ -35,8 +35,9 @@ test.describe('FIRE Calculator', () => {
   });
 
   test('shows savings rate stat', async ({ page }) => {
-    await expect(page.getByText('Savings Rate')).toBeVisible({ timeout: 10000 });
-    await expect(page.getByText('Monthly Savings').first()).toBeVisible();
+    const main = page.locator('main');
+    await expect(main.getByText('Savings Rate')).toBeVisible({ timeout: 10000 });
+    await expect(main.getByText('Monthly Savings').first()).toBeVisible();
   });
 
   test('navigates between tabs', async ({ page }) => {

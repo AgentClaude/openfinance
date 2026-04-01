@@ -11,8 +11,9 @@ test.describe('Account Detail Page', () => {
   });
 
   test('can navigate to account detail from accounts page', async ({ page }) => {
-    // Click the first account link
-    const accountLink = page.getByRole('link').filter({ hasText: /checking|savings|credit|freedom/i }).first();
+    // Scope to main content area to avoid matching sidebar links like "Savings Rate"
+    const main = page.locator('main');
+    const accountLink = main.getByRole('link').filter({ hasText: /checking|savings|credit|freedom/i }).first();
     if (await accountLink.isVisible({ timeout: 5000 }).catch(() => false)) {
       await accountLink.click();
       await page.waitForLoadState('networkidle');
@@ -22,7 +23,8 @@ test.describe('Account Detail Page', () => {
   });
 
   test('shows account name and balance', async ({ page }) => {
-    const accountLink = page.getByRole('link').filter({ hasText: /checking|savings|credit|freedom/i }).first();
+    const main = page.locator('main');
+    const accountLink = main.getByRole('link').filter({ hasText: /checking|savings|credit|freedom/i }).first();
     if (await accountLink.isVisible({ timeout: 5000 }).catch(() => false)) {
       await accountLink.click();
       await page.waitForLoadState('networkidle');
@@ -31,13 +33,14 @@ test.describe('Account Detail Page', () => {
       await expect(page.getByText(/\$[\d,.]+/).first()).toBeVisible({ timeout: 10000 });
       // Should show back button or account name
       await expect(
-        page.getByText(/checking|savings|credit|freedom/i).first()
+        main.getByText(/checking|savings|credit|freedom/i).first()
       ).toBeVisible({ timeout: 5000 });
     }
   });
 
   test('shows balance history chart', async ({ page }) => {
-    const accountLink = page.getByRole('link').filter({ hasText: /checking|savings|credit|freedom/i }).first();
+    const main = page.locator('main');
+    const accountLink = main.getByRole('link').filter({ hasText: /checking|savings|credit|freedom/i }).first();
     if (await accountLink.isVisible({ timeout: 5000 }).catch(() => false)) {
       await accountLink.click();
       await page.waitForLoadState('networkidle');
@@ -51,7 +54,8 @@ test.describe('Account Detail Page', () => {
   });
 
   test('shows recent transactions for the account', async ({ page }) => {
-    const accountLink = page.getByRole('link').filter({ hasText: /checking|savings|credit|freedom/i }).first();
+    const main = page.locator('main');
+    const accountLink = main.getByRole('link').filter({ hasText: /checking|savings|credit|freedom/i }).first();
     if (await accountLink.isVisible({ timeout: 5000 }).catch(() => false)) {
       await accountLink.click();
       await page.waitForLoadState('networkidle');
@@ -64,7 +68,8 @@ test.describe('Account Detail Page', () => {
   });
 
   test('shows account type badge', async ({ page }) => {
-    const accountLink = page.getByRole('link').filter({ hasText: /checking|savings|credit|freedom/i }).first();
+    const main = page.locator('main');
+    const accountLink = main.getByRole('link').filter({ hasText: /checking|savings|credit|freedom/i }).first();
     if (await accountLink.isVisible({ timeout: 5000 }).catch(() => false)) {
       await accountLink.click();
       await page.waitForLoadState('networkidle');
@@ -76,7 +81,8 @@ test.describe('Account Detail Page', () => {
   });
 
   test('has back navigation button', async ({ page }) => {
-    const accountLink = page.getByRole('link').filter({ hasText: /checking|savings|credit|freedom/i }).first();
+    const main = page.locator('main');
+    const accountLink = main.getByRole('link').filter({ hasText: /checking|savings|credit|freedom/i }).first();
     if (await accountLink.isVisible({ timeout: 5000 }).catch(() => false)) {
       await accountLink.click();
       await page.waitForLoadState('networkidle');
@@ -90,7 +96,8 @@ test.describe('Account Detail Page', () => {
   });
 
   test('shows adjust balance button for manual accounts', async ({ page }) => {
-    const accountLink = page.getByRole('link').filter({ hasText: /checking|savings|credit|freedom/i }).first();
+    const main = page.locator('main');
+    const accountLink = main.getByRole('link').filter({ hasText: /checking|savings|credit|freedom/i }).first();
     if (await accountLink.isVisible({ timeout: 5000 }).catch(() => false)) {
       await accountLink.click();
       await page.waitForLoadState('networkidle');
