@@ -33,6 +33,8 @@ class Analytics::SpendingHeatmapService < ApplicationService
     @expense_txns = household.transactions
       .where(date: @start_date..@end_date)
       .where('amount_cents < 0')
+      .where(excluded: [false, nil])
+      .where(is_transfer: [false, nil])
 
     @daily_amounts = @expense_txns
       .group(:date)
@@ -100,7 +102,7 @@ class Analytics::SpendingHeatmapService < ApplicationService
 
     return [] if top_cats.empty?
 
-    cats_by_id = Category.where(id: top_cats).index_by(&:id)
+    cats_by_id = household.categories.where(id: top_cats).index_by(&:id)
 
     # Monthly spending per category
     monthly_cat = @expense_txns

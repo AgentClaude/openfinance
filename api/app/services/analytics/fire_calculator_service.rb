@@ -192,12 +192,15 @@ class Analytics::FireCalculatorService < ApplicationService
     (0..50).each do |year|
       age = current_age + year
 
+      newly_reached = !fire_reached && balance >= fire_number
+      fire_reached = true if newly_reached
+
       projections << {
         year: year,
         age: age,
         portfolio_value: balance.round(0),
         fire_number: fire_number.round(0),
-        is_fire_reached: balance >= fire_number && !fire_reached.tap { fire_reached = balance >= fire_number }
+        is_fire_reached: newly_reached
       }
 
       balance = balance * (1 + real_return) + annual_savings

@@ -243,12 +243,6 @@ const HeatmapGrid: React.FC<HeatmapGridProps> = ({ days, year }) => {
     return { grid: weeks, maxAmount: max };
   }, [days, year]);
 
-  const [_tooltip, setTooltip] = useState<{
-    day: HeatmapDay;
-    x: number;
-    y: number;
-  } | null>(null);
-
   return (
     <Card className="overflow-x-auto">
       <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
@@ -295,17 +289,6 @@ const HeatmapGrid: React.FC<HeatmapGridProps> = ({ days, year }) => {
                     ? intensityColors[getIntensity(day.amount, maxAmount)]
                     : 'bg-transparent'
                 )}
-                onMouseEnter={(e) => {
-                  if (day) {
-                    const rect = e.currentTarget.getBoundingClientRect();
-                    setTooltip({
-                      day,
-                      x: rect.left + rect.width / 2,
-                      y: rect.top,
-                    });
-                  }
-                }}
-                onMouseLeave={() => setTooltip(null)}
                 title={
                   day
                     ? `${day.date}: ${formatCurrency(day.amount)}`

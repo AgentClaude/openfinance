@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   FireIcon,
   ChartBarIcon,
@@ -50,13 +50,18 @@ const FireCalculatorPage: React.FC = () => {
   const [annualReturnRate, setAnnualReturnRate] = useState(7.0);
   const [inflationRate, setInflationRate] = useState(3.0);
 
-  const { data, loading } = useFireCalculator({
-    currentAge,
-    retirementAge,
-    withdrawalRate,
-    annualReturnRate,
-    inflationRate,
+  // Debounce params to avoid refetching on every keystroke
+  const [debouncedParams, setDebouncedParams] = useState({
+    currentAge, retirementAge, withdrawalRate, annualReturnRate, inflationRate,
   });
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedParams({ currentAge, retirementAge, withdrawalRate, annualReturnRate, inflationRate });
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [currentAge, retirementAge, withdrawalRate, annualReturnRate, inflationRate]);
+
+  const { data, loading } = useFireCalculator(debouncedParams);
 
   if (loading) {
     return (
