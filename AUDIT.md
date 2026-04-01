@@ -1,6 +1,6 @@
 # OpenFinance Accessibility Audit Report
 
-_Generated: 2026-03-24T22:55:24.063Z_
+_Generated: 2026-03-31T11:32:50.154Z_
 _Tool: axe-core via @axe-core/playwright_
 _Standards: WCAG 2.0 A/AA, WCAG 2.1 A/AA_
 
@@ -9,7 +9,7 @@ _Standards: WCAG 2.0 A/AA, WCAG 2.1 A/AA_
 | Metric | Count |
 |--------|-------|
 | Pages scanned | 21 |
-| Total rules passed | 450 |
+| Total rules passed | 453 |
 | Total violations | 26 |
 | Critical | 0 |
 | Serious | 26 |
@@ -17,7 +17,7 @@ _Standards: WCAG 2.0 A/AA, WCAG 2.1 A/AA_
 | Minor | 0 |
 | Unique violation types | 2 |
 
-**Accessibility Score: 95%** (450 passes / 476 total checks)
+**Accessibility Score: 95%** (453 passes / 479 total checks)
 
 ## Page-by-Page Summary
 
@@ -33,14 +33,14 @@ _Standards: WCAG 2.0 A/AA, WCAG 2.1 A/AA_
 | 🟠 Budget | `/budget` | 1 | 21 | 95% |
 | 🟠 Categories | `/categories` | 1 | 21 | 95% |
 | 🟠 Rules | `/rules` | 1 | 21 | 95% |
-| 🟠 Merchant Mappings | `/merchant-mappings` | 1 | 19 | 95% |
+| 🟠 Merchant Mappings | `/merchant-mappings` | 1 | 20 | 95% |
 | 🟠 Recurring | `/recurring` | 1 | 20 | 95% |
 | 🟠 Reports | `/reports` | 2 | 26 | 93% |
 | 🟠 Net Worth | `/net-worth` | 1 | 27 | 96% |
 | 🟠 Investments | `/investments` | 2 | 25 | 93% |
-| 🟠 Import | `/import` | 1 | 22 | 96% |
+| 🟠 Import | `/import` | 1 | 23 | 96% |
 | 🟠 Goals | `/goals` | 1 | 21 | 95% |
-| 🟠 Notifications | `/notifications` | 1 | 19 | 95% |
+| 🟠 Notifications | `/notifications` | 1 | 20 | 95% |
 | 🟠 Activity | `/activity` | 1 | 20 | 95% |
 | 🟠 Financial Health | `/health` | 1 | 21 | 95% |
 | 🟠 Settings | `/settings` | 1 | 23 | 96% |
@@ -53,7 +53,7 @@ _Standards: WCAG 2.0 A/AA, WCAG 2.1 A/AA_
 
 Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds
 
-- **Instances:** 1
+- **Instances:** 4
 - **Pages affected:** Landing Page, Login, Register, Docs, Dashboard, Accounts, Budget, Categories, Rules, Merchant Mappings, Recurring, Reports, Net Worth, Investments, Import, Goals, Notifications, Activity, Financial Health, Settings
 - **Reference:** [https://dequeuniversity.com/rules/axe/4.11/color-contrast?application=playwright](https://dequeuniversity.com/rules/axe/4.11/color-contrast?application=playwright)
 

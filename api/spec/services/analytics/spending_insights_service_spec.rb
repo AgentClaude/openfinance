@@ -1,6 +1,10 @@
 require 'rails_helper'
 
 RSpec.describe Analytics::SpendingInsightsService do
+  # Freeze to mid-month so date-relative test data (beginning_of_month + N.days)
+  # falls within the current-month query window and projections are stable.
+  around { |example| travel_to(Time.zone.local(2026, 1, 20, 12, 0, 0)) { example.run } }
+
   let(:household) { create(:household) }
   let(:user) { create(:user, household: household) }
   let(:checking) { create(:account, household: household, account_type: 'checking', current_balance_cents: 500_000) }
