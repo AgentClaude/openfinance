@@ -43,6 +43,8 @@ import AnnualSummaryPage from '@/pages/AnnualSummaryPage';
 import DebtPayoffPage from '@/pages/DebtPayoffPage';
 import MonthlyRecapPage from '@/pages/MonthlyRecapPage';
 import TaxSummaryPage from '@/pages/TaxSummaryPage';
+import FireCalculatorPage from '@/pages/FireCalculatorPage';
+import SpendingHeatmapPage from '@/pages/SpendingHeatmapPage';
 
 function App() {
   return (
@@ -89,6 +91,8 @@ function App() {
                   <Route path="debt-payoff" element={<DebtPayoffPage />} />
                   <Route path="monthly-recap" element={<MonthlyRecapPage />} />
                   <Route path="tax-summary" element={<TaxSummaryPage />} />
+                  <Route path="fire-calculator" element={<FireCalculatorPage />} />
+                  <Route path="spending-heatmap" element={<SpendingHeatmapPage />} />
                   <Route path="settings" element={<SettingsPage />} />
                 </Route>
 
