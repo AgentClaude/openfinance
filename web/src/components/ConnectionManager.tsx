@@ -157,8 +157,6 @@ const ConnectionManager: React.FC = () => {
   if (loading || connections.length === 0) return null;
 
   const hasIssues = connections.some(c => c.status !== 'active' || c.consentExpiresSoon);
-  // Always show connections section so users can see sync status and trigger manual syncs
-  const alwaysShow = true;
 
   return (
     <div className="mb-8">
