@@ -25,6 +25,7 @@ import {
   CalculatorIcon,
   FireIcon,
   ChartBarSquareIcon,
+  QueueListIcon,
 } from '@heroicons/react/24/outline';
 import { useAuth } from '@/hooks/useAuth';
 import Sidebar, { type NavGroup } from '@/components/ui/Sidebar';
@@ -49,6 +50,7 @@ const navigationGroups: NavGroup[] = [
       { name: 'Accounts', href: '/accounts', icon: BanknotesIcon },
       { name: 'Budget', href: '/budget', icon: ChartBarIcon },
       { name: 'Recurring', href: '/recurring', icon: ArrowPathIcon },
+      { name: 'Subscriptions', href: '/subscriptions', icon: QueueListIcon },
       { name: 'Goals', href: '/goals', icon: FlagIcon },
     ],
   },
