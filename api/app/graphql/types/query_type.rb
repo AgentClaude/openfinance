@@ -12,13 +12,13 @@ module Types
       user.referral_code || Referrals::GenerateReferralCode.new(user).call
     end
 
-    field :referrals, [Types::ReferralType], null: false, max_page_size: 100
+    field :referrals, [Types::ReferralType], null: false, connection: false, max_page_size: 100
     def referrals
       return [] unless context[:current_user]
       context[:current_user].referrals_given.includes(:referred_user).order(created_at: :desc)
     end
 
-    field :household_members, [Types::HouseholdMemberType], null: false, max_page_size: 50
+    field :household_members, [Types::HouseholdMemberType], null: false, connection: false, max_page_size: 50
     def household_members
       return [] unless context[:current_user]&.household
 
@@ -57,13 +57,13 @@ module Types
       invitation
     end
 
-    field :household_invitations, [Types::InvitationType], null: false, max_page_size: 50
+    field :household_invitations, [Types::InvitationType], null: false, connection: false, max_page_size: 50
     def household_invitations
       return [] unless context[:current_user]&.household
       context[:current_user].household.invitations.pending.where('expires_at > ?', Time.current).order(created_at: :desc)
     end
 
-    field :goals, [Types::GoalType], null: false, max_page_size: 100 do
+    field :goals, [Types::GoalType], null: false, connection: false, max_page_size: 100 do
       argument :active_only, Boolean, required: false, default_value: false
     end
     def goals(active_only: false)
@@ -73,7 +73,7 @@ module Types
       scope
     end
 
-    field :accounts, [Types::AccountType], null: false, max_page_size: 100
+    field :accounts, [Types::AccountType], null: false, connection: false, max_page_size: 100
     def accounts
       return [] unless context[:current_user]&.household
       AccountPolicy::Scope.new(context[:current_user], Account).resolve
@@ -88,7 +88,7 @@ module Types
       AccountPolicy::Scope.new(context[:current_user], Account).resolve.find_by(id: id)
     end
 
-    field :account_balance_history, [Types::AccountBalanceHistoryType], null: false, max_page_size: 500 do
+    field :account_balance_history, [Types::AccountBalanceHistoryType], null: false, connection: false, max_page_size: 500 do
       argument :account_id, ID, required: true
       argument :months, Integer, required: false, default_value: 12
     end
@@ -101,7 +101,7 @@ module Types
         .order(:date)
     end
 
-    field :account_connections, [Types::AccountConnectionType], null: false, max_page_size: 50
+    field :account_connections, [Types::AccountConnectionType], null: false, connection: false, max_page_size: 50
     def account_connections
       return [] unless context[:current_user]&.household
       context[:current_user].household.account_connections
@@ -146,7 +146,7 @@ module Types
       { transactions: txns, total_count: total, has_more: (offset + limit) < total }
     end
 
-    field :categories, [Types::CategoryType], null: false, max_page_size: 100 do
+    field :categories, [Types::CategoryType], null: false, connection: false, max_page_size: 100 do
       argument :include_hidden, Boolean, required: false, default_value: false
     end
     def categories(include_hidden: false)
@@ -157,7 +157,7 @@ module Types
       scope.order(:display_order, :name)
     end
 
-    field :plaid_category_mappings, [Types::PlaidCategoryMappingType], null: false, max_page_size: 200
+    field :plaid_category_mappings, [Types::PlaidCategoryMappingType], null: false, connection: false, max_page_size: 200
     def plaid_category_mappings
       return [] unless context[:current_user]&.household
       context[:current_user].household.plaid_category_mappings
@@ -165,13 +165,13 @@ module Types
         .order(:plaid_primary, :plaid_detailed)
     end
 
-    field :plaid_primary_categories, [String], null: false, max_page_size: 100,
+    field :plaid_primary_categories, [String], null: false, connection: false, max_page_size: 100,
       description: 'List of all Plaid personal finance primary categories'
     def plaid_primary_categories
       PlaidCategoryMapping::PLAID_PRIMARY_CATEGORIES
     end
 
-    field :tags, [Types::TagType], null: false, max_page_size: 100
+    field :tags, [Types::TagType], null: false, connection: false, max_page_size: 100
     def tags
       return [] unless context[:current_user]&.household
       TagPolicy::Scope.new(context[:current_user], Tag).resolve.order(:name)
@@ -233,7 +233,7 @@ module Types
       }
     end
 
-    field :investment_transactions, [Types::InvestmentTransactionType], null: false, max_page_size: 500 do
+    field :investment_transactions, [Types::InvestmentTransactionType], null: false, connection: false, max_page_size: 500 do
       argument :account_id, ID, required: false
       argument :security_id, ID, required: false
       argument :transaction_type, String, required: false
@@ -273,7 +273,7 @@ module Types
       InvestmentTransaction.income_summary(context[:current_user].household, year: year, account_id: account_id)
     end
 
-    field :holdings, [Types::HoldingType], null: false, max_page_size: 500 do
+    field :holdings, [Types::HoldingType], null: false, connection: false, max_page_size: 500 do
       argument :account_id, ID, required: false
     end
     def holdings(account_id: nil)
@@ -323,7 +323,7 @@ module Types
       }
     end
 
-    field :notifications, [Types::NotificationType], null: false, max_page_size: 100 do
+    field :notifications, [Types::NotificationType], null: false, connection: false, max_page_size: 100 do
       argument :unread_only, Boolean, required: false, default_value: false
       argument :limit, Integer, required: false, default_value: 50
     end
@@ -340,13 +340,13 @@ module Types
       context[:current_user].notifications.unread.count
     end
 
-    field :notification_preferences, [Types::NotificationPreferenceType], null: false, max_page_size: 50
+    field :notification_preferences, [Types::NotificationPreferenceType], null: false, connection: false, max_page_size: 50
     def notification_preferences
       return [] unless context[:current_user]
       NotificationPreference.defaults_for(context[:current_user])
     end
 
-    field :activity_feed, [Types::ActivityEventType], null: false, max_page_size: 100 do
+    field :activity_feed, [Types::ActivityEventType], null: false, connection: false, max_page_size: 100 do
       argument :limit, Integer, required: false, default_value: 50
       argument :since, GraphQL::Types::ISO8601DateTime, required: false
     end
@@ -357,25 +357,25 @@ module Types
       scope.limit([limit, 100].min)
     end
 
-    field :api_keys, [Types::ApiKeyType], null: false, max_page_size: 50
+    field :api_keys, [Types::ApiKeyType], null: false, connection: false, max_page_size: 50
     def api_keys
       return [] unless context[:current_user]
       context[:current_user].api_keys.order(created_at: :desc)
     end
 
-    field :share_tokens, [Types::ShareTokenType], null: false, max_page_size: 50
+    field :share_tokens, [Types::ShareTokenType], null: false, connection: false, max_page_size: 50
     def share_tokens
       return [] unless context[:current_user]
       context[:current_user].share_tokens.active.order(created_at: :desc)
     end
 
-    field :merchant_mappings, [Types::MerchantMappingType], null: false, max_page_size: 200
+    field :merchant_mappings, [Types::MerchantMappingType], null: false, connection: false, max_page_size: 200
     def merchant_mappings
       return [] unless context[:current_user]&.household
       context[:current_user].household.merchant_mappings.order(:raw_pattern)
     end
 
-    field :balance_adjustments, [Types::BalanceAdjustmentType], null: false, max_page_size: 100 do
+    field :balance_adjustments, [Types::BalanceAdjustmentType], null: false, connection: false, max_page_size: 100 do
       argument :account_id, ID, required: true
     end
     def balance_adjustments(account_id:)
@@ -385,14 +385,14 @@ module Types
       account.balance_adjustments.ordered
     end
 
-    field :categorization_rules, [Types::CategorizationRuleType], null: false, max_page_size: 200
+    field :categorization_rules, [Types::CategorizationRuleType], null: false, connection: false, max_page_size: 200
     def categorization_rules
       return [] unless context[:current_user]&.household
       CategorizationRulePolicy::Scope.new(context[:current_user], CategorizationRule).resolve
         .by_priority.includes(:category)
     end
 
-    field :suggested_categorization_rules, [Types::SuggestedRuleType], null: false, max_page_size: 100,
+    field :suggested_categorization_rules, [Types::SuggestedRuleType], null: false, connection: false, max_page_size: 100,
       description: "Suggest categorization rules based on manual categorization patterns"
     def suggested_categorization_rules
       return [] unless context[:current_user]&.household
@@ -447,7 +447,7 @@ module Types
       suggestions.sort_by { |s| -s.transaction_count }
     end
 
-    field :recurring_items, [Types::RecurringItemType], null: false, max_page_size: 100 do
+    field :recurring_items, [Types::RecurringItemType], null: false, connection: false, max_page_size: 100 do
       argument :active_only, Boolean, required: false, default_value: false
     end
     def recurring_items(active_only: false)
@@ -458,7 +458,7 @@ module Types
       scope
     end
 
-    field :budget, [Types::BudgetItemType], null: false, max_page_size: 200 do
+    field :budget, [Types::BudgetItemType], null: false, connection: false, max_page_size: 200 do
       argument :month, String, required: true
     end
     def budget(month:)
@@ -578,7 +578,7 @@ module Types
       )
     end
 
-    field :net_worth_history, [Types::NetWorthSnapshotType], null: false, max_page_size: 100 do
+    field :net_worth_history, [Types::NetWorthSnapshotType], null: false, connection: false, max_page_size: 100 do
       argument :months, Integer, required: false, default_value: 12
     end
     def net_worth_history(months: 12)
@@ -630,7 +630,7 @@ module Types
       end
     end
 
-    field :category_trends, [Types::CategoryTrendPointType], null: false, max_page_size: 200 do
+    field :category_trends, [Types::CategoryTrendPointType], null: false, connection: false, max_page_size: 200 do
       argument :category_ids, [ID], required: true
       argument :months, Integer, required: false, default_value: 6
     end
@@ -794,7 +794,7 @@ module Types
       result.except(:success, :error)
     end
 
-    field :portfolio_history, [Types::PortfolioHistoryPointType], null: false, max_page_size: 500 do
+    field :portfolio_history, [Types::PortfolioHistoryPointType], null: false, connection: false, max_page_size: 500 do
       argument :account_id, ID, required: false
       argument :months, Integer, required: false, default_value: 12
     end
@@ -881,7 +881,7 @@ module Types
     end
 
     # ── Subscription & Plans ──────────────────────────────────────
-    field :plans, [Types::PlanType], null: false, max_page_size: 20,
+    field :plans, [Types::PlanType], null: false, connection: false, max_page_size: 20,
       description: "All available subscription plans"
     def plans
       Plan.visible
