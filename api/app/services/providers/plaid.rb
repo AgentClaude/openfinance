@@ -233,7 +233,7 @@ module Providers
           t.merchant_name = txn.merchant_name
           t.is_pending = txn.pending || false
           t.category = map_category(txn.personal_finance_category)
-          t.metadata = { plaid_category: txn.personal_finance_category&.to_hash }
+          t.metadata = { plaid_category: txn.personal_finance_category.respond_to?(:to_hash) ? txn.personal_finance_category.to_hash : txn.personal_finance_category }
         end
         count += 1
       end
@@ -261,7 +261,12 @@ module Providers
 
     def map_category(personal_finance_category)
       return nil unless personal_finance_category
-      primary = personal_finance_category['primary']&.downcase
+      # Plaid gem returns objects with methods, not hashes
+      primary = if personal_finance_category.respond_to?(:primary)
+                  personal_finance_category.primary&.downcase
+                else
+                  personal_finance_category['primary']&.downcase rescue nil
+                end
       mapping = {
         'income' => 'Income', 'transfer_in' => 'Transfer', 'transfer_out' => 'Transfer',
         'loan_payments' => 'Debt Payment', 'bank_fees' => 'Fees & Charges',

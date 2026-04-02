@@ -727,6 +727,16 @@ export const GET_ACCOUNT = gql`
       householdId
       currency
       createdAt
+      connection {
+        id
+        status
+        institutionName
+        lastSyncedAt
+        syncInProgress
+        errorMessage
+        errorDisplayMessage
+        needsReauth
+      }
     }
   }
 `;

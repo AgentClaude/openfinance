@@ -15,6 +15,7 @@ import {
   DISCONNECT_CONNECTION,
   RETRY_CONNECTION_SYNC,
   CREATE_UPDATE_LINK_TOKEN,
+  SYNC_PLAID_CONNECTION,
 } from '@/graphql/mutations';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
@@ -64,9 +65,11 @@ const ConnectionManager: React.FC = () => {
   const [createUpdateLinkToken] = useMutation(CREATE_UPDATE_LINK_TOKEN);
   const { addToast } = useToast();
 
+  const [syncPlaidConnection] = useMutation(SYNC_PLAID_CONNECTION);
   const [confirmDisconnect, setConfirmDisconnect] = useState<string | null>(null);
   const [updateLinkToken, setUpdateLinkToken] = useState<string | null>(null);
   const [updatingConnectionId, setUpdatingConnectionId] = useState<string | null>(null);
+  const [syncingConnectionId, setSyncingConnectionId] = useState<string | null>(null);
 
   // Plaid Link for update mode
   const onUpdateSuccess = useCallback(async () => {
@@ -108,13 +111,33 @@ const ConnectionManager: React.FC = () => {
     }
   };
 
-  const handleRetrySync = async (connectionId: string) => {
+  const handleRetrySync = async (connectionId: string, provider: string) => {
     try {
-      await retrySync({ variables: { connectionId } });
-      addToast({ type: 'success', title: 'Sync started', message: 'Transaction sync has been triggered.' });
-      refetch();
-    } catch (err: any) {
-      addToast({ type: 'error', title: 'Error', message: err.message || 'Failed to retry sync' });
+      if (provider === 'plaid') {
+        setSyncingConnectionId(connectionId);
+        const result = await syncPlaidConnection({ variables: { connectionId } });
+        const syncData = result.data?.syncPlaidConnection;
+        if (syncData?.success) {
+          const added = syncData.addedCount || 0;
+          const modified = syncData.modifiedCount || 0;
+          const message = added > 0
+            ? `Synced ${added} new transaction${added !== 1 ? 's' : ''}${modified > 0 ? ` and updated ${modified}` : ''}`
+            : 'Sync complete — no new transactions';
+          addToast({ type: 'success', title: 'Sync complete', message });
+        } else {
+          addToast({ type: 'error', title: 'Sync failed', message: syncData?.errorMessage || 'Failed to sync' });
+        }
+        setSyncingConnectionId(null);
+        refetch();
+      } else {
+        await retrySync({ variables: { connectionId } });
+        addToast({ type: 'success', title: 'Sync started', message: 'Transaction sync has been triggered.' });
+        refetch();
+      }
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Failed to sync';
+      addToast({ type: 'error', title: 'Error', message });
+      setSyncingConnectionId(null);
     }
   };
 
@@ -217,9 +240,9 @@ const ConnectionManager: React.FC = () => {
                     </Button>
                   )}
 
-                  {conn.status === 'active' && !conn.syncInProgress && (
+                  {conn.status === 'active' && !conn.syncInProgress && syncingConnectionId !== conn.id && (
                     <button
-                      onClick={() => handleRetrySync(conn.id)}
+                      onClick={() => handleRetrySync(conn.id, conn.provider)}
                       className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400 hover:text-gray-600"
                       title="Sync now"
                     >
@@ -227,8 +250,16 @@ const ConnectionManager: React.FC = () => {
                     </button>
                   )}
 
+                  {syncingConnectionId === conn.id && (
+                    <span className="flex items-center gap-1.5 text-sm text-brand-600">
+                      <ArrowPathIcon className="h-4 w-4 animate-spin" />
+                      Syncing...
+                    </span>
+                  )}
+
                   {conn.status === 'error' && !conn.needsReauth && (
-                    <Button size="sm" variant="secondary" onClick={() => handleRetrySync(conn.id)}>
+                    <Button size="sm" variant="secondary" onClick={() => handleRetrySync(conn.id, conn.provider)}
+                      disabled={syncingConnectionId === conn.id}>
                       <ArrowPathIcon className="h-3.5 w-3.5 mr-1" />
                       Retry
                     </Button>
