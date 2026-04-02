@@ -16,6 +16,11 @@ module Types
     field :interest_rate, Float, null: true
     field :minimum_payment, Float, null: true
     field :credit_limit, Float, null: true
+    field :connection, Types::AccountConnectionType, null: true
+
+    def connection
+      object.connection
+    end
 
     ACCOUNT_TYPE_MAP = {
       'checking' => 'DEPOSITORY', 'savings' => 'DEPOSITORY', 'money_market' => 'DEPOSITORY', 'cd' => 'DEPOSITORY',

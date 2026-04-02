@@ -70,6 +70,7 @@ module Types
     # Plaid connection management
     field :disconnect_connection, mutation: Mutations::DisconnectConnection
     field :retry_connection_sync, mutation: Mutations::RetryConnectionSync
+    field :sync_plaid_connection, mutation: Mutations::SyncPlaidConnection
     field :create_update_link_token, mutation: Mutations::CreateUpdateLinkToken
     field :send_test_digest, mutation: Mutations::SendTestDigest
 

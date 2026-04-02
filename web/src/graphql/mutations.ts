@@ -978,6 +978,26 @@ export const CREATE_UPDATE_LINK_TOKEN = gql`
   }
 `;
 
+export const SYNC_PLAID_CONNECTION = gql`
+  mutation SyncPlaidConnection($connectionId: ID!) {
+    syncPlaidConnection(connectionId: $connectionId) {
+      success
+      addedCount
+      modifiedCount
+      removedCount
+      errorMessage
+      connection {
+        id
+        status
+        lastSyncedAt
+        syncInProgress
+        errorMessage
+        errorDisplayMessage
+      }
+    }
+  }
+`;
+
 export const CREATE_MERCHANT_MAPPING = gql`
   mutation CreateMerchantMapping($rawPattern: String!, $cleanName: String!, $matchType: String) {
     createMerchantMapping(rawPattern: $rawPattern, cleanName: $cleanName, matchType: $matchType) {

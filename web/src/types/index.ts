@@ -15,6 +15,17 @@ export interface Household {
   preferences?: Record<string, unknown>;
 }
 
+export interface AccountConnectionInfo {
+  id: string;
+  status: string;
+  institutionName: string;
+  lastSyncedAt: string | null;
+  syncInProgress: boolean;
+  errorMessage: string | null;
+  errorDisplayMessage: string | null;
+  needsReauth: boolean;
+}
+
 export interface Account {
   id: string;
   name: string;
@@ -29,6 +40,7 @@ export interface Account {
   householdId: string;
   currency?: string;
   createdAt?: string;
+  connection?: AccountConnectionInfo | null;
 }
 
 export enum AccountType {

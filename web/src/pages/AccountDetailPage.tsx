@@ -1,15 +1,19 @@
 import React, { useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useQuery } from '@apollo/client';
+import { useQuery, useMutation } from '@apollo/client';
 import { GET_ACCOUNT, GET_ACCOUNT_BALANCE_HISTORY, GET_TRANSACTIONS } from '@/graphql/queries';
 import { Account, AccountType } from '@/types';
 import {
   ArrowLeftIcon,
+  ArrowPathIcon,
   BanknotesIcon,
   CreditCardIcon,
   HomeIcon,
   ChartBarIcon,
   PencilIcon,
+  CheckCircleIcon,
+  ExclamationTriangleIcon,
+  ClockIcon,
 } from '@heroicons/react/24/outline';
 import {
   XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Area, AreaChart,
@@ -23,7 +27,10 @@ import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import EmptyState from '@/components/ui/EmptyState';
 import AdjustBalanceModal from '@/components/AdjustBalanceModal';
 import BalanceHistory from '@/components/BalanceHistory';
+import { useToast } from '@/components/ui/Toast';
+import { SYNC_PLAID_CONNECTION } from '@/graphql/mutations';
 import { usePageTitle } from '@/hooks/usePageTitle';
+import { formatDistanceToNow } from 'date-fns';
 
 const accountTypeIcons: Record<string, React.ElementType> = {
   [AccountType.DEPOSITORY]: BanknotesIcon,
@@ -58,6 +65,9 @@ const AccountDetailPage: React.FC = () => {
   const navigate = useNavigate();
   const [selectedRange, setSelectedRange] = useState(12);
   const [adjustAccount, setAdjustAccount] = useState<{ id: string; name: string; balance: number } | null>(null);
+  const [syncing, setSyncing] = useState(false);
+  const [syncPlaidConnection] = useMutation(SYNC_PLAID_CONNECTION);
+  const { addToast } = useToast();
 
   const { data: accountData, loading: accountLoading } = useQuery(GET_ACCOUNT, {
     variables: { id },
@@ -77,6 +87,29 @@ const AccountDetailPage: React.FC = () => {
   const account: Account | null = accountData?.account || null;
   const balanceHistory = historyData?.accountBalanceHistory || [];
   const transactions = txData?.transactions?.transactions || [];
+
+  const handleSync = async () => {
+    if (!account?.connection?.id) return;
+    try {
+      setSyncing(true);
+      const result = await syncPlaidConnection({ variables: { connectionId: account.connection.id } });
+      const syncData = result.data?.syncPlaidConnection;
+      if (syncData?.success) {
+        const added = syncData.addedCount || 0;
+        const message = added > 0
+          ? `Synced ${added} new transaction${added !== 1 ? 's' : ''}`
+          : 'No new transactions found';
+        addToast({ type: 'success', title: 'Sync complete', message });
+      } else {
+        addToast({ type: 'error', title: 'Sync failed', message: syncData?.errorMessage || 'Failed to sync' });
+      }
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Failed to sync';
+      addToast({ type: 'error', title: 'Error', message });
+    } finally {
+      setSyncing(false);
+    }
+  };
 
   const chartData = useMemo(() => {
     if (balanceHistory.length === 0) return [];
@@ -221,6 +254,51 @@ const AccountDetailPage: React.FC = () => {
           View All Transactions
         </Button>
       </div>
+
+      {/* Connection Status (for Plaid-linked accounts) */}
+      {account.connection && (
+        <Card>
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-1">
+                Connection Status
+              </h2>
+              <div className="flex items-center gap-3 text-sm text-gray-500 dark:text-gray-400">
+                <span className="flex items-center gap-1.5">
+                  {account.connection.status === 'active' ? (
+                    <CheckCircleIcon className="h-4 w-4 text-green-500" />
+                  ) : (
+                    <ExclamationTriangleIcon className="h-4 w-4 text-red-500" />
+                  )}
+                  <span className="capitalize">{account.connection.status}</span>
+                  <span className="text-gray-300 dark:text-gray-600">·</span>
+                  {account.connection.institutionName}
+                </span>
+                <span className="flex items-center gap-1">
+                  <ClockIcon className="h-3.5 w-3.5" />
+                  {account.connection.lastSyncedAt
+                    ? `Synced ${formatDistanceToNow(new Date(account.connection.lastSyncedAt), { addSuffix: true })}`
+                    : 'Never synced'}
+                </span>
+              </div>
+              {account.connection.errorDisplayMessage && (
+                <p className="mt-2 text-sm text-red-600 dark:text-red-400">
+                  {account.connection.errorDisplayMessage}
+                </p>
+              )}
+            </div>
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={handleSync}
+              disabled={syncing || account.connection.syncInProgress}
+            >
+              <ArrowPathIcon className={`h-4 w-4 mr-1.5 ${syncing ? 'animate-spin' : ''}`} />
+              {syncing ? 'Syncing...' : 'Sync Now'}
+            </Button>
+          </div>
+        </Card>
+      )}
 
       {/* Recent Transactions */}
       <Card>
