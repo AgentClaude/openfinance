@@ -975,6 +975,31 @@ module Types
       result.data
     end
 
+    # ── Savings Rate & Income Allocation ─────────────────────────────
+    field :savings_rate, Types::SavingsRateType, null: false,
+      description: 'Savings rate trends, 50/30/20 allocation analysis, and income breakdown' do
+      argument :months, Integer, required: false, default_value: 12, description: 'Number of months to analyze (3-36)'
+    end
+    def savings_rate(months: 12)
+      household = context[:current_user]&.household
+      empty = {
+        summary: { current_savings_rate: 0, average_savings_rate: 0, best_month: nil, worst_month: nil,
+                   trend_direction: 'stable', percentile: 10, months_analyzed: 0, total_saved: 0, average_monthly_savings: 0 },
+        monthly_trends: [], allocation: { needs: { amount: 0, percent: 0, target_percent: 50, status: 'good' },
+          wants: { amount: 0, percent: 0, target_percent: 30, status: 'good' },
+          savings: { amount: 0, percent: 0, target_percent: 20, status: 'good' },
+          other_expenses: { amount: 0, percent: 0 }, avg_monthly_income: 0 },
+        income_sources: [], expense_allocation: [], streaks: { positive_savings_months: 0, above_20_percent_months: 0, total_months: 0 },
+        recommendations: []
+      }
+      return empty unless household
+
+      result = Analytics::SavingsRateService.call(household: household, months: months)
+      return empty if result.failure?
+
+      result.data
+    end
+
     # ── Subscription Tracker ────────────────────────────────────────
     field :subscription_tracker, Types::SubscriptionTrackerType, null: false,
       description: 'Subscription tracker with cost analysis, category breakdown, price changes, and savings opportunities'
