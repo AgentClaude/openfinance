@@ -47,6 +47,7 @@ import FireCalculatorPage from '@/pages/FireCalculatorPage';
 import SpendingHeatmapPage from '@/pages/SpendingHeatmapPage';
 import SavingsRatePage from '@/pages/SavingsRatePage';
 import SubscriptionsPage from '@/pages/SubscriptionsPage';
+import SpendingComparisonPage from '@/pages/SpendingComparisonPage';
 
 function App() {
   return (
@@ -97,6 +98,7 @@ function App() {
                   <Route path="spending-heatmap" element={<SpendingHeatmapPage />} />
                   <Route path="savings-rate" element={<SavingsRatePage />} />
                   <Route path="subscriptions" element={<SubscriptionsPage />} />
+                  <Route path="spending-comparison" element={<SpendingComparisonPage />} />
                   <Route path="settings" element={<SettingsPage />} />
                 </Route>
 
