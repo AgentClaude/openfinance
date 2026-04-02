@@ -48,7 +48,7 @@ const formatFrequency = (freq: string) => {
 };
 
 const SubscriptionGridView: React.FC<{ subscriptions: TrackedSubscription[] }> = ({ subscriptions }) => (
-  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+  <div data-testid="subscriptions-grid" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
     {subscriptions.map((sub) => (
       <Card key={sub.id} className="p-4 hover:shadow-md transition-shadow">
         <div className="flex items-start justify-between mb-3">

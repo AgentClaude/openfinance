@@ -42,7 +42,7 @@ test.describe('Subscriptions Page', () => {
 
       // Switch to grid view
       await gridBtn.click();
-      await expect(page.locator('.grid.grid-cols-1')).toBeVisible({ timeout: 5000 });
+      await expect(page.getByTestId('subscriptions-grid')).toBeVisible({ timeout: 5000 });
 
       // Switch back to list view
       await listBtn.click();
