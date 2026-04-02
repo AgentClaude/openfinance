@@ -975,6 +975,25 @@ module Types
       result.data
     end
 
+    # ── Subscription Tracker ────────────────────────────────────────
+    field :subscription_tracker, Types::SubscriptionTrackerType, null: false,
+      description: 'Subscription tracker with cost analysis, category breakdown, price changes, and savings opportunities'
+    def subscription_tracker
+      household = context[:current_user]&.household
+      empty = {
+        subscriptions: [], summary: { total_monthly: 0.0, total_annual: 0.0, total_daily: 0.0,
+          subscription_count: 0, most_expensive: nil, cheapest: nil, average_monthly: 0.0 },
+        category_breakdown: [], price_changes: [], savings_opportunities: [],
+        cost_per_day: 0.0, generated_at: Time.current.iso8601
+      }
+      return empty unless household
+
+      result = Analytics::SubscriptionTrackerService.call(household: household)
+      return empty if result.failure?
+
+      result.data
+    end
+
     # ── Debt Payoff Planner ──────────────────────────────────────────
     field :debt_payoff_plan, Types::DebtPayoffPlanType, null: true,
       description: 'Debt payoff plan comparing snowball, avalanche, and minimum-only strategies' do

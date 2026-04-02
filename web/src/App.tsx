@@ -45,6 +45,7 @@ import MonthlyRecapPage from '@/pages/MonthlyRecapPage';
 import TaxSummaryPage from '@/pages/TaxSummaryPage';
 import FireCalculatorPage from '@/pages/FireCalculatorPage';
 import SpendingHeatmapPage from '@/pages/SpendingHeatmapPage';
+import SubscriptionsPage from '@/pages/SubscriptionsPage';
 
 function App() {
   return (
@@ -93,6 +94,7 @@ function App() {
                   <Route path="tax-summary" element={<TaxSummaryPage />} />
                   <Route path="fire-calculator" element={<FireCalculatorPage />} />
                   <Route path="spending-heatmap" element={<SpendingHeatmapPage />} />
+                  <Route path="subscriptions" element={<SubscriptionsPage />} />
                   <Route path="settings" element={<SettingsPage />} />
                 </Route>
 
