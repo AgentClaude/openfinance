@@ -57,7 +57,7 @@ module Types
   end
 
   class SubscriptionSavingsOpportunityType < Types::BaseObject
-    field :type, String, null: false
+    field :opportunity_type, String, null: false, method: :type
     field :title, String, null: false
     field :description, String, null: false
     field :potential_savings_monthly, Float, null: false

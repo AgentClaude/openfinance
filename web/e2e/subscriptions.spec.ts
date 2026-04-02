@@ -42,11 +42,11 @@ test.describe('Subscriptions Page', () => {
 
       // Switch to grid view
       await gridBtn.click();
-      await page.waitForTimeout(500);
+      await expect(page.locator('.grid.grid-cols-1')).toBeVisible({ timeout: 5000 });
 
       // Switch back to list view
       await listBtn.click();
-      await page.waitForTimeout(500);
+      await expect(page.locator('table')).toBeVisible({ timeout: 5000 });
     }
   });
 
@@ -56,7 +56,6 @@ test.describe('Subscriptions Page', () => {
     if (hasData) {
       const savingsTab = page.getByRole('button', { name: /Savings/ });
       await savingsTab.click();
-      await page.waitForTimeout(500);
 
       // Should show savings content or empty state
       const hasSavings = await main.getByText(/Potential Monthly Savings/).isVisible({ timeout: 5000 }).catch(() => false);
@@ -71,7 +70,6 @@ test.describe('Subscriptions Page', () => {
     if (hasData) {
       const changesTab = page.getByRole('button', { name: /Price Changes/ });
       await changesTab.click();
-      await page.waitForTimeout(500);
 
       // Should show changes or empty state
       const hasChanges = await main.getByText(/→/).first().isVisible({ timeout: 5000 }).catch(() => false);

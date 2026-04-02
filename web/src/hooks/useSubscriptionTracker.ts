@@ -61,7 +61,7 @@ export const GET_SUBSCRIPTION_TRACKER = gql`
         direction
       }
       savingsOpportunities {
-        type
+        opportunityType
         title
         description
         potentialSavingsMonthly
@@ -123,7 +123,7 @@ export interface PriceChange {
 }
 
 export interface SavingsOpportunity {
-  type: string;
+  opportunityType: string;
   title: string;
   description: string;
   potentialSavingsMonthly: number;

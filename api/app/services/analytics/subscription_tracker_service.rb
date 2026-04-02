@@ -111,10 +111,10 @@ module Analytics
         changes << {
           id: item.id,
           name: item.name,
-          previous_amount: avg.abs.round(2),
+          previous_amount: avg.round(2),
           current_amount: current.round(2),
           change_amount: diff.round(2),
-          change_percentage: avg.abs > 0 ? ((diff / avg.abs) * 100).round(1) : 0,
+          change_percentage: avg > 0 ? ((diff / avg) * 100).round(1) : 0,
           direction: diff > 0 ? 'increased' : 'decreased',
         }
       end
