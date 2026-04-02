@@ -6,8 +6,14 @@ export const GET_SAVINGS_RATE = gql`
       summary {
         currentSavingsRate
         averageSavingsRate
-        bestMonth
-        worstMonth
+        bestMonth {
+          month
+          savingsRate
+        }
+        worstMonth {
+          month
+          savingsRate
+        }
         trendDirection
         percentile
         monthsAnalyzed
@@ -79,8 +85,8 @@ export const GET_SAVINGS_RATE = gql`
 export interface SavingsRateSummary {
   currentSavingsRate: number;
   averageSavingsRate: number;
-  bestMonth: { month: string; savings_rate: number } | null;
-  worstMonth: { month: string; savings_rate: number } | null;
+  bestMonth: { month: string; savingsRate: number } | null;
+  worstMonth: { month: string; savingsRate: number } | null;
   trendDirection: string;
   percentile: number;
   monthsAnalyzed: number;
@@ -154,7 +160,7 @@ export interface SavingsRateData {
 export function useSavingsRate(months = 12) {
   const { data, loading, error, refetch } = useQuery(GET_SAVINGS_RATE, {
     variables: { months },
-    fetchPolicy: 'network-only',
+    fetchPolicy: 'cache-and-network',
   });
 
   return {

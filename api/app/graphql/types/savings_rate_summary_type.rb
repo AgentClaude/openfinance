@@ -2,8 +2,8 @@ module Types
   class SavingsRateSummaryType < Types::BaseObject
     field :current_savings_rate, Float, null: false
     field :average_savings_rate, Float, null: false
-    field :best_month, GraphQL::Types::JSON, null: true
-    field :worst_month, GraphQL::Types::JSON, null: true
+    field :best_month, Types::SavingsRateMonthSnapshotType, null: true
+    field :worst_month, Types::SavingsRateMonthSnapshotType, null: true
     field :trend_direction, String, null: false
     field :percentile, Integer, null: false
     field :months_analyzed, Integer, null: false

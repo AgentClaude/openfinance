@@ -33,7 +33,16 @@ class Analytics::SavingsRateService < ApplicationService
 
     num_months = (months || DEFAULT_MONTHS).to_i.clamp(3, 36)
 
-    monthly_data = calculate_monthly_data(num_months)
+    # Load all transactions once to avoid redundant DB queries
+    end_date = Date.current.end_of_month
+    start_date = (Date.current - num_months.months).beginning_of_month
+    @all_transactions = household.transactions
+      .where(date: start_date..end_date)
+      .where(excluded: [false, nil])
+      .includes(:category)
+      .to_a
+
+    monthly_data = calculate_monthly_data(start_date, end_date)
     current_month = monthly_data.last
     allocation = calculate_503020(monthly_data)
     income_sources = calculate_income_sources(num_months)
@@ -72,22 +81,16 @@ class Analytics::SavingsRateService < ApplicationService
     }
   end
 
-  def calculate_monthly_data(num_months)
-    end_date = Date.current.end_of_month
-    start_date = (Date.current - num_months.months).beginning_of_month
+  def calculate_monthly_data(start_date, end_date)
+    # Group pre-loaded transactions by month for O(n) instead of O(n × m)
+    txns_by_month = @all_transactions.group_by { |t| t.date.strftime('%Y-%m') }
 
-    transactions = household.transactions
-      .where(date: start_date..end_date)
-      .where(excluded: [false, nil])
-      .includes(:category)
-
-    # Group by month
     months_data = []
     current = start_date
 
     while current <= end_date
-      month_end = current.end_of_month
-      month_txns = transactions.select { |t| t.date >= current && t.date <= month_end }
+      month_key = current.strftime('%Y-%m')
+      month_txns = txns_by_month[month_key] || []
 
       income = month_txns
         .select { |t| t.category&.is_income }
@@ -126,14 +129,14 @@ class Analytics::SavingsRateService < ApplicationService
 
     return default_allocation if avg_income <= 0
 
-    end_date = Date.current.end_of_month
-    start_date = (Date.current - 3.months).beginning_of_month
+    allocation_start = (Date.current - 3.months).beginning_of_month
 
-    transactions = household.transactions
-      .where(date: start_date..end_date)
-      .where(excluded: [false, nil])
-      .includes(:category)
-      .reject { |t| t.category&.is_income || t.category&.group_name == 'Transfer' }
+    # Filter pre-loaded transactions for the 3-month allocation window
+    transactions = @all_transactions.select { |t|
+      t.date >= allocation_start &&
+      !t.category&.is_income &&
+      t.category&.group_name != 'Transfer'
+    }
 
     needs_total = 0
     wants_total = 0
@@ -187,21 +190,16 @@ class Analytics::SavingsRateService < ApplicationService
   end
 
   def calculate_income_sources(num_months)
-    end_date = Date.current.end_of_month
-    start_date = (Date.current - num_months.months).beginning_of_month
+    # Aggregate income from pre-loaded transactions in Ruby
+    income_by_source = @all_transactions
+      .select { |t| t.category&.is_income }
+      .group_by { |t| [t.category&.name, t.category&.icon, t.category&.color] }
+      .transform_values { |txns| txns.sum { |t| t.amount_cents.abs } }
 
-    income_txns = household.transactions
-      .joins(:category)
-      .where(categories: { is_income: true })
-      .where(date: start_date..end_date)
-      .where(excluded: [false, nil])
-      .group('categories.name', 'categories.icon', 'categories.color')
-      .sum(:amount_cents)
-
-    total = income_txns.values.sum(&:abs).to_f
+    total = income_by_source.values.sum.to_f
     return [] if total == 0
 
-    income_txns.map do |(name, icon, color), cents|
+    income_by_source.map do |(name, icon, color), cents|
       amount = cents.abs.to_f / 100
       {
         name: name,
@@ -215,22 +213,16 @@ class Analytics::SavingsRateService < ApplicationService
   end
 
   def calculate_expense_allocation(num_months)
-    end_date = Date.current.end_of_month
-    start_date = (Date.current - num_months.months).beginning_of_month
+    # Aggregate expenses from pre-loaded transactions in Ruby
+    expense_by_group = @all_transactions
+      .reject { |t| t.category&.is_income || t.category&.group_name == 'Transfer' }
+      .group_by { |t| t.category&.group_name }
+      .transform_values { |txns| txns.sum { |t| t.amount_cents.abs } }
 
-    expense_txns = household.transactions
-      .joins(:category)
-      .where(categories: { is_income: false })
-      .where.not(categories: { group_name: 'Transfer' })
-      .where(date: start_date..end_date)
-      .where(excluded: [false, nil])
-      .group('categories.group_name')
-      .sum(:amount_cents)
-
-    total = expense_txns.values.sum(&:abs).to_f
+    total = expense_by_group.values.sum.to_f
     return [] if total == 0
 
-    expense_txns.map do |group, cents|
+    expense_by_group.map do |group, cents|
       amount = cents.abs.to_f / 100
       category_type = if NEEDS_GROUPS.include?(group)
                         'needs'
