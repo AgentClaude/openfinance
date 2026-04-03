@@ -5,13 +5,13 @@ module Mutations
     def resolve
       hh = require_auth!
 
-      service = Rules::ApplyRulesService.new(hh: hh)
+      service = Rules::ApplyRulesService.new(household: hh)
       result = service.call
 
       if result.success?
         { updated_count: result.data[:updated_count] }
       else
-        raise GraphQL::ExecutionError, result.error
+        raise GraphQL::ExecutionError, result.errors.join(", ")
       end
     end
   end
