@@ -727,7 +727,7 @@ export const GET_ACCOUNT = gql`
       householdId
       currency
       createdAt
-      connection {
+      accountConnection {
         id
         status
         institutionName

@@ -40,7 +40,7 @@ export interface Account {
   householdId: string;
   currency?: string;
   createdAt?: string;
-  connection?: AccountConnectionInfo | null;
+  accountConnection?: AccountConnectionInfo | null;
 }
 
 export enum AccountType {

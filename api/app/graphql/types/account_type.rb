@@ -16,9 +16,9 @@ module Types
     field :interest_rate, Float, null: true
     field :minimum_payment, Float, null: true
     field :credit_limit, Float, null: true
-    field :connection, Types::AccountConnectionType, null: true
+    field :account_connection, Types::AccountConnectionType, null: true, connection: false
 
-    def connection
+    def account_connection
       object.connection
     end
 
