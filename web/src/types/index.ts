@@ -41,6 +41,8 @@ export interface Account {
   currency?: string;
   createdAt?: string;
   accountConnection?: AccountConnectionInfo | null;
+  /** Alias used by AccountDetailPage (mapped from accountConnection in GQL) */
+  connection?: AccountConnectionInfo | null;
 }
 
 export enum AccountType {

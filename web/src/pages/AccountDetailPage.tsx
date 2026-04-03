@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation } from '@apollo/client';
-import { GET_ACCOUNT, GET_ACCOUNT_BALANCE_HISTORY, GET_TRANSACTIONS } from '@/graphql/queries';
+import { GET_ACCOUNT, GET_ACCOUNT_BALANCE_HISTORY } from '@/graphql/queries';
 import { Account, AccountType } from '@/types';
 import {
   ArrowLeftIcon,
@@ -22,11 +22,11 @@ import { format, parseISO } from 'date-fns';
 import Card from '@/components/ui/Card';
 import Badge from '@/components/ui/Badge';
 import Button from '@/components/ui/Button';
-import AmountDisplay from '@/components/ui/AmountDisplay';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import EmptyState from '@/components/ui/EmptyState';
 import AdjustBalanceModal from '@/components/AdjustBalanceModal';
 import BalanceHistory from '@/components/BalanceHistory';
+import TransactionList from '@/components/TransactionList';
 import { useToast } from '@/components/ui/Toast';
 import { SYNC_PLAID_CONNECTION } from '@/graphql/mutations';
 import { usePageTitle } from '@/hooks/usePageTitle';
@@ -79,14 +79,14 @@ const AccountDetailPage: React.FC = () => {
     skip: !id,
   });
 
-  const { data: txData, loading: txLoading } = useQuery(GET_TRANSACTIONS, {
-    variables: { accountId: id, limit: 20 },
-    skip: !id,
-  });
-
   const account: Account | null = accountData?.account || null;
   const balanceHistory = historyData?.accountBalanceHistory || [];
-  const transactions = txData?.transactions?.transactions || [];
+
+  const txFilters = useMemo(() => ({
+    accountId: id,
+    page: 1,
+    limit: 50,
+  }), [id]);
 
   const handleSync = async () => {
     if (!account?.connection?.id) return;
@@ -246,13 +246,7 @@ const AccountDetailPage: React.FC = () => {
             Adjust Balance
           </Button>
         )}
-        <Button
-          variant="secondary"
-          size="sm"
-          onClick={() => navigate(`/transactions?accountId=${account.id}`)}
-        >
-          View All Transactions
-        </Button>
+
       </div>
 
       {/* Connection Status (for Plaid-linked accounts) */}
@@ -300,37 +294,11 @@ const AccountDetailPage: React.FC = () => {
         </Card>
       )}
 
-      {/* Recent Transactions */}
-      <Card>
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Recent Transactions</h2>
-        {txLoading ? (
-          <LoadingSpinner />
-        ) : transactions.length === 0 ? (
-          <p className="text-gray-400 dark:text-gray-500 text-sm py-4 text-center">No transactions yet.</p>
-        ) : (
-          <div className="divide-y divide-gray-100 dark:divide-gray-800">
-            {transactions.map((tx: any) => (
-              <div key={tx.id} className="py-3 flex items-center justify-between">
-                <div className="flex-1 min-w-0">
-                  <div className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
-                    {tx.merchantName || tx.description}
-                  </div>
-                  <div className="flex items-center gap-2 mt-0.5">
-                    <span className="text-xs text-gray-500 dark:text-gray-400">
-                      {format(parseISO(tx.date), 'MMM d, yyyy')}
-                    </span>
-                    {tx.category?.name && (
-                      <Badge variant="default" size="sm">{tx.category.name}</Badge>
-                    )}
-                    {tx.pending && <Badge variant="warning" size="sm">Pending</Badge>}
-                  </div>
-                </div>
-                <AmountDisplay amount={tx.amount} size="sm" colorize />
-              </div>
-            ))}
-          </div>
-        )}
-      </Card>
+      {/* Transactions */}
+      <div>
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Transactions</h2>
+        <TransactionList filters={txFilters} hideAccountColumn />
+      </div>
 
       {/* Balance Adjustments (for manual accounts) */}
       {!account.plaidAccountId && <BalanceHistory accountId={account.id} />}
