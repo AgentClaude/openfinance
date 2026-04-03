@@ -7,7 +7,7 @@ module Mutations
     field :modified_count, Integer, null: true
     field :removed_count, Integer, null: true
     field :error_message, String, null: true
-    field :connection, Types::AccountConnectionType, null: true
+    field :connection, Types::AccountConnectionType, null: true, connection: false
 
     def resolve(connection_id:)
       household = require_auth!
@@ -50,7 +50,7 @@ module Mutations
           added_count: nil,
           modified_count: nil,
           removed_count: nil,
-          error_message: result.error_message,
+          error_message: result.errors.join(", "),
           connection: connection.reload
         }
       end
