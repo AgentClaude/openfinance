@@ -27,6 +27,7 @@ import {
   ChartBarSquareIcon,
   QueueListIcon,
   ScaleIcon,
+  LinkIcon,
 } from '@heroicons/react/24/outline';
 import { useAuth } from '@/hooks/useAuth';
 import Sidebar, { type NavGroup } from '@/components/ui/Sidebar';
@@ -91,6 +92,7 @@ const navigationGroups: NavGroup[] = [
       { name: 'Categories', href: '/categories', icon: TagIcon },
       { name: 'Rules', href: '/rules', icon: BoltIcon },
       { name: 'Merchants', href: '/merchant-mappings', icon: ArrowsRightLeftIcon },
+      { name: 'Connections', href: '/connections', icon: LinkIcon },
       { name: 'Activity', href: '/activity', icon: ClockIcon },
     ],
   },

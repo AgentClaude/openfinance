@@ -26,7 +26,7 @@ import { usePlaidLink } from 'react-plaid-link';
 import { useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
 import clsx from 'clsx';
-import ConnectionManager from '@/components/ConnectionManager';
+
 import { usePageTitle } from '@/hooks/usePageTitle';
 
 const accountTypeIcons = {
@@ -182,7 +182,6 @@ const AccountsPage: React.FC = () => {
         }
       />
 
-      <ConnectionManager />
 
       {accounts.length === 0 ? (
         <EmptyState
