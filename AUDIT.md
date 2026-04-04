@@ -1,6 +1,6 @@
 # OpenFinance Accessibility Audit Report
 
-_Generated: 2026-03-31T11:32:50.154Z_
+_Generated: 2026-04-03T23:27:23.149Z_
 _Tool: axe-core via @axe-core/playwright_
 _Standards: WCAG 2.0 A/AA, WCAG 2.1 A/AA_
 
@@ -9,28 +9,28 @@ _Standards: WCAG 2.0 A/AA, WCAG 2.1 A/AA_
 | Metric | Count |
 |--------|-------|
 | Pages scanned | 21 |
-| Total rules passed | 453 |
-| Total violations | 26 |
+| Total rules passed | 452 |
+| Total violations | 22 |
 | Critical | 0 |
-| Serious | 26 |
+| Serious | 22 |
 | Moderate | 0 |
 | Minor | 0 |
 | Unique violation types | 2 |
 
-**Accessibility Score: 95%** (453 passes / 479 total checks)
+**Accessibility Score: 95%** (452 passes / 474 total checks)
 
 ## Page-by-Page Summary
 
 | Page | Path | Violations | Passes | Score |
 |------|------|------------|--------|-------|
-| 🟠 Landing Page | `/` | 2 | 21 | 91% |
-| 🟠 Login | `/login` | 2 | 21 | 91% |
-| 🟠 Register | `/register` | 2 | 21 | 91% |
+| 🟠 Landing Page | `/` | 1 | 21 | 95% |
+| 🟠 Login | `/login` | 1 | 21 | 95% |
+| 🟠 Register | `/register` | 1 | 21 | 95% |
 | 🟠 Docs | `/docs` | 1 | 14 | 93% |
-| 🟠 Dashboard | `/dashboard` | 2 | 21 | 91% |
+| 🟠 Dashboard | `/dashboard` | 1 | 21 | 95% |
 | ✅ Transactions | `/transactions` | 0 | 26 | 100% |
 | 🟠 Accounts | `/accounts` | 1 | 20 | 95% |
-| 🟠 Budget | `/budget` | 1 | 21 | 95% |
+| 🟠 Budget | `/budget` | 1 | 20 | 95% |
 | 🟠 Categories | `/categories` | 1 | 21 | 95% |
 | 🟠 Rules | `/rules` | 1 | 21 | 95% |
 | 🟠 Merchant Mappings | `/merchant-mappings` | 1 | 20 | 95% |
@@ -63,8 +63,8 @@ Ensure the contrast between foreground and background colors meets WCAG 2 AA min
 
 Ensure <svg> elements with an img, graphics-document or graphics-symbol role have accessible text
 
-- **Instances:** 16
-- **Pages affected:** Landing Page, Login, Register, Dashboard, Reports, Investments
+- **Instances:** 10
+- **Pages affected:** Reports, Investments
 - **Reference:** [https://dequeuniversity.com/rules/axe/4.11/svg-img-alt?application=playwright](https://dequeuniversity.com/rules/axe/4.11/svg-img-alt?application=playwright)
 
 ## Clean Pages (No Violations) ✅

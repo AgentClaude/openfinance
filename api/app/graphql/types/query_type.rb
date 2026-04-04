@@ -73,11 +73,14 @@ module Types
       scope
     end
 
-    field :accounts, [Types::AccountType], null: false, connection: false, max_page_size: 100
-    def accounts
+    field :accounts, [Types::AccountType], null: false, connection: false, max_page_size: 100 do
+      argument :include_hidden, Boolean, required: false, default_value: false
+    end
+    def accounts(include_hidden: false)
       return [] unless context[:current_user]&.household
-      AccountPolicy::Scope.new(context[:current_user], Account).resolve
-        .where(is_hidden: false).order(:display_order, :name)
+      scope = AccountPolicy::Scope.new(context[:current_user], Account).resolve
+      scope = scope.where(is_hidden: false) unless include_hidden
+      scope.order(:display_order, :name)
     end
 
     field :account, Types::AccountType, null: true do

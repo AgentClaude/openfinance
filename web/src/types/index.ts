@@ -36,6 +36,13 @@ export interface Account {
   mask?: string;
   officialName?: string;
   isActive: boolean;
+  isHidden?: boolean;
+  isManual?: boolean;
+  displayOrder?: number;
+  interestRate?: number | null;
+  creditLimit?: number | null;
+  minimumPayment?: number | null;
+  availableBalance?: number | null;
   plaidAccountId?: string;
   householdId: string;
   currency?: string;
