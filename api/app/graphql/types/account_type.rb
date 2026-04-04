@@ -68,7 +68,7 @@ module Types
 
     def available_balance
       return nil unless object.available_balance_cents
-      object.available_balance_cents / 100.0
+      (object.available_balance_cents / 100.0).round(2)
     end
 
     def interest_rate

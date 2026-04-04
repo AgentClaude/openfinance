@@ -21,8 +21,6 @@ module Mutations
         return { account: nil, errors: ["Account not found"] }
       end
 
-      authorize(account, :update?)
-
       result = Accounts::UpdateAccountService.call(
         account: account,
         user: current_user,

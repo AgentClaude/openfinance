@@ -184,13 +184,13 @@ const AccountsPage: React.FC = () => {
     if (!editAccount) return;
 
     try {
-      const updates: Record<string, unknown> = { id: editAccount.id };
+      const updates: Parameters<typeof updateAccount>[0] = { id: editAccount.id };
       if (editFormData.name !== editAccount.name) updates.name = editFormData.name;
       if (editFormData.interestRate !== '') updates.interestRate = parseFloat(editFormData.interestRate);
       if (editFormData.creditLimit !== '') updates.creditLimit = parseFloat(editFormData.creditLimit);
       if (editFormData.minimumPayment !== '') updates.minimumPayment = parseFloat(editFormData.minimumPayment);
 
-      await updateAccount(updates as any);
+      await updateAccount(updates);
       addToast({ type: 'success', title: 'Account updated', message: `${editFormData.name} has been updated.` });
       setEditAccount(null);
     } catch (err: any) {
@@ -540,31 +540,34 @@ const AccountCard: React.FC<AccountCardProps> = ({
           )}
         </div>
 
-        {account.creditLimit != null && account.creditLimit > 0 && (
-          <div className="mt-2">
-            <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mb-1">
-              <span>Credit Used</span>
-              <span>
-                {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(Math.abs(account.balance))}
-                {' / '}
-                {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(account.creditLimit)}
-              </span>
+        {account.creditLimit != null && account.creditLimit > 0 && (() => {
+          const utilization = account.creditLimit > 0 ? Math.abs(account.balance) / account.creditLimit : 0;
+          return (
+            <div className="mt-2">
+              <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mb-1">
+                <span>Credit Used</span>
+                <span>
+                  {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(Math.abs(account.balance))}
+                  {' / '}
+                  {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(account.creditLimit)}
+                </span>
+              </div>
+              <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
+                <div
+                  className={clsx(
+                    'h-1.5 rounded-full',
+                    utilization > 0.75
+                      ? 'bg-red-500'
+                      : utilization > 0.5
+                      ? 'bg-yellow-500'
+                      : 'bg-green-500'
+                  )}
+                  style={{ width: `${Math.min(100, utilization * 100)}%` }}
+                />
+              </div>
             </div>
-            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
-              <div
-                className={clsx(
-                  'h-1.5 rounded-full',
-                  Math.abs(account.balance) / account.creditLimit > 0.75
-                    ? 'bg-red-500'
-                    : Math.abs(account.balance) / account.creditLimit > 0.5
-                    ? 'bg-yellow-500'
-                    : 'bg-green-500'
-                )}
-                style={{ width: `${Math.min(100, (Math.abs(account.balance) / account.creditLimit) * 100)}%` }}
-              />
-            </div>
-          </div>
-        )}
+          );
+        })()}
 
         <div className="flex items-center justify-between pt-2">
           <AmountDisplay 
