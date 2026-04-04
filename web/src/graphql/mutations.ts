@@ -1273,3 +1273,50 @@ export const REACTIVATE_SUBSCRIPTION = gql`
     }
   }
 `;
+
+export const UPDATE_ACCOUNT = gql`
+  mutation UpdateAccount(
+    $id: ID!
+    $name: String
+    $isHidden: Boolean
+    $displayOrder: Int
+    $interestRate: Float
+    $creditLimit: Float
+    $minimumPayment: Float
+  ) {
+    updateAccount(
+      id: $id
+      name: $name
+      isHidden: $isHidden
+      displayOrder: $displayOrder
+      interestRate: $interestRate
+      creditLimit: $creditLimit
+      minimumPayment: $minimumPayment
+    ) {
+      account {
+        id
+        name
+        isHidden
+        isManual
+        displayOrder
+        interestRate
+        creditLimit
+        minimumPayment
+      }
+      errors
+    }
+  }
+`;
+
+export const REORDER_ACCOUNTS = gql`
+  mutation ReorderAccounts($accountIds: [ID!]!) {
+    reorderAccounts(accountIds: $accountIds) {
+      accounts {
+        id
+        name
+        displayOrder
+      }
+      errors
+    }
+  }
+`;

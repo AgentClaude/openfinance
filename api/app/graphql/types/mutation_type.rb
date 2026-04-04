@@ -66,6 +66,8 @@ module Types
     field :export_data, mutation: Mutations::ExportData
     field :export_transactions_csv, mutation: Mutations::ExportTransactionsCsv
     field :delete_account, mutation: Mutations::DeleteAccount
+    field :update_account, mutation: Mutations::UpdateAccount
+    field :reorder_accounts, mutation: Mutations::ReorderAccounts
 
     # Plaid connection management
     field :disconnect_connection, mutation: Mutations::DisconnectConnection

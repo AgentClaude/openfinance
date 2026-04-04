@@ -19,8 +19,8 @@ export const ME = gql`
 `;
 
 export const GET_ACCOUNTS = gql`
-  query GetAccounts {
-    accounts {
+  query GetAccounts($includeHidden: Boolean) {
+    accounts(includeHidden: $includeHidden) {
       id
       name
       type
@@ -30,8 +30,16 @@ export const GET_ACCOUNTS = gql`
       mask
       officialName
       isActive
+      isHidden
+      isManual
+      displayOrder
       plaidAccountId
       householdId
+      currency
+      interestRate
+      creditLimit
+      minimumPayment
+      availableBalance
     }
   }
 `;

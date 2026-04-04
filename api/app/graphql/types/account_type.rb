@@ -9,6 +9,9 @@ module Types
     field :mask, String, null: true
     field :official_name, String, null: true
     field :is_active, Boolean, null: false
+    field :is_hidden, Boolean, null: false
+    field :is_manual, Boolean, null: false
+    field :display_order, Integer, null: true
     field :plaid_account_id, String, null: true
     field :household_id, ID, null: false
     field :currency, String, null: false
@@ -16,6 +19,7 @@ module Types
     field :interest_rate, Float, null: true
     field :minimum_payment, Float, null: true
     field :credit_limit, Float, null: true
+    field :available_balance, Float, null: true
     field :account_connection, Types::AccountConnectionType, null: true, connection: false
 
     def account_connection
@@ -48,6 +52,23 @@ module Types
 
     def is_active
       !object.is_hidden
+    end
+
+    def is_hidden
+      object.is_hidden
+    end
+
+    def is_manual
+      object.is_manual
+    end
+
+    def display_order
+      object.display_order
+    end
+
+    def available_balance
+      return nil unless object.available_balance_cents
+      object.available_balance_cents / 100.0
     end
 
     def interest_rate
