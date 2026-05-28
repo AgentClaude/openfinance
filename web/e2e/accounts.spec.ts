@@ -188,7 +188,7 @@ test.describe('Accounts', () => {
           await page.waitForTimeout(500);
 
           // Should see the hidden account
-          await expect(page.getByText(account.name)).toBeVisible();
+          await expect(page.getByRole('heading', { name: account.name, level: 3, exact: true })).toBeVisible();
 
           // Restore it
           const showBtn = page.locator(`[data-testid="toggle-hidden-${account.id}"]`);
