@@ -36,9 +36,9 @@ test.describe('Pricing Page (public)', () => {
       page.getByRole('heading', { name: /Compare plans/ })
     ).toBeVisible({ timeout: 10000 });
     // Check for feature rows
-    await expect(page.getByText('Budgets')).toBeVisible();
-    await expect(page.getByText('Reports & Analytics')).toBeVisible();
-    await expect(page.getByText('Goals Tracking')).toBeVisible();
+    await expect(page.getByRole('cell', { name: 'Budgets' })).toBeVisible();
+    await expect(page.getByRole('cell', { name: 'Reports & Analytics' })).toBeVisible();
+    await expect(page.getByRole('cell', { name: 'Goals Tracking' })).toBeVisible();
   });
 
   test('toggling billing interval updates prices', async ({ page }) => {
@@ -49,15 +49,12 @@ test.describe('Pricing Page (public)', () => {
     await page.getByRole('button', { name: 'Monthly' }).click();
     await page.waitForTimeout(500);
 
-    // Get price text
-    const monthlyPriceText = await page.locator('text=/\\$\\d+/').first().textContent();
-
     // Click Annual
     await page.getByRole('button', { name: /Annual/ }).click();
     await page.waitForTimeout(500);
 
     // Should show Save 17% badge
-    await expect(page.getByText(/Save 17%/)).toBeVisible();
+    await expect(page.getByRole('button', { name: /Annual.*Save 17%/ })).toBeVisible();
   });
 
   test('free plan shows $0', async ({ page }) => {
