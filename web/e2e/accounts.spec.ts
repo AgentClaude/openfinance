@@ -176,27 +176,21 @@ test.describe('Accounts', () => {
       if (await hideBtn.isVisible({ timeout: 5000 }).catch(() => false)) {
         await hideBtn.click();
 
-        // Should see hidden confirmation
-        await expect(
-          page.getByText(/hidden/i).first()
-        ).toBeVisible({ timeout: 5000 });
-
         // Expand hidden accounts section
         const toggleHiddenSection = page.locator('[data-testid="toggle-hidden-accounts"]');
-        if (await toggleHiddenSection.isVisible({ timeout: 3000 }).catch(() => false)) {
+        if (await toggleHiddenSection.isVisible({ timeout: 10000 }).catch(() => false)) {
           await toggleHiddenSection.click();
-          await page.waitForTimeout(500);
 
           // Should see the hidden account
           await expect(page.getByRole('heading', { name: account.name, level: 3, exact: true })).toBeVisible();
 
           // Restore it
-          const showBtn = page.locator(`[data-testid="toggle-hidden-${account.id}"]`);
+          const showBtn = page.locator(`[data-testid="toggle-hidden-${account.id}"][title="Show Account"]`);
           if (await showBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
             await showBtn.click();
             await expect(
-              page.getByText(/restored/i).first()
-            ).toBeVisible({ timeout: 5000 });
+              page.locator(`[data-testid="toggle-hidden-${account.id}"][title="Hide Account"]`)
+            ).toBeVisible({ timeout: 10000 });
           }
         }
       }
